@@ -1,0 +1,193 @@
+/*
+ * ==========================================================
+ * HUI Button CSS - File style độc lập cho Component Nút bấm
+ * ==========================================================
+ */
+
+/* 
+ * 1. :host 
+ * Đây là selector đặc biệt của Shadow DOM. Nó ám chỉ chính bản thân cái thẻ <hui-button> 
+ * nằm ở ngoài DOM thật (Light DOM).
+ * Giống như bạn đang style trực tiếp cho thẻ <div> bao ngoài cùng vậy.
+ */
+:host {
+  display: inline-block; /* Mặc định là inline-block để các nút nằm cạnh nhau */
+  font-family: var(--hui-font-family); /* Sử dụng hằng số CSS từ thẻ root */
+}
+
+/* 
+ * 2. :host([attribute])
+ * Bắt trạng thái khi thẻ <hui-button> có chứa một attribute cụ thể.
+ * Nghĩa là nếu người dùng viết <hui-button block> thì CSS này sẽ chạy.
+ */
+:host([block]) {
+  display: block; /* Chiếm toàn bộ chiều ngang */
+}
+
+:host([block]) .hui-btn {
+  width: 100%; /* Nút bấm bên trong cũng phải giãn ra 100% */
+}
+
+:host([disabled]) {
+  pointer-events: none; /* Vô hiệu hóa mọi thao tác click, hover */
+  opacity: 0.5; /* Làm mờ nút bấm */
+}
+
+/* 
+ * 3. Selector cho các class bên trong Shadow DOM
+ * Những class này (ví dụ: .hui-btn) hoàn toàn bị cô lập. 
+ * Nếu bên ngoài trang web bạn có viết class `.hui-btn { color: red; }` thì nó 
+ * cũng KHÔNG THỂ chọc vào làm đổi màu nút ở đây được.
+ */
+.hui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hui-space-sm);
+  border: 2px solid transparent; /* Viền trong suốt mặc định */
+  border-radius: var(--hui-radius-md); /* Bo góc */
+  font-family: inherit;
+  font-weight: var(--hui-font-weight-semibold, 600); /* Đậm vừa */
+  cursor: pointer;
+  transition: all var(--hui-transition); /* Hiệu ứng mượt mà khi hover */
+  white-space: nowrap; /* Không xuống dòng text trong nút */
+  user-select: none; /* Không cho phép bôi đen text */
+  position: relative;
+  overflow: hidden; /* Giữ hiệu ứng ripple không bị tràn ra ngoài góc bo */
+}
+
+/* 
+ * Hiệu ứng Ripple (gợn sóng) mờ ảo khi click 
+ * Bơm một lớp màu giả lên trên nút bằng ::after
+ */
+.hui-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0; /* Lấp đầy toàn bộ không gian nút */
+  background: currentColor; /* Lấy màu chữ hiện màu nền gợn sóng */
+  opacity: 0; /* Mặc định ẩn */
+  transition: opacity var(--hui-transition-fast);
+}
+
+.hui-btn:active::after {
+  opacity: 0.1; /* Khi chuột bấm xuống (active) thì hiện lớp mờ 10% */
+}
+
+/* ================== SIZES (KÍCH THƯỚC) ================== */
+.hui-btn--sm {
+  padding: var(--hui-space-xs) var(--hui-space-md);
+  font-size: var(--hui-font-sm);
+  min-height: 2rem;
+}
+
+.hui-btn--md {
+  padding: var(--hui-space-sm) var(--hui-space-lg);
+  font-size: var(--hui-font-base);
+  min-height: 2.5rem;
+}
+
+.hui-btn--lg {
+  padding: var(--hui-space-md) var(--hui-space-xl);
+  font-size: var(--hui-font-lg);
+  min-height: 3rem;
+}
+
+/* ================== VARIANTS (PHÂN LOẠI MÀU SẮC) ================== */
+.hui-btn--primary {
+  background: var(--hui-primary);
+  color: var(--hui-text-inverse); /* Chữ màu trắng */
+  border-color: var(--hui-primary);
+}
+
+.hui-btn--primary:hover {
+  background: var(--hui-primary-hover);
+  border-color: var(--hui-primary-hover);
+  box-shadow: var(--hui-shadow-md); /* Đổ bóng khi hover */
+  transform: translateY(-1px); /* Nổi lên đè chút xíu */
+}
+
+.hui-btn--primary:active {
+  background: var(--hui-primary-active);
+  border-color: var(--hui-primary-active);
+  transform: translateY(0); /* Nhấn xuống thì tụt trở lại */
+}
+
+.hui-btn--secondary {
+  background: var(--hui-secondary);
+  color: var(--hui-text-inverse);
+  border-color: var(--hui-secondary);
+}
+
+.hui-btn--secondary:hover {
+  background: var(--hui-secondary-hover);
+  border-color: var(--hui-secondary-hover);
+  box-shadow: var(--hui-shadow-md);
+  transform: translateY(-1px);
+}
+
+.hui-btn--outline {
+  background: transparent;
+  color: var(--hui-primary);
+  border-color: var(--hui-primary);
+}
+
+.hui-btn--outline:hover {
+  background: var(--hui-primary-light);
+  box-shadow: var(--hui-shadow);
+  transform: translateY(-1px);
+}
+
+.hui-btn--ghost {
+  background: transparent;
+  color: var(--hui-text-secondary);
+  border-color: transparent;
+}
+
+.hui-btn--ghost:hover {
+  background: var(--hui-bg-tertiary);
+  color: var(--hui-text);
+}
+
+.hui-btn--danger {
+  background: var(--hui-danger);
+  color: var(--hui-text-inverse);
+  border-color: var(--hui-danger);
+}
+
+.hui-btn--danger:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  box-shadow: var(--hui-shadow-md);
+  transform: translateY(-1px);
+}
+
+/* ================== TRẠNG THÁI LOADING ================== */
+.hui-btn--loading {
+  pointer-events: none; /* Khóa nút không cho ấn tiếp khi đang tải vòng tròn */
+  opacity: 0.7;
+}
+
+/* Icon xoay tròn (spinner) */
+.hui-btn__spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent; /* Khuyết 1 viền để tạo cảm giác xoay */
+  border-radius: 50%;
+  animation: hui-spin 0.6s linear infinite; /* Chạy animation liên tục */
+}
+
+/* Định nghĩa quy luật Animation */
+@keyframes hui-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ================== ACCESSIBILITY (TRỢ NĂNG) ================== */
+/* 
+ * :focus-visible sẽ chớp sáng khung viền khi user dùng phím Tab di chuyển 
+ * tới nút bấm, giúp người khiếm thị nhận biết được vị trí focus.
+ */
+.hui-btn:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}

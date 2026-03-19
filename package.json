@@ -1,0 +1,69 @@
+{
+  "name": "hui-lib",
+  "version": "0.1.0",
+  "description": "HUI - Hoang UI Component Library. Thư viện Web Components nhẹ, không phụ thuộc framework.",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js"
+    },
+    "./hui-button": {
+      "import": "./dist/hui-button.esm.js",
+      "require": "./dist/hui-button.js"
+    },
+    "./hui-input": {
+      "import": "./dist/hui-input.esm.js",
+      "require": "./dist/hui-input.js"
+    },
+    "./hui-modal": {
+      "import": "./dist/hui-modal.esm.js",
+      "require": "./dist/hui-modal.js"
+    },
+    "./hui-card": {
+      "import": "./dist/hui-card.esm.js",
+      "require": "./dist/hui-card.js"
+    },
+    "./hui-badge": {
+      "import": "./dist/hui-badge.esm.js",
+      "require": "./dist/hui-badge.js"
+    },
+    "./hui-alert": {
+      "import": "./dist/hui-alert.esm.js",
+      "require": "./dist/hui-alert.js"
+    },
+    "./hui-tooltip": {
+      "import": "./dist/hui-tooltip.esm.js",
+      "require": "./dist/hui-tooltip.js"
+    },
+    "./hui-spinner": {
+      "import": "./dist/hui-spinner.esm.js",
+      "require": "./dist/hui-spinner.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "ui",
+    "components",
+    "web-components",
+    "custom-elements",
+    "hui"
+  ],
+  "author": "Hoang",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "fast-glob": "^3.3.0"
+  }
+}

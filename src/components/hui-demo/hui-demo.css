@@ -1,0 +1,134 @@
+/*
+ * ==========================================================
+ * BÀI HỌC TỔNG HỢP: CSS TRONG WEB COMPONENTS (SHADOW DOM)
+ * Thẻ (Tag) mẫu: <hui-demo>
+ * ==========================================================
+ */
+
+
+/* ==========================================================
+ * PHẦN 1: TỔNG QUAN VỀ PSEUDO-CLASSES (LỚP GIẢ) TRONG WEB COMPONENT
+ * Pseudo-class (Bắt đầu bằng 1 dấu 2 chấm `:`) dùng để nhắm tới "Trạng thái" của một đối tượng.
+ * ========================================================== */
+
+/* 
+ * 1. :host
+ * Ám chỉ chính cái thẻ <hui-demo> bao bọc bên ngoài trang HTML. 
+ * Nếu không có :host, bạn không thể style được phần viền ngoài cùng của thẻ này từ bên trong Shadow DOM.
+ */
+:host {
+  display: block;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+/* 
+ * 2. :host([attribute]) - Pseudo-class nhắm tới Trạng thái của Attribute
+ * Chỉ áp dụng CSS nếu thẻ bên ngoài có thuộc tính được chỉ định.
+ * Cú pháp HTML: <hui-demo dark-mode></hui-demo>
+ */
+:host([dark-mode]) {
+  background-color: #333;
+  color: #fff;
+}
+
+/* 
+ * 3. :host-context(selector) - Pseudo-class nhắm vào Phạm vi bên ngoài (Tổ tiên)
+ * RẤT ĐẶC BIỆT: Nó chọc ra ngoài Shadow DOM để xem thử có cái tag thẻ cha/ông nội nào 
+ * bao bọc cái <hui-demo> này mà có chứa class tương ứng không.
+ * Phù hợp làm Theme (Giao diện).
+ * Cú pháp HTML: <body class="theme-tet"><hui-demo></hui-demo></body>
+ */
+:host-context(.theme-tet) {
+  border-color: red;
+  box-shadow: 0 0 10px yellow;
+}
+
+/* 
+ * 4. Pseudo-class trạng thái tương tác tiêu chuẩn (:hover, :active, :focus, :focus-within) 
+ */
+.box {
+  background: blue;
+  transition: all 0.3s;
+}
+
+/* :hover - Trạng thái khi con chuột lướt ngang qua phần tử */
+.box:hover {
+  background: darkblue;
+}
+
+/* :active - Trạng thái ngay khoảnh khắc chuột đang nhấn giữ (chuột trái chưa nhả ra) */
+.box:active {
+  transform: scale(0.95);
+}
+
+/* :focus-within - Trạng thái khi có BẤT KỲ ĐỨA CON NÀO BÊN TRONG nó đang được Focus (ví dụ click vào ô Input) */
+.box-container:focus-within {
+  outline: 2px solid green;
+}
+
+
+/* ==========================================================
+ * PHẦN 2: TỔNG QUAN VỀ PSEUDO-ELEMENTS (PHẦN TỬ GIẢ) TRONG WEB COMPONENT
+ * Pseudo-element (Bắt đầu bằng 2 dấu 2 chấm `::`) dùng để nhắm tới hoặc "Tạo ra" 
+ * những bộ phận không có thật trên cây DOM, hoặc bộ phận xuyên thấu qua Shadow DOM.
+ * ========================================================== */
+
+/* 
+ * 5. ::before và ::after
+ * Sinh ra 2 thẻ HTML ảo nằm BÊN TRONG phần tử đích, một cái nằm trên cùng, một cái nằm dưới cùng.
+ * Rất hay dùng để làm icon, mũi tên, hiệu ứng làm mờ (ripple) mà không cần code thêm thẻ <span>.
+ * BẮT BUỘC phải có thuộc tính `content: "";` thì nó mới hiện ra.
+ */
+.box::before {
+  content: '🔥 '; /* Thêm ngọn lửa ảo vào đầu chữ trong hộp */
+}
+
+.box::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: red; /* Vẽ một đường gạch chân đỏ dính sát phía dưới hộp */
+}
+
+/* 
+ * 6. ::slotted(selector) - Cánh cổng thần kỳ
+ * Khi người dùng truyền HTML từ bên ngoài vào qua thẻ <slot>, nó sẽ chui vào vùng quản lý của Shadow DOM.
+ * NHƯNG Shadow DOM mặc định KHÔNG DÁM can thiệp style của "đồ ngoại lai" này.
+ * Để style đồ ngoại vi chui qua thẻ slot, ta BẮT BUỘC dùng ::slotted().
+ * 
+ * Cú pháp HTML ngoài trang:
+ * <hui-demo>
+ *    <h1 class="tieu-de">Nội dung từ thế giới bên ngoài bay vào</h1>
+ * </hui-demo>
+ */
+::slotted(.tieu-de) {
+  /* Cho dù bên ngoài trang web quy định H1 màu gì, chui vào component này đổi thành màu Vàng */
+  color: gold; 
+  font-weight: bold;
+}
+
+/* Mặc định toàn bộ mọi thứ rơi vào <slot> sẽ có khung nét đứt */
+::slotted(*) {
+  border: 1px dashed blue;
+}
+
+/* 
+ * 7. ::part(name) - Cánh cửa sau cho phép ngoài phá vỡ Shadow DOM
+ * Đây là khái niệm quan trọng nhất để làm Thư viện UI.
+ * Bình thường Shadow DOM là bức tường thép, CSS bên ngoài trang web KHÔNG THỂ chọc vào sửa nội dung bên trong.
+ * Bằng cách dán nhãn part="name" cho phần tử bên trong, ta "hé cửa" cho bên ngoài chọc CSS vào.
+ * 
+ * Bên trong file JS ta code: `createElement('div', { part: 'container' })`
+ * 
+ * Thì ở ngoài file css của Dự án khách hàng, họ có quyền viết:
+ * hui-demo::part(container) { background: pink; } 
+ * Lúc này đoạn style background: pink sẽ đâm thủng Shadow DOM lọt vào trong.
+ */
+[part="container"] {
+  /* CSS nội bộ cơ sở (Khách hàng có quyền ghi đè qua ::part) */
+  background: lightgray;
+  border-radius: 4px;
+}

@@ -1,0 +1,57 @@
+/* ============================================
+   HUI CSS Reset — Reset mặc định trình duyệt
+   ============================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset cho Web Components host */
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-base);
+  line-height: var(--hui-line-height);
+  color: var(--hui-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:host([hidden]) {
+  display: none !important;
+}
+
+/* Reset button bên trong shadow DOM */
+button {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+/* Reset input bên trong shadow DOM */
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+/* Focus visible — hỗ trợ accessibility */
+:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}

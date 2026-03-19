@@ -1,0 +1,162 @@
+/*
+ * ==========================================================
+ * HUI Input CSS - File style độc lập cho Component Ô nhập liệu
+ * ==========================================================
+ */
+
+/* 
+ * 1. :host - Ám chỉ thẻ <hui-input> bên ngoài HTML.
+ * display: block giúp ô input luôn chiếm toàn bộ chiều ngang vùng chứa nó mặc định.
+ */
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+/* 
+ * 2. :host([disabled]) - Nếu người dùng viết thẻ <hui-input disabled>
+ * Mờ toàn bộ component đi (opacity 0.5) và khóa toàn bộ click/tương tác chuột (pointer-events: none).
+ */
+:host([disabled]) {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* 
+ * 3. Selector cho các class bên trong Shadow Root 
+ */
+.hui-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs); /* Khoảng cách giữa nhãn (label), ô nhập và thông báo lỗi */
+}
+
+.hui-input__label {
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-text);
+}
+
+/* Thêm dấu sao đỏ nều trường này là bắt buộc (required) */
+.hui-input__label--required::after {
+  content: ' *';
+  color: var(--hui-danger);
+}
+
+.hui-input__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 2px solid var(--hui-border);
+  border-radius: var(--hui-radius-md);
+  background: var(--hui-bg);
+  transition: all var(--hui-transition);
+  overflow: hidden;
+}
+
+.hui-input__container:hover {
+  border-color: var(--hui-border-hover);
+}
+
+/* :focus-within - Kích hoạt khi có bất kỳ phần tử con nào bên trong container đang được focus */
+.hui-input__container:focus-within {
+  border-color: var(--hui-primary);
+  box-shadow: 0 0 0 3px var(--hui-primary-light);
+}
+
+.hui-input__container--error {
+  border-color: var(--hui-danger);
+}
+
+.hui-input__container--error:focus-within {
+  box-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.hui-input__container--success {
+  border-color: var(--hui-success);
+}
+
+/* ================== KÍCH THƯỚC (SIZES) ================== */
+.hui-input__field--sm {
+  padding: var(--hui-space-xs) var(--hui-space-sm);
+  font-size: var(--hui-font-sm);
+  min-height: 2rem;
+}
+
+.hui-input__field--md {
+  padding: var(--hui-space-sm) var(--hui-space-md);
+  font-size: var(--hui-font-base);
+  min-height: 2.5rem;
+}
+
+.hui-input__field--lg {
+  padding: var(--hui-space-md) var(--hui-space-lg);
+  font-size: var(--hui-font-lg);
+  min-height: 3rem;
+}
+
+/* Thẻ <input> HTML thật nằm sâu bên trong */
+.hui-input__field {
+  flex: 1; /* Cố gắng chiếm toàn bộ không gian còn trống */
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none; /* Tắt viền xanh mặc định của trình duyệt */
+  font-family: inherit;
+  color: var(--hui-text);
+}
+
+.hui-input__field::placeholder {
+  color: var(--hui-text-muted); /* Màu chữ mờ cho dòng chữ gợi ý */
+}
+
+/* Khối chứa icon slot ở đầu (prefix) hoặc cuối (suffix) ô nhập */
+.hui-input__prefix,
+.hui-input__suffix {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--hui-space-sm);
+  color: var(--hui-text-muted);
+  flex-shrink: 0; /* Không cho phép bị teo nhỏ lại nếu chữ quá dài */
+}
+
+/* Dòng chữ thông báo nhỏ ở dưới ô nhập (trạng thái lỗi, thành công, gợi ý) */
+.hui-input__message {
+  font-size: var(--hui-font-xs);
+  min-height: 1.25rem;
+}
+
+.hui-input__message--error {
+  color: var(--hui-danger);
+}
+
+.hui-input__message--success {
+  color: var(--hui-success);
+}
+
+.hui-input__message--hint {
+  color: var(--hui-text-muted);
+}
+
+/* ================== Nút Xóa Nhanh (Clear Button) ================== */
+.hui-input__clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: var(--hui-space-xs);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-bg-tertiary);
+  color: var(--hui-text-muted);
+  cursor: pointer;
+  font-size: var(--hui-font-sm);
+  border: none;
+  transition: all var(--hui-transition-fast);
+  flex-shrink: 0;
+}
+
+.hui-input__clear:hover {
+  background: var(--hui-border);
+  color: var(--hui-text);
+}
