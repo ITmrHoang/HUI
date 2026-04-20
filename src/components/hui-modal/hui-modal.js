@@ -22,7 +22,7 @@ const STYLES = `
     opacity: 0;
     visibility: hidden;
     transition: all var(--hui-transition-slow);
-    padding: var(--hui-space-lg);
+    padding: 12px;
   }
 
   .hui-modal-overlay--open {
@@ -32,7 +32,7 @@ const STYLES = `
 
   .hui-modal {
     background: var(--hui-surface);
-    border-radius: var(--hui-radius-xl);
+    border-radius: var(--hui-radius-lg);
     box-shadow: var(--hui-shadow-xl);
     display: flex;
     flex-direction: column;
@@ -56,7 +56,7 @@ const STYLES = `
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--hui-space-lg) var(--hui-space-xl);
+    padding: 10px 16px;
     border-bottom: 1px solid var(--hui-border);
   }
 
@@ -71,8 +71,8 @@ const STYLES = `
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 1.75rem;
+    height: 1.75rem;
     border-radius: var(--hui-radius);
     background: transparent;
     border: none;
@@ -88,7 +88,7 @@ const STYLES = `
   }
 
   .hui-modal__body {
-    padding: var(--hui-space-xl);
+    padding: 14px 16px;
     overflow-y: auto;
     flex: 1;
     color: var(--hui-text-secondary);
@@ -99,8 +99,8 @@ const STYLES = `
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: var(--hui-space-sm);
-    padding: var(--hui-space-lg) var(--hui-space-xl);
+    gap: 8px;
+    padding: 10px 16px;
     border-top: 1px solid var(--hui-border);
   }
 `;

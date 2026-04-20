@@ -22,6 +22,14 @@
       "import": "./dist/hui-modal.esm.js",
       "require": "./dist/hui-modal.js"
     },
+    "./hui-select": {
+      "import": "./dist/hui-select.esm.js",
+      "require": "./dist/hui-select.js"
+    },
+    "./hui-checkbox": {
+      "import": "./dist/hui-checkbox.esm.js",
+      "require": "./dist/hui-checkbox.js"
+    },
     "./hui-card": {
       "import": "./dist/hui-card.esm.js",
       "require": "./dist/hui-card.js"
@@ -51,7 +59,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "keywords": [
     "ui",
@@ -63,7 +73,18 @@
   "author": "Hoang",
   "license": "MIT",
   "devDependencies": {
+    "@chromatic-com/storybook": "^5.1.2",
+    "@storybook/addon-a11y": "^10.3.5",
+    "@storybook/addon-docs": "^10.3.5",
+    "@storybook/addon-vitest": "^10.3.5",
+    "@storybook/web-components-vite": "^10.3.5",
+    "@vitest/browser-playwright": "^4.1.4",
+    "@vitest/coverage-v8": "^4.1.4",
+    "fast-glob": "^3.3.0",
+    "lit": "^3.3.2",
+    "playwright": "^1.59.1",
+    "storybook": "^10.3.5",
     "vite": "^6.0.0",
-    "fast-glob": "^3.3.0"
+    "vitest": "^4.1.4"
   }
 }

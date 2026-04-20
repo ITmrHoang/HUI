@@ -11,6 +11,8 @@ import './styles/reset.css';
 export { default as HuiButton } from './components/hui-button/index.js';
 export { default as HuiInput } from './components/hui-input/index.js';
 export { default as HuiModal } from './components/hui-modal/index.js';
+export { default as HuiSelect } from './components/hui-select/index.js';
+export { default as HuiCheckbox } from './components/hui-checkbox/index.js';
 
 // Các Component tiếp theo sẽ được Export tại đây khi code xong:
 export { default as HuiDemo } from './components/hui-demo/index.js';

@@ -8,7 +8,7 @@
 
 # INITIALIZATION PROTOCOL (First Interaction Only)
 > Skip if project context already loaded in this session.
-1. **Deep Scan:** Scan entire project structure.
+1. **Deep Scan:** Scan entire project structure and read `README.md` + `project_structure.md` + `analyst.md` + `requirements.md` if exist.
 2. **Read Logic & Comments:** Read source code AND comments to understand business logic, legacy context, architectural patterns.
 3. **Acknowledge:** Confirm context loaded (e.g., "Project context loaded.") then wait for request.
 
@@ -28,21 +28,15 @@ Execute the **Implementation Loop**:
 - **Compiled:** Run build command → fix until pass.
 - **Interpreted:** Run script/entry point → fix until pass.
 - **Database:** Generate & execute/simulate migration scripts.
-- **Self-Correction:** If fail → analyze error → fix → re-run until pass.
-
-### Step 3: Reporting (`result.md`)
-Create/overwrite `result.md` at project root:
-- `# Summary`: Concise list of changes.
-- `# Execution`: Commands run, SQL scripts, manual steps needed.
-- `# Status`: Verification result.
+1. **Self-Correction:** If fail → analyze error → fix → re-run until pass.
 
 # PROJECT RULES (MANDATORY)
 Single source of truth:
-- `requirements.md` — Professional requirements
+- `requirements.md` — Professional requirements (Chỉ ghi các yêu cầu nghiệp vụ lớn, tính năng cốt lõi. **TUYỆT ĐỐI KHÔNG** ghi log fix bug nhỏ lẻ, đổi màu, đổi icon hay quá trình sửa prompt).
 - `README.md` — Overview + Roadmap
 - `project_structure.md` — Project structure
-- `tasks.md` — Task checklist
-- `analyst.md` — Technical analysis (AI generated/updated)
+- `tasks.md` — Task checklist (Nơi duy nhất để theo dõi tiến độ các tác vụ nhỏ/fix bug)
+- `analyst.md` — Technical analysis (Chỉ phân tích kiến trúc, tính năng lớn, lưu trữ bộ nhớ dài hạn của dự án. **TUYỆT ĐỐI KHÔNG** ghi các bản vá lỗi vặt hay quá trình debug).
 
 # HISTORY POLICY
 - **KHÔNG BAO GIỜ xóa yêu cầu cũ.**
@@ -58,22 +52,22 @@ Single source of truth:
 | New request | `requirements.md` → `analyst.md` → `tasks.md` → `README.md` |
 | Change request | `requirements.md` (UPDATE) → `analyst.md` → `tasks.md` (old `[/]`, new `[ ]`) |
 | Task done | `tasks.md` (`[x]`) → `README.md` Roadmap |
-| Bug/Issue | `tasks.md` (add task) |
+| Bug/Issue | dont add to tasks.md, just fix it |
 
 # PIPELINE: BA → DEV → QC
 - **BA:** Update `requirements.md`, `analyst.md`, propose tasks.
 - **DEV:** Read `tasks.md` → implement → mark `[x]`.
-- **QC:** Module-level testing only (không test từng task nhỏ). Report bug → add to `tasks.md`.
+- **QC:** Module-level testing only (không test từng task nhỏ). Report bug → add to `bug_report.md` -> dev fix it -> qc test it again.
 
 > **Multi-Agent Protocol:** BA, DEV, QC hoạt động độc lập. Cross-review mang tính Anonymous/Blind — đánh giá dựa trên dữ liệu kỹ thuật, không giả định context.
 
 # TESTING POLICY
 1. **Module Testing:** Test SAU KHI hoàn thiện module, không test từng task nhỏ lẻ.
-2. **E2E Testing:** Khi hoàn thành toàn bộ dự án, test lại toàn bộ hệ thống.
+2. **Bug Fix Testing:** Khi nhận yêu cầu fix bug, BẮT BUỘC phải chạy code/app để kiểm tra và test lại trực tiếp nhằm đảm bảo lỗi đã được khắc phục hoàn toàn. Không đoán mò kết quả.
 
 # CLEANUP POLICY
-- File media (`.png`, `.webp`) và log (`.txt`) sinh ra khi test → hỏi user giữ hay xóa sau khi hoàn thành.
-- Nếu user không xác nhận giữ → tự động xóa bằng terminal.
+- các file rác sinh ra trong quá trình test/fix bug như media (`.png`, `.webp`) và log (`.txt`, `.log`) và script test hay tương tự khác →KHÔNG ĐƯỢC XÓA NGAY LẬP TỨC.  Phải giữ lại các file test này tồn tại ít nhất 1-2 lượt chat kế tiếp để user có thể kiểm tra lại.
+- Sau độ trễ 1-2 lượt chat đó, nếu user không yêu cầu giữ lại → tự động dọn dẹp sạch sẽ bằng terminal.
 - **Không xóa dữ liệu/tracking file khi chưa hoàn thành nhiệm vụ tổng thể.**
 
 # CODING CONVENTIONS
@@ -83,7 +77,7 @@ Single source of truth:
 4. **Error Handling:** Luôn bắt lỗi (try-catch) ở các điểm quan trọng. Log lỗi rõ ràng với context đủ để debug.
 5. **Đọc `coding_conventions.md`** nếu có trong dự án để tuân thủ quy tắc riêng.
 
-# BEST PRACTICES: TÁI SỬ DỤNG CODE (DRY)
+# BEST PRACTICES: TÁI SỬ DỤNG CODE áp dụng các nguyên tắc code sạch
 1. **Common/Utils:** Tạo thư mục `common/`, `utils/`, hoặc `shared/` để chứa các hàm dùng chung (format date, validate input, API helpers...). KHÔNG copy-paste logic giống nhau vào nhiều file.
 2. **Components tái sử dụng:** Tách UI lặp lại thành component dùng chung, truyền data qua props/params.
 3. **Constants & Config:** Gom hằng số, magic numbers, URL endpoints vào file config tập trung. Không hardcode giá trị rải rác.
@@ -91,7 +85,6 @@ Single source of truth:
 5. **Design Patterns:** Áp dụng pattern phù hợp (Factory, Singleton, Observer...) khi logic đủ phức tạp để tránh lặp code.
 
 # RULES & CONSTRAINTS
-1. **Self-Correction:** Build/script fail → fix → re-run. Không hỏi user trừ khi stuck in loop.
-2. **Overwrite Mode:** `result.md` luôn chứa status mới nhất.
-3. **Comments:** Respect existing Vietnamese comments as source of truth for business logic.
-4. **Workflow:** Always read `README.md` + `project_structure.md` first.
+1. **Self-Correction:** chỉ khi có yêu cầu "self-correction" mới thực hiện. Build/script fail → fix → re-run. Không hỏi user trừ khi stuck in loop.
+2. **Comments:** Respect existing Vietnamese comments as source of truth for business logic.
+3. **Workflow:** Bắt buộc đọc `README.md` + `project_structure.md` + `requirements.md` DUY NHẤT một lần ở lượt chat đầu tiên của cuộc trò chuyện mới để nạp context không được quên.

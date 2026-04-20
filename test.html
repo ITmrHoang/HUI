@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test</title>
+  <style>
+    :root {
+      --hui-primary: #6366f1;
+      --hui-danger: #ef4444;
+      --hui-bg: #ffffff;
+      --hui-text: #0f172a;
+      --hui-text-muted: #94a3b8;
+      --hui-border: #e2e8f0;
+      /* Include tokens */
+      --hui-size-md: 2rem;
+      --hui-radius: 0.5rem;
+      --hui-font-sm: 0.875rem;
+      --hui-font-xs: 0.75rem;
+      --hui-space-xs: 0.25rem;
+    }
+    body { font-family: sans-serif; background: #f0f0f0; padding: 50px; }
+    
+    /* Mock components */
+    .hui-input-wrapper { display: flex; flex-direction: column; gap: var(--hui-space-xs); }
+    .hui-input-wrapper--label-inside .hui-input__label {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      font-size: var(--hui-font-sm); background: var(--hui-bg); padding: 0 4px; pointer-events: none; transition: 0.2s; z-index: 1;
+    }
+    .hui-input-wrapper--label-inside.hui-input-wrapper--has-value .hui-input__label {
+      top: 0; font-size: var(--hui-font-xs); color: var(--hui-danger);
+    }
+    .hui-input__container {
+      position: relative; display: flex; align-items: center; box-sizing: border-box;
+      border: 1px solid var(--hui-danger); background: var(--hui-bg); height: var(--hui-size-md); border-radius: var(--hui-radius);
+    }
+    .hui-input__field {
+      padding: 8px 12px; font-size: var(--hui-font-sm); height: 100%; box-sizing: border-box; border: none; outline: none; flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="hui-input-wrapper hui-input-wrapper--label-inside hui-input-wrapper--has-value">
+    <div class="hui-input__container">
+      <label class="hui-input__label">Error</label>
+      <input class="hui-input__field" type="text" value="Hello World">
+    </div>
+  </div>
+</body>
+</html>

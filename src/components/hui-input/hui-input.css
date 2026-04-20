@@ -27,14 +27,59 @@
  */
 .hui-input-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: var(--hui-space-xs); /* Khoảng cách giữa nhãn (label), ô nhập và thông báo lỗi */
+  gap: var(--hui-space-xs); /* Khoảng cách giữa ô nhập và thông báo lỗi */
 }
 
-.hui-input__label {
+/* Các kiểu hiển thị label */
+.hui-input-wrapper--label-top {
+  flex-direction: column;
+}
+
+.hui-input-wrapper--label-inline {
+  flex-direction: row;
+  align-items: center;
+}
+
+.hui-input-wrapper--label-inside {
+  flex-direction: column;
+}
+
+/* Mặc định cho layout top/inline */
+.hui-input-wrapper--label-top .hui-input__label,
+.hui-input-wrapper--label-inline .hui-input__label {
   font-size: var(--hui-font-sm);
   font-weight: var(--hui-font-weight-medium, 500);
   color: var(--hui-text);
+}
+
+/* Khi layout inline, label có độ rộng tự nhiên, group kia ôm phần còn lại */
+.hui-input-wrapper--label-inline .hui-input__label {
+  flex-shrink: 0;
+  margin-right: var(--hui-space-sm);
+}
+
+.hui-input__right-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--hui-space-xs);
+}
+
+/* Khi layout là inside (floating) thì label mới nằm ảo đè lên khung */
+.hui-input-wrapper--label-inside .hui-input__label {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%) scale(1);
+  transform-origin: left center;
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-text-muted);
+  background: var(--hui-bg);
+  padding: 0 4px;
+  pointer-events: none; /* Click xuyên qua label để trỏ vào input */
+  transition: all var(--hui-transition-fast);
+  z-index: 1; /* Nổi đè lên viền container */
 }
 
 /* Thêm dấu sao đỏ nều trường này là bắt buộc (required) */
@@ -43,15 +88,34 @@
   color: var(--hui-danger);
 }
 
+/* Hiệu ứng Floating Label (nhảy lên viền và thu nhỏ lại để chống va chạm "g") */
+.hui-input-wrapper--label-inside.hui-input-wrapper--has-value .hui-input__label,
+.hui-input-wrapper--label-inside .hui-input__container:focus-within .hui-input__label {
+  top: 0;
+  transform: translateY(-50%) scale(0.82);
+  color: var(--hui-text);
+}
+
+/* Đổi màu label thành primary khi thẻ input đang được focus (áp dụng chung nếu muốn, ở đây floating) */
+.hui-input-wrapper--label-inside .hui-input__container:focus-within .hui-input__label {
+  color: var(--hui-primary);
+}
+
+/* Đổi màu label thành màu đỏ nếu có trạng thái lỗi (không cần focus nó cũng đỏ gắt theo viền) */
+.hui-input-wrapper--label-inside .hui-input__container--error .hui-input__label,
+.hui-input-wrapper--label-top.hui-input-wrapper--has-error .hui-input__label,
+.hui-input-wrapper--label-inline.hui-input-wrapper--has-error .hui-input__label {
+  color: var(--hui-danger);
+}
+
 .hui-input__container {
   position: relative;
   display: flex;
   align-items: center;
-  border: 2px solid var(--hui-border);
-  border-radius: var(--hui-radius-md);
+  box-sizing: border-box;
+  border: 1px solid var(--hui-border);
   background: var(--hui-bg);
   transition: all var(--hui-transition);
-  overflow: hidden;
 }
 
 .hui-input__container:hover {
@@ -61,7 +125,7 @@
 /* :focus-within - Kích hoạt khi có bất kỳ phần tử con nào bên trong container đang được focus */
 .hui-input__container:focus-within {
   border-color: var(--hui-primary);
-  box-shadow: 0 0 0 3px var(--hui-primary-light);
+  box-shadow: 0 0 0 2px var(--hui-primary-light);
 }
 
 .hui-input__container--error {
@@ -69,30 +133,34 @@
 }
 
 .hui-input__container--error:focus-within {
-  box-shadow: 0 0 0 3px var(--hui-danger-light);
+  box-shadow: 0 0 0 2px var(--hui-danger-light);
 }
 
 .hui-input__container--success {
   border-color: var(--hui-success);
 }
 
-/* ================== KÍCH THƯỚC (SIZES) ================== */
+/* ================== KÍCH THƯỚC (SIZES) GÁN CHẶT CONTAINER ================== */
+.hui-input__container--sm { height: var(--hui-size-sm); border-radius: var(--hui-radius-sm); }
+.hui-input__container--md { height: var(--hui-size-md); border-radius: var(--hui-radius); }
+.hui-input__container--lg { height: var(--hui-size-lg); border-radius: var(--hui-radius-md); }
+
 .hui-input__field--sm {
-  padding: var(--hui-space-xs) var(--hui-space-sm);
-  font-size: var(--hui-font-sm);
-  min-height: 2rem;
+  padding: 6px 8px;
+  font-size: var(--hui-font-xs); /* 12px */
+  height: 100%;
 }
 
 .hui-input__field--md {
-  padding: var(--hui-space-sm) var(--hui-space-md);
-  font-size: var(--hui-font-base);
-  min-height: 2.5rem;
+  padding: 8px 12px;
+  font-size: var(--hui-font-sm); /* 14px */
+  height: 100%;
 }
 
 .hui-input__field--lg {
-  padding: var(--hui-space-md) var(--hui-space-lg);
-  font-size: var(--hui-font-lg);
-  min-height: 3rem;
+  padding: 10px 16px;
+  font-size: var(--hui-font-base); /* 16px */
+  height: 100%;
 }
 
 /* Thẻ <input> HTML thật nằm sâu bên trong */
@@ -104,10 +172,16 @@
   outline: none; /* Tắt viền xanh mặc định của trình duyệt */
   font-family: inherit;
   color: var(--hui-text);
+  box-sizing: border-box;
 }
 
 .hui-input__field::placeholder {
   color: var(--hui-text-muted); /* Màu chữ mờ cho dòng chữ gợi ý */
+}
+
+/* Nếu có label đang làm placeholder ở giữa (chưa float), ẩn tạm native placeholder tránh đè chữ */
+.hui-input-wrapper--label-inside.hui-input-wrapper--has-label:not(.hui-input-wrapper--has-value) .hui-input__container:not(:focus-within) .hui-input__field::placeholder {
+  color: transparent;
 }
 
 /* Khối chứa icon slot ở đầu (prefix) hoặc cuối (suffix) ô nhập */
@@ -118,6 +192,30 @@
   padding: 0 var(--hui-space-sm);
   color: var(--hui-text-muted);
   flex-shrink: 0; /* Không cho phép bị teo nhỏ lại nếu chữ quá dài */
+}
+
+/* ================== ICON QUA ATTRIBUTE (icon-left / icon-right) ================== */
+/* 
+ * Khác với slot prefix/suffix (nhận HTML từ bên ngoài), icon attribute
+ * nhận chuỗi text/emoji trực tiếp — dùng cho trường hợp đơn giản.
+ */
+.hui-input__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--hui-space-sm);
+  color: var(--hui-text-muted);
+  flex-shrink: 0;
+  font-size: 1.1em;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none; /* Icon không tương tác, chỉ trang trí */
+}
+
+/* Khi focus vào input → icon chuyển sang màu primary cho nổi bật */
+.hui-input__container:focus-within .hui-input__icon {
+  color: var(--hui-primary);
+  transition: color var(--hui-transition-fast);
 }
 
 /* Dòng chữ thông báo nhỏ ở dưới ô nhập (trạng thái lỗi, thành công, gợi ý) */
@@ -159,4 +257,11 @@
 .hui-input__clear:hover {
   background: var(--hui-border);
   color: var(--hui-text);
+}
+
+/* Ẩn nút clear khi input trống — mượt mà bằng opacity + scale */
+.hui-input__clear--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
 }

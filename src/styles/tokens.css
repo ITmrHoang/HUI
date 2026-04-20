@@ -59,6 +59,11 @@
   --hui-space-2xl: 2rem;
   --hui-space-3xl: 3rem;
 
+  /* === Sizing (chiều cao tiêu chuẩn cho form elements) === */
+  --hui-size-sm: 1.625rem;   /* 26px */
+  --hui-size-md: 2rem;       /* 32px */
+  --hui-size-lg: 2.375rem;   /* 38px */
+
   /* === Typography === */
   --hui-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --hui-font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;

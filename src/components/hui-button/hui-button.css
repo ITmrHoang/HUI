@@ -43,9 +43,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--hui-space-sm);
-  border: 2px solid transparent; /* Viền trong suốt mặc định */
-  border-radius: var(--hui-radius-md); /* Bo góc */
+  box-sizing: border-box;
+  gap: 6px;
+  border: 1px solid transparent; /* Viền mỏng trong suốt */
   font-family: inherit;
   font-weight: var(--hui-font-weight-semibold, 600); /* Đậm vừa */
   cursor: pointer;
@@ -75,21 +75,24 @@
 
 /* ================== SIZES (KÍCH THƯỚC) ================== */
 .hui-btn--sm {
-  padding: var(--hui-space-xs) var(--hui-space-md);
-  font-size: var(--hui-font-sm);
-  min-height: 2rem;
+  padding: 2px 10px;
+  font-size: var(--hui-font-xs); /* 12px */
+  min-height: var(--hui-size-sm);
+  border-radius: var(--hui-radius-sm);
 }
 
 .hui-btn--md {
-  padding: var(--hui-space-sm) var(--hui-space-lg);
-  font-size: var(--hui-font-base);
-  min-height: 2.5rem;
+  padding: 4px 14px;
+  font-size: var(--hui-font-sm); /* 14px */
+  min-height: var(--hui-size-md);
+  border-radius: var(--hui-radius);
 }
 
 .hui-btn--lg {
-  padding: var(--hui-space-md) var(--hui-space-xl);
-  font-size: var(--hui-font-lg);
-  min-height: 3rem;
+  padding: 6px 18px;
+  font-size: var(--hui-font-base); /* 16px */
+  min-height: var(--hui-size-lg);
+  border-radius: var(--hui-radius-md);
 }
 
 /* ================== VARIANTS (PHÂN LOẠI MÀU SẮC) ================== */

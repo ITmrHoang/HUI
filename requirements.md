@@ -22,3 +22,4 @@ Tạo một thư viện giao diện (UI Component Library) độc lập, không 
 
 ## 4. Nhật ký thay đổi (ChangeLog & Yêu cầu bổ sung)
 - **[UPDATED] 2026-03-19:** Yêu cầu tách riêng file CSS ra khỏi JS, import dạng chuỗi. Thêm giải thích chi tiết trong code bằng tiếng Việt cho Vite config, HTML tags, CSS rules. Bổ sung `README.md` song ngữ Anh-Việt.
+- **[UPDATED] 2026-04-20:** Nâng cấp kiến trúc lõi của các component Form (`hui-input`, `hui-select`), áp dụng chặt chẽ hệ thống kích thước component (cố định height `sm`, `md`, `lg` không co giãn bằng margin). Triển khai tính năng **Floating Label** với cấu trúc 3 vị trí chuẩn (`top`, `inline`, `inside`), tự động cập nhật CSS thông qua JS Token Injector để đảm bảo tính nhất quán giữa Shadow DOM và thư viện mẹ. Đổi toàn bộ sự kiện CustomEvent tiền tố `hui-` sang tên Native DOM chuẩn (`change`, `input`).

@@ -1,0 +1,406 @@
+/*
+ * ==========================================================
+ * HUI Select CSS - File style độc lập cho Component Select (Dropdown)
+ * Hỗ trợ: dropdown menu, tìm kiếm, loading, states, sizes
+ * ==========================================================
+ */
+
+/* 1. :host — Thẻ <hui-select> ngoài Light DOM */
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  position: relative;
+}
+
+:host([disabled]) {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ================== WRAPPER TỔNG ================== */
+.hui-select-wrapper {
+  display: flex;
+  gap: var(--hui-space-xs);
+}
+
+/* Các kiểu hiển thị label */
+.hui-select-wrapper--label-top {
+  flex-direction: column;
+}
+
+.hui-select-wrapper--label-inline {
+  flex-direction: row;
+  align-items: center;
+}
+
+.hui-select-wrapper--label-inside {
+  flex-direction: column;
+}
+
+/* Mặc định cho layout top/inline */
+.hui-select-wrapper--label-top .hui-select__label,
+.hui-select-wrapper--label-inline .hui-select__label {
+  font-size: var(--hui-font-sm);
+  font-weight: 500;
+  color: var(--hui-text);
+}
+
+/* Khi layout inline, label có độ rộng dự tính */
+.hui-select-wrapper--label-inline .hui-select__label {
+  flex-shrink: 0;
+  margin-right: var(--hui-space-sm);
+}
+
+.hui-select__right-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  position: relative;
+  gap: var(--hui-space-xs);
+}
+
+/* ================== LABEL INSIDE (Floating) ================== */
+.hui-select-wrapper--label-inside .hui-select__label {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%) scale(1);
+  transform-origin: left center;
+  font-size: var(--hui-font-sm);
+  font-weight: 500;
+  color: var(--hui-text-muted);
+  background: var(--hui-bg);
+  padding: 0 4px;
+  pointer-events: none; /* Click xuyên qua label để mở select */
+  transition: all var(--hui-transition-fast);
+  z-index: 1; /* Nổi đè lên viền */
+}
+
+.hui-select__label--required::after {
+  content: ' *';
+  color: var(--hui-danger);
+}
+
+/* Hiệu ứng Floating Label (nhảy lên viền) khi mở hoặc đã chọn, thu nhỏ để chống đè g */
+.hui-select-wrapper--label-inside.hui-select-wrapper--has-value .hui-select__label,
+.hui-select-wrapper--label-inside .hui-select__trigger--open .hui-select__label {
+  top: 0;
+  transform: translateY(-50%) scale(0.82);
+  color: var(--hui-text);
+}
+
+/* Đổi màu label thành primary khi thẻ select đang được open (mô phỏng focus) */
+.hui-select-wrapper--label-inside .hui-select__trigger--open .hui-select__label {
+  color: var(--hui-primary);
+}
+
+/* Đổi màu label thành màu đỏ nếu có trạng thái lỗi (không cần focus nó cũng đỏ gắt theo viền) */
+.hui-select-wrapper--label-inside .hui-select__trigger--error .hui-select__label,
+.hui-select-wrapper--label-top.hui-select-wrapper--has-error .hui-select__label,
+.hui-select-wrapper--label-inline.hui-select-wrapper--has-error .hui-select__label {
+  color: var(--hui-danger);
+}
+
+/* ================== TRIGGER (Ô hiển thị giá trị đã chọn) ================== */
+.hui-select__trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--hui-border);
+  background: var(--hui-bg);
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all var(--hui-transition);
+  user-select: none;
+}
+
+.hui-select__trigger:hover {
+  border-color: var(--hui-border-hover);
+}
+
+/* Trạng thái mở dropdown */
+.hui-select__trigger--open {
+  border-color: var(--hui-primary);
+  box-shadow: 0 0 0 2px var(--hui-primary-light);
+}
+
+/* Trạng thái lỗi */
+.hui-select__trigger--error {
+  border-color: var(--hui-danger);
+}
+
+.hui-select__trigger--error.hui-select__trigger--open {
+  box-shadow: 0 0 0 2px var(--hui-danger-light);
+}
+
+/* Trạng thái thành công */
+.hui-select__trigger--success {
+  border-color: var(--hui-success);
+}
+
+/* ================== KÍCH THƯỚC (SIZES) ================== */
+.hui-select__trigger--sm {
+  padding: 6px 8px; /* Khôi phục padding vertical cho chuẩn UI box */
+  font-size: var(--hui-font-xs);
+  height: var(--hui-size-sm);
+  border-radius: var(--hui-radius-sm);
+}
+
+.hui-select__trigger--md {
+  padding: 8px 12px;
+  font-size: var(--hui-font-sm);
+  height: var(--hui-size-md);
+  border-radius: var(--hui-radius);
+}
+
+.hui-select__trigger--lg {
+  padding: 10px 16px;
+  font-size: var(--hui-font-base);
+  height: var(--hui-size-lg);
+  border-radius: var(--hui-radius-md);
+}
+
+/* Phần text hiển thị giá trị đã chọn */
+.hui-select__value {
+  flex: 1;
+  color: var(--hui-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Placeholder khi chưa chọn gì */
+.hui-select__value--placeholder {
+  color: var(--hui-text-muted);
+}
+
+/* Nếu kéo label vào làm placeholder tạm (chưa pick data, chưa mở dropdown), ẩn native placeholder đi */
+.hui-select-wrapper--label-inside.hui-select-wrapper--has-label:not(.hui-select-wrapper--has-value) .hui-select__trigger:not(.hui-select__trigger--open) .hui-select__value--placeholder {
+  color: transparent;
+}
+
+/* Nút xóa lựa chọn */
+.hui-select__clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0 var(--hui-space-xs);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-bg-tertiary);
+  color: var(--hui-text-muted);
+  cursor: pointer;
+  font-size: 0.7rem;
+  border: none;
+  transition: all var(--hui-transition-fast);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.hui-select__clear:hover {
+  background: var(--hui-border);
+  color: var(--hui-text);
+}
+
+/* Mũi tên dropdown ▼ */
+.hui-select__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  flex-shrink: 0;
+  color: var(--hui-text-muted);
+  transition: transform var(--hui-transition);
+  font-size: 0.65rem;
+}
+
+.hui-select__arrow--open {
+  transform: rotate(180deg);
+}
+
+/* ================== DROPDOWN MENU ================== */
+.hui-select__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: var(--hui-surface);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius-md);
+  box-shadow: var(--hui-shadow-lg);
+  z-index: var(--hui-z-dropdown);
+  max-height: 240px;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: all var(--hui-transition-fast);
+}
+
+.hui-select__dropdown--open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* ================== Ô TÌM KIẾM BÊN TRONG DROPDOWN ================== */
+.hui-select__search-wrap {
+  position: sticky;
+  top: 0;
+  padding: var(--hui-space-sm);
+  background: var(--hui-surface);
+  border-bottom: 1px solid var(--hui-border);
+  z-index: 1;
+}
+
+.hui-select__search {
+  width: 100%;
+  padding: var(--hui-space-xs) var(--hui-space-sm);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-bg);
+  font-size: var(--hui-font-sm);
+  font-family: inherit;
+  color: var(--hui-text);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--hui-transition-fast);
+}
+
+.hui-select__search:focus {
+  border-color: var(--hui-primary);
+}
+
+.hui-select__search::placeholder {
+  color: var(--hui-text-muted);
+}
+
+/* ================== OPTION ITEMS ================== */
+.hui-select__option {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background var(--hui-transition-fast);
+  color: var(--hui-text);
+  font-size: inherit;
+  gap: 6px;
+}
+
+.hui-select__option:hover,
+.hui-select__option--highlighted {
+  background: var(--hui-bg-tertiary);
+}
+
+/* Option đang được chọn */
+.hui-select__option--selected {
+  background: var(--hui-primary-light);
+  color: var(--hui-primary);
+  font-weight: 500;
+}
+
+.hui-select__option--selected:hover {
+  background: var(--hui-primary-light);
+}
+
+/* Dấu tích ✓ ở option được chọn */
+.hui-select__check {
+  width: 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Option bị disable */
+.hui-select__option--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ================== TRẠNG THÁI TRỐNG / LOADING ================== */
+.hui-select__empty,
+.hui-select__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  color: var(--hui-text-muted);
+  font-size: var(--hui-font-sm);
+  gap: 6px;
+}
+
+/* Spinner xoay tròn khi loading */
+.hui-select__spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid var(--hui-border);
+  border-top-color: var(--hui-primary);
+  border-radius: 50%;
+  animation: hui-select-spin 0.6s linear infinite;
+}
+
+@keyframes hui-select-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================== MESSAGE (Lỗi / Thành công / Gợi ý) ================== */
+.hui-select__message {
+  font-size: var(--hui-font-xs);
+  min-height: 1.25rem;
+}
+
+.hui-select__message--error {
+  color: var(--hui-danger);
+}
+
+.hui-select__message--success {
+  color: var(--hui-success);
+}
+
+.hui-select__message--hint {
+  color: var(--hui-text-muted);
+}
+
+/* ================== NHÓM OPTIONS (Group) ================== */
+.hui-select__group-label {
+  padding: var(--hui-space-sm) var(--hui-space-md);
+  font-size: var(--hui-font-xs);
+  font-weight: 600;
+  color: var(--hui-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-top: 1px solid var(--hui-border);
+}
+
+.hui-select__group-label:first-child {
+  border-top: none;
+}
+
+/* ================== SCROLLBAR TÙY CHỈNH ================== */
+.hui-select__dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hui-select__dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hui-select__dropdown::-webkit-scrollbar-thumb {
+  background: var(--hui-border);
+  border-radius: 3px;
+}
+
+.hui-select__dropdown::-webkit-scrollbar-thumb:hover {
+  background: var(--hui-border-hover);
+}
+
+/* ================== ACCESSIBILITY ================== */
+.hui-select__trigger:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
