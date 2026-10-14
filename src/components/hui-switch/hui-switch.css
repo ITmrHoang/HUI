@@ -1,0 +1,221 @@
+/*
+ * ==========================================================
+ * HUI Switch CSS - File style độc lập cho Component Công tắc
+ * ==========================================================
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+  vertical-align: middle;
+}
+
+/* ================== CONTAINER (LABEL) ================== */
+.hui-switch {
+  /* Biến nội bộ: chiều cao track (_h), độ rộng tối thiểu (_w), cỡ nút tròn (_t), màu (_color) */
+  --_h: 22px;
+  --_w: 44px;
+  --_t: 18px;
+  --_color: var(--hui-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  min-height: var(--hui-size-md); /* Cao bằng các form control khác để thẳng hàng */
+  cursor: pointer;
+  user-select: none;
+  color: var(--hui-text);
+}
+
+/* Label bên trái → đảo thứ tự hiển thị */
+.hui-switch--label-left {
+  flex-direction: row-reverse;
+}
+
+/* ================== SIZES ================== */
+.hui-switch--sm {
+  --_h: 16px;
+  --_w: 28px;
+  --_t: 12px;
+  min-height: var(--hui-size-sm);
+  font-size: var(--hui-font-xs);
+}
+
+.hui-switch--md {
+  font-size: var(--hui-font-sm);
+}
+
+.hui-switch--lg {
+  --_h: 28px;
+  --_w: 56px;
+  --_t: 24px;
+  min-height: var(--hui-size-lg);
+  font-size: var(--hui-font-base);
+}
+
+/* ================== COLORS ================== */
+.hui-switch--primary { --_color: var(--hui-primary); }
+.hui-switch--secondary { --_color: var(--hui-secondary); }
+.hui-switch--success { --_color: var(--hui-success); }
+.hui-switch--warning { --_color: var(--hui-warning); }
+.hui-switch--danger { --_color: var(--hui-danger); }
+.hui-switch--info { --_color: var(--hui-info); }
+
+/* ================== TRACK (NÚT BẤM THẬT) ================== */
+.hui-switch__track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: var(--_h);
+  min-width: var(--_w);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-border-hover); /* Màu xám khi tắt */
+  font: inherit;
+  cursor: inherit;
+  transition: background-color var(--hui-transition);
+}
+
+.hui-switch__track:hover {
+  background: var(--hui-text-muted);
+}
+
+/* Khi bật: track chuyển sang màu chủ đạo */
+.hui-switch--checked .hui-switch__track {
+  background: var(--_color);
+}
+
+.hui-switch--checked .hui-switch__track:hover {
+  filter: brightness(1.08);
+}
+
+/* Vòng focus khi dùng bàn phím (Tab) */
+.hui-switch__track:focus-visible {
+  outline: 2px solid var(--_color);
+  outline-offset: 2px;
+}
+
+/* ================== THUMB (NÚT TRÒN) ================== */
+.hui-switch__thumb {
+  position: absolute;
+  top: calc((var(--_h) - var(--_t)) / 2);
+  left: calc((var(--_h) - var(--_t)) / 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_t);
+  height: var(--_t);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-surface);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  /* Trượt mượt bằng cách animate thuộc tính left (dùng calc nên track co giãn theo text vẫn đúng) */
+  transition: left var(--hui-transition), width var(--hui-transition);
+}
+
+/* Khi bật: đẩy thumb sát mép phải */
+.hui-switch--checked .hui-switch__thumb {
+  left: calc(100% - var(--_t) - (var(--_h) - var(--_t)) / 2);
+}
+
+/* Hiệu ứng "kéo dãn" thumb khi đang nhấn chuột (giống Ant Design) */
+.hui-switch__track:active .hui-switch__thumb {
+  width: calc(var(--_t) + 4px);
+}
+
+.hui-switch--checked .hui-switch__track:active .hui-switch__thumb {
+  left: calc(100% - var(--_t) - 4px - (var(--_h) - var(--_t)) / 2);
+}
+
+/* ================== TEXT TRONG TRACK ================== */
+.hui-switch__text {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  /* Tắt: chữ nằm bên phải (thumb ở trái) */
+  padding: 0 7px 0 calc(var(--_t) + 7px);
+  color: var(--hui-text-inverse);
+  font-size: var(--hui-font-xs);
+  line-height: var(--_h);
+  white-space: nowrap;
+  text-align: right;
+  transition: padding var(--hui-transition);
+}
+
+/* Bật: chữ nằm bên trái (thumb ở phải) */
+.hui-switch--checked .hui-switch__text {
+  padding: 0 calc(var(--_t) + 7px) 0 7px;
+  text-align: left;
+}
+
+.hui-switch--sm .hui-switch__text {
+  font-size: 10px;
+}
+
+/* ================== LABEL ================== */
+.hui-switch__label {
+  line-height: var(--hui-line-height);
+}
+
+.hui-switch__required {
+  color: var(--hui-danger);
+}
+
+/* ================== DISABLED / LOADING ================== */
+.hui-switch--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.hui-switch--loading {
+  cursor: default;
+}
+
+.hui-switch--loading .hui-switch__track {
+  opacity: 0.7;
+}
+
+/* Khi disabled/loading: tắt hiệu ứng hover & kéo dãn */
+.hui-switch--disabled .hui-switch__track:hover,
+.hui-switch--loading .hui-switch__track:hover {
+  filter: none;
+}
+
+.hui-switch--disabled:not(.hui-switch--checked) .hui-switch__track:hover,
+.hui-switch--loading:not(.hui-switch--checked) .hui-switch__track:hover {
+  background: var(--hui-border-hover);
+}
+
+.hui-switch--disabled .hui-switch__track:active .hui-switch__thumb,
+.hui-switch--loading .hui-switch__track:active .hui-switch__thumb {
+  width: var(--_t);
+}
+
+.hui-switch--checked.hui-switch--loading .hui-switch__track:active .hui-switch__thumb {
+  left: calc(100% - var(--_t) - (var(--_h) - var(--_t)) / 2);
+}
+
+/* Spinner xoay nằm trong thumb */
+.hui-switch__spinner {
+  width: 60%;
+  height: 60%;
+  box-sizing: border-box;
+  border: 2px solid var(--_color);
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: hui-switch-spin 0.6s linear infinite;
+}
+
+@keyframes hui-switch-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-switch__track,
+  .hui-switch__thumb,
+  .hui-switch__text {
+    transition: none;
+  }
+}

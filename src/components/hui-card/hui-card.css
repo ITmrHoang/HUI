@@ -1,0 +1,246 @@
+/*
+ * ==========================================================
+ * HUI Card CSS - File style độc lập cho Component Thẻ nội dung
+ * ==========================================================
+ */
+
+:host {
+  display: block; /* Card là khối nội dung → chiếm trọn chiều ngang cha */
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+/* Thuộc tính hidden phải thắng mọi rule display bên dưới */
+[hidden] {
+  display: none !important;
+}
+
+/* ================== KHUNG CARD ================== */
+.hui-card {
+  /* Biến padding nội bộ — được đổi theo size */
+  --_pad: 16px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100%;
+  background: var(--hui-surface);
+  border: 1px solid transparent;
+  border-radius: var(--hui-radius-lg);
+  overflow: hidden; /* Bo góc cả ảnh cover bên trong */
+  transition: box-shadow var(--hui-transition), transform var(--hui-transition),
+    border-color var(--hui-transition);
+}
+
+/* Layout ngang: cover bên trái, nội dung bên phải */
+.hui-card--horizontal {
+  flex-direction: row;
+}
+
+.hui-card__main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0; /* Cho phép text bị cắt (ellipsis) trong flex item */
+}
+
+/* ================== SIZES (PADDING) ================== */
+.hui-card--sm { --_pad: 12px; }
+.hui-card--md { --_pad: 16px; }
+.hui-card--lg { --_pad: 24px; }
+
+/* ================== VARIANTS ================== */
+/* elevated (mặc định, MUI): nổi lên bằng bóng đổ */
+.hui-card--elevated { border-color: transparent; }
+.hui-card--elevation-0 { box-shadow: none; border-color: var(--hui-border); }
+.hui-card--elevation-1 { box-shadow: var(--hui-shadow); }
+.hui-card--elevation-2 { box-shadow: var(--hui-shadow-md); }
+.hui-card--elevation-3 { box-shadow: var(--hui-shadow-lg); }
+.hui-card--elevation-4 { box-shadow: var(--hui-shadow-xl); }
+
+/* outlined (Ant bordered): viền mảnh, không bóng */
+.hui-card--outlined {
+  border-color: var(--hui-border);
+  box-shadow: none;
+}
+
+/* filled: nền xám nhạt, không viền */
+.hui-card--filled {
+  background: var(--hui-bg-secondary);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* ================== HOVERABLE / CLICKABLE ================== */
+.hui-card--hoverable:hover {
+  box-shadow: var(--hui-shadow-lg);
+  transform: translateY(-2px); /* Nhấc card lên một chút */
+}
+
+.hui-card--outlined.hui-card--hoverable:hover {
+  border-color: var(--hui-border-hover);
+}
+
+.hui-card--clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.hui-card--clickable:active {
+  transform: translateY(0); /* Nhấn xuống thì hạ card về chỗ cũ */
+  box-shadow: var(--hui-shadow-md);
+}
+
+.hui-card--clickable:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+/* ================== COVER (MEDIA) ================== */
+.hui-card__cover {
+  position: relative;
+  flex-shrink: 0;
+  height: var(--hui-card-cover-height, 180px);
+  background: var(--hui-bg-tertiary);
+  overflow: hidden;
+}
+
+/* Layout ngang: cover cao theo card, rộng cố định */
+.hui-card--horizontal .hui-card__cover {
+  width: var(--hui-card-cover-width, 40%);
+  max-width: 280px;
+  height: auto;
+  min-height: var(--hui-card-cover-height, 180px);
+}
+
+.hui-card__cover-img,
+.hui-card__cover ::slotted(img),
+.hui-card__cover ::slotted(video) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ảnh lấp đầy khung, cắt phần thừa */
+}
+
+/* ================== HEADER ================== */
+.hui-card__header {
+  padding: var(--_pad) var(--_pad) 0;
+}
+
+.hui-card__header-default {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-md);
+}
+
+.hui-card__avatar {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.hui-card__titles {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.hui-card__title {
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Tiêu đề dài → hiện dấu ... */
+}
+
+.hui-card__subtitle {
+  margin-top: 2px;
+  color: var(--hui-text-secondary);
+  line-height: var(--hui-line-height);
+}
+
+.hui-card__extra {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  flex-shrink: 0;
+  margin-left: auto; /* Đẩy vùng extra sát mép phải */
+}
+
+/* Cỡ chữ theo size */
+.hui-card--sm .hui-card__title { font-size: var(--hui-font-sm); }
+.hui-card--sm .hui-card__subtitle { font-size: var(--hui-font-xs); }
+.hui-card--md .hui-card__title { font-size: var(--hui-font-base); }
+.hui-card--md .hui-card__subtitle { font-size: var(--hui-font-sm); }
+.hui-card--lg .hui-card__title { font-size: var(--hui-font-lg); }
+.hui-card--lg .hui-card__subtitle { font-size: var(--hui-font-sm); }
+
+/* ================== BODY ================== */
+.hui-card__body {
+  flex: 1 1 auto;
+  padding: var(--_pad);
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+.hui-card--lg .hui-card__body { font-size: var(--hui-font-base); }
+
+/* ================== LOADING SKELETON ================== */
+.hui-card__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hui-card__skeleton-line {
+  display: block;
+  height: 12px;
+  border-radius: var(--hui-radius-sm);
+  /* Dải gradient chạy ngang tạo hiệu ứng ánh sáng lướt qua (shimmer) */
+  background: linear-gradient(
+    90deg,
+    var(--hui-bg-tertiary) 25%,
+    var(--hui-border) 37%,
+    var(--hui-bg-tertiary) 63%
+  );
+  background-size: 400% 100%;
+  animation: hui-card-shimmer 1.4s ease infinite;
+}
+
+.hui-card__skeleton-line--short {
+  width: 60%;
+}
+
+@keyframes hui-card-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* ================== ACTIONS & FOOTER ================== */
+.hui-card__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  padding: calc(var(--_pad) * 0.75) var(--_pad);
+  border-top: 1px solid var(--hui-border);
+}
+
+.hui-card__footer {
+  padding: 0 var(--_pad) var(--_pad);
+  color: var(--hui-text-muted);
+  font-size: var(--hui-font-xs);
+}
+
+/* Nếu có actions thì footer nằm dưới actions → cần padding trên */
+.hui-card__actions:not([hidden]) + .hui-card__footer {
+  padding-top: calc(var(--_pad) * 0.75);
+  border-top: 1px solid var(--hui-border);
+}
+
+/* Người dùng giảm chuyển động → tắt animation */
+@media (prefers-reduced-motion: reduce) {
+  .hui-card,
+  .hui-card__skeleton-line {
+    transition: none;
+    animation: none;
+  }
+}

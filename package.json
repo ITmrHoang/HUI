@@ -50,6 +50,22 @@
       "import": "./dist/hui-spinner.esm.js",
       "require": "./dist/hui-spinner.js"
     },
+    "./hui-switch": {
+      "import": "./dist/hui-switch.esm.js",
+      "require": "./dist/hui-switch.js"
+    },
+    "./hui-tag": {
+      "import": "./dist/hui-tag.esm.js",
+      "require": "./dist/hui-tag.js"
+    },
+    "./hui-divider": {
+      "import": "./dist/hui-divider.esm.js",
+      "require": "./dist/hui-divider.js"
+    },
+    "./hui-avatar": {
+      "import": "./dist/hui-avatar.esm.js",
+      "require": "./dist/hui-avatar.js"
+    },
     "./style.css": "./dist/style.css"
   },
   "files": [

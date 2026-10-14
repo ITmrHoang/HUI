@@ -1,0 +1,244 @@
+/*
+ * ==========================================================
+ * HUI Badge CSS - File style độc lập cho Component Huy hiệu
+ * ==========================================================
+ * Biến nội bộ (đặt bằng JS qua inline style):
+ *   --_badge-bg : màu chính của chỉ báo (token hoặc màu tự do)
+ *   --_ox/--_oy : độ lệch (offset) theo trục x/y, đơn vị px
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+  line-height: 1;
+}
+
+/* Slot rỗng chỉ dùng để bắt 'slotchange' — không hiển thị */
+.hui-badge__hidden-slot {
+  display: none;
+}
+
+/* Khung bọc: position relative để chỉ báo bám theo góc của nội dung */
+.hui-badge {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* ================== CHỈ BÁO (INDICATOR) ================== */
+.hui-badge__indicator {
+  /* Vị trí dịch chuyển mặc định (top-right), được ghi đè theo placement bên dưới */
+  --_tx: 50%;
+  --_ty: -50%;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-weight: var(--hui-font-weight-semibold);
+  white-space: nowrap;
+  border-radius: var(--hui-radius-full);
+  /* Viền trắng mỏng giúp tách badge khỏi nội dung phía sau */
+  box-shadow: 0 0 0 1px var(--hui-bg);
+  /* Dùng thuộc tính `scale` riêng (không đụng `transform`) để animation không phá vị trí */
+  scale: 1;
+  transition: background var(--hui-transition), color var(--hui-transition);
+  z-index: 1;
+}
+
+/* Kích thước */
+.hui-badge__indicator--md {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: var(--hui-font-xs);
+}
+
+.hui-badge__indicator--sm {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 0.625rem; /* 10px */
+}
+
+/* Biến thể standard: nền đặc, chữ trắng */
+.hui-badge__indicator--standard {
+  background: var(--_badge-bg, var(--hui-danger));
+  color: var(--hui-text-inverse);
+}
+
+/* Biến thể soft: nền nhạt pha từ màu chính, chữ đậm màu chính */
+.hui-badge__indicator--soft {
+  background: color-mix(in srgb, var(--_badge-bg, var(--hui-danger)) 15%, var(--hui-bg));
+  color: var(--_badge-bg, var(--hui-danger));
+}
+
+/* Chế độ dot: chấm tròn nhỏ, không có chữ */
+.hui-badge__indicator--dot {
+  min-width: 0;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  background: var(--_badge-bg, var(--hui-danger));
+}
+
+.hui-badge__indicator--dot.hui-badge__indicator--sm {
+  width: 6px;
+  height: 6px;
+}
+
+/* Nội dung tùy biến từ slot "count" (ví dụ icon): bỏ nền & padding, tô màu theo color */
+.hui-badge__indicator--custom {
+  min-width: 0;
+  height: auto;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--_badge-bg, var(--hui-danger));
+}
+
+/* ================== VỊ TRÍ KHI BỌC NỘI DUNG ================== */
+.hui-badge:not(.hui-badge--standalone) .hui-badge__indicator {
+  position: absolute;
+  /* Dịch 50% kích thước của chính nó để tâm badge nằm đúng góc + cộng thêm offset */
+  transform: translate(calc(var(--_tx) + var(--_ox, 0px)), calc(var(--_ty) + var(--_oy, 0px)));
+}
+
+.hui-badge--top-right .hui-badge__indicator {
+  top: 0;
+  right: 0;
+  transform-origin: 100% 0%;
+}
+
+.hui-badge--top-left .hui-badge__indicator {
+  --_tx: -50%;
+  top: 0;
+  left: 0;
+  transform-origin: 0% 0%;
+}
+
+.hui-badge--bottom-right .hui-badge__indicator {
+  --_ty: 50%;
+  bottom: 0;
+  right: 0;
+  transform-origin: 100% 100%;
+}
+
+.hui-badge--bottom-left .hui-badge__indicator {
+  --_tx: -50%;
+  --_ty: 50%;
+  bottom: 0;
+  left: 0;
+  transform-origin: 0% 100%;
+}
+
+/*
+ * overlap="circular" (MUI): với phần tử tròn như avatar, góc của hình vuông bao ngoài
+ * nằm xa đường viền tròn → kéo chỉ báo vào trong ~14% để bám sát mép tròn.
+ */
+.hui-badge--overlap-circular.hui-badge--top-right .hui-badge__indicator { top: 14%; right: 14%; }
+.hui-badge--overlap-circular.hui-badge--top-left .hui-badge__indicator { top: 14%; left: 14%; }
+.hui-badge--overlap-circular.hui-badge--bottom-right .hui-badge__indicator { bottom: 14%; right: 14%; }
+.hui-badge--overlap-circular.hui-badge--bottom-left .hui-badge__indicator { bottom: 14%; left: 14%; }
+
+/* Standalone: badge nằm inline như một nhãn, offset vẫn áp dụng bằng relative */
+.hui-badge--standalone .hui-badge__indicator {
+  position: relative;
+  vertical-align: middle;
+  left: var(--_ox, 0px);
+  top: var(--_oy, 0px);
+}
+
+/* ================== ANIMATION ẨN / HIỆN / ĐỔI SỐ ================== */
+.hui-badge__indicator--hidden {
+  scale: 0;
+  visibility: hidden;
+}
+
+.hui-badge__indicator--enter {
+  animation: hui-badge-zoom-in var(--hui-transition-slow) cubic-bezier(0.12, 0.4, 0.29, 1.46) both;
+}
+
+.hui-badge__indicator--leave {
+  animation: hui-badge-zoom-out var(--hui-transition) both;
+}
+
+.hui-badge__indicator--bump {
+  animation: hui-badge-bump var(--hui-transition-slow) ease-out;
+}
+
+@keyframes hui-badge-zoom-in {
+  from { scale: 0; opacity: 0; }
+  to { scale: 1; opacity: 1; }
+}
+
+@keyframes hui-badge-zoom-out {
+  from { scale: 1; opacity: 1; }
+  to { scale: 0; opacity: 0; visibility: hidden; }
+}
+
+/* Nảy nhẹ khi số đếm thay đổi để thu hút sự chú ý */
+@keyframes hui-badge-bump {
+  0% { scale: 0.6; }
+  60% { scale: 1.15; }
+  100% { scale: 1; }
+}
+
+/* ================== PROCESSING: VÒNG SÓNG LAN TỎA ================== */
+.hui-badge__indicator--processing::after,
+.hui-badge-status__dot--processing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid var(--_badge-bg, var(--hui-info));
+  animation: hui-badge-ripple 1.2s ease-in-out infinite;
+}
+
+/* Khi ở chế độ standalone, ::after cần mốc position */
+.hui-badge--standalone .hui-badge__indicator--processing,
+.hui-badge-status__dot {
+  position: relative;
+}
+
+@keyframes hui-badge-ripple {
+  from { scale: 0.8; opacity: 0.6; }
+  to { scale: 2.4; opacity: 0; }
+}
+
+/* ================== STATUS MODE (chấm + text, giống Ant) ================== */
+.hui-badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  font-size: var(--hui-font-sm);
+  color: var(--hui-text);
+  line-height: var(--hui-line-height);
+}
+
+.hui-badge-status__dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--hui-radius-full);
+  background: var(--_badge-bg, var(--hui-text-muted));
+  flex-shrink: 0;
+}
+
+/* ================== ACCESSIBILITY (TRỢ NĂNG) ================== */
+@media (prefers-reduced-motion: reduce) {
+  .hui-badge__indicator--enter,
+  .hui-badge__indicator--leave,
+  .hui-badge__indicator--bump {
+    animation-duration: 1ms;
+  }
+
+  .hui-badge__indicator--processing::after,
+  .hui-badge-status__dot--processing::after {
+    animation: none;
+    opacity: 0;
+  }
+}
