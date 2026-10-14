@@ -13,13 +13,18 @@ export { default as HuiInput } from './components/hui-input/index.js';
 export { default as HuiModal } from './components/hui-modal/index.js';
 export { default as HuiSelect } from './components/hui-select/index.js';
 export { default as HuiCheckbox } from './components/hui-checkbox/index.js';
+export { default as HuiCard } from './components/hui-card/index.js';
+export { default as HuiBadge } from './components/hui-badge/index.js';
+export { default as HuiAlert } from './components/hui-alert/index.js';
+export { default as HuiTooltip } from './components/hui-tooltip/index.js';
+export { default as HuiSpinner } from './components/hui-spinner/index.js';
 
-// Các Component tiếp theo sẽ được Export tại đây khi code xong:
+// Nhóm component cơ bản bổ sung (API tham khảo Ant Design + MUI)
+export { default as HuiSwitch } from './components/hui-switch/index.js';
+export { default as HuiTag } from './components/hui-tag/index.js';
+export { default as HuiDivider } from './components/hui-divider/index.js';
+export { default as HuiAvatar, HuiAvatarGroup } from './components/hui-avatar/index.js';
+
 export { default as HuiDemo } from './components/hui-demo/index.js';
-// export { default as HuiCard } from './components/hui-card/index.js';
-// export { default as HuiBadge } from './components/hui-badge/index.js';
-// export { default as HuiAlert } from './components/hui-alert/index.js';
-// export { default as HuiTooltip } from './components/hui-tooltip/index.js';
-// export { default as HuiSpinner } from './components/hui-spinner/index.js';
 
 console.info('🧩 HUI-Lib Loaded! Hệ thống Component Sẵn Sàng.');

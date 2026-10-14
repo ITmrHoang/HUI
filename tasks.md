@@ -15,11 +15,17 @@ Quy ước đánh dấu:
 - [x] `hui-button` — Nút bấm
 - [x] `hui-input` — Ô nhập liệu
 - [x] `hui-modal` — Hộp thoại popup
-- [ ] `hui-card` — Thẻ chứa nội dung
-- [ ] `hui-badge` — Nhãn trạng thái
-- [ ] `hui-alert` — Thông báo
-- [ ] `hui-tooltip` — Gợi ý hover
-- [ ] `hui-spinner` — Loading indicator
+- [x] `hui-card` — Thẻ chứa nội dung
+- [x] `hui-badge` — Nhãn trạng thái
+- [x] `hui-alert` — Thông báo
+- [x] `hui-tooltip` — Gợi ý hover
+- [x] `hui-spinner` — Loading indicator
+
+## Basic Components (Phase 2 — API tham khảo Ant Design + MUI)
+- [x] `hui-switch` — Công tắc bật/tắt
+- [x] `hui-tag` — Nhãn/Chip (closable, checkable)
+- [x] `hui-divider` — Đường phân cách
+- [x] `hui-avatar` + `hui-avatar-group` — Ảnh đại diện
 
 ## Build & Export
 - [x] Tạo `src/index.js` tổng hợp

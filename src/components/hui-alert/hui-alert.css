@@ -1,0 +1,245 @@
+/*
+ * ==========================================================
+ * HUI Alert CSS - File style độc lập cho Component Thông báo
+ * ==========================================================
+ */
+
+/*
+ * 1. :host
+ * Alert là khối (block) chiếm toàn bộ chiều ngang container.
+ */
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+/*
+ * Vì :host { display: block } sẽ đè lên style [hidden] mặc định của trình duyệt,
+ * ta phải khai báo lại để attribute `hidden` (gắn sau khi đóng) thật sự ẩn được alert.
+ */
+:host([hidden]) {
+  display: none;
+}
+
+/* ================== KHUNG CHÍNH ================== */
+.hui-alert {
+  /*
+   * Biến nội bộ (private, tiền tố --_):
+   * --_c       : màu chủ đạo theo severity
+   * --_c-light : màu nền nhạt tương ứng
+   */
+  --_c: var(--hui-info);
+  --_c-light: var(--hui-info-light);
+
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: var(--hui-radius);
+  line-height: var(--hui-line-height);
+  color: var(--hui-text);
+  overflow: hidden; /* Cần cho animation thu gọn chiều cao */
+  transition:
+    height var(--hui-transition-slow),
+    opacity var(--hui-transition-slow),
+    padding var(--hui-transition-slow),
+    border-width var(--hui-transition-slow);
+}
+
+/* ================== SEVERITY (MÀU THEO MỨC ĐỘ) ================== */
+.hui-alert--info {
+  --_c: var(--hui-info);
+  --_c-light: var(--hui-info-light);
+}
+
+.hui-alert--success {
+  --_c: var(--hui-success);
+  --_c-light: var(--hui-success-light);
+}
+
+.hui-alert--warning {
+  --_c: var(--hui-warning);
+  --_c-light: var(--hui-warning-light);
+}
+
+.hui-alert--error {
+  --_c: var(--hui-danger);
+  --_c-light: var(--hui-danger-light);
+}
+
+/* ================== VARIANTS (KIỂU HIỂN THỊ) ================== */
+
+/* standard: nền nhạt + viền nhạt, chữ được trộn tối hơn màu chủ đạo để dễ đọc */
+.hui-alert--standard {
+  background: var(--_c-light);
+  border-color: color-mix(in srgb, var(--_c) 30%, transparent);
+  color: color-mix(in srgb, var(--_c) 40%, var(--hui-text));
+}
+
+/* filled: nền đặc màu chủ đạo, chữ trắng */
+.hui-alert--filled {
+  background: var(--_c);
+  border-color: var(--_c);
+  color: var(--hui-text-inverse);
+}
+
+/* outlined: không nền, chỉ có viền màu chủ đạo */
+.hui-alert--outlined {
+  background: transparent;
+  border-color: var(--_c);
+  color: color-mix(in srgb, var(--_c) 40%, var(--hui-text));
+}
+
+/* ================== SIZES (KÍCH THƯỚC) ================== */
+.hui-alert--sm {
+  padding: 6px 10px;
+  font-size: var(--hui-font-xs);
+}
+
+.hui-alert--md {
+  padding: 10px 14px;
+  font-size: var(--hui-font-sm);
+}
+
+.hui-alert--lg {
+  padding: 14px 18px;
+  font-size: var(--hui-font-base);
+}
+
+/* ================== BANNER ================== */
+/* Dải thông báo đầu trang: không bo góc, không viền 2 bên */
+:host([banner]) .hui-alert {
+  border-radius: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+}
+
+/* ================== ICON ================== */
+.hui-alert__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--_c);
+  /* Căn icon với dòng chữ đầu tiên: chiều cao = 1 dòng (font-size * line-height) */
+  height: calc(1em * var(--hui-line-height));
+  align-items: center;
+}
+
+.hui-alert--filled .hui-alert__icon {
+  color: inherit;
+}
+
+.hui-alert__icon svg,
+.hui-alert__icon ::slotted(*) {
+  width: 1.25em;
+  height: 1.25em;
+}
+
+/* Khi có cả title + mô tả (giống Ant), icon to hơn một chút */
+.hui-alert--has-title.hui-alert--has-description .hui-alert__icon svg {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+/* ================== NỘI DUNG ================== */
+.hui-alert__content {
+  flex: 1;
+  min-width: 0; /* Cho phép text xuống dòng thay vì đẩy tràn flex */
+}
+
+.hui-alert__title {
+  display: none;
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.hui-alert__description {
+  display: none;
+}
+
+/* Chỉ hiện khối title / mô tả khi thực sự có nội dung */
+.hui-alert--has-title .hui-alert__title,
+.hui-alert--has-description .hui-alert__description {
+  display: block;
+}
+
+/* Có cả title lẫn mô tả → cách nhau một chút */
+.hui-alert--has-title.hui-alert--has-description .hui-alert__description {
+  margin-top: 2px;
+  opacity: 0.9;
+}
+
+/* ================== ACTION ================== */
+.hui-alert__action {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.hui-alert--has-action .hui-alert__action {
+  display: inline-flex;
+}
+
+/* ================== NÚT ĐÓNG ================== */
+.hui-alert__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: calc(1em * var(--hui-line-height));
+  min-width: calc(1em * var(--hui-line-height));
+  padding: 0;
+  border: none;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity var(--hui-transition-fast), background var(--hui-transition-fast);
+}
+
+.hui-alert__close svg {
+  width: 1em;
+  height: 1em;
+}
+
+.hui-alert__close--text {
+  padding: 0 4px;
+  font-size: 0.9em;
+}
+
+.hui-alert__close:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* ================== ANIMATION ĐÓNG ================== */
+/* JS đặt height cố định (px) trước, sau đó thêm class này để chuyển về 0 */
+.hui-alert--closing {
+  height: 0 !important;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-top-width: 0;
+  border-bottom-width: 0;
+}
+
+/* Người dùng bật "giảm chuyển động" → bỏ animation (JS có timeout dự phòng) */
+@media (prefers-reduced-motion: reduce) {
+  .hui-alert {
+    transition: none;
+  }
+}
+
+/* ================== ACCESSIBILITY (TRỢ NĂNG) ================== */
+.hui-alert__close:focus-visible {
+  outline: 2px solid var(--_c);
+  outline-offset: 1px;
+  opacity: 1;
+}
+
+.hui-alert--filled .hui-alert__close:focus-visible {
+  outline-color: var(--hui-text-inverse);
+}
