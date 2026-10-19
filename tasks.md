@@ -592,6 +592,18 @@ bật `prefers-reduced-motion`; thời lượng/easing lấy từ token `--hui-m
 9. **Mặc định có animation hay không:** component bật hiệu ứng sẵn (đề xuất, tắt bằng `no-animation` hoặc token `--hui-motion-duration: 0ms`) hay mặc định tắt?
 10. **`hui-faq` SEO (JSON-LD)** và **`hui-cookie-consent`** có cần ngay không, hay để sau?
 
+### ✅ Đã chốt (2026-10-19, theo đề xuất)
+1. Component **mới** đặt title Storybook theo tầng (`Atoms/`, `Molecules/`, `Organisms/`, `Foundations/`) ngay; component cũ đổi ở bước cuối (mục 10 của thứ tự thực thi).
+2. Template data: `<template>` + `data-bind` / `data-bind-attr` / `data-show` / `data-format` / `data-action` (không dùng `{{field}}`); hoặc hàm `renderItem`.
+3. `hui-scroll-steps`: lõi CSS scroll-snap; `wheel-step` là tùy chọn bật thêm.
+4. Mini chart: chỉ sparkline / bar / donut / gauge nhẹ.
+5. Card chuyên biệt (product / pricing / profile / testimonial / stat / feature / blog): component riêng.
+6. Làm A0–A3 (+ đợt nhanh) ngay sau G1, trước G2; mục trùng của G2/G3 gộp vào kế hoạch Atomic.
+7. `hui-contact-float`: preset dùng icon chung (phone / chat / mail); logo thương hiệu (Zalo, Messenger) do dự án tự `registerIcon` — thư viện không kèm logo.
+8. Hiệu ứng nặng (tilt, confetti, parallax, gradient động) tách entry riêng `hui-lib/effects`.
+9. Animation **bật mặc định**; tắt bằng attribute `no-animation` hoặc token `--hui-motion-duration: 0ms`; luôn tôn trọng `prefers-reduced-motion`.
+10. `hui-faq` có `seo` (JSON-LD, bật khi cần) làm ngay trong đợt nhanh; `hui-cookie-consent` để sau.
+
 ---
 
 ## Quyết định đã chốt (review 2026-10-19)

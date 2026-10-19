@@ -10,6 +10,7 @@
 const vi = {
   common: { ok: 'Đồng ý', cancel: 'Hủy', close: 'Đóng', clear: 'Xóa', loading: 'Đang tải...', search: 'Tìm kiếm', copy: 'Sao chép', copied: 'Đã sao chép', expand: 'Mở rộng', collapse: 'Thu gọn', more: 'Xem thêm' },
   empty: { description: 'Không có dữ liệu' },
+  data: { errorTitle: 'Không tải được dữ liệu', retry: 'Thử lại' },
   form: {
     required: 'Vui lòng nhập trường này',
     requiredChecked: 'Vui lòng chọn mục này',
@@ -47,6 +48,7 @@ const vi = {
 const en = {
   common: { ok: 'OK', cancel: 'Cancel', close: 'Close', clear: 'Clear', loading: 'Loading...', search: 'Search', copy: 'Copy', copied: 'Copied', expand: 'Expand', collapse: 'Collapse', more: 'More' },
   empty: { description: 'No data' },
+  data: { errorTitle: 'Could not load data', retry: 'Retry' },
   form: {
     required: 'Please fill out this field',
     requiredChecked: 'Please check this box',

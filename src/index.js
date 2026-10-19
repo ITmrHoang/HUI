@@ -11,6 +11,10 @@ import './styles/reset.css';
 // Import 2: Lớp nền để tự viết component mới theo chuẩn HUI
 export * from './core/index.js';
 
+// Bundle tổng bật sẵn directive data-hui-animate (import lẻ thì tự gọi enableAnimations())
+import { enableAnimations } from './utils/animate.js';
+enableAnimations();
+
 // Import 3: Xuất xưởng toàn bộ Component trong hệ sinh thái
 export { default as HuiConfigProvider } from './components/hui-config-provider/index.js';
 export { default as HuiIcon, registerIcon, getIcon, getIconNames } from './components/hui-icon/index.js';
