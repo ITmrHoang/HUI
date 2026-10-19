@@ -3,76 +3,108 @@
   "version": "0.1.0",
   "description": "HUI - Hoang UI Component Library. Thư viện Web Components nhẹ, không phụ thuộc framework.",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
+  "main": "./dist/index.esm.js",
+  "module": "./dist/index.esm.js",
   "exports": {
     ".": {
+      "types": "./dist/types/index.d.ts",
       "import": "./dist/index.esm.js",
-      "require": "./dist/index.js"
+      "default": "./dist/index.esm.js"
     },
-    "./hui-button": {
-      "import": "./dist/hui-button.esm.js",
-      "require": "./dist/hui-button.js"
-    },
-    "./hui-input": {
-      "import": "./dist/hui-input.esm.js",
-      "require": "./dist/hui-input.js"
-    },
-    "./hui-modal": {
-      "import": "./dist/hui-modal.esm.js",
-      "require": "./dist/hui-modal.js"
-    },
-    "./hui-select": {
-      "import": "./dist/hui-select.esm.js",
-      "require": "./dist/hui-select.js"
-    },
-    "./hui-checkbox": {
-      "import": "./dist/hui-checkbox.esm.js",
-      "require": "./dist/hui-checkbox.js"
-    },
-    "./hui-card": {
-      "import": "./dist/hui-card.esm.js",
-      "require": "./dist/hui-card.js"
-    },
-    "./hui-badge": {
-      "import": "./dist/hui-badge.esm.js",
-      "require": "./dist/hui-badge.js"
+    "./core": {
+      "types": "./dist/types/core.d.ts",
+      "import": "./dist/core.esm.js",
+      "default": "./dist/core.esm.js"
     },
     "./hui-alert": {
+      "types": "./dist/types/hui-alert.d.ts",
       "import": "./dist/hui-alert.esm.js",
-      "require": "./dist/hui-alert.js"
-    },
-    "./hui-tooltip": {
-      "import": "./dist/hui-tooltip.esm.js",
-      "require": "./dist/hui-tooltip.js"
-    },
-    "./hui-spinner": {
-      "import": "./dist/hui-spinner.esm.js",
-      "require": "./dist/hui-spinner.js"
-    },
-    "./hui-switch": {
-      "import": "./dist/hui-switch.esm.js",
-      "require": "./dist/hui-switch.js"
-    },
-    "./hui-tag": {
-      "import": "./dist/hui-tag.esm.js",
-      "require": "./dist/hui-tag.js"
-    },
-    "./hui-divider": {
-      "import": "./dist/hui-divider.esm.js",
-      "require": "./dist/hui-divider.js"
+      "default": "./dist/hui-alert.esm.js"
     },
     "./hui-avatar": {
+      "types": "./dist/types/hui-avatar.d.ts",
       "import": "./dist/hui-avatar.esm.js",
-      "require": "./dist/hui-avatar.js"
+      "default": "./dist/hui-avatar.esm.js"
     },
-    "./style.css": "./dist/style.css"
+    "./hui-badge": {
+      "types": "./dist/types/hui-badge.d.ts",
+      "import": "./dist/hui-badge.esm.js",
+      "default": "./dist/hui-badge.esm.js"
+    },
+    "./hui-button": {
+      "types": "./dist/types/hui-button.d.ts",
+      "import": "./dist/hui-button.esm.js",
+      "default": "./dist/hui-button.esm.js"
+    },
+    "./hui-card": {
+      "types": "./dist/types/hui-card.d.ts",
+      "import": "./dist/hui-card.esm.js",
+      "default": "./dist/hui-card.esm.js"
+    },
+    "./hui-checkbox": {
+      "types": "./dist/types/hui-checkbox.d.ts",
+      "import": "./dist/hui-checkbox.esm.js",
+      "default": "./dist/hui-checkbox.esm.js"
+    },
+    "./hui-divider": {
+      "types": "./dist/types/hui-divider.d.ts",
+      "import": "./dist/hui-divider.esm.js",
+      "default": "./dist/hui-divider.esm.js"
+    },
+    "./hui-icon": {
+      "types": "./dist/types/hui-icon.d.ts",
+      "import": "./dist/hui-icon.esm.js",
+      "default": "./dist/hui-icon.esm.js"
+    },
+    "./hui-input": {
+      "types": "./dist/types/hui-input.d.ts",
+      "import": "./dist/hui-input.esm.js",
+      "default": "./dist/hui-input.esm.js"
+    },
+    "./hui-modal": {
+      "types": "./dist/types/hui-modal.d.ts",
+      "import": "./dist/hui-modal.esm.js",
+      "default": "./dist/hui-modal.esm.js"
+    },
+    "./hui-select": {
+      "types": "./dist/types/hui-select.d.ts",
+      "import": "./dist/hui-select.esm.js",
+      "default": "./dist/hui-select.esm.js"
+    },
+    "./hui-spinner": {
+      "types": "./dist/types/hui-spinner.d.ts",
+      "import": "./dist/hui-spinner.esm.js",
+      "default": "./dist/hui-spinner.esm.js"
+    },
+    "./hui-switch": {
+      "types": "./dist/types/hui-switch.d.ts",
+      "import": "./dist/hui-switch.esm.js",
+      "default": "./dist/hui-switch.esm.js"
+    },
+    "./hui-tag": {
+      "types": "./dist/types/hui-tag.d.ts",
+      "import": "./dist/hui-tag.esm.js",
+      "default": "./dist/hui-tag.esm.js"
+    },
+    "./hui-tooltip": {
+      "types": "./dist/types/hui-tooltip.d.ts",
+      "import": "./dist/hui-tooltip.esm.js",
+      "default": "./dist/hui-tooltip.esm.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./custom-elements.json": "./dist/custom-elements.json",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css",
+    "./dist/index.esm.js",
+    "./dist/hui-*.esm.js"
+  ],
   "scripts": {
+    "prebuild": "node scripts/sync-exports.mjs",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -102,5 +134,7 @@
     "storybook": "^10.3.5",
     "vite": "^6.0.0",
     "vitest": "^4.1.4"
-  }
+  },
+  "types": "./dist/types/index.d.ts",
+  "customElements": "./dist/custom-elements.json"
 }

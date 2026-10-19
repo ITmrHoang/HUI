@@ -1,134 +1,359 @@
 /*
  * ==========================================================
- * BÀI HỌC TỔNG HỢP: CSS TRONG WEB COMPONENTS (SHADOW DOM)
- * Thẻ (Tag) mẫu: <hui-demo>
+ * TÀI LIỆU: CSS TRONG WEB COMPONENTS (SHADOW DOM) — áp dụng cho mọi component HUI
+ * Thẻ mẫu: <hui-demo>
  * ==========================================================
+ *
+ * NGUYÊN TẮC GỐC: Shadow DOM là "bức tường"
+ *   - CSS trang ngoài KHÔNG chọc được vào class bên trong (.demo__box ở ngoài viết vô dụng).
+ *   - CSS bên trong KHÔNG tràn ra làm hỏng trang ngoài.
+ *   - NHƯNG có 3 thứ đi XUYÊN tường:
+ *       a) Thuộc tính kế thừa (inherited): color, font-*, line-height, cursor, visibility...
+ *          → <hui-demo style="color: red"> thì chữ bên trong cũng đỏ (nếu bên trong không tự đặt).
+ *       b) Biến CSS (--xxx): cũng là thuộc tính kế thừa → đường chính để theme/override.
+ *       c) Những "cửa" component chủ động mở: ::part(), <slot>, :host([attr]), :state().
+ *
+ * THỨ TỰ ƯU TIÊN khi CSS ngoài và CSS trong cùng nhắm vào thẻ host <hui-demo>:
+ *   - Rule thường: CSS NGOÀI THẮNG :host (dù :host viết cụ thể hơn).
+ *       hui-demo { padding: 0 }   thắng   :host { padding: 1rem }
+ *   - Rule !important: ngược lại, :host { ... !important } THẮNG CSS ngoài.
+ *       → Thư viện tránh dùng !important trên :host để người dùng luôn override được.
+ *
+ * BẢNG CHỌN NHANH — muốn override thì dùng gì:
+ *   | Muốn                                   | Dùng                                   |
+ *   |----------------------------------------|----------------------------------------|
+ *   | Đổi màu/kích thước cả hệ thống         | Biến token trên :root (--hui-primary)  |
+ *   | Đổi 1 loại component (mọi nút)          | Biến component (--hui-button-radius)   |
+ *   | Đổi 1 vùng (mọi nút trong .toolbar)     | Biến component đặt trên .toolbar       |
+ *   | Đổi thuộc tính KHÔNG có biến            | ::part(tên)                            |
+ *   | Đổi nội dung (icon, chữ, khối HTML)     | <slot> / slot="tên"                    |
+ *   | Đổi theo trạng thái người dùng gán      | hui-x[attr] hoặc :host([attr]) bên trong|
+ *   | Đổi theo trạng thái nội bộ component    | hui-x:state(tên)                       |
  */
 
 
 /* ==========================================================
- * PHẦN 1: TỔNG QUAN VỀ PSEUDO-CLASSES (LỚP GIẢ) TRONG WEB COMPONENT
- * Pseudo-class (Bắt đầu bằng 1 dấu 2 chấm `:`) dùng để nhắm tới "Trạng thái" của một đối tượng.
- * ========================================================== */
-
-/* 
- * 1. :host
- * Ám chỉ chính cái thẻ <hui-demo> bao bọc bên ngoài trang HTML. 
- * Nếu không có :host, bạn không thể style được phần viền ngoài cùng của thẻ này từ bên trong Shadow DOM.
+ * PHẦN 1: BIẾN CSS (CSS CUSTOM PROPERTIES) — cách override CHÍNH
+ * ==========================================================
+ * Quy ước HUI: dùng var(--hui-<component>-<thuộc tính>, <mặc định>) ngay tại chỗ dùng.
+ *
+ * ĐÚNG — KHÔNG khai báo biến công khai trên :host:
+ *     .demo__box { background: var(--hui-demo-accent, var(--hui-primary)); }
+ *   → Người dùng đặt --hui-demo-accent ở ĐÂU cũng được: :root, .sidebar, hay chính <hui-demo>.
+ *
+ * SAI — khai báo biến công khai trên :host:
+ *     :host { --hui-demo-accent: blue; }
+ *   → :host tự có giá trị riêng nên CHẶN giá trị kế thừa từ cha:
+ *     .sidebar { --hui-demo-accent: red }  sẽ KHÔNG có tác dụng (chỉ hui-demo {...} mới đè được).
+ *
+ * Biến NỘI BỘ (tiền tố --_) thì ĐƯỢC khai báo trong component, dùng để variant/size đổi giá trị
+ * mà không đụng vào biến công khai. Xem cách dùng ở hui-button.css:
+ *     .hui-btn--danger { --_bg: var(--hui-danger); }
+ *     .hui-btn { background: var(--hui-button-bg, var(--_bg)); }   ← biến công khai luôn ưu tiên
+ *
+ * Biến công khai của hui-demo:
+ *   --hui-demo-accent   Màu nhấn (viền trái, hộp)
+ *   --hui-demo-radius   Bo góc khung
+ *   --hui-demo-padding  Khoảng đệm
  */
+
 :host {
   display: block;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  background-color: #f9f9f9;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
 }
 
-/* 
- * 2. :host([attribute]) - Pseudo-class nhắm tới Trạng thái của Attribute
- * Chỉ áp dụng CSS nếu thẻ bên ngoài có thuộc tính được chỉ định.
- * Cú pháp HTML: <hui-demo dark-mode></hui-demo>
- */
-:host([dark-mode]) {
-  background-color: #333;
-  color: #fff;
+.demo {
+  /* Biến nội bộ: đổi theo variant ở PHẦN 4 */
+  --_accent: var(--hui-demo-accent, var(--hui-primary));
+
+  padding: var(--hui-demo-padding, var(--hui-space-lg));
+  border: 1px solid var(--hui-border);
+  border-left: 4px solid var(--_accent);
+  border-radius: var(--hui-demo-radius, var(--hui-radius-lg));
+  background: var(--hui-surface);
+  transition: box-shadow var(--hui-transition), outline-color var(--hui-transition);
 }
 
-/* 
- * 3. :host-context(selector) - Pseudo-class nhắm vào Phạm vi bên ngoài (Tổ tiên)
- * RẤT ĐẶC BIỆT: Nó chọc ra ngoài Shadow DOM để xem thử có cái tag thẻ cha/ông nội nào 
- * bao bọc cái <hui-demo> này mà có chứa class tương ứng không.
- * Phù hợp làm Theme (Giao diện).
- * Cú pháp HTML: <body class="theme-tet"><hui-demo></hui-demo></body>
- */
-:host-context(.theme-tet) {
-  border-color: red;
-  box-shadow: 0 0 10px yellow;
+.demo__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-md);
+  margin-bottom: var(--hui-space-md);
 }
 
-/* 
- * 4. Pseudo-class trạng thái tương tác tiêu chuẩn (:hover, :active, :focus, :focus-within) 
- */
-.box {
-  background: blue;
-  transition: all 0.3s;
+.demo__title {
+  margin: 0;
+  font-size: var(--hui-font-lg);
 }
 
-/* :hover - Trạng thái khi con chuột lướt ngang qua phần tử */
-.box:hover {
-  background: darkblue;
+.demo__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-md);
 }
 
-/* :active - Trạng thái ngay khoảnh khắc chuột đang nhấn giữ (chuột trái chưa nhả ra) */
-.box:active {
-  transform: scale(0.95);
+.demo__row {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-md);
 }
 
-/* :focus-within - Trạng thái khi có BẤT KỲ ĐỨA CON NÀO BÊN TRONG nó đang được Focus (ví dụ click vào ô Input) */
-.box-container:focus-within {
-  outline: 2px solid green;
+.demo__count {
+  font-family: var(--hui-font-mono);
+  font-size: var(--hui-font-sm);
 }
 
 
 /* ==========================================================
- * PHẦN 2: TỔNG QUAN VỀ PSEUDO-ELEMENTS (PHẦN TỬ GIẢ) TRONG WEB COMPONENT
- * Pseudo-element (Bắt đầu bằng 2 dấu 2 chấm `::`) dùng để nhắm tới hoặc "Tạo ra" 
- * những bộ phận không có thật trên cây DOM, hoặc bộ phận xuyên thấu qua Shadow DOM.
- * ========================================================== */
-
-/* 
- * 5. ::before và ::after
- * Sinh ra 2 thẻ HTML ảo nằm BÊN TRONG phần tử đích, một cái nằm trên cùng, một cái nằm dưới cùng.
- * Rất hay dùng để làm icon, mũi tên, hiệu ứng làm mờ (ripple) mà không cần code thêm thẻ <span>.
- * BẮT BUỘC phải có thuộc tính `content: "";` thì nó mới hiện ra.
+ * PHẦN 2: ::part() VÀ exportparts — mở cửa cho CSS ngoài chỉnh SÂU
+ * ==========================================================
+ * Trong JS gắn part:   createElement('div', { part: 'box' })
+ * CSS ngoài viết:      hui-demo::part(box) { background: pink; }
+ *
+ * ĐƯỢC PHÉP sau ::part():
+ *   hui-demo::part(box):hover            ✅ pseudo-class trạng thái (:hover :focus :active :focus-visible...)
+ *   hui-demo::part(box)::before          ✅ pseudo-element (::before ::after ::placeholder...)
+ *   hui-demo[dark]::part(box)            ✅ điều kiện đặt TRƯỚC ::part
+ *   hui-demo:state(has-count)::part(count) ✅
+ * KHÔNG ĐƯỢC:
+ *   hui-demo::part(box) span             ❌ không chọn con bên trong part
+ *   hui-demo::part(box):first-child      ❌ không dùng pseudo-class cấu trúc (:nth-child, :empty...)
+ *   hui-demo::part(box).active           ❌ không ghép class
+ *
+ * Một phần tử có thể mang NHIỀU part: part="item item-active" → ::part(item-active) để chọn riêng.
+ *
+ * exportparts — component LỒNG nhau:
+ *   <hui-demo> chứa <hui-button> bên trong shadow. Part "base" của hui-button mặc định chỉ
+ *   chọc được từ shadow của hui-demo, KHÔNG từ trang ngoài. Gắn trên hui-button:
+ *     exportparts="base: button-base, label: button-label"
+ *   → trang ngoài viết hui-demo::part(button-base) { ... } được.
+ *   (exportparts="base" không đổi tên = xuất nguyên tên "base".)
+ *
+ * Danh sách part của hui-demo:
+ *   container, header, title, body, count, box, input, list, item, button-base, button-label
  */
-.box::before {
-  content: '🔥 '; /* Thêm ngọn lửa ảo vào đầu chữ trong hộp */
+
+/* Style mặc định của part — người dùng ghi đè bằng hui-demo::part(box) { ... } */
+[part~='box'] {
+  padding: var(--hui-space-md);
+  border-radius: var(--hui-radius);
+  background: var(--_accent);
+  color: var(--hui-text-inverse);
+  cursor: pointer;
+  user-select: none;
+  transition: transform var(--hui-transition-fast), filter var(--hui-transition-fast);
 }
 
-.box::after {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 2px;
-  background: red; /* Vẽ một đường gạch chân đỏ dính sát phía dưới hộp */
-}
 
-/* 
- * 6. ::slotted(selector) - Cánh cổng thần kỳ
- * Khi người dùng truyền HTML từ bên ngoài vào qua thẻ <slot>, nó sẽ chui vào vùng quản lý của Shadow DOM.
- * NHƯNG Shadow DOM mặc định KHÔNG DÁM can thiệp style của "đồ ngoại lai" này.
- * Để style đồ ngoại vi chui qua thẻ slot, ta BẮT BUỘC dùng ::slotted().
- * 
- * Cú pháp HTML ngoài trang:
- * <hui-demo>
- *    <h1 class="tieu-de">Nội dung từ thế giới bên ngoài bay vào</h1>
- * </hui-demo>
+/* ==========================================================
+ * PHẦN 3: <slot> VÀ ::slotted() — cho phép thay NỘI DUNG
+ * ==========================================================
+ * Slot mặc định:  <slot></slot>             ← nhận mọi con không khai báo slot
+ * Slot có tên:    <slot name="actions">     ← nhận con có slot="actions"
+ * Fallback:       <slot>Mặc định</slot>     ← chỉ hiện khi KHÔNG có gì được truyền vào
+ *
+ * Phần tử truyền vào slot vẫn thuộc LIGHT DOM (trang ngoài):
+ *   → CSS trang ngoài style nó bình thường, và CSS ngoài THẮNG ::slotted() bên trong.
+ *   → Vì vậy ::slotted() chỉ nên đặt style "mặc định hợp lý" (margin, màu), không ép cứng.
+ *
+ * Giới hạn của ::slotted(selector):
+ *   ::slotted(p)                ✅ chọn con trực tiếp được truyền vào
+ *   ::slotted(.tieu-de)         ✅
+ *   ::slotted(*)                ✅ mọi phần tử (không chọn được text node trơn)
+ *   ::slotted(p) span           ❌ không chọn cháu (con của phần tử được truyền vào)
+ *   ::slotted(p:hover)          ✅ pseudo-class đơn trong ngoặc
+ *   slot[name='actions']::slotted(*) ✅ giới hạn theo từng slot
+ *
+ * JS: slot.assignedNodes() / assignedElements() để biết có gì được truyền vào,
+ *     sự kiện 'slotchange' khi nội dung slot thay đổi (hui-button dùng để ẩn vùng icon trống).
+ *
+ * Mẹo: <slot> mặc định là display: contents (không tạo hộp). Muốn ẩn → slot[hidden] { display: none }.
  */
-::slotted(.tieu-de) {
-  /* Cho dù bên ngoài trang web quy định H1 màu gì, chui vào component này đổi thành màu Vàng */
-  color: gold; 
-  font-weight: bold;
-}
 
-/* Mặc định toàn bộ mọi thứ rơi vào <slot> sẽ có khung nét đứt */
 ::slotted(*) {
-  border: 1px dashed blue;
+  margin: 0;
 }
 
-/* 
- * 7. ::part(name) - Cánh cửa sau cho phép ngoài phá vỡ Shadow DOM
- * Đây là khái niệm quan trọng nhất để làm Thư viện UI.
- * Bình thường Shadow DOM là bức tường thép, CSS bên ngoài trang web KHÔNG THỂ chọc vào sửa nội dung bên trong.
- * Bằng cách dán nhãn part="name" cho phần tử bên trong, ta "hé cửa" cho bên ngoài chọc CSS vào.
- * 
- * Bên trong file JS ta code: `createElement('div', { part: 'container' })`
- * 
- * Thì ở ngoài file css của Dự án khách hàng, họ có quyền viết:
- * hui-demo::part(container) { background: pink; } 
- * Lúc này đoạn style background: pink sẽ đâm thủng Shadow DOM lọt vào trong.
+::slotted(.tieu-de) {
+  font-weight: var(--hui-font-weight-semibold);
+  color: var(--_accent);
+}
+
+slot[name='actions']::slotted(*) {
+  flex-shrink: 0;
+}
+
+.demo__fallback {
+  color: var(--hui-text-muted);
+  font-size: var(--hui-font-sm);
+}
+
+
+/* ==========================================================
+ * PHẦN 4: :host — style chính thẻ ngoài, theo attribute / class / ngữ cảnh
+ * ==========================================================
+ *   :host                  chính thẻ <hui-demo>
+ *   :host([dark])          khi có attribute dark          ← cách HUI dùng nhiều nhất
+ *   :host([variant='success'])  attribute có giá trị cụ thể
+ *   :host(.compact)        khi thẻ có class="compact"
+ *   :host(:hover)          khi rê chuột lên thẻ
+ *   :host(:focus-within)   khi có phần tử bên trong đang focus
+ *   :host(:not([dark]))    phủ định
+ *   :host-context(.theme-x) khi một THẺ CHA nào đó có class theme-x
+ *        ⚠ Firefox & Safari KHÔNG hỗ trợ → HUI không dựa vào nó. Theme nên đi bằng biến CSS
+ *          (đặt biến trên .theme-x là đủ, biến tự kế thừa xuống).
+ *
+ * Vì HuiElement reflect property → attribute, nên demo.dark = true cũng kích hoạt :host([dark]).
  */
-[part="container"] {
-  /* CSS nội bộ cơ sở (Khách hàng có quyền ghi đè qua ::part) */
-  background: lightgray;
-  border-radius: 4px;
+
+:host([dark]) .demo {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+:host([variant='success']) .demo { --_accent: var(--hui-demo-accent, var(--hui-success)); }
+:host([variant='danger']) .demo { --_accent: var(--hui-demo-accent, var(--hui-danger)); }
+
+:host(.compact) .demo {
+  padding: var(--hui-space-sm);
+}
+
+:host(:focus-within) .demo {
+  outline: 2px solid var(--_accent);
+  outline-offset: 2px;
+}
+
+
+/* ==========================================================
+ * PHẦN 5: CUSTOM STATE — :state(tên)
+ * ==========================================================
+ * Trạng thái NỘI BỘ do component tự bật (người dùng không gán được bằng HTML như attribute).
+ * JS (trong component):  this.setState('has-count', this.count > 0)
+ * CSS bên trong:         :host(:state(has-count)) { ... }
+ * CSS bên ngoài:         hui-demo:state(has-count) { ... }
+ *                        hui-demo:state(has-count)::part(count) { ... }
+ * Hỗ trợ: Chrome 125+, Safari 17.4+, Firefox 126+ (trình duyệt cũ bỏ qua, không lỗi).
+ *
+ * Khi nào dùng state thay vì attribute?
+ *   - attribute: dữ liệu ĐẦU VÀO người dùng điều khiển (variant, disabled).
+ *   - state: kết quả bên trong (đang mở dropdown, có lỗi validate, đang kéo thả...).
+ */
+
+:host(:state(has-count)) .demo__count {
+  color: var(--_accent);
+  font-weight: var(--hui-font-weight-bold);
+}
+
+
+/* ==========================================================
+ * PHẦN 6: BẢNG TRA PSEUDO-CLASS (1 dấu `:`) — chọn theo TRẠNG THÁI
+ * ==========================================================
+ * Tương tác
+ *   :hover          rê chuột qua
+ *   :active         đang nhấn giữ
+ *   :focus          đang focus (cả chuột lẫn bàn phím)
+ *   :focus-visible  focus bằng BÀN PHÍM (Tab) → dùng cho viền focus, không hiện khi click chuột
+ *   :focus-within   bản thân hoặc con bên trong đang focus
+ * Form
+ *   :disabled :enabled :checked :indeterminate :required :optional
+ *   :invalid :valid :user-invalid (chỉ báo lỗi SAU khi người dùng đã tương tác)
+ *   :placeholder-shown  ô input đang hiện placeholder (rỗng) — dùng cho floating label
+ *   :read-only :read-write
+ * Cấu trúc
+ *   :first-child :last-child :nth-child(2n) :only-child :empty
+ * Logic
+ *   :not(x)         phủ định
+ *   :is(a, b)       gộp nhiều selector, độ ưu tiên = selector mạnh nhất bên trong
+ *   :where(a, b)    giống :is nhưng ĐỘ ƯU TIÊN = 0 → style mặc định rất dễ bị ghi đè
+ *   :has(x)         chọn CHA theo con: .field:has(input:invalid) { ... }
+ * Web Components
+ *   :host :host() :host-context()  (PHẦN 4)
+ *   :defined        custom element đã đăng ký xong (customElements.define đã chạy)
+ *   :state(x)       custom state (PHẦN 5)
+ *
+ * Mẹo chống "nháy" (FOUC) khi JS component chưa tải xong — đặt ở CSS TRANG NGOÀI:
+ *   hui-button:not(:defined) { visibility: hidden; }
+ *   (Hữu ích với Nuxt/SSR: thẻ đã có trong HTML nhưng JS chưa chạy.)
+ */
+
+.demo__box:hover {
+  filter: brightness(1.1);
+}
+
+.demo__box:active {
+  transform: scale(0.97);
+}
+
+.demo__input {
+  padding: var(--hui-space-sm) var(--hui-space-md);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius);
+  font: inherit;
+  background: var(--hui-bg);
+  color: inherit;
+}
+
+.demo__input:focus-visible {
+  outline: none;
+  border-color: var(--_accent);
+  box-shadow: 0 0 0 3px var(--hui-primary-light);
+}
+
+.demo__list:where(:not([hidden])) {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+
+/* ==========================================================
+ * PHẦN 7: BẢNG TRA PSEUDO-ELEMENT (2 dấu `::`) — chọn/tạo BỘ PHẬN
+ * ==========================================================
+ *   ::before / ::after   tạo phần tử ảo đầu/cuối (BẮT BUỘC có content: '')
+ *   ::placeholder        chữ gợi ý trong input
+ *   ::selection          vùng chữ đang bôi đen
+ *   ::marker             dấu đầu dòng của <li>
+ *   ::backdrop           lớp nền phía sau <dialog> / popover ở top-layer
+ *   ::slotted(x)         phần tử truyền qua slot (PHẦN 3)
+ *   ::part(x)            phần bên trong shadow được mở cửa (PHẦN 2)
+ */
+
+.demo__box::before {
+  content: '✦ ';
+}
+
+.demo__input::placeholder {
+  color: var(--hui-text-muted);
+}
+
+[part~='item']::marker {
+  color: var(--_accent);
+}
+
+
+/* ==========================================================
+ * PHẦN 8: TRÌNH DUYỆT & TRỢ NĂNG
+ * ==========================================================
+ *   @media (prefers-reduced-motion: reduce)  người dùng tắt hiệu ứng chuyển động trong HĐH
+ *   @media (prefers-color-scheme: dark)      HĐH đang dùng dark mode
+ *   @media (forced-colors: active)           chế độ tương phản cao (Windows) → giữ viền rõ
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .demo,
+  .demo__box {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .demo {
+    border: 1px solid CanvasText;
+  }
 }

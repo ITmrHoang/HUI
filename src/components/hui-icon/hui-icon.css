@@ -1,0 +1,39 @@
+/*
+ * HUI Icon CSS
+ * Biến CSS có thể ghi đè từ bên ngoài (đặt trên hui-icon hoặc bất kỳ thẻ cha nào):
+ *   --hui-icon-size          Kích thước (mặc định 1em = theo cỡ chữ xung quanh)
+ *   --hui-icon-stroke-width  Độ dày nét (mặc định 2)
+ * Màu icon = `color` của thẻ (currentColor).
+ */
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--hui-icon-size, 1em);
+  height: var(--hui-icon-size, 1em);
+  line-height: 1;
+  vertical-align: -0.125em; /* Căn icon thẳng hàng với chữ bên cạnh */
+}
+
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  stroke-width: var(--hui-icon-stroke-width, 2);
+  transition: transform var(--hui-transition-fast, 150ms);
+}
+
+:host([spin]) svg {
+  animation: hui-icon-spin 0.8s linear infinite;
+}
+
+@keyframes hui-icon-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Người dùng bật "giảm chuyển động" trong hệ điều hành → xoay chậm lại */
+@media (prefers-reduced-motion: reduce) {
+  :host([spin]) svg { animation-duration: 2s; }
+}

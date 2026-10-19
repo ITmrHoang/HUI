@@ -42,6 +42,8 @@ export default defineConfig({
       // cho phép người dùng chỉ lấy đúng phần họ muốn (Tree-shaking / Code splitting).
       entry: {
         index: resolve(__dirname, 'src/index.js'),
+        // Lớp nền + tiện ích dùng chung (hui-lib/core) cho ai muốn tự viết component
+        core: resolve(__dirname, 'src/core/index.js'),
         ...componentEntries
       },
       // Định dạng xuất xưởng:
