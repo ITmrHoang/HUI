@@ -247,7 +247,7 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
 ---
 
 ## G4 — TÍCH HỢP, TÀI LIỆU & PHÁT HÀNH
-- [ ] **Vue plugin** `hui-lib/vue` — tự cấu hình `isCustomElement`, hỗ trợ `v-model` (`value` + `input`/`change`), types `GlobalComponents`
+- [ ] **Vue plugin** `@itmrhoang/h-ui/vue` — tự cấu hình `isCustomElement`, hỗ trợ `v-model` (`value` + `input`/`change`), types `GlobalComponents`
 - [ ] **React** — types JSX cho React 19 (dùng trực tiếp được); tùy chọn wrapper cho React 18
 - [ ] **Nuxt** — hướng dẫn client-only + CSS `hui-*:not(:defined)` chống nháy layout khi SSR
 - [ ] **Trang tài liệu** — deploy Storybook; trang "Getting started", "Theming", "Override" (lấy từ hui-demo)
@@ -255,31 +255,38 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
 - [ ] **Phát hành npm** — semver, CHANGELOG, kiểm tra kích thước bundle từng component (giới hạn ~10KB gzip/component thường)
 
 ### G4.CI — CI/CD: kiểm tra tự động, Storybook lên GitHub Pages, phát hành npm + CDN
-- [ ] **CI kiểm tra** — `.github/workflows/ci.yml`, chạy khi push / pull request:
+- [x] **CI kiểm tra** — `.github/workflows/ci.yml`, chạy khi push / pull request:
   `npm ci` → cài Playwright chromium-headless-shell (có cache) → `npm run build` (vite + custom-elements.json + .d.ts)
   → `tsc` kiểm tra `dist/types` → `vitest` (unit + toàn bộ story) → báo cáo kích thước gzip từng component (cảnh báo khi vượt ngưỡng)
   → lưu `dist/` làm artifact. Bật `test: 'error'` cho a11y khi đã sạch lỗi.
-- [ ] **Deploy Storybook lên GitHub Pages** — `.github/workflows/pages.yml`, chạy khi push `main` (và chạy tay):
+- [x] **Deploy Storybook lên GitHub Pages** — `.github/workflows/pages.yml`, chạy khi push `main` (và chạy tay):
   `npm run build-storybook` → gộp thêm `examples/` + `dist/` vào `storybook-static/examples` để xem trang mẫu online
   → `actions/upload-pages-artifact` + `actions/deploy-pages`. Địa chỉ dự kiến: `https://itmrhoang.github.io/HUI/`.
   Cần: Settings → Pages → Source = **GitHub Actions** (bạn bật 1 lần); Storybook cấu hình `base` đúng đường dẫn con `/HUI/`.
-- [ ] **Phát hành npm** — `.github/workflows/release.yml`, chạy khi đẩy tag `v*` (hoặc tạo GitHub Release):
+- [x] **Phát hành npm** — `.github/workflows/release.yml`, chạy khi đẩy tag `v*` (hoặc tạo GitHub Release):
   kiểm tra version trong `package.json` khớp tag → build + test → `npm publish --provenance --access public`.
   Xác thực bằng npm **Trusted Publishing (OIDC)** — không cần lưu token; hoặc secret `NPM_TOKEN` nếu chưa bật được.
   Bổ sung `package.json`: `repository`, `homepage` (link Storybook), `bugs`, `publishConfig`, `engines`; README song ngữ cập nhật.
-- [ ] **CDN (jsDelivr / unpkg)** — có sẵn ngay sau khi lên npm, không cần server riêng:
+- [x] **CDN (jsDelivr / unpkg)** — có sẵn ngay sau khi lên npm, không cần server riêng:
   `<script type="module" src="https://cdn.jsdelivr.net/npm/<tên-gói>@0/dist/hui-button.esm.js"></script>`
   Thêm bản build tối ưu cho CDN `dist/cdn/` (nén cả khoảng trắng — bản ES thường không nén để giữ tree-shaking),
   ghi URL mẫu từng component vào README + Storybook "Getting started"; trường `jsdelivr`/`unpkg` trong package.json.
-- [ ] **Quản lý phiên bản** — Changesets (hoặc release-please): mỗi PR ghi thay đổi → tự tạo PR "Version packages" + CHANGELOG
+- [x] **Quản lý phiên bản** — Changesets (hoặc release-please): mỗi PR ghi thay đổi → tự tạo PR "Version packages" + CHANGELOG
   → merge thì tự tag + publish. Dependabot cập nhật devDependencies hằng tuần.
+- [ ] **Tối ưu kích thước organism** — import lẻ hiện tại (gzip): `hui-data-view` 91,6 KB, `hui-card-grid` 68 KB,
+  `hui-faq` 58 KB, `hui-kpi-row` 50 KB (kéo theo nhiều component con). Hướng: tải động (import()) phần table/pagination/
+  select khi chế độ đó được dùng; CI đang chặn ở ngưỡng 100 KB/entry (`SIZE_LIMIT_KB`), component đơn lẻ đều < 40 KB.
 - [ ] **Bảo vệ nhánh main** — bắt buộc CI xanh trước khi merge (bạn bật trong Settings → Branches).
 
-**Câu hỏi cần chốt trước khi làm G4.CI:**
-1. **Tên gói npm:** `hui-lib` có thể đã có người dùng trên npm — dùng tên khác hay scope riêng (vd `@itmrhoang/hui`)?
-2. **Xác thực npm:** Trusted Publishing (OIDC, khuyên dùng) hay secret `NPM_TOKEN`? (bạn tự tạo trên npmjs.com — mình không nhập token hộ)
-3. **Cách ra phiên bản:** tag tay `v0.2.0` hay Changesets tự động?
-4. **Phiên bản đầu tiên:** `0.2.0` (đánh dấu còn thử nghiệm) hay `1.0.0`?
+**Đã chốt / đã làm (2026-10-20):**
+- Repo GitHub đổi tên `HUI` → **`ITmrHoang/h-ui`** (remote đã set-url; GitHub tự chuyển hướng link cũ).
+- Tên npm `h-ui` và `hui-lib` đã thuộc người khác → dùng **`@itmrhoang/h-ui`** (đổi chỉ cần sửa `name` trong package.json).
+- Phát hành bằng **Changesets** (merge PR "chore: version packages" → publish + tag + GitHub Release); bản đầu `0.2.0`.
+- Thêm `scripts/check-static-build.mjs`: CI build trang mẫu và kiểm tra mọi thẻ được đăng ký (bắt lỗi `sideEffects`).
+- **Việc bạn cần làm 1 lần:** (1) npmjs.com → tạo token *Automation* → GitHub repo Secrets `NPM_TOKEN` (cho lần đăng đầu),
+  sau đó cấu hình Trusted Publisher (repo `ITmrHoang/h-ui`, workflow `release.yml`) rồi có thể xóa token;
+  (2) Settings → Actions → General → bật *Allow GitHub Actions to create and approve pull requests* (để mở PR version);
+  (3) Settings → Branches → bảo vệ `main`, bắt buộc CI xanh.
 
 ---
 
@@ -289,7 +296,7 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
 (1) khung cuộn ngang chứa card/thành phần bất kỳ, (2) khung cuộn từng bước full-height,
 (3) component **nhận data → hiển thị & tương tác nhanh** (không phải tự viết vòng lặp DOM).
 
-**Quy ước phân tầng** (chỉ phân loại tài liệu/Storybook, KHÔNG đổi đường dẫn import `hui-lib/hui-xxx`):
+**Quy ước phân tầng** (chỉ phân loại tài liệu/Storybook, KHÔNG đổi đường dẫn import `@itmrhoang/h-ui/hui-xxx`):
 | Tầng | Định nghĩa trong HUI | Storybook title |
 |------|----------------------|-----------------|
 | Tokens | Biến CSS `--hui-*` (màu, khoảng cách, cỡ chữ, motion) | `Foundations/…` |
@@ -623,7 +630,7 @@ bật `prefers-reduced-motion`; thời lượng/easing lấy từ token `--hui-m
 5. **Card chuyên biệt** (product/pricing/profile/testimonial): làm thành component riêng (đề xuất, dùng nhanh) hay chỉ làm story mẫu ghép từ `hui-card`?
 6. **Vị trí trong lộ trình:** làm A0–A3 ngay sau khi G1 xong (trước G2), các mục G2/G3 trùng (steps, splitter, carousel, image) gộp vào kế hoạch này?
 7. **Nút liên hệ nổi (Zalo/Messenger/hotline):** làm preset `hui-contact-float` sẵn icon thương hiệu? (icon thương hiệu cần SVG riêng, người dùng tự đăng ký qua `registerIcon` nếu muốn tránh vấn đề bản quyền logo)
-8. **Hiệu ứng "nặng"** (tilt 3D, confetti, parallax, gradient chuyển động): tách thành gói riêng `hui-lib/effects` để ai không dùng thì bundle không phình — đồng ý?
+8. **Hiệu ứng "nặng"** (tilt 3D, confetti, parallax, gradient chuyển động): tách thành gói riêng `@itmrhoang/h-ui/effects` để ai không dùng thì bundle không phình — đồng ý?
 9. **Mặc định có animation hay không:** component bật hiệu ứng sẵn (đề xuất, tắt bằng `no-animation` hoặc token `--hui-motion-duration: 0ms`) hay mặc định tắt?
 10. **`hui-faq` SEO (JSON-LD)** và **`hui-cookie-consent`** có cần ngay không, hay để sau?
 
@@ -635,7 +642,7 @@ bật `prefers-reduced-motion`; thời lượng/easing lấy từ token `--hui-m
 5. Card chuyên biệt (product / pricing / profile / testimonial / stat / feature / blog): component riêng.
 6. Làm A0–A3 (+ đợt nhanh) ngay sau G1, trước G2; mục trùng của G2/G3 gộp vào kế hoạch Atomic.
 7. `hui-contact-float`: preset dùng icon chung (phone / chat / mail); logo thương hiệu (Zalo, Messenger) do dự án tự `registerIcon` — thư viện không kèm logo.
-8. Hiệu ứng nặng (tilt, confetti, parallax, gradient động) tách entry riêng `hui-lib/effects`.
+8. Hiệu ứng nặng (tilt, confetti, parallax, gradient động) tách entry riêng `@itmrhoang/h-ui/effects`.
 9. Animation **bật mặc định**; tắt bằng attribute `no-animation` hoặc token `--hui-motion-duration: 0ms`; luôn tôn trọng `prefers-reduced-motion`.
 10. `hui-faq` có `seo` (JSON-LD, bật khi cần) làm ngay trong đợt nhanh; `hui-cookie-consent` để sau.
 

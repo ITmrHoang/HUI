@@ -27,7 +27,7 @@ export default {
 Thư viện **không kèm logo thương hiệu** — chỉ dùng icon chung \`phone\` / \`chat\` / \`mail\`.
 Muốn dùng logo Zalo / Messenger: tự đăng ký SVG của dự án rồi đặt tên icon:
 \`\`\`js
-import { registerIcon } from 'hui-lib/hui-icon';
+import { registerIcon } from '@itmrhoang/h-ui/hui-icon';
 registerIcon('zalo', '<path d="..."/>');        // nội dung bên trong <svg viewBox="0 0 24 24">
 \`\`\`
 \`\`\`html

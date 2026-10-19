@@ -1,6 +1,6 @@
 /**
  * Đa ngôn ngữ (locale) cho chuỗi mặc định của component (nút OK/Hủy, "Không có dữ liệu"...).
- *   import { setLocale, registerLocale, t } from 'hui-lib/core';
+ *   import { setLocale, registerLocale, t } from '@itmrhoang/h-ui/core';
  *   setLocale('en');
  *   registerLocale('ja', { modal: { ok: 'OK', cancel: 'キャンセル' } }); // thiếu key → lấy từ 'en'
  *   t('pagination.total', { total: 50 }) → "Tổng 50 mục"

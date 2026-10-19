@@ -1,0 +1,65 @@
+# CI — build + kiểm tra types + toàn bộ test (unit + mọi story) + báo kích thước, cho mỗi push/PR
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      STORYBOOK_DISABLE_TELEMETRY: 1
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # Trình duyệt cho vitest browser mode (test chạy trong Chromium thật)
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium chromium-headless-shell
+
+      - name: Build (vite + custom-elements.json + .d.ts)
+        run: npm run build
+
+      - name: Kiểm tra file .d.ts sinh ra
+        run: npm run check:types
+
+      - name: Build bản CDN
+        run: npm run build:cdn
+
+      - name: Build trang mẫu + kiểm tra mọi thẻ được đăng ký trong bản build tĩnh
+        run: npm run build:examples && npm run check:static
+
+      - name: Test (unit + story)
+        run: npx vitest run
+
+      - name: Báo cáo kích thước (ngưỡng 100 KB gzip / entry khi import lẻ — organism ghép nhiều component)
+        run: npm run size
+        env:
+          SIZE_LIMIT_KB: 100
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 7

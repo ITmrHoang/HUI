@@ -32,7 +32,7 @@ export default {
 
 \`\`\`html
 <hui-text type="danger" strong>Lỗi</hui-text>
-<hui-text code>npm i hui-lib</hui-text>
+<hui-text code>npm i @itmrhoang/h-ui</hui-text>
 <hui-text ellipsis style="width: 200px">Chữ rất dài sẽ bị cắt…</hui-text>
 <hui-text copyable copy-text="ABC-123">Mã đơn: ABC-123</hui-text>
 \`\`\`

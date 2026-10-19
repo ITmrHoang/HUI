@@ -23,7 +23,7 @@ rê chuột (hoặc focus) vào thông báo → tạm dừng đếm giờ.
 
 ### Cách sử dụng
 \`\`\`js
-import { notification } from 'hui-lib/hui-notification';
+import { notification } from '@itmrhoang/h-ui/hui-notification';
 
 notification.success({ title: 'Đã lưu', description: 'Thay đổi đã được ghi lại.' });
 notification.open({

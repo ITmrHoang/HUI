@@ -24,7 +24,7 @@ Container \`<hui-message-container>\` tự gắn vào \`<body>\` ở lần gọi
 
 ### Cách sử dụng
 \`\`\`js
-import { message } from 'hui-lib/hui-message';
+import { message } from '@itmrhoang/h-ui/hui-message';
 
 message.success('Đã lưu');
 message.error('Lỗi kết nối', { duration: 5 });

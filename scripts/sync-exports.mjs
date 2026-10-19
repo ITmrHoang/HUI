@@ -31,7 +31,7 @@ const exportsField = {
 };
 for (const name of components) exportsField[`./${name}`] = entry(name);
 exportsField['./style.css'] = './dist/style.css';
-// Kiểu cho framework (chỉ có types): tsconfig → compilerOptions.types: ['hui-lib/types/vue']
+// Kiểu cho framework (chỉ có types): tsconfig → compilerOptions.types: ['@itmrhoang/h-ui/types/vue']
 exportsField['./types/vue'] = { types: './dist/types/vue.d.ts' };
 exportsField['./types/react'] = { types: './dist/types/react.d.ts' };
 exportsField['./custom-elements.json'] = './dist/custom-elements.json';
@@ -42,8 +42,10 @@ pkg.module = './dist/index.esm.js';
 pkg.types = './dist/types/index.d.ts';
 pkg.exports = exportsField;
 // Mỗi file component tự đăng ký thẻ khi được import → là "side effect".
-// Khai báo để bundler KHÔNG xóa các dòng `import 'hui-lib/hui-button'`.
-pkg.sideEffects = ['**/*.css', './dist/index.esm.js', './dist/hui-*.esm.js'];
+// Khai báo để bundler KHÔNG xóa các dòng `import '@itmrhoang/h-ui/hui-button'`.
+// src/ cũng phải khai báo: Storybook + trang mẫu build từ src, nếu coi src là "không side effect"
+// thì Vite xóa các dòng import 'hui-x/index.js' → thẻ không được đăng ký ở bản build tĩnh.
+pkg.sideEffects = ['**/*.css', './src/**/*.js', './dist/index.esm.js', './dist/hui-*.esm.js', './dist/cdn/*.js'];
 pkg.customElements = './dist/custom-elements.json';
 
 writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);

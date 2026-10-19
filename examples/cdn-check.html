@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>H-UI — kiểm tra bản CDN (script thường)</title>
+  <!-- Giống hệt cách dùng qua jsDelivr, chỉ đổi đường dẫn sang file build cục bộ:
+       <script src="https://cdn.jsdelivr.net/npm/@itmrhoang/h-ui@0/dist/cdn/h-ui.min.js"></script> -->
+  <script src="../dist/cdn/h-ui.min.js"></script>
+  <style>body { font-family: system-ui, sans-serif; margin: 24px; }</style>
+</head>
+<body>
+  <h1>Bản CDN một file</h1>
+  <hui-button icon="check" id="btn">Bấm thử</hui-button>
+  <hui-rate value="4" allow-half></hui-rate>
+  <hui-card title="Card" effect="lift tilt" style="max-width: 240px; margin-top: 16px">window.HUI có sẵn</hui-card>
+  <script>
+    document.getElementById('btn').addEventListener('hui-click', () => HUI.message.success('Bản CDN hoạt động'));
+    window.__cdnCheck = () => ({
+      hasHUI: typeof window.HUI === 'object',
+      apis: ['message', 'notification', 'modal', 'setLocale', 'formatCurrency'].filter((k) => k in window.HUI),
+      defined: ['hui-button', 'hui-rate', 'hui-card', 'hui-data-view', 'hui-sparkline'].filter((t) => customElements.get(t)),
+    });
+  </script>
+</body>
+</html>

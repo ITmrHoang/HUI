@@ -125,7 +125,7 @@ export const RichContent = {
   render: () => html`
     <div style="max-width: 560px;">
       <hui-paragraph>
-        Cài đặt bằng <hui-text code>npm i hui-lib</hui-text>, sau đó nhấn <hui-text keyboard>Ctrl</hui-text> +
+        Cài đặt bằng <hui-text code>npm i @itmrhoang/h-ui</hui-text>, sau đó nhấn <hui-text keyboard>Ctrl</hui-text> +
         <hui-text keyboard>S</hui-text>. Phần <hui-text mark>tô sáng</hui-text> và
         <hui-text strong>in đậm</hui-text> dùng thẻ ngữ nghĩa.
       </hui-paragraph>

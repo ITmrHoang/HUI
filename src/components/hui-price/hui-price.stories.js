@@ -44,7 +44,7 @@ export default {
 |----------|-------|
 | \`discount\` (chỉ đọc) | % giảm đang hiển thị (0 = không giảm) |
 
-Hàm tiện ích: \`import { discountPercent } from 'hui-lib/hui-price'\` → \`discountPercent(750000, 1000000) === 25\`.
+Hàm tiện ích: \`import { discountPercent } from '@itmrhoang/h-ui/hui-price'\` → \`discountPercent(750000, 1000000) === 25\`.
 
 ### Events
 Không có (chỉ hiển thị).

@@ -24,7 +24,7 @@ Chỉ là chỉ báo thị giác (\`aria-hidden\`) — trạng thái cho trình 
 
 ### Cách sử dụng
 \`\`\`js
-import { loadingBar } from 'hui-lib/hui-loading-bar';
+import { loadingBar } from '@itmrhoang/h-ui/hui-loading-bar';
 
 loadingBar.config({ color: 'var(--hui-success)', height: 3, trickleSpeed: 300 });
 loadingBar.start();

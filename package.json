@@ -1,10 +1,11 @@
 {
-  "name": "hui-lib",
+  "name": "@itmrhoang/h-ui",
   "version": "0.1.0",
-  "description": "HUI - Hoang UI Component Library. Thư viện Web Components nhẹ, không phụ thuộc framework.",
+  "description": "H-UI — thư viện Web Components zero-dependency (Ant Design + MUI inspired): 110+ component, theme/dark mode, form native, dữ liệu, hiệu ứng. Dùng được với HTML thuần, Vue, React, Angular.",
   "type": "module",
   "main": "./dist/index.esm.js",
   "module": "./dist/index.esm.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
@@ -397,13 +398,21 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "sideEffects": [
     "**/*.css",
+    "./src/**/*.js",
     "./dist/index.esm.js",
-    "./dist/hui-*.esm.js"
+    "./dist/hui-*.esm.js",
+    "./dist/cdn/*.js"
   ],
+  "customElements": "dist/custom-elements.json",
+  "jsdelivr": "./dist/cdn/h-ui.min.js",
+  "unpkg": "./dist/cdn/h-ui.min.js",
   "scripts": {
     "prebuild": "node scripts/sync-exports.mjs",
     "dev": "vite",
@@ -413,18 +422,47 @@
     "build-storybook": "storybook build",
     "test": "vitest run --project unit",
     "test:stories": "vitest run --project storybook",
-    "analyze": "cem analyze"
+    "build:cdn": "vite build --config vite.cdn.config.js",
+    "build:examples": "vite build --config vite.examples.config.js",
+    "check:types": "tsc -p tsconfig.types.json",
+    "size": "node scripts/size-report.mjs",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "npm run build && npm run build:cdn && changeset publish",
+    "analyze": "cem analyze",
+    "check:static": "node scripts/check-static-build.mjs"
   },
   "keywords": [
     "ui",
     "components",
     "web-components",
     "custom-elements",
-    "hui"
+    "hui",
+    "design-system",
+    "ui-library",
+    "vanilla-js",
+    "dark-mode",
+    "vietnamese"
   ],
   "author": "Hoang",
   "license": "MIT",
+  "homepage": "https://itmrhoang.github.io/h-ui/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ITmrHoang/h-ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ITmrHoang/h-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@chromatic-com/storybook": "^5.1.2",
     "@custom-elements-manifest/analyzer": "^0.11.0",
     "@storybook/addon-a11y": "^10.3.5",
@@ -439,7 +477,5 @@
     "storybook": "^10.3.5",
     "vite": "^6.0.0",
     "vitest": "^4.1.4"
-  },
-  "types": "./dist/types/index.d.ts",
-  "customElements": "dist/custom-elements.json"
+  }
 }

@@ -65,7 +65,7 @@ Vẽ bằng chuỗi path SVG; chỉ tính lại khi data đổi hoặc khung đ�
 | \`domain\` (chỉ đọc) | Thang đang dùng \`{min, max}\` |
 | \`trend\` (chỉ đọc) | \`up\` \\| \`down\` \\| \`flat\` |
 
-Hàm thuần dùng lại được: \`import { linePath, areaPath, arcPath, monotoneTangents, niceMax } from 'hui-lib/hui-chart'\`.
+Hàm thuần dùng lại được: \`import { linePath, areaPath, arcPath, monotoneTangents, niceMax } from '@itmrhoang/h-ui/hui-chart'\`.
 
 ### Events
 Không có (chỉ hiển thị).

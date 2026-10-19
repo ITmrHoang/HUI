@@ -82,7 +82,7 @@ for (const d of elements) index += `    '${d.tagName}': ${d.name};\n`;
 index += `  }\n}\n`;
 writeFileSync(resolve(out, 'index.d.ts'), index);
 
-// Từng component: hui-lib/hui-button
+// Từng component: @itmrhoang/h-ui/hui-button
 for (const d of elements) {
   const folder = d.module.split('/').at(-2);
   if (!folder?.startsWith('hui-')) continue;
@@ -101,7 +101,7 @@ if (group) {
 copyFileSync(resolve(root, 'scripts/types/core.d.ts'), resolve(out, 'core.d.ts'));
 
 // Vue — GlobalComponents
-let vue = `// Bật gợi ý cho Vue: thêm "hui-lib/types/vue" vào compilerOptions.types (tsconfig)\nimport type { DefineComponent } from 'vue';\nimport type * as H from './index';\n\ndeclare module 'vue' {\n  interface GlobalComponents {\n`;
+let vue = `// Bật gợi ý cho Vue: thêm "@itmrhoang/h-ui/types/vue" vào compilerOptions.types (tsconfig)\nimport type { DefineComponent } from 'vue';\nimport type * as H from './index';\n\ndeclare module 'vue' {\n  interface GlobalComponents {\n`;
 for (const d of elements) {
   const events = (d.events || []).map((e) => `'on${e.name.replace(/(^|-)(\w)/g, (m, s, c) => c.toUpperCase())}'?: (e: CustomEvent) => void`).join('; ');
   vue += `    '${d.tagName}': DefineComponent<Partial<H.${propsName(d)}>${events ? ` & { ${events} }` : ''}>;\n`;
@@ -110,7 +110,7 @@ vue += `  }\n}\nexport {};\n`;
 writeFileSync(resolve(out, 'vue.d.ts'), vue);
 
 // React 19 — JSX.IntrinsicElements (React 19 tự gán property + nhận on<tên-sự-kiện>)
-let react = `// Bật gợi ý cho React 19: thêm "hui-lib/types/react" vào compilerOptions.types (tsconfig)\nimport type * as React from 'react';\nimport type * as H from './index';\n\ntype Base<T> = React.DetailedHTMLProps<React.HTMLAttributes<T>, T> & { class?: string };\n\ndeclare module 'react' {\n  namespace JSX {\n    interface IntrinsicElements {\n`;
+let react = `// Bật gợi ý cho React 19: thêm "@itmrhoang/h-ui/types/react" vào compilerOptions.types (tsconfig)\nimport type * as React from 'react';\nimport type * as H from './index';\n\ntype Base<T> = React.DetailedHTMLProps<React.HTMLAttributes<T>, T> & { class?: string };\n\ndeclare module 'react' {\n  namespace JSX {\n    interface IntrinsicElements {\n`;
 for (const d of elements) {
   const events = (d.events || []).map((e) => `'on${e.name}'?: (e: CustomEvent) => void`).join('; ');
   react += `      '${d.tagName}': Base<H.${d.name}> & Partial<H.${propsName(d)}>${events ? ` & { ${events} }` : ''};\n`;

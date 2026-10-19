@@ -1,8 +1,8 @@
 /**
- * hui-lib/effects — hiệu ứng theo con trỏ chuột (tách riêng để bundle chính không phình).
+ * @itmrhoang/h-ui/effects — hiệu ứng theo con trỏ chuột (tách riêng để bundle chính không phình).
  *
  * Dùng bằng JS:
- *   import { attachTilt, attachGlow } from 'hui-lib/effects';
+ *   import { attachTilt, attachGlow } from '@itmrhoang/h-ui/effects';
  *   const stop = attachTilt(el, { max: 10, scale: 1.03 });   // nghiêng 3D theo chuột
  *   attachGlow(el);                                          // đốm sáng chạy theo chuột
  *

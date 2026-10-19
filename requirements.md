@@ -6,7 +6,7 @@ Tạo một thư viện giao diện (UI Component Library) độc lập, không 
 ## 2. Yêu cầu kỹ thuật
 - **Công nghệ lõi:** Web Components thuần bằng Vanilla JavaScript (`customElements`, `Shadow DOM`).
 - **Build tool:** Vite kết hợp Rollup.
-- **Tính trích xuất (Tree-Shaking):** Người dùng có thể import từng component lẻ (vd: `import 'hui-lib/hui-button'`) hoặc import toàn bộ thư viện.
+- **Tính trích xuất (Tree-Shaking):** Người dùng có thể import từng component lẻ (vd: `import '@itmrhoang/h-ui/hui-button'`) hoặc import toàn bộ thư viện.
 - **CSS:** Design Tokens (Biến CSS), Reset CSS nội bộ trong Shadow DOM để không bị ảnh hưởng bởi CSS bên ngoài. Hỗ trợ import CSS dạng chuỗi (raw string) vào Shadow DOM.
 - **Tiêu chuẩn mã nguồn:** Các file `.js` và `.css` phải được tách riêng cho dễ quản lý. Thêm comment giải thích bằng Tiếng Việt rõ ràng vào các logic cốt lõi. Bám sát chuẩn Accessibility.
 

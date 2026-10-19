@@ -1,0 +1,13 @@
+{
+  "//": "Kiểm tra file .d.ts sinh ra (npm run check:types) — chạy sau npm run build",
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "types": [],
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler"
+  },
+  "files": ["dist/types/index.d.ts"]
+}

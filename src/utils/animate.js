@@ -7,7 +7,7 @@
  *   <p data-hui-animate="fade" data-hui-once="false">     ← cuộn ra rồi vào lại thì chạy lại
  *
  * Hiệu ứng: fade | fade-up | fade-down | fade-left | fade-right | zoom-in | zoom-out | flip-up | blur-in | slide-up
- * Bật: import 'hui-lib' (bundle tổng tự bật) hoặc gọi enableAnimations() khi import lẻ.
+ * Bật: import '@itmrhoang/h-ui' (bundle tổng tự bật) hoặc gọi enableAnimations() khi import lẻ.
  * Tắt toàn trang: <html data-hui-no-animation>, token --hui-motion-duration: 0ms,
  * hoặc người dùng bật "giảm chuyển động" trong hệ điều hành → nội dung hiện ngay, không chuyển động.
  */

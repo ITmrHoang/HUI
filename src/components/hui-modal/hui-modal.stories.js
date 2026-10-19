@@ -77,7 +77,7 @@ Tab chạy vòng trong modal (xuyên Shadow DOM), khóa cuộn trang, đóng xon
 
 ### Gọi bằng hàm — \`modal.confirm | info | success | error | warning(options)\`
 \`\`\`js
-import { modal } from 'hui-lib/hui-modal';
+import { modal } from '@itmrhoang/h-ui/hui-modal';
 const ok = await modal.confirm({ title: 'Xóa mục này?', content: 'Không thể hoàn tác.', okType: 'danger' });
 modal.confirm({ title: 'Gửi?', onOk: () => api.send() }); // onOk trả Promise → nút OK loading tới khi xong
 \`\`\`

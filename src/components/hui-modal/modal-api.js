@@ -1,6 +1,6 @@
 /**
  * Hộp thoại gọi bằng hàm (Ant Modal.confirm / info / success / error / warning)
- *   import { modal } from 'hui-lib/hui-modal';
+ *   import { modal } from '@itmrhoang/h-ui/hui-modal';
  *   const ok = await modal.confirm({ title: 'Xóa mục này?', content: 'Không thể hoàn tác.', okType: 'danger' });
  *   modal.confirm({ title: 'Gửi?', onOk: () => api.send() });   // onOk trả Promise → nút OK loading tới khi xong
  * Mỗi lần gọi tạo một <hui-modal confirm-type="..."> gắn vào <body>, đóng xong tự gỡ.

@@ -45,7 +45,7 @@ tắt khi \`no-animation\` hoặc người dùng bật giảm chuyển động.
 
 <!-- Tránh nháy theme khi tải trang: khôi phục sớm trong <head> -->
 <script type="module">
-  import { applyTheme, getStoredTheme } from 'hui-lib/hui-theme-toggle';
+  import { applyTheme, getStoredTheme } from '@itmrhoang/h-ui/hui-theme-toggle';
   applyTheme(getStoredTheme()); // chưa lưu → không làm gì
 </script>
 \`\`\`
@@ -65,7 +65,7 @@ tắt khi \`no-animation\` hoặc người dùng bật giảm chuyển động.
 | \`resolved\` | Theme thực tế: \`'light'\` / \`'dark'\` |
 | \`setMode(mode, { origin?, animate? })\` | Đổi như người dùng bấm (lưu + hiệu ứng + \`change\`) |
 
-### Helper (export từ \`hui-lib/hui-theme-toggle\`)
+### Helper (export từ \`@itmrhoang/h-ui/hui-theme-toggle\`)
 | Hàm | Mô tả |
 |-----|-------|
 | \`applyTheme(mode)\` | Áp lên \`<html>\`, phát \`hui-theme-change\` trên document; mode null/không hợp lệ → bỏ qua |

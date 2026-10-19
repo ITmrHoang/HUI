@@ -540,7 +540,7 @@ const fxGrid = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(2
 
 /**
  * effect="lift | tilt | glow | zoom-media | reveal | border-gradient" — kết hợp nhiều giá trị bằng khoảng trắng.
- * tilt / glow tải module hui-lib/effects khi cần (chỉ chạy trên thiết bị có chuột).
+ * tilt / glow tải module @itmrhoang/h-ui/effects khi cần (chỉ chạy trên thiết bị có chuột).
  */
 export const Effects = {
   render: () => html`

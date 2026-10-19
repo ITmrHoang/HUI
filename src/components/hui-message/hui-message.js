@@ -1,6 +1,6 @@
 /**
  * HUI Message — Thông báo ngắn ở giữa phía trên màn hình (Ant message + MUI Snackbar)
- *   import { message } from 'hui-lib/hui-message';
+ *   import { message } from '@itmrhoang/h-ui/hui-message';
  *   const close = message.loading('Đang lưu...', { key: 'save', duration: 0 });
  *   await api.save();
  *   message.success('Đã lưu', { key: 'save' });   // cùng key → cập nhật thông báo cũ

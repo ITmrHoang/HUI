@@ -3,7 +3,7 @@
  *
  * Mỗi icon chỉ lưu PHẦN BÊN TRONG thẻ <svg>; thẻ <svg> bao ngoài do <hui-icon> dựng.
  * Thêm icon riêng của dự án:
- *   import { registerIcon } from 'hui-lib/hui-icon';
+ *   import { registerIcon } from '@itmrhoang/h-ui/hui-icon';
  *   registerIcon('rocket', '<path d="..."/>');
  */
 

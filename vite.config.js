@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import fastGlob from 'fast-glob';
+import { minifyRawCss } from './scripts/vite-plugin-minify-raw-css.mjs';
 
 /**
  * ==========================================================
@@ -33,32 +34,6 @@ const componentEntries = componentPaths.reduce((entries, filePath) => {
   entries[name] = resolve(__dirname, filePath);
   return entries;
 }, {});
-/**
- * Rút gọn CSS import dạng `?raw` (chuỗi CSS nhúng vào Shadow DOM) khi BUILD:
- * bỏ comment + khoảng trắng thừa. Vite không tự nén các chuỗi này, nên nếu không có bước này
- * mọi comment tiếng Việt trong file .css sẽ nằm nguyên trong bundle.
- * Bản dev/Storybook giữ nguyên (apply: 'build') để dễ đọc khi debug.
- * Chỉ thu gọn an toàn: KHÔNG xóa khoảng trắng quanh ':' hay '(' vì `.a :hover` ≠ `.a:hover`.
- */
-function minifyRawCss() {
-  return {
-    name: 'hui-minify-raw-css',
-    apply: 'build',
-    enforce: 'pre',
-    async load(id) {
-      if (!id.endsWith('.css?raw')) return null;
-      const { readFile } = await import('node:fs/promises');
-      const css = (await readFile(id.slice(0, -'?raw'.length), 'utf8'))
-        .replace(/\/\*[\s\S]*?\*\//g, '')
-        .replace(/\s+/g, ' ')
-        .replace(/\s*([{};,>])\s*/g, '$1')
-        .replace(/;}/g, '}')
-        .trim();
-      return `export default ${JSON.stringify(css)};`;
-    },
-  };
-}
-
 export default defineConfig({
   plugins: [minifyRawCss()],
   build: {
@@ -69,7 +44,7 @@ export default defineConfig({
       // cho phép người dùng chỉ lấy đúng phần họ muốn (Tree-shaking / Code splitting).
       entry: {
         index: resolve(__dirname, 'src/index.js'),
-        // Lớp nền + tiện ích dùng chung (hui-lib/core) cho ai muốn tự viết component
+        // Lớp nền + tiện ích dùng chung (@itmrhoang/h-ui/core) cho ai muốn tự viết component
         core: resolve(__dirname, 'src/core/index.js'),
         // Hiệu ứng theo con trỏ (tilt, glow) — entry riêng để bundle chính không phình
         effects: resolve(__dirname, 'src/effects/index.js'),

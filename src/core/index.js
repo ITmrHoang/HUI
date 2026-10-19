@@ -1,6 +1,6 @@
 /**
- * hui-lib/core — Lớp nền + tiện ích để tự viết component theo chuẩn HUI
- *   import { HuiElement, defineElement, computePosition, openOverlay } from 'hui-lib/core';
+ * @itmrhoang/h-ui/core — Lớp nền + tiện ích để tự viết component theo chuẩn HUI
+ *   import { HuiElement, defineElement, computePosition, openOverlay } from '@itmrhoang/h-ui/core';
  */
 export { HuiElement, defineElement } from './hui-element.js';
 export { HuiFormElement } from './hui-form-element.js';

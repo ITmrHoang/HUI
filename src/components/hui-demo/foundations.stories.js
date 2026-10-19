@@ -25,7 +25,7 @@ export default {
 <div data-hui-animate="fade" data-hui-delay="200" data-hui-duration="800" data-hui-once="false">…</div>
 \`\`\`
 Hiệu ứng: ${Object.keys(ANIMATIONS).map((k) => `\`${k}\``).join(', ')}.
-Bundle tổng tự bật; import lẻ thì gọi \`enableAnimations()\` từ \`hui-lib/core\`.
+Bundle tổng tự bật; import lẻ thì gọi \`enableAnimations()\` từ \`@itmrhoang/h-ui/core\`.
 Tắt: \`<html data-hui-no-animation>\`, token \`--hui-motion-duration: 0ms\`, hoặc hệ điều hành bật "giảm chuyển động".
 
 ### Template binding — hiển thị nhanh từ mảng dữ liệu

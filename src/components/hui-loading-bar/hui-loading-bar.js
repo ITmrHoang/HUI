@@ -1,6 +1,6 @@
 /**
  * HUI Loading Bar — Thanh tiến trình mảnh ở mép trên khi chuyển trang / gọi API (kiểu NProgress)
- *   import { loadingBar } from 'hui-lib/hui-loading-bar';
+ *   import { loadingBar } from '@itmrhoang/h-ui/hui-loading-bar';
  *   loadingBar.start();          // hiện + tự nhích dần (trickle)
  *   await fetch(...);
  *   loadingBar.done();           // chạy tới 100% rồi mờ dần và tự gỡ khỏi trang

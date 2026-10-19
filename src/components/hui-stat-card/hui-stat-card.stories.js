@@ -62,7 +62,7 @@ export default {
 | \`trend\` | Mảng số (gán trực tiếp) |
 | \`deltaDirection\` (chỉ đọc) | \`up\` \\| \`down\` \\| \`flat\` \\| \`''\` |
 
-Hàm tiện ích: \`import { sparklinePoints } from 'hui-lib/hui-stat-card'\` → tọa độ \`{x, y}\` trong khung 100×32.
+Hàm tiện ích: \`import { sparklinePoints } from '@itmrhoang/h-ui/hui-stat-card'\` → tọa độ \`{x, y}\` trong khung 100×32.
 
 ### Events
 Không có (chỉ hiển thị; \`href\` biến cả card thành link qua hui-card).

@@ -1,0 +1,54 @@
+# Phát hành npm bằng Changesets:
+#  - main có file .changeset/*.md chưa phát hành → mở/cập nhật PR "chore: version packages"
+#  - merge PR đó → build + `changeset publish` (npm publish + gắn tag vX.Y.Z) + tạo GitHub Release
+# Xác thực npm: Trusted Publishing (OIDC, không cần token) — hoặc secret NPM_TOKEN cho lần đăng đầu tiên.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write        # đẩy tag + tạo GitHub Release
+  pull-requests: write   # mở PR "version packages"
+  id-token: write        # npm Trusted Publishing + provenance
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      # Trusted Publishing cần npm >= 11.5
+      - run: npm install -g npm@latest
+
+      - run: npm ci
+
+      - name: Version PR hoặc phát hành
+        uses: changesets/action@v1
+        with:
+          version: npm run version-packages
+          publish: npm run release
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Chỉ cần khi CHƯA cấu hình Trusted Publishing trên npmjs.com (vd lần đăng đầu tiên)
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true

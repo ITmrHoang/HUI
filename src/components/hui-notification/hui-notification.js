@@ -1,6 +1,6 @@
 /**
  * HUI Notification — Thông báo ở góc màn hình (Ant notification + MUI Snackbar có tiêu đề)
- *   import { notification } from 'hui-lib/hui-notification';
+ *   import { notification } from '@itmrhoang/h-ui/hui-notification';
  *   notification.success({ title: 'Đã lưu', description: 'Thay đổi đã được ghi lại.' });
  *   notification.open({ title: 'Có bản cập nhật', duration: 0, actions: [{ label: 'Tải lại', onClick: (close) => location.reload() }] });
  * Container <hui-notification-container> tự gắn vào <body> ở lần gọi đầu, nằm trên top-layer.

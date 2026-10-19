@@ -33,7 +33,7 @@ export default {
 
 ### Thêm icon riêng
 \`\`\`js
-import { registerIcon } from 'hui-lib/hui-icon';
+import { registerIcon } from '@itmrhoang/h-ui/hui-icon';
 registerIcon('rocket', '<path d="..."/>'); // nội dung bên trong <svg viewBox="0 0 24 24">
 \`\`\`
 

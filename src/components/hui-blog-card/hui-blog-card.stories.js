@@ -74,7 +74,7 @@ Không có \`reading-time\` mà có \`content-length\` (số từ) → ước t�
 |----------|-------|
 | \`readingMinutes\` (chỉ đọc) | Số phút đọc đang hiển thị (null = ẩn) |
 
-Hàm tiện ích: \`import { readingMinutes } from 'hui-lib/hui-blog-card'\` → \`readingMinutes(null, 1000) === 5\`.
+Hàm tiện ích: \`import { readingMinutes } from '@itmrhoang/h-ui/hui-blog-card'\` → \`readingMinutes(null, 1000) === 5\`.
 
 ### Events
 Không có (link tiêu đề / \`href\` của hui-card điều hướng như link thường).

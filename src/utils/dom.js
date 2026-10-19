@@ -74,7 +74,7 @@ export function createStyle(css) {
  * Thẻ <style> được chèn ở ĐẦU <head> để đứng trước mọi CSS của người dùng; kết hợp
  * selector :where(...) (độ ưu tiên 0) trong tokens.css → override nào của người dùng cũng thắng.
  * Gọi hàm này trong connectedCallback của từng component để vẫn chạy khi import lẻ
- * (import 'hui-lib/hui-button') mà không cần import bundle tổng.
+ * (import '@itmrhoang/h-ui/hui-button') mà không cần import bundle tổng.
  */
 let tokensReady = false;
 

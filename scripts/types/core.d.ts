@@ -1,4 +1,4 @@
-// Kiểu cho hui-lib/core — viết tay (scripts/gen-types.mjs chép sang dist/types/core.d.ts)
+// Kiểu cho @itmrhoang/h-ui/core — viết tay (scripts/gen-types.mjs chép sang dist/types/core.d.ts)
 
 export interface PropertyOptions {
   type?: StringConstructor | NumberConstructor | BooleanConstructor | ObjectConstructor | ArrayConstructor;
