@@ -174,8 +174,8 @@
 .hui-btn--danger {
   --_bg: var(--hui-danger);
   --_border: var(--hui-danger);
-  --_hover-bg: #dc2626;
-  --_active-bg: #b91c1c;
+  --_hover-bg: var(--hui-danger-hover);
+  --_active-bg: var(--hui-danger-active);
 }
 
 .hui-btn--outline {

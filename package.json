@@ -46,6 +46,11 @@
       "import": "./dist/hui-checkbox.esm.js",
       "default": "./dist/hui-checkbox.esm.js"
     },
+    "./hui-config-provider": {
+      "types": "./dist/types/hui-config-provider.d.ts",
+      "import": "./dist/hui-config-provider.esm.js",
+      "default": "./dist/hui-config-provider.esm.js"
+    },
     "./hui-divider": {
       "types": "./dist/types/hui-divider.d.ts",
       "import": "./dist/hui-divider.esm.js",

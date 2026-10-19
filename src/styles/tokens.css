@@ -18,25 +18,16 @@
 :where([data-theme="light"]) {
   /* === Bảng màu chính === */
   --hui-primary: #6366f1;
-  --hui-primary-hover: #818cf8;
-  --hui-primary-active: #4f46e5;
-  --hui-primary-light: rgba(99, 102, 241, 0.12);
 
   --hui-secondary: #64748b;
-  --hui-secondary-hover: #94a3b8;
-  --hui-secondary-active: #475569;
 
   --hui-success: #10b981;
-  --hui-success-light: rgba(16, 185, 129, 0.12);
 
   --hui-warning: #f59e0b;
-  --hui-warning-light: rgba(245, 158, 11, 0.12);
 
   --hui-danger: #ef4444;
-  --hui-danger-light: rgba(239, 68, 68, 0.12);
 
   --hui-info: #3b82f6;
-  --hui-info-light: rgba(59, 130, 246, 0.12);
 
   /* === Màu nền & text === */
   --hui-bg: #ffffff;
@@ -54,6 +45,21 @@
   --hui-border: #e2e8f0;
   --hui-border-hover: #cbd5e1;
   --hui-border-focus: var(--hui-primary);
+
+
+  /* === Token ngữ nghĩa (Ant: colorBgContainer / colorBgElevated / colorFill...) === */
+  --hui-bg-container: var(--hui-surface);   /* Nền khối nội dung: card, input, table */
+  --hui-bg-elevated: #ffffff;               /* Nền lớp nổi: dropdown, popover, modal */
+  --hui-bg-spotlight: rgba(15, 23, 42, 0.88); /* Nền tooltip */
+  --hui-text-tertiary: var(--hui-text-muted);
+  --hui-text-disabled: rgba(15, 23, 42, 0.25);
+  --hui-border-secondary: #f1f5f9;          /* Viền mảnh: đường kẻ bảng, divider trong card */
+  --hui-fill: rgba(15, 23, 42, 0.15);       /* Nền thao tác đậm (thanh slider) */
+  --hui-fill-secondary: rgba(15, 23, 42, 0.06); /* Nền hover của item menu/list */
+  --hui-fill-tertiary: rgba(15, 23, 42, 0.04);  /* Nền nhẹ: input filled, thẻ tag mặc định */
+  /* Màu pha để tạo sắc độ đậm 7–10: theme sáng pha đen, theme tối pha trắng */
+  --hui-shade-mix: #000000;
+  color-scheme: light;
 
   /* === Border radius === */
   --hui-radius-sm: 0.375rem;
@@ -106,12 +112,36 @@
   --hui-transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --hui-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
+  /* === Kích thước control (alias theo tên Ant: controlHeight) === */
+  --hui-control-height-sm: var(--hui-size-sm);
+  --hui-control-height-md: var(--hui-size-md);
+  --hui-control-height-lg: var(--hui-size-lg);
+
+  /* === Heading === */
+  --hui-font-h1: 2.375rem;
+  --hui-font-h2: 1.875rem;
+  --hui-font-h3: 1.5rem;
+  --hui-font-h4: 1.25rem;
+  --hui-font-h5: 1rem;
+  --hui-line-height-heading: 1.25;
+
+  /* === Motion (utils/motion.js đọc --hui-motion-duration) === */
+  --hui-motion-duration-fast: 150ms;
+  --hui-motion-duration: 200ms;
+  --hui-motion-duration-slow: 300ms;
+  --hui-motion-ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --hui-motion-ease-in: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  --hui-motion-ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+
   /* === Z-index === */
   --hui-z-dropdown: 100;
   --hui-z-sticky: 200;
   --hui-z-modal: 300;
   --hui-z-tooltip: 400;
+  --hui-z-popover: 350;
   --hui-z-toast: 500;
+  --hui-z-message: 510;
+  --hui-z-notification: 520;
 }
 
 /* ============================================
@@ -127,25 +157,16 @@
 :where([data-theme="dark"]) {
   /* === Bảng màu chính (sáng hơn một bậc để đủ tương phản trên nền tối) === */
   --hui-primary: #818cf8;
-  --hui-primary-hover: #a5b4fc;
-  --hui-primary-active: #6366f1;
-  --hui-primary-light: rgba(129, 140, 248, 0.16);
 
   --hui-secondary: #94a3b8;
-  --hui-secondary-hover: #cbd5e1;
-  --hui-secondary-active: #64748b;
 
   --hui-success: #34d399;
-  --hui-success-light: rgba(52, 211, 153, 0.16);
 
   --hui-warning: #fbbf24;
-  --hui-warning-light: rgba(251, 191, 36, 0.16);
 
   --hui-danger: #f87171;
-  --hui-danger-light: rgba(248, 113, 113, 0.16);
 
   --hui-info: #60a5fa;
-  --hui-info-light: rgba(96, 165, 250, 0.16);
 
   /* === Màu nền & text === */
   --hui-bg: #0f172a;
@@ -159,6 +180,19 @@
   --hui-text-muted: #64748b;
   /* Chữ trên nền màu (nút primary, badge...) → tối để tương phản với màu sáng hơn */
   --hui-text-inverse: #0f172a;
+
+  /* === Token ngữ nghĩa === */
+  --hui-bg-container: var(--hui-surface);
+  --hui-bg-elevated: #273449;
+  --hui-bg-spotlight: rgba(51, 65, 85, 0.95);
+  --hui-text-tertiary: var(--hui-text-muted);
+  --hui-text-disabled: rgba(241, 245, 249, 0.3);
+  --hui-border-secondary: #1e293b;
+  --hui-fill: rgba(241, 245, 249, 0.18);
+  --hui-fill-secondary: rgba(241, 245, 249, 0.1);
+  --hui-fill-tertiary: rgba(241, 245, 249, 0.06);
+  --hui-shade-mix: #ffffff;
+  color-scheme: dark; /* Thanh cuộn, ô input native, lịch native cũng chuyển tối */
 
   /* === Border === */
   --hui-border: #334155;
@@ -177,25 +211,16 @@
 @media (prefers-color-scheme: dark) {
   :where(:root:not([data-theme])) {
     --hui-primary: #818cf8;
-    --hui-primary-hover: #a5b4fc;
-    --hui-primary-active: #6366f1;
-    --hui-primary-light: rgba(129, 140, 248, 0.16);
 
     --hui-secondary: #94a3b8;
-    --hui-secondary-hover: #cbd5e1;
-    --hui-secondary-active: #64748b;
 
     --hui-success: #34d399;
-    --hui-success-light: rgba(52, 211, 153, 0.16);
 
     --hui-warning: #fbbf24;
-    --hui-warning-light: rgba(251, 191, 36, 0.16);
 
     --hui-danger: #f87171;
-    --hui-danger-light: rgba(248, 113, 113, 0.16);
 
     --hui-info: #60a5fa;
-    --hui-info-light: rgba(96, 165, 250, 0.16);
 
     --hui-bg: #0f172a;
     --hui-bg-secondary: #1e293b;
@@ -208,6 +233,19 @@
     --hui-text-muted: #64748b;
     --hui-text-inverse: #0f172a;
 
+    /* === Token ngữ nghĩa === */
+    --hui-bg-container: var(--hui-surface);
+    --hui-bg-elevated: #273449;
+    --hui-bg-spotlight: rgba(51, 65, 85, 0.95);
+    --hui-text-tertiary: var(--hui-text-muted);
+    --hui-text-disabled: rgba(241, 245, 249, 0.3);
+    --hui-border-secondary: #1e293b;
+    --hui-fill: rgba(241, 245, 249, 0.18);
+    --hui-fill-secondary: rgba(241, 245, 249, 0.1);
+    --hui-fill-tertiary: rgba(241, 245, 249, 0.06);
+    --hui-shade-mix: #ffffff;
+    color-scheme: dark; /* Thanh cuộn, ô input native, lịch native cũng chuyển tối */
+
     --hui-border: #334155;
     --hui-border-hover: #475569;
     --hui-border-focus: var(--hui-primary);
@@ -218,4 +256,109 @@
     --hui-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
     --hui-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
   }
+}
+
+/* ============================================
+   Token suy ra từ màu gốc (color-mix)
+   Đổi 1 biến gốc (vd: --hui-primary) → hover / active / nền nhạt / 10 sắc độ tự đổi theo.
+
+   Khai báo trên MỌI phạm vi theme (:root, [data-theme], hui-config-provider) vì var() được tính
+   tại phần tử khai báo: nếu chỉ khai báo trên :root thì vùng con đổi --hui-primary sẽ không ăn.
+   Đặt CUỐI file để thắng các giá trị cùng tên phía trên (cùng độ ưu tiên 0).
+
+   Sắc độ (giống Ant Design palette): 1–5 nhạt dần về nền, 6 = màu gốc, 7–10 đậm dần.
+     --hui-primary-1  nền rất nhạt (hàng được chọn trong bảng)
+     --hui-primary-2  nền nhạt (hover của hàng)
+     --hui-primary-3  viền nhạt
+     --hui-primary-5  hover
+     --hui-primary-6  màu chính
+     --hui-primary-7  active (đang nhấn)
+   ============================================ */
+:where(:root, [data-theme], hui-config-provider) {
+  --hui-primary-1: color-mix(in oklab, var(--hui-primary) 8%, var(--hui-bg));
+  --hui-primary-2: color-mix(in oklab, var(--hui-primary) 16%, var(--hui-bg));
+  --hui-primary-3: color-mix(in oklab, var(--hui-primary) 30%, var(--hui-bg));
+  --hui-primary-4: color-mix(in oklab, var(--hui-primary) 50%, var(--hui-bg));
+  --hui-primary-5: color-mix(in oklab, var(--hui-primary) 75%, var(--hui-bg));
+  --hui-primary-6: var(--hui-primary);
+  --hui-primary-7: color-mix(in oklab, var(--hui-primary) 85%, var(--hui-shade-mix));
+  --hui-primary-8: color-mix(in oklab, var(--hui-primary) 70%, var(--hui-shade-mix));
+  --hui-primary-9: color-mix(in oklab, var(--hui-primary) 55%, var(--hui-shade-mix));
+  --hui-primary-10: color-mix(in oklab, var(--hui-primary) 40%, var(--hui-shade-mix));
+  --hui-primary-hover: color-mix(in oklab, var(--hui-primary) 82%, white);
+  --hui-primary-active: color-mix(in oklab, var(--hui-primary) 85%, black);
+  --hui-primary-light: color-mix(in srgb, var(--hui-primary) 14%, transparent);
+
+  --hui-secondary-1: color-mix(in oklab, var(--hui-secondary) 8%, var(--hui-bg));
+  --hui-secondary-2: color-mix(in oklab, var(--hui-secondary) 16%, var(--hui-bg));
+  --hui-secondary-3: color-mix(in oklab, var(--hui-secondary) 30%, var(--hui-bg));
+  --hui-secondary-4: color-mix(in oklab, var(--hui-secondary) 50%, var(--hui-bg));
+  --hui-secondary-5: color-mix(in oklab, var(--hui-secondary) 75%, var(--hui-bg));
+  --hui-secondary-6: var(--hui-secondary);
+  --hui-secondary-7: color-mix(in oklab, var(--hui-secondary) 85%, var(--hui-shade-mix));
+  --hui-secondary-8: color-mix(in oklab, var(--hui-secondary) 70%, var(--hui-shade-mix));
+  --hui-secondary-9: color-mix(in oklab, var(--hui-secondary) 55%, var(--hui-shade-mix));
+  --hui-secondary-10: color-mix(in oklab, var(--hui-secondary) 40%, var(--hui-shade-mix));
+  --hui-secondary-hover: color-mix(in oklab, var(--hui-secondary) 82%, white);
+  --hui-secondary-active: color-mix(in oklab, var(--hui-secondary) 85%, black);
+  --hui-secondary-light: color-mix(in srgb, var(--hui-secondary) 14%, transparent);
+
+  --hui-success-1: color-mix(in oklab, var(--hui-success) 8%, var(--hui-bg));
+  --hui-success-2: color-mix(in oklab, var(--hui-success) 16%, var(--hui-bg));
+  --hui-success-3: color-mix(in oklab, var(--hui-success) 30%, var(--hui-bg));
+  --hui-success-4: color-mix(in oklab, var(--hui-success) 50%, var(--hui-bg));
+  --hui-success-5: color-mix(in oklab, var(--hui-success) 75%, var(--hui-bg));
+  --hui-success-6: var(--hui-success);
+  --hui-success-7: color-mix(in oklab, var(--hui-success) 85%, var(--hui-shade-mix));
+  --hui-success-8: color-mix(in oklab, var(--hui-success) 70%, var(--hui-shade-mix));
+  --hui-success-9: color-mix(in oklab, var(--hui-success) 55%, var(--hui-shade-mix));
+  --hui-success-10: color-mix(in oklab, var(--hui-success) 40%, var(--hui-shade-mix));
+  --hui-success-hover: color-mix(in oklab, var(--hui-success) 82%, white);
+  --hui-success-active: color-mix(in oklab, var(--hui-success) 85%, black);
+  --hui-success-light: color-mix(in srgb, var(--hui-success) 14%, transparent);
+
+  --hui-warning-1: color-mix(in oklab, var(--hui-warning) 8%, var(--hui-bg));
+  --hui-warning-2: color-mix(in oklab, var(--hui-warning) 16%, var(--hui-bg));
+  --hui-warning-3: color-mix(in oklab, var(--hui-warning) 30%, var(--hui-bg));
+  --hui-warning-4: color-mix(in oklab, var(--hui-warning) 50%, var(--hui-bg));
+  --hui-warning-5: color-mix(in oklab, var(--hui-warning) 75%, var(--hui-bg));
+  --hui-warning-6: var(--hui-warning);
+  --hui-warning-7: color-mix(in oklab, var(--hui-warning) 85%, var(--hui-shade-mix));
+  --hui-warning-8: color-mix(in oklab, var(--hui-warning) 70%, var(--hui-shade-mix));
+  --hui-warning-9: color-mix(in oklab, var(--hui-warning) 55%, var(--hui-shade-mix));
+  --hui-warning-10: color-mix(in oklab, var(--hui-warning) 40%, var(--hui-shade-mix));
+  --hui-warning-hover: color-mix(in oklab, var(--hui-warning) 82%, white);
+  --hui-warning-active: color-mix(in oklab, var(--hui-warning) 85%, black);
+  --hui-warning-light: color-mix(in srgb, var(--hui-warning) 14%, transparent);
+
+  --hui-danger-1: color-mix(in oklab, var(--hui-danger) 8%, var(--hui-bg));
+  --hui-danger-2: color-mix(in oklab, var(--hui-danger) 16%, var(--hui-bg));
+  --hui-danger-3: color-mix(in oklab, var(--hui-danger) 30%, var(--hui-bg));
+  --hui-danger-4: color-mix(in oklab, var(--hui-danger) 50%, var(--hui-bg));
+  --hui-danger-5: color-mix(in oklab, var(--hui-danger) 75%, var(--hui-bg));
+  --hui-danger-6: var(--hui-danger);
+  --hui-danger-7: color-mix(in oklab, var(--hui-danger) 85%, var(--hui-shade-mix));
+  --hui-danger-8: color-mix(in oklab, var(--hui-danger) 70%, var(--hui-shade-mix));
+  --hui-danger-9: color-mix(in oklab, var(--hui-danger) 55%, var(--hui-shade-mix));
+  --hui-danger-10: color-mix(in oklab, var(--hui-danger) 40%, var(--hui-shade-mix));
+  --hui-danger-hover: color-mix(in oklab, var(--hui-danger) 82%, white);
+  --hui-danger-active: color-mix(in oklab, var(--hui-danger) 85%, black);
+  --hui-danger-light: color-mix(in srgb, var(--hui-danger) 14%, transparent);
+
+  --hui-info-1: color-mix(in oklab, var(--hui-info) 8%, var(--hui-bg));
+  --hui-info-2: color-mix(in oklab, var(--hui-info) 16%, var(--hui-bg));
+  --hui-info-3: color-mix(in oklab, var(--hui-info) 30%, var(--hui-bg));
+  --hui-info-4: color-mix(in oklab, var(--hui-info) 50%, var(--hui-bg));
+  --hui-info-5: color-mix(in oklab, var(--hui-info) 75%, var(--hui-bg));
+  --hui-info-6: var(--hui-info);
+  --hui-info-7: color-mix(in oklab, var(--hui-info) 85%, var(--hui-shade-mix));
+  --hui-info-8: color-mix(in oklab, var(--hui-info) 70%, var(--hui-shade-mix));
+  --hui-info-9: color-mix(in oklab, var(--hui-info) 55%, var(--hui-shade-mix));
+  --hui-info-10: color-mix(in oklab, var(--hui-info) 40%, var(--hui-shade-mix));
+  --hui-info-hover: color-mix(in oklab, var(--hui-info) 82%, white);
+  --hui-info-active: color-mix(in oklab, var(--hui-info) 85%, black);
+  --hui-info-light: color-mix(in srgb, var(--hui-info) 14%, transparent);
+
+  --hui-border-focus: var(--hui-primary);
+  --hui-focus-ring: 0 0 0 3px color-mix(in srgb, var(--hui-primary) 22%, transparent);
 }

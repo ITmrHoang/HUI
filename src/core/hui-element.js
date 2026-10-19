@@ -91,6 +91,9 @@ export class HuiElement extends HTMLElement {
   /** Đặt true ở lớp con để tham gia <form> qua ElementInternals */
   static formAssociated = false;
 
+  /** true = component dùng chuỗi locale (t()) → tự updated(changed.has('locale')) khi đổi ngôn ngữ */
+  static localized = false;
+
   /**
    * Chuẩn hóa `static properties` của lớp hiện tại (kể cả kế thừa từ lớp cha) — tính 1 lần rồi cache.
    * @returns {Map<string, {type: Function, default: any, attribute: string|false, reflect: boolean}>}
@@ -258,6 +261,9 @@ export class HuiElement extends HTMLElement {
 
   connectedCallback() {
     this._abort = new AbortController();
+    if (this.constructor.localized) {
+      this.listen(document, 'hui-locale-change', () => this.requestUpdate('locale'));
+    }
 
     if (!this._hasRendered) {
       this._upgradeProperties();

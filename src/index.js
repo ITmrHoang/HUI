@@ -9,9 +9,10 @@
 import './styles/reset.css';
 
 // Import 2: Lớp nền để tự viết component mới theo chuẩn HUI
-export { HuiElement, defineElement } from './core/hui-element.js';
+export * from './core/index.js';
 
 // Import 3: Xuất xưởng toàn bộ Component trong hệ sinh thái
+export { default as HuiConfigProvider } from './components/hui-config-provider/index.js';
 export { default as HuiIcon, registerIcon, getIcon, getIconNames } from './components/hui-icon/index.js';
 export { default as HuiButton } from './components/hui-button/index.js';
 export { default as HuiInput } from './components/hui-input/index.js';
