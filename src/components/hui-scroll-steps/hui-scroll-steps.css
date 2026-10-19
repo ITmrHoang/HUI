@@ -1,0 +1,344 @@
+/*
+ * HUI Scroll Steps CSS — cuộn từng bước full chiều cao (CSS scroll-snap)
+ * Biến CSS override từ ngoài:
+ *   --hui-scroll-steps-height             Chiều cao khi container="self" (100dvh; attribute height ưu tiên hơn)
+ *   --hui-scroll-steps-nav-offset         Khoảng cách thanh chấm / cụm nút tới mép (24px)
+ *   --hui-scroll-steps-nav-gap            Khoảng cách giữa các chấm (4px)
+ *   --hui-scroll-steps-dot-size           Đường kính chấm (8px)
+ *   --hui-scroll-steps-dot-color          Màu chấm thường
+ *   --hui-scroll-steps-dot-active-color   Màu chấm đang xem
+ *   --hui-scroll-steps-label-bg           Nền nhãn cạnh chấm
+ *   --hui-scroll-steps-label-color        Chữ nhãn cạnh chấm
+ *   --hui-scroll-steps-control-size       Kích thước nút Trước/Sau (36px)
+ *   --hui-scroll-steps-control-bg         Nền nút Trước/Sau + bộ đếm
+ *   --hui-scroll-steps-control-color      Màu icon / chữ cụm điều khiển
+ *   --hui-scroll-steps-progress-height    Độ dày thanh tiến độ (3px)
+ *   --hui-scroll-steps-progress-color     Màu thanh tiến độ
+ *   --hui-scroll-steps-focus-color        Viền focus
+ * Parts: base, viewport, nav, dot, dot-active, dot-label, controls, counter, prev, next, progress, progress-bar
+ */
+
+/* ================== HOST ==================
+ * self: chính component là vùng cuộn, cao 100dvh (fallback 100vh) hoặc theo attribute height (--_steps-height)
+ * window (dọc): cao theo nội dung, mỗi bước 100dvh, trang cuộn + snap
+ */
+:host {
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  height: var(--_steps-height, var(--hui-scroll-steps-height, 100vh));
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+@supports (height: 100dvh) {
+  :host { height: var(--_steps-height, var(--hui-scroll-steps-height, 100dvh)); }
+}
+
+:host([container="window"]:not([direction="horizontal"])) { height: auto; }
+
+:host([hidden]) { display: none; }
+
+[hidden] { display: none !important; }
+
+.steps {
+  /* Biến nội bộ: tông chấm/chữ đổi khi bước đang xem có theme="dark" */
+  --_steps-fg: var(--hui-text);
+  --_steps-dot: color-mix(in srgb, var(--hui-text) 28%, transparent);
+  --_steps-offset: var(--hui-scroll-steps-nav-offset, var(--hui-space-xl));
+
+  position: relative;
+  height: 100%;
+}
+
+.steps--on-dark {
+  --_steps-fg: var(--hui-text-light-solid);
+  --_steps-dot: color-mix(in srgb, var(--hui-text-light-solid) 45%, transparent);
+}
+
+/* ================== VIEWPORT (vùng cuộn + snap) ================== */
+.steps__viewport {
+  box-sizing: border-box;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  outline: none;
+}
+
+.steps__viewport::-webkit-scrollbar { display: none; }
+
+.steps__viewport:focus-visible {
+  outline: 2px solid var(--hui-scroll-steps-focus-color, var(--hui-border-focus));
+  outline-offset: -2px;
+}
+
+:host([snap="proximity"]) .steps__viewport { scroll-snap-type: y proximity; }
+
+:host([direction="horizontal"]) .steps__viewport {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+}
+
+:host([direction="horizontal"][snap="proximity"]) .steps__viewport { scroll-snap-type: x proximity; }
+
+/* window: trang tự cuộn (JS gắn scroll-snap-type lên document.scrollingElement) */
+.steps--window .steps__viewport {
+  height: auto;
+  overflow: visible;
+  scroll-snap-type: none;
+}
+
+/* ================== CÁC BƯỚC ==================
+ * Mỗi con = 1 bước cao đúng bằng khung. Bước cuộn được bên trong (scrollable / tự phát hiện overflowing)
+ * dùng scroll-snap-stop: normal để không bị "giữ" lại khi vuốt mạnh qua.
+ */
+::slotted(*) {
+  box-sizing: border-box;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Phần tử thường (không phải hui-step-section) cao hơn khung → tự cuộn bên trong */
+::slotted(:not(hui-step-section)) { overflow-y: auto; }
+
+::slotted([scrollable]),
+::slotted([overflowing]) { scroll-snap-stop: normal; }
+
+.steps--window ::slotted(*) { height: 100vh; }
+
+@supports (height: 100dvh) {
+  .steps--window ::slotted(*) { height: 100dvh; }
+}
+
+/* ================== THANH CHẤM ĐIỀU HƯỚNG ================== */
+.steps__nav {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: var(--_steps-offset);
+  transform: translateY(-50%);
+  color: var(--_steps-fg);
+  pointer-events: none;
+}
+
+:host([nav="left"]) .steps__nav { right: auto; left: var(--_steps-offset); }
+
+:host([nav="bottom"]) .steps__nav {
+  top: auto;
+  right: auto;
+  bottom: var(--_steps-offset);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.steps__dots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hui-scroll-steps-nav-gap, var(--hui-space-xs));
+}
+
+:host([nav="bottom"]) .steps__dots { flex-direction: row; }
+
+.steps__dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.steps__dot:focus-visible {
+  outline: 2px solid var(--hui-scroll-steps-focus-color, var(--hui-border-focus));
+  outline-offset: 0;
+}
+
+.steps__dot-mark {
+  display: block;
+  width: var(--hui-scroll-steps-dot-size, 8px);
+  height: var(--hui-scroll-steps-dot-size, 8px);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-scroll-steps-dot-color, var(--_steps-dot));
+  transition: height var(--hui-transition), width var(--hui-transition), background-color var(--hui-transition), transform var(--hui-transition-fast);
+}
+
+.steps__dot:hover .steps__dot-mark { transform: scale(1.25); }
+
+/* Chấm đang xem: dài ra theo hướng thanh chấm */
+.steps__dot--active .steps__dot-mark {
+  height: calc(var(--hui-scroll-steps-dot-size, 8px) * 2.5);
+  background: var(--hui-scroll-steps-dot-active-color, var(--hui-primary));
+}
+
+:host([nav="bottom"]) .steps__dot--active .steps__dot-mark {
+  width: calc(var(--hui-scroll-steps-dot-size, 8px) * 2.5);
+  height: var(--hui-scroll-steps-dot-size, 8px);
+}
+
+.steps__dot--active { height: calc(var(--hui-scroll-steps-dot-size, 8px) * 2.5 + 8px); }
+:host([nav="bottom"]) .steps__dot--active { width: calc(var(--hui-scroll-steps-dot-size, 8px) * 2.5 + 8px); height: 24px; }
+
+/* Nhãn cạnh chấm: hiện khi hover/focus, hoặc luôn hiện với nav-labels */
+.steps__dot-label {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + var(--hui-space-xs));
+  padding: 2px var(--hui-space-sm);
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-scroll-steps-label-bg, var(--hui-bg-spotlight));
+  color: var(--hui-scroll-steps-label-color, var(--hui-text-light-solid));
+  font-size: var(--hui-font-xs);
+  line-height: 1.6;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(4px, -50%);
+  transition: opacity var(--hui-transition-fast), transform var(--hui-transition-fast);
+  pointer-events: none;
+}
+
+:host([nav="left"]) .steps__dot-label {
+  right: auto;
+  left: calc(100% + var(--hui-space-xs));
+  transform: translate(-4px, -50%);
+}
+
+:host([nav="bottom"]) .steps__dot-label {
+  top: auto;
+  right: auto;
+  bottom: calc(100% + var(--hui-space-xs));
+  left: 50%;
+  transform: translate(-50%, 4px);
+}
+
+.steps__dot:hover .steps__dot-label,
+.steps__dot:focus-visible .steps__dot-label,
+:host([nav-labels]) .steps__dot-label {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+:host([nav="bottom"]) .steps__dot:hover .steps__dot-label,
+:host([nav="bottom"]) .steps__dot:focus-visible .steps__dot-label,
+:host([nav="bottom"][nav-labels]) .steps__dot-label { transform: translate(-50%, 0); }
+
+/* nav-labels: nhãn thường mờ hơn, nhãn đang xem đậm */
+:host([nav-labels]) .steps__dot:not(.steps__dot--active) .steps__dot-label { opacity: 0.7; }
+
+/* ================== CỤM NÚT TRƯỚC/SAU + BỘ ĐẾM ================== */
+.steps__controls {
+  position: absolute;
+  z-index: 2;
+  bottom: var(--_steps-offset);
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  transform: translateX(-50%);
+}
+
+:host([nav="bottom"]) .steps__controls { left: auto; right: var(--_steps-offset); transform: none; }
+
+.steps__btn {
+  display: inline-grid;
+  place-items: center;
+  width: var(--hui-scroll-steps-control-size, 36px);
+  height: var(--hui-scroll-steps-control-size, 36px);
+  padding: 0;
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-scroll-steps-control-bg, var(--hui-bg-elevated));
+  color: var(--hui-scroll-steps-control-color, var(--hui-text));
+  box-shadow: var(--hui-shadow-sm);
+  font-size: var(--hui-font-base);
+  cursor: pointer;
+  transition: background-color var(--hui-transition-fast), opacity var(--hui-transition-fast), transform var(--hui-transition-fast);
+}
+
+.steps__btn:hover:not(:disabled) { background: var(--hui-fill-secondary); }
+.steps__btn:active:not(:disabled) { transform: scale(0.94); }
+
+.steps__btn:focus-visible {
+  outline: 2px solid var(--hui-scroll-steps-focus-color, var(--hui-border-focus));
+  outline-offset: 2px;
+}
+
+.steps__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.steps__counter {
+  min-width: 3.5em;
+  padding: 2px var(--hui-space-md);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-scroll-steps-control-bg, var(--hui-bg-elevated));
+  color: var(--hui-scroll-steps-control-color, var(--hui-text));
+  font-size: var(--hui-font-sm);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.8;
+  text-align: center;
+}
+
+/* ================== THANH TIẾN ĐỘ ================== */
+.steps__progress {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: var(--hui-scroll-steps-progress-height, 3px);
+  background: color-mix(in srgb, var(--_steps-fg) 10%, transparent);
+  pointer-events: none;
+}
+
+.steps__progress-bar {
+  height: 100%;
+  background: var(--hui-scroll-steps-progress-color, var(--hui-primary));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 80ms linear;
+}
+
+:host(:dir(rtl)) .steps__progress-bar { transform-origin: right center; }
+
+/* ================== WINDOW: điều khiển cố định theo màn hình, chỉ hiện khi component trong màn hình ================== */
+.steps--window .steps__nav,
+.steps--window .steps__controls,
+.steps--window .steps__progress {
+  position: fixed;
+  z-index: var(--hui-z-sticky);
+  transition: opacity var(--hui-transition), visibility var(--hui-transition);
+}
+
+.steps--window:not(.steps--in-view) .steps__nav,
+.steps--window:not(.steps--in-view) .steps__controls,
+.steps--window:not(.steps--in-view) .steps__progress {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* ================== TẮT CHUYỂN ĐỘNG ================== */
+:host([no-animation]) *,
+:host([no-animation]) *::before {
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steps * { transition: none !important; }
+}

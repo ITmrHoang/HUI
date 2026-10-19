@@ -226,6 +226,21 @@
       "import": "./dist/hui-result.esm.js",
       "default": "./dist/hui-result.esm.js"
     },
+    "./hui-reveal": {
+      "types": "./dist/types/hui-reveal.d.ts",
+      "import": "./dist/hui-reveal.esm.js",
+      "default": "./dist/hui-reveal.esm.js"
+    },
+    "./hui-scroll-steps": {
+      "types": "./dist/types/hui-scroll-steps.d.ts",
+      "import": "./dist/hui-scroll-steps.esm.js",
+      "default": "./dist/hui-scroll-steps.esm.js"
+    },
+    "./hui-scroller": {
+      "types": "./dist/types/hui-scroller.d.ts",
+      "import": "./dist/hui-scroller.esm.js",
+      "default": "./dist/hui-scroller.esm.js"
+    },
     "./hui-section": {
       "types": "./dist/types/hui-section.d.ts",
       "import": "./dist/hui-section.esm.js",

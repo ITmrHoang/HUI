@@ -1,0 +1,33 @@
+/*
+ * HUI Reveal CSS
+ *   --hui-reveal-hidden-opacity  Độ mờ khi chưa hiện (mặc định 0; đặt 1 để không ẩn trước, chỉ chạy hiệu ứng)
+ */
+
+:host {
+  display: block;
+}
+
+:host([inline]) {
+  display: inline-block;
+}
+
+/* Chưa hiện: ẩn khung (hoặc từng con khi stagger) cho tới khi cuộn tới */
+:host(:not([revealed]):not([no-animation]):not([data-stagger])) .reveal,
+:host(:not([revealed]):not([no-animation])[data-stagger]) ::slotted(*) {
+  opacity: var(--hui-reveal-hidden-opacity, 0);
+}
+
+/* Người dùng bật giảm chuyển động: luôn hiện, không chờ cuộn */
+@media (prefers-reduced-motion: reduce) {
+  :host .reveal,
+  :host ::slotted(*) {
+    opacity: 1 !important;
+  }
+}
+
+@media print {
+  :host .reveal,
+  :host ::slotted(*) {
+    opacity: 1 !important;
+  }
+}

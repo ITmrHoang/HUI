@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Trang giới thiệu cuộn từng bước</title>
+  <style>
+    html, body { margin: 0; font-family: var(--hui-font-family); background: var(--hui-bg); color: var(--hui-text); }
+    :not(:defined) { visibility: hidden; }
+    .hero-title { font-size: clamp(2rem, 6vw, 4rem); margin: 0; line-height: 1.1; }
+    .lead { font-size: 1.15rem; color: var(--hui-text-secondary); max-width: 40rem; }
+    .step-inner { width: min(1100px, 100%); margin: 0 auto; display: grid; gap: 24px; }
+    .product { border: 1px solid var(--hui-border); border-radius: 16px; overflow: hidden; background: var(--hui-bg-container); display: grid; }
+    .product img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; background: var(--hui-fill-tertiary); }
+    .product .body { padding: 14px; display: grid; gap: 6px; }
+    .product h3 { margin: 0; font-size: 1rem; }
+    .price { font-weight: 700; color: var(--hui-primary); }
+    .feature { padding: 20px; border-radius: 16px; background: var(--hui-bg-container); border: 1px solid var(--hui-border); }
+    .feature hui-icon { font-size: 28px; color: var(--hui-primary); }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+  </style>
+  <script type="module" src="../src/index.js"></script>
+  <script type="module">
+    // Ảnh minh họa tự tạo (SVG) — trang chạy được không cần mạng
+    const NAMES = ['Áo thun', 'Cốc sứ', 'Sổ tay', 'Balo', 'Mũ lưỡi trai'];
+    const thumb = (i) => {
+      const hue = (i * 47) % 360;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+        <defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="hsl(${hue} 70% 60%)"/><stop offset="1" stop-color="hsl(${(hue + 60) % 360} 70% 45%)"/></linearGradient></defs>
+        <rect width="400" height="300" fill="url(#g)"/>
+        <text x="200" y="170" font-family="sans-serif" font-size="64" font-weight="700" fill="white" text-anchor="middle">${NAMES[i % 5][0]}${i + 1}</text></svg>`;
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    };
+    const products = Array.from({ length: 10 }, (_, i) => ({
+      id: i + 1,
+      name: `${NAMES[i % 5]} #${i + 1}`,
+      price: 99000 + i * 25000,
+      image: thumb(i),
+      isNew: i % 3 === 0,
+    }));
+    customElements.whenDefined('hui-scroller').then(() => {
+      document.querySelector('#products').data = products;
+    });
+    document.querySelector('#products').addEventListener('hui-action', (e) => {
+      import('../src/index.js').then(({ message }) => message.success(`Đã thêm "${e.detail.item.name}" vào giỏ`));
+    });
+    document.querySelector('hui-scroll-steps').addEventListener('hui-step-change', (e) => {
+      document.title = `HUI — Bước ${e.detail.index + 1}`;
+    });
+  </script>
+</head>
+<body>
+  <hui-scroll-steps nav="right" counter progress arrows hash>
+    <!-- Bước 1: hero tối, nền gradient -->
+    <hui-step-section id="gioi-thieu" label="Giới thiệu" theme="dark" align="center"
+      background="radial-gradient(circle at 20% 20%, #4338ca 0%, #0f172a 60%)" animate="fade-up">
+      <div class="step-inner" style="text-align: center; justify-items: center;">
+        <hui-tag color="primary">HUI v0.3</hui-tag>
+        <h1 class="hero-title">Mỗi bước một màn hình</h1>
+        <p class="lead">Cuộn chuột, vuốt hoặc dùng phím ↑ ↓ — mỗi lần chuyển đúng một bước, có chấm điều hướng và đường dẫn #bước.</p>
+        <hui-space>
+          <hui-button size="lg" icon="chevron-down" icon-position="end" onclick="this.closest('hui-scroll-steps').next()">Bắt đầu</hui-button>
+        </hui-space>
+      </div>
+    </hui-step-section>
+
+    <!-- Bước 2: tính năng hiện lần lượt -->
+    <hui-step-section id="tinh-nang" label="Tính năng" animate="zoom-in" stagger="120">
+      <div class="step-inner">
+        <h2 style="margin: 0; font-size: 2rem;">Có sẵn những gì?</h2>
+        <hui-row gutter="16,16">
+          <hui-col span-xs="24" span-md="8"><div class="feature"><hui-icon name="settings"></hui-icon><h3>Theme</h3><p>Sáng/tối, đổi một màu là đổi cả hệ thống.</p></div></hui-col>
+          <hui-col span-xs="24" span-md="8"><div class="feature"><hui-icon name="star"></hui-icon><h3>Hiệu ứng</h3><p>data-hui-animate, hui-reveal, cuộn từng bước.</p></div></hui-col>
+          <hui-col span-xs="24" span-md="8"><div class="feature"><hui-icon name="check"></hui-icon><h3>Dữ liệu</h3><p>Truyền mảng + &lt;template&gt; là hiển thị ngay.</p></div></hui-col>
+        </hui-row>
+      </div>
+    </hui-step-section>
+
+    <!-- Bước 3: cuộn ngang sản phẩm từ data + template -->
+    <hui-step-section id="san-pham" label="Sản phẩm" background="var(--hui-bg-secondary)">
+      <div class="step-inner">
+        <h2 style="margin: 0; font-size: 2rem;">Kéo ngang để xem sản phẩm</h2>
+        <hui-scroller id="products" items-per-view="1.3" items-per-view-md="2.5" items-per-view-lg="3.5"
+          gap="md" arrows="auto" edge-fade indicator="bar" scrollbar="hidden" row-key="id" label="Sản phẩm nổi bật">
+          <template>
+            <article class="product">
+              <img data-bind-attr="src:image, alt:name" loading="lazy">
+              <div class="body">
+                <h3 data-bind="name"></h3>
+                <span class="price" data-bind="price" data-format="currency"></span>
+                <hui-tag data-show="isNew" color="success" size="sm">Mới</hui-tag>
+                <hui-button data-action="buy" size="sm" icon="plus">Thêm vào giỏ</hui-button>
+              </div>
+            </article>
+          </template>
+        </hui-scroller>
+      </div>
+    </hui-step-section>
+
+    <!-- Bước 4: số liệu + đánh giá hiện dần -->
+    <hui-step-section id="danh-gia" label="Đánh giá">
+      <div class="step-inner">
+        <hui-reveal effect="fade-up" stagger="100" class="stats">
+          <hui-card><hui-statistic title="Khách hàng" value="12500"></hui-statistic></hui-card>
+          <hui-card><hui-statistic title="Đơn hàng" value="48230"></hui-statistic></hui-card>
+          <hui-card><hui-statistic title="Hài lòng" value="98.2" precision="1" suffix="%"></hui-statistic></hui-card>
+        </hui-reveal>
+        <hui-reveal effect="zoom-in" delay="200">
+          <hui-rating-summary average="4.7" distribution='{"5":420,"4":88,"3":12,"2":3,"1":1}'></hui-rating-summary>
+        </hui-reveal>
+      </div>
+    </hui-step-section>
+
+    <!-- Bước 5: kêu gọi hành động -->
+    <hui-step-section id="bat-dau" label="Bắt đầu" theme="dark" align="center" background="linear-gradient(135deg, #db2777, #4f46e5)" animate="blur-in">
+      <div class="step-inner" style="text-align: center; justify-items: center;">
+        <h2 class="hero-title">Sẵn sàng dựng web?</h2>
+        <p class="lead" style="color: #e2e8f0">import 'hui-lib/hui-scroll-steps' — vậy là xong.</p>
+        <hui-button size="lg" variant="secondary" onclick="this.closest('hui-scroll-steps').goTo(0)">Về đầu</hui-button>
+      </div>
+    </hui-step-section>
+  </hui-scroll-steps>
+</body>
+</html>

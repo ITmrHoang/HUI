@@ -1,0 +1,99 @@
+/*
+ * HUI Step Section CSS — một bước full chiều cao trong hui-scroll-steps
+ * Chiều cao do hui-scroll-steps quyết định (::slotted) — dùng lẻ thì cao theo nội dung (min 100% khung cha).
+ * Biến CSS override từ ngoài:
+ *   --hui-step-section-bg          Nền (attribute background ưu tiên hơn)
+ *   --hui-step-section-color       Màu chữ
+ *   --hui-step-section-padding     Khoảng đệm nội dung (thang theo attribute padding)
+ *   --hui-step-section-max-width   Chiều rộng tối đa nội dung (1200px)
+ *   --hui-step-section-gap         Khoảng cách giữa các con trực tiếp (16px)
+ * Parts: base, background, content
+ */
+
+:host {
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]) { display: none; }
+
+[hidden] { display: none !important; }
+
+.section {
+  /* Biến nội bộ: nền đặt qua attribute background (JS ghi --_section-bg) */
+  position: relative;
+  box-sizing: border-box;
+  height: 100%;
+  overflow: hidden;
+  background: var(--_section-bg, var(--hui-step-section-bg, var(--hui-bg)));
+  color: var(--hui-step-section-color, var(--hui-text));
+  background-size: cover;
+  background-position: center;
+}
+
+/* ================== LỚP NỀN (slot background) ================== */
+.section__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.section__bg ::slotted(*) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ================== NỘI DUNG ==================
+ * content = vùng cuộn bên trong (cao bằng khung); inner căn dọc bằng margin auto
+ * → nội dung cao hơn khung vẫn cuộn tới được mép trên (justify-content: center sẽ cắt mất phần đầu).
+ */
+.section__content {
+  --_section-padding: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 5vw, 4rem);
+  --_section-padding-custom: initial;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--_section-padding-custom, var(--hui-step-section-padding, var(--_section-padding)));
+}
+
+:host([padding="none"]) .section__content { --_section-padding: 0px; }
+:host([padding="sm"]) .section__content { --_section-padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 2rem); }
+:host([padding="lg"]) .section__content { --_section-padding: clamp(2rem, 8vw, 5rem) clamp(1.5rem, 8vw, 6rem); }
+
+.section__inner {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-step-section-gap, var(--hui-space-lg));
+  width: 100%;
+  max-width: var(--hui-step-section-max-width, 1200px);
+  margin: auto;
+}
+
+:host([align="start"]) .section__inner { margin-top: 0; }
+:host([align="end"]) .section__inner { margin-bottom: 0; }
+
+::slotted(*) {
+  margin-block: 0;
+}
+
+/* Chưa tới lượt hiệu ứng vào → ẩn các con (JS gỡ class khi bước được kích hoạt) */
+.section__content--pending ::slotted(:not([slot])) {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section__content--pending ::slotted(:not([slot])) { opacity: 1; }
+}

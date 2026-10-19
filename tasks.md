@@ -368,7 +368,7 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
 
 ## A3 — KHUNG CUỘN & BỐ CỤC ĐỘNG (ưu tiên theo yêu cầu)
 
-- [ ] 🆕 **A3.1 `hui-scroller`** — khung **cuộn ngang** chứa bất kỳ thành phần nào (card, ảnh, tag…)
+- [x] 🆕 **A3.1 `hui-scroller`** — khung **cuộn ngang** chứa bất kỳ thành phần nào (card, ảnh, tag…)
   - Slot mặc định: phần tử con là các item; hoặc **`data` + `<template>`** (A0.2) để render card từ mảng
   - `gap`, `items-per-view` (vd `1.2` trên mobile → lộ một phần thẻ kế tiếp), responsive `items-per-view-md="3"`…
   - `snap` start | center | none (CSS scroll-snap), `arrows` (hiện/ẩn theo vị trí, ẩn trên thiết bị cảm ứng), `edge-fade` (bóng mờ 2 mép)
@@ -376,7 +376,7 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
   - `indicator` dots | bar | none, sự kiện `hui-scroll` {index, progress}, API `scrollToIndex(i)`, `next()`, `prev()`
   - Virtual khi > 50 item (A0.4); `loop` không làm (để `hui-carousel`)
   - ARIA: `role="region"` + `aria-label`, item có `aria-setsize/posinset`
-- [ ] 🆕 **A3.2 `hui-scroll-steps`** — khung **cuộn từng bước, mỗi bước full chiều cao màn hình** (fullpage)
+- [x] 🆕 **A3.2 `hui-scroll-steps`** — khung **cuộn từng bước, mỗi bước full chiều cao màn hình** (fullpage)
   - Con là `<hui-step-section>` (hoặc phần tử bất kỳ); mỗi section cao `100dvh` (đúng trên mobile có thanh địa chỉ)
   - Dùng **CSS scroll-snap** (`mandatory`) làm lõi → nhẹ, không chặn cuộn tự nhiên, hỗ trợ trợ năng
   - Tùy chọn `wheel-step` (mỗi lần lăn = 1 bước, khóa trong lúc chuyển — kiểu fullPage.js), `direction` vertical | horizontal
@@ -387,7 +387,7 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
   - `container` window | self (cuộn trong một vùng thay vì cả trang); section cao hơn màn hình vẫn cuộn bên trong được
 - [ ] 🆕 **A3.3 `hui-scrolly`** (scrollytelling) — cột trái **sticky full-height** (ảnh/biểu đồ), cột phải là các bước;
   bước nào vào giữa màn hình thì phát `hui-step-enter` → đổi nội dung cột sticky
-- [ ] 🆕 **A3.4 `hui-reveal`** — bọc phần tử để hiện dần khi cuộn tới (`effect` fade | slide-up | zoom, `delay`, `stagger` cho con, `once`)
+- [x] 🆕 **A3.4 `hui-reveal`** — bọc phần tử để hiện dần khi cuộn tới (`effect` fade | slide-up | zoom, `delay`, `stagger` cho con, `once`)
 - [ ] 🆕 **A3.5 `hui-marquee`** — dải chạy ngang vô hạn (logo đối tác, tin nhanh), `speed`, `direction`, dừng khi hover, `pause-on-hidden`
 - [ ] 🆕 **A3.6 `hui-infinite-scroll`** — đặt cuối danh sách, chạm tới thì phát `hui-load-more` (hoặc tự gọi `fetchFn` trang kế), hiện spinner / "Hết dữ liệu"
 - [ ] 🆕 **A3.7 `hui-sticky`** — dính khi cuộn (`top`, `bottom`), thêm `:state(stuck)` để đổi style lúc đang dính (bóng đổ header)
@@ -566,12 +566,20 @@ bật `prefers-reduced-motion`; thời lượng/easing lấy từ token `--hui-m
 
 ---
 
+### Hạn chế đã biết của A3 (backlog)
+- [ ] `hui-scroller`: chưa virtual hóa (ổn tới ~200 item; nhiều hơn → dùng `VirtualWindow` ngang), chưa hỗ trợ RTL,
+  breakpoint `items-per-view-*` theo cửa sổ (chưa theo container), cần thẻ cha có chiều rộng (do `container-type`)
+- [ ] `hui-scroller`: thuộc tính kéo chuột đổi tên `drag-scroll` (tránh trùng `draggable` native)
+- [ ] `hui-scroll-steps`: `direction="horizontal"` luôn cuộn bên trong component; `container="window"` + `mandatory` khó với tới
+  header/footer ngoài component (khuyên dùng `snap="proximity"`); chỉ hỗ trợ 1 instance window mode mỗi trang
+- [ ] `hui-scroll-steps`: theo dõi lại 1 lần thấy điều hướng hash bị nhảy về bước cũ khi pane trình duyệt ẩn (không tái hiện được khi test lại)
+
 ## Thứ tự thực thi đề xuất
 1. ✅ **A0** hạ tầng data/template/scroll + **A7.1 directive `data-hui-animate`** (nền cho mọi thứ phía sau)
 2. ✅ **Khối "web nào cũng có" (đợt nhanh — xong 2026-10-19):** `hui-back-top` + `hui-float-group`/`hui-contact-float`,
    `hui-rate` + `hui-rating-display` + `hui-rating-summary`, `hui-faq` (trên collapse G1), `hui-announcement-bar`,
    `hui-theme-toggle`, `hui-loading-bar`
-3. **A3.1 `hui-scroller` + A3.2 `hui-scroll-steps` + A3.4 `hui-reveal`** → rồi `hui-carousel` (trên scroller)
+3. ✅ **A3.1 `hui-scroller` + A3.2 `hui-scroll-steps` + A3.4 `hui-reveal`** (xong 2026-10-19) → tiếp theo `hui-carousel` (trên scroller)
 4. **A2.1 + A6.5 card** (variants + `effect` lift/tilt/glow/zoom-media/reveal) + product/pricing/stat/blog card, **A2.2 progress/steps**
 5. **A6.4 `hui-data-view`** (list ↔ grid ↔ table, URL sync) + **A4** card-grid, kpi-row, mini chart, tương tác nhanh (editable, sortable, hotkey)
 6. **A7.2–A7.8 hiệu ứng** (hover, chữ, nền, confetti, view transition) + trang `Foundations/Motion`

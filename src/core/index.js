@@ -22,5 +22,7 @@ export { DataController } from './data-controller.js';
 export { onScroll, scrollToPosition, overflowEdges, dragToScroll, wheelToHorizontal, inView } from '../utils/scroll.js';
 export { VirtualWindow } from '../utils/virtual.js';
 // A7.1 — directive data-hui-animate
-export { enableAnimations, disableAnimations, playAnimation, resetAnimation, ANIMATIONS } from '../utils/animate.js';
+export {
+  enableAnimations, disableAnimations, playAnimation, resetAnimation, runAnimation, animationsDisabled, ANIMATIONS,
+} from '../utils/animate.js';
 export { emitEvent, debounce, throttle } from '../utils/events.js';

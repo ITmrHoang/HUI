@@ -44,6 +44,11 @@ const tracked = new WeakMap(); // phần tử → hàm hủy theo dõi
 let mutationObserver = null;
 let styleEl = null;
 
+/** Hiệu ứng đang bị tắt (người dùng giảm chuyển động / html[data-hui-no-animation] / token 0ms) */
+export function animationsDisabled() {
+  return disabled();
+}
+
 function disabled() {
   if (prefersReducedMotion()) return true;
   if (document.documentElement.hasAttribute('data-hui-no-animation')) return true;
@@ -65,17 +70,24 @@ export function playAnimation(el) {
   const stagger = el.hasAttribute('data-hui-stagger') ? numAttr(el, 'data-hui-stagger', 80) : null;
 
   el.setAttribute('data-hui-animated', '');
-  if (disabled() || typeof el.animate !== 'function') return;
+  runAnimation(stagger === null ? [el] : [...el.children], name, { duration, delay, stagger: stagger ?? 0 });
+}
 
-  const targets = stagger === null ? [el] : [...el.children];
-  targets.forEach((target, i) => {
-    target.animate(keyframes, {
-      duration,
-      delay: delay + (stagger === null ? 0 : i * stagger),
-      easing: EASE,
-      fill: 'backwards', // giữ trạng thái đầu trong lúc chờ delay, xong thì trả lại style thật
-    });
-  });
+/**
+ * Lõi chạy hiệu ứng — dùng chung cho directive và component (hui-reveal, scroll-steps…).
+ * @param {Element[]} targets - phần tử chạy hiệu ứng (lần lượt nếu stagger > 0)
+ * @param {string} name - tên trong ANIMATIONS
+ * @returns {Animation[]} rỗng khi hiệu ứng bị tắt
+ */
+export function runAnimation(targets, name = 'fade-up', { duration = 600, delay = 0, stagger = 0 } = {}) {
+  if (disabled()) return [];
+  const keyframes = ANIMATIONS[name] || ANIMATIONS['fade-up'];
+  return targets.filter((t) => typeof t.animate === 'function').map((target, i) => target.animate(keyframes, {
+    duration,
+    delay: delay + i * stagger,
+    easing: EASE,
+    fill: 'backwards', // giữ trạng thái đầu trong lúc chờ delay, xong thì trả lại style thật
+  }));
 }
 
 /** Đưa về trạng thái chưa hiện (dùng khi data-hui-once="false" và phần tử cuộn ra khỏi màn hình) */

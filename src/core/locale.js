@@ -10,6 +10,8 @@
 const vi = {
   common: { ok: 'Đồng ý', cancel: 'Hủy', close: 'Đóng', clear: 'Xóa', loading: 'Đang tải...', search: 'Tìm kiếm', copy: 'Sao chép', copied: 'Đã sao chép', expand: 'Mở rộng', collapse: 'Thu gọn', more: 'Xem thêm' },
   empty: { description: 'Không có dữ liệu' },
+  scroller: { label: 'Danh sách cuộn ngang', prev: 'Trước', next: 'Tiếp', slide: '{index} / {count}', goTo: 'Đến trang {index}', pagination: 'Chọn trang', itemRole: 'mục' },
+  scrollSteps: { label: 'Nội dung theo bước', nav: 'Điều hướng các bước', step: 'Bước {index}', prev: 'Bước trước', next: 'Bước sau', counter: 'Bước {index} / {count}' },
   theme: { label: 'Giao diện', light: 'Sáng', dark: 'Tối', system: 'Theo hệ thống', darkMode: 'Chế độ tối' },
   announcement: { label: 'Thông báo', close: 'Đóng thông báo' },
   faq: { searchPlaceholder: 'Tìm câu hỏi...', expandAll: 'Mở tất cả', collapseAll: 'Thu gọn tất cả', noResults: 'Không tìm thấy câu hỏi phù hợp', resultCount: '{count} câu hỏi phù hợp', all: 'Tất cả', other: 'Khác' },
@@ -55,6 +57,8 @@ const vi = {
 const en = {
   common: { ok: 'OK', cancel: 'Cancel', close: 'Close', clear: 'Clear', loading: 'Loading...', search: 'Search', copy: 'Copy', copied: 'Copied', expand: 'Expand', collapse: 'Collapse', more: 'More' },
   empty: { description: 'No data' },
+  scroller: { label: 'Horizontal list', prev: 'Previous', next: 'Next', slide: '{index} of {count}', goTo: 'Go to page {index}', pagination: 'Choose page', itemRole: 'slide' },
+  scrollSteps: { label: 'Step content', nav: 'Step navigation', step: 'Step {index}', prev: 'Previous step', next: 'Next step', counter: 'Step {index} of {count}' },
   theme: { label: 'Theme', light: 'Light', dark: 'Dark', system: 'System', darkMode: 'Dark mode' },
   announcement: { label: 'Announcement', close: 'Dismiss announcement' },
   faq: { searchPlaceholder: 'Search questions...', expandAll: 'Expand all', collapseAll: 'Collapse all', noResults: 'No matching questions', resultCount: '{count} matching questions', all: 'All', other: 'Other' },

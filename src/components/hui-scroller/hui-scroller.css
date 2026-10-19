@@ -1,0 +1,315 @@
+/*
+ * HUI Scroller CSS
+ * Biến công khai (KHÔNG khai báo trong file này — đặt ở thẻ / thẻ cha / :root đều được):
+ *   --hui-scroller-gap                 Khoảng cách item (attribute gap ưu tiên hơn), mặc định --hui-space-lg
+ *   --hui-scroller-padding             Đệm 2 bên hàng item (attribute padding ưu tiên hơn), mặc định 0
+ *   --hui-scroller-padding-block       Đệm trên/dưới hàng item (chừa chỗ cho bóng đổ), mặc định --hui-space-xs
+ *   --hui-scroller-item-width          Bề rộng item khi không có items-per-view / item-width, mặc định auto
+ *   --hui-scroller-fade-size           Độ dài bóng mờ mép (edge-fade), mặc định 48px
+ *   --hui-scroller-arrow-size / -bg / -color / -shadow / -offset   Nút mũi tên
+ *   --hui-scroller-dot-size / -dot-color / -dot-active-color       Chấm (indicator="dots")
+ *   --hui-scroller-bar-height / -bar-track-color / -bar-color      Thanh vị trí (indicator="bar")
+ *   --hui-scroller-indicator-gap       Khoảng cách viewport ↔ indicator
+ *   --hui-scroller-focus-color         Viền focus của vùng cuộn
+ * Parts: base, frame, viewport, track, prev, next, indicator, dot, dot-active, bar, state
+ * Biến nội bộ (JS đặt inline trên .scroller): --_scroller-gap, --_scroller-pad, --_scroller-n, --_scroller-fixed-w
+ */
+
+:host {
+  display: block;
+  min-width: 0;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host([hidden]),
+[hidden] {
+  display: none !important;
+}
+
+.scroller {
+  /* Reset biến nội bộ: scroller lồng trong item của scroller khác không thừa hưởng nhầm */
+  --_scroller-gap: initial;
+  --_scroller-pad: initial;
+  --_scroller-n: initial;
+  --_scroller-fixed-w: initial;
+  --_scroller-item-w: initial;
+  --_scroller-snap: start;
+
+  /* Giá trị thực: attribute (biến nội bộ) > biến công khai > token mặc định */
+  --_scroller-gap-v: var(--_scroller-gap, var(--hui-scroller-gap, var(--hui-space-lg)));
+  --_scroller-pad-v: var(--_scroller-pad, var(--hui-scroller-padding, 0px));
+
+  position: relative;
+}
+
+/*
+ * items-per-view: bề rộng item = (khung nhìn − 2 × padding − khoảng cách) / n.
+ * 100cqw = bề rộng viewport (container-type: inline-size) — đo tại item nên đúng cả khi item nằm ở light DOM.
+ */
+.scroller--per-view {
+  --_scroller-item-w: calc((100cqw - 2 * var(--_scroller-pad-v) - (var(--_scroller-n) - 1) * var(--_scroller-gap-v)) / var(--_scroller-n));
+}
+
+.scroller--fixed {
+  --_scroller-item-w: var(--_scroller-fixed-w);
+}
+
+.scroller--snap-center {
+  --_scroller-snap: center;
+}
+
+.scroller--snap-none {
+  --_scroller-snap: none;
+}
+
+/* =====================================================
+ * VÙNG CUỘN
+ * ===================================================== */
+
+.scroller__frame {
+  position: relative;
+  border-radius: var(--hui-radius);
+}
+
+.scroller__frame:has(.scroller__viewport:focus-visible) {
+  outline: 2px solid var(--hui-scroller-focus-color, var(--hui-border-focus));
+  outline-offset: 2px;
+}
+
+.scroller__viewport {
+  container-type: inline-size;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--_scroller-pad-v);
+  outline: none;
+}
+
+.scroller--snap-none .scroller__viewport {
+  scroll-snap-type: none;
+}
+
+.scroller--no-scrollbar .scroller__viewport {
+  scrollbar-width: none;
+}
+
+.scroller--no-scrollbar .scroller__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .scroller--draggable:not(.scroller--static) .scroller__viewport {
+    cursor: grab;
+  }
+}
+
+.scroller__track {
+  display: flex;
+  align-items: stretch;
+  gap: var(--_scroller-gap-v);
+  box-sizing: border-box;
+  /* max-content: hàng dài theo item → padding cuối nằm trong vùng cuộn, item đổi cỡ → ResizeObserver bắt được */
+  width: max-content;
+  min-width: 100%;
+  padding-inline: var(--_scroller-pad-v);
+  padding-block: var(--hui-scroller-padding-block, var(--hui-space-xs));
+}
+
+::slotted(:not(template, style, script)) {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: var(--_scroller-item-w, var(--hui-scroller-item-width, auto));
+  min-width: 0;
+  scroll-snap-align: var(--_scroller-snap);
+}
+
+/* Bóng mờ ở mép còn nội dung bị che (mask chỉ dùng kênh alpha) */
+.scroller--fade .scroller__viewport {
+  --_scroller-fade-start: var(--hui-scroller-fade-size, 48px);
+  --_scroller-fade-end: var(--hui-scroller-fade-size, 48px);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black var(--_scroller-fade-start), black calc(100% - var(--_scroller-fade-end)), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, black var(--_scroller-fade-start), black calc(100% - var(--_scroller-fade-end)), transparent 100%);
+}
+
+.scroller--fade.scroller--at-start .scroller__viewport {
+  --_scroller-fade-start: 0px;
+}
+
+.scroller--fade.scroller--at-end .scroller__viewport {
+  --_scroller-fade-end: 0px;
+}
+
+/* =====================================================
+ * NÚT MŨI TÊN
+ * ===================================================== */
+
+.scroller__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--hui-scroller-arrow-size, 36px);
+  height: var(--hui-scroller-arrow-size, 36px);
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-scroller-arrow-bg, var(--hui-bg-elevated));
+  color: var(--hui-scroller-arrow-color, var(--hui-text));
+  box-shadow: var(--hui-scroller-arrow-shadow, var(--hui-shadow-md));
+  font-size: var(--hui-font-base);
+  line-height: 0;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: opacity var(--hui-transition), color var(--hui-transition-fast), border-color var(--hui-transition-fast);
+}
+
+.scroller__arrow--prev {
+  left: var(--hui-scroller-arrow-offset, var(--hui-space-sm));
+}
+
+.scroller__arrow--next {
+  right: var(--hui-scroller-arrow-offset, var(--hui-space-sm));
+}
+
+.scroller__arrow:hover:not(:disabled) {
+  border-color: var(--hui-border-hover);
+  color: var(--hui-primary);
+}
+
+.scroller__arrow:focus-visible {
+  outline: 2px solid var(--hui-scroller-focus-color, var(--hui-border-focus));
+  outline-offset: 2px;
+}
+
+.scroller__arrow:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* always: luôn hiện, nút ở mép mờ đi */
+.scroller--arrows-always .scroller__arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+/* auto: ẩn trên thiết bị cảm ứng (vuốt là đủ); có chuột thì hiện khi rê / focus vào khung */
+.scroller--arrows-auto .scroller__arrow {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .scroller--arrows-auto .scroller__arrow {
+    display: inline-flex;
+    opacity: 0;
+  }
+
+  :host(:hover) .scroller--arrows-auto .scroller__arrow:not(:disabled),
+  :host(:focus-within) .scroller--arrows-auto .scroller__arrow:not(:disabled) {
+    opacity: 1;
+  }
+}
+
+/* Không có gì để cuộn → không hiện nút */
+.scroller--static .scroller__arrow {
+  display: none;
+}
+
+/* =====================================================
+ * INDICATOR
+ * ===================================================== */
+
+.scroller__indicator {
+  margin-top: var(--hui-scroller-indicator-gap, var(--hui-space-md));
+}
+
+.scroller__indicator--dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Nút cao 24px cho dễ bấm, chấm vẽ bằng ::before */
+.scroller__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  margin: 0;
+  padding: 0 calc(var(--hui-space-xs) / 2 + 1px);
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: none;
+  cursor: pointer;
+}
+
+.scroller__dot::before {
+  content: '';
+  display: block;
+  width: var(--hui-scroller-dot-size, 8px);
+  height: var(--hui-scroller-dot-size, 8px);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-scroller-dot-color, var(--hui-fill));
+  transition: width var(--hui-transition), background-color var(--hui-transition);
+}
+
+.scroller__dot:hover::before {
+  background: var(--hui-scroller-dot-active-color, var(--hui-primary));
+  opacity: 0.6;
+}
+
+.scroller__dot.is-active::before {
+  width: calc(var(--hui-scroller-dot-size, 8px) * 3);
+  background: var(--hui-scroller-dot-active-color, var(--hui-primary));
+  opacity: 1;
+}
+
+.scroller__dot:focus-visible {
+  outline: 2px solid var(--hui-scroller-focus-color, var(--hui-border-focus));
+  outline-offset: 0;
+}
+
+.scroller__indicator--bar {
+  height: var(--hui-scroller-bar-height, 4px);
+  overflow: hidden;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-scroller-bar-track-color, var(--hui-fill-secondary));
+}
+
+.scroller__bar {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--hui-scroller-bar-color, var(--hui-primary));
+  will-change: transform;
+}
+
+/* =====================================================
+ * TRẠNG THÁI DỮ LIỆU
+ * ===================================================== */
+
+.scroller__state {
+  padding: var(--hui-space-lg) 0;
+}
+
+/* =====================================================
+ * TẮT HIỆU ỨNG
+ * ===================================================== */
+
+.scroller--no-animation .scroller__arrow,
+.scroller--no-animation .scroller__dot::before {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroller__arrow,
+  .scroller__dot::before {
+    transition: none;
+  }
+}
