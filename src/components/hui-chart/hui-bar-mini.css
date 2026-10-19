@@ -1,0 +1,179 @@
+/*
+ * hui-bar-mini — biến công khai (không đặt trên :host):
+ *   --hui-bar-mini-color, --hui-bar-mini-height, --hui-bar-mini-bar-size, --hui-bar-mini-gap,
+ *   --hui-bar-mini-radius, --hui-bar-mini-track-bg, --hui-bar-mini-label-color, --hui-bar-mini-value-color,
+ *   --hui-bar-mini-label-width, --hui-bar-mini-dim-opacity, --hui-bar-mini-duration
+ * Biến nội bộ: --_bm-v (0–1, độ dài thanh), --_bm-i (thứ tự, để chạy lần lượt), --_bm-color, --_bm-h, --_bm-gap, --_bm-r
+ */
+
+.bm {
+  --_bm-dur: var(--hui-bar-mini-duration, 600ms);
+  --_bm-radius: var(--hui-bar-mini-radius, var(--_bm-r, 3px));
+  --_bm-vh: 0px; /* chừa chỗ cho số trên đỉnh cột (dọc) */
+  position: relative;
+  font-size: var(--hui-font-xs);
+  line-height: 1.5;
+}
+
+.bm.has-values {
+  --_bm-vh: calc(var(--hui-font-xs) * 1.5);
+}
+
+.bm__item {
+  position: relative;
+  min-width: 0;
+  cursor: pointer;
+  border-radius: var(--hui-radius-sm);
+  outline: none;
+}
+
+.bm__item:focus-visible {
+  outline: 2px solid var(--hui-chart-focus-color, var(--hui-border-focus));
+  outline-offset: 2px;
+}
+
+.bm__label {
+  overflow: hidden;
+  color: var(--hui-bar-mini-label-color, var(--hui-text-secondary));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bm__value {
+  color: var(--hui-bar-mini-value-color, var(--hui-text));
+  font-weight: var(--hui-font-weight-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.bm__label[hidden],
+.bm__value[hidden] {
+  display: none;
+}
+
+.bm__bar {
+  display: block;
+  background: var(--_bm-color, var(--hui-primary));
+  transition:
+    height var(--_bm-dur) var(--hui-motion-ease-out),
+    width var(--_bm-dur) var(--hui-motion-ease-out),
+    opacity var(--hui-transition-fast);
+}
+
+/* Highlight / hover: thanh khác nhạt đi */
+.bm.has-highlight:not(.has-active) .bm__item:not(.is-highlight) .bm__bar,
+.bm.has-active .bm__item:not(.is-active) .bm__bar {
+  opacity: var(--hui-bar-mini-dim-opacity, 0.45);
+}
+
+/* ================== DỌC ================== */
+.bm--vertical .bm__list {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--hui-bar-mini-gap, var(--_bm-gap, 4px));
+}
+
+.bm--vertical .bm__item {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bm--vertical .bm__track {
+  position: relative;
+  display: block;
+  height: var(--hui-bar-mini-height, var(--_bm-h, 80px));
+  border-radius: var(--_bm-radius) var(--_bm-radius) 0 0;
+  background: var(--hui-bar-mini-track-bg, transparent);
+}
+
+.bm--vertical .bm__bar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(var(--_bm-v) * (100% - var(--_bm-vh)));
+  border-radius: var(--_bm-radius) var(--_bm-radius) 0 0;
+}
+
+.bm--vertical .bm__value {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--_bm-v) * (100% - var(--_bm-vh)));
+  transform: translateX(-50%);
+  transition: bottom var(--_bm-dur) var(--hui-motion-ease-out), opacity var(--_bm-dur);
+}
+
+/* Nhãn nằm dưới cột (DOM: nhãn đứng trước để thứ tự đọc giống chiều ngang) */
+.bm--vertical .bm__label {
+  order: 2;
+  text-align: center;
+}
+
+/* ================== NGANG (xếp hạng) ================== */
+.bm--horizontal .bm__list {
+  display: grid;
+  align-items: center;
+  column-gap: var(--hui-space-md);
+  row-gap: var(--hui-bar-mini-gap, var(--_bm-gap, 10px));
+  font-size: var(--hui-font-sm);
+}
+
+.bm--horizontal .bm__item {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+}
+
+.bm--horizontal .bm__label {
+  max-width: var(--hui-bar-mini-label-width, 12em);
+}
+
+.bm--horizontal .bm__track {
+  display: block;
+  height: var(--hui-bar-mini-bar-size, 8px);
+  overflow: hidden;
+  border-radius: var(--_bm-radius);
+  background: var(--hui-bar-mini-track-bg, var(--hui-fill-tertiary));
+}
+
+.bm--horizontal .bm__bar {
+  height: 100%;
+  width: calc(var(--_bm-v) * 100%);
+  border-radius: var(--_bm-radius);
+}
+
+.bm--horizontal .bm__value {
+  text-align: end;
+}
+
+/* ================== HIỆU ỨNG ================== */
+/* Chờ cuộn tới: thanh dài 0 */
+.bm.is-pending .bm__bar,
+.bm.is-pending .bm__value {
+  --_bm-v: 0;
+}
+
+.bm.is-pending .bm__value {
+  opacity: 0;
+}
+
+/* Lần đầu: thanh mọc lần lượt cách nhau 40ms */
+.bm.is-entering .bm__bar,
+.bm.is-entering .bm__value {
+  transition-delay: calc(var(--_bm-i) * 40ms);
+}
+
+.bm--static .bm__bar,
+.bm--static .bm__value {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bm__bar,
+  .bm__value {
+    transition: none;
+  }
+}

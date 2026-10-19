@@ -1,0 +1,216 @@
+/*
+ * HUI Card Grid CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiCardGrid.
+ * Biến nội bộ --_cg-*: JS ghi --_cg-gap, --_cg-min (theo attribute) và --_cg-t-xs … --_cg-t-xxl
+ * (khuôn cột theo breakpoint). Breakpoint chưa khai báo → kế thừa mức nhỏ hơn; không mức nào → auto-fill.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.cg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-card-grid-footer-gap, var(--hui-space-xl));
+}
+
+.cg__pool {
+  display: none;
+}
+
+/* ================== LƯỚI ================== */
+.cg__layout {
+  --_cg-t: var(--_cg-t-xs);
+  display: grid;
+  gap: var(--_cg-gap, var(--hui-card-grid-gap, var(--hui-space-lg)));
+  grid-template-columns: var(
+    --_cg-t,
+    repeat(auto-fill, minmax(min(100%, var(--_cg-min, var(--hui-card-grid-min-card-width, 240px))), 1fr))
+  );
+  align-items: start;
+}
+
+@media (min-width: 576px) {
+  .cg__layout { --_cg-t: var(--_cg-t-sm, var(--_cg-t-xs)); }
+}
+@media (min-width: 768px) {
+  .cg__layout { --_cg-t: var(--_cg-t-md, var(--_cg-t-sm, var(--_cg-t-xs))); }
+}
+@media (min-width: 992px) {
+  .cg__layout { --_cg-t: var(--_cg-t-lg, var(--_cg-t-md, var(--_cg-t-sm, var(--_cg-t-xs)))); }
+}
+@media (min-width: 1200px) {
+  .cg__layout { --_cg-t: var(--_cg-t-xl, var(--_cg-t-lg, var(--_cg-t-md, var(--_cg-t-sm, var(--_cg-t-xs))))); }
+}
+@media (min-width: 1600px) {
+  .cg__layout { --_cg-t: var(--_cg-t-xxl, var(--_cg-t-xl, var(--_cg-t-lg, var(--_cg-t-md, var(--_cg-t-sm, var(--_cg-t-xs)))))); }
+}
+
+/* Card cùng hàng cao bằng nhau: ô kéo giãn theo hàng, item cao 100% ô */
+.cg--equal .cg__layout {
+  align-items: stretch;
+}
+
+.cg__cell {
+  position: relative;
+  min-width: 0;
+  border-radius: var(--hui-card-grid-item-radius, var(--hui-radius-lg));
+}
+
+.cg__cell ::slotted(*) {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.cg--equal .cg__cell ::slotted(*) {
+  height: 100%;
+}
+
+/* Chờ hiệu ứng xuất hiện (chỉ gắn khi hiệu ứng được phép chạy) */
+.cg__cell--pending {
+  opacity: 0;
+}
+
+@media print {
+  .cg__cell--pending {
+    opacity: 1;
+  }
+}
+
+/* ================== CHỌN (item không tự hỗ trợ chọn) ================== */
+.cg__cell--selected {
+  box-shadow: 0 0 0 2px var(--hui-card-grid-selected-color, var(--hui-primary));
+}
+
+.cg__check {
+  position: absolute;
+  top: var(--hui-space-sm);
+  inset-inline-start: var(--hui-space-sm);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--hui-space-xs);
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-bg-elevated);
+  box-shadow: var(--hui-shadow);
+  cursor: pointer;
+}
+
+.cg__check-input {
+  width: var(--hui-card-grid-check-size, 20px);
+  height: var(--hui-card-grid-check-size, 20px);
+  margin: 0;
+  accent-color: var(--hui-card-grid-selected-color, var(--hui-primary));
+  cursor: pointer;
+}
+
+.cg__check-input:focus-visible {
+  outline: 2px solid var(--hui-card-grid-selected-color, var(--hui-primary));
+  outline-offset: 2px;
+}
+
+/* ================== SKELETON ================== */
+.cg__sk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-sm);
+  padding-bottom: var(--hui-space-lg);
+  border-radius: var(--hui-card-grid-item-radius, var(--hui-radius-lg));
+  background: var(--hui-bg-container);
+  border: 1px solid var(--hui-border-secondary);
+  overflow: hidden;
+}
+
+.cg__sk-media,
+.cg__sk-line {
+  background: var(--hui-card-grid-skeleton-bg, var(--hui-fill-secondary));
+  background-image: linear-gradient(90deg, transparent 0%, var(--hui-fill-tertiary) 40%, var(--hui-bg-container) 50%, var(--hui-fill-tertiary) 60%, transparent 100%);
+  background-size: 400% 100%;
+  animation: cg-shimmer 1.4s ease infinite;
+}
+
+.cg__sk-media {
+  height: var(--hui-card-grid-skeleton-height, 160px);
+  margin-bottom: var(--hui-space-sm);
+}
+
+.cg__sk-line {
+  height: 0.75rem;
+  margin-inline: var(--hui-space-lg);
+  border-radius: var(--hui-radius-sm);
+}
+
+.cg__sk-line--title {
+  height: 1rem;
+  width: 70%;
+}
+
+.cg__sk-line--short {
+  width: 45%;
+}
+
+@keyframes cg-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.cg--static .cg__sk-media,
+.cg--static .cg__sk-line {
+  animation: none;
+  background-image: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cg__sk-media,
+  .cg__sk-line,
+  .cg__spinner {
+    animation: none;
+  }
+}
+
+/* ================== FOOTER ================== */
+.cg__footer {
+  display: flex;
+  justify-content: var(--hui-card-grid-footer-justify, center);
+  align-items: center;
+}
+
+.cg__sentinel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hui-space-sm);
+  min-height: 1px;
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+}
+
+.cg__spinner {
+  display: none;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--hui-fill-secondary);
+  border-top-color: var(--hui-primary);
+  border-radius: var(--hui-radius-full);
+  animation: cg-spin 0.8s linear infinite;
+}
+
+.cg__sentinel--busy .cg__spinner {
+  display: inline-block;
+}
+
+@keyframes cg-spin {
+  to { transform: rotate(360deg); }
+}
+
+.cg__state {
+  padding: var(--hui-space-xl) 0;
+}

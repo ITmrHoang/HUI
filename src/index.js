@@ -71,6 +71,12 @@ export { default as HuiProductCard } from './components/hui-product-card/index.j
 export { default as HuiPricingCard } from './components/hui-pricing-card/index.js';
 export { default as HuiStatCard, sparklinePoints } from './components/hui-stat-card/index.js';
 export { default as HuiBlogCard, readingMinutes, WORDS_PER_MINUTE } from './components/hui-blog-card/index.js';
+export { default as HuiCardGrid } from './components/hui-card-grid/index.js';
+export { default as HuiKpiRow } from './components/hui-kpi-row/index.js';
+export { default as HuiDataView, processRows } from './components/hui-data-view/index.js';
+export {
+  HuiSparkline, HuiBarMini, HuiDonut, HuiGauge, CHART_PALETTE, linePath, arcPath, niceMax,
+} from './components/hui-chart/index.js';
 export { default as HuiTabs, HuiTabPanel } from './components/hui-tabs/index.js';
 export {
   default as HuiMenu, HuiMenuItem, HuiSubMenu, HuiMenuGroup, HuiMenuDivider,

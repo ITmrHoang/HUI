@@ -66,6 +66,16 @@
       "import": "./dist/hui-card.esm.js",
       "default": "./dist/hui-card.esm.js"
     },
+    "./hui-card-grid": {
+      "types": "./dist/types/hui-card-grid.d.ts",
+      "import": "./dist/hui-card-grid.esm.js",
+      "default": "./dist/hui-card-grid.esm.js"
+    },
+    "./hui-chart": {
+      "types": "./dist/types/hui-chart.d.ts",
+      "import": "./dist/hui-chart.esm.js",
+      "default": "./dist/hui-chart.esm.js"
+    },
     "./hui-checkbox": {
       "types": "./dist/types/hui-checkbox.d.ts",
       "import": "./dist/hui-checkbox.esm.js",
@@ -95,6 +105,11 @@
       "types": "./dist/types/hui-container.d.ts",
       "import": "./dist/hui-container.esm.js",
       "default": "./dist/hui-container.esm.js"
+    },
+    "./hui-data-view": {
+      "types": "./dist/types/hui-data-view.d.ts",
+      "import": "./dist/hui-data-view.esm.js",
+      "default": "./dist/hui-data-view.esm.js"
     },
     "./hui-descriptions": {
       "types": "./dist/types/hui-descriptions.d.ts",
@@ -165,6 +180,11 @@
       "types": "./dist/types/hui-input-number.d.ts",
       "import": "./dist/hui-input-number.esm.js",
       "default": "./dist/hui-input-number.esm.js"
+    },
+    "./hui-kpi-row": {
+      "types": "./dist/types/hui-kpi-row.d.ts",
+      "import": "./dist/hui-kpi-row.esm.js",
+      "default": "./dist/hui-kpi-row.esm.js"
     },
     "./hui-layout": {
       "types": "./dist/types/hui-layout.d.ts",

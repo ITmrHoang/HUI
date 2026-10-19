@@ -1,0 +1,94 @@
+/*
+ * hui-sparkline — biến công khai (khai báo ở đâu cũng được, không đặt trên :host):
+ *   --hui-sparkline-color, --hui-sparkline-height, --hui-sparkline-stroke-width,
+ *   --hui-sparkline-area-opacity, --hui-sparkline-reference-color, --hui-sparkline-cursor-color,
+ *   --hui-sparkline-dot-ring, --hui-sparkline-duration
+ * Biến nội bộ --_spark-* do attribute đặt (color / height / stroke-width).
+ */
+
+.spark {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: var(--hui-sparkline-height, var(--_spark-h, 40px));
+  color: var(--hui-sparkline-color, var(--_spark-color, var(--hui-primary)));
+  touch-action: pan-y;
+}
+
+.spark__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Chờ cuộn tới mới vẽ */
+.spark.is-pending .spark__svg {
+  opacity: 0;
+}
+
+.spark__line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--hui-sparkline-stroke-width, var(--_spark-sw, 2));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.spark__area {
+  stroke: none;
+}
+
+.spark__stop--top {
+  stop-color: currentColor;
+  stop-opacity: var(--hui-sparkline-area-opacity, 0.28);
+}
+
+.spark__stop--bottom {
+  stop-color: currentColor;
+  stop-opacity: 0;
+}
+
+.spark__bars,
+.spark__bar-active {
+  fill: currentColor;
+  stroke: none;
+}
+
+.spark__bars {
+  transition: opacity var(--hui-transition-fast);
+}
+
+/* Đang chọn 1 cột → các cột khác nhạt đi */
+.spark.has-active .spark__bars {
+  opacity: 0.4;
+}
+
+.spark__ref {
+  stroke: var(--hui-sparkline-reference-color, var(--hui-text-muted));
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  shape-rendering: crispEdges;
+}
+
+.spark__cursor {
+  stroke: var(--hui-sparkline-cursor-color, var(--hui-border-hover));
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.spark__dots {
+  fill: var(--hui-bg-container);
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.spark__dot {
+  fill: currentColor;
+  stroke: var(--hui-sparkline-dot-ring, var(--hui-bg-container));
+  stroke-width: 2;
+}
+
+.spark__dot--active {
+  stroke-width: 2.5;
+}

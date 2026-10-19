@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Dashboard mẫu</title>
+  <style>
+    html, body { margin: 0; font-family: var(--hui-font-family); background: var(--hui-bg-secondary); color: var(--hui-text); }
+    :not(:defined) { visibility: hidden; }
+    main { width: min(1280px, 100% - 32px); margin: 24px auto; display: grid; gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    .head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  </style>
+  <script type="module" src="../src/index.js"></script>
+  <script type="module">
+    const days = Array.from({ length: 14 }, (_, i) => ({ label: `${i + 1}/10`, value: Math.round(32 + Math.sin(i / 2) * 8 + i * 1.8) * 1_000_000 }));
+
+    customElements.whenDefined('hui-kpi-row').then(() => {
+      document.querySelector('hui-kpi-row').data = [
+        { key: 'revenue', title: 'Doanh thu', value: 56890000, suffix: ' ₫', delta: 12.4, deltaLabel: 'so với tuần trước', icon: 'star', color: 'primary', trend: [12, 18, 15, 22, 25, 23, 31] },
+        { key: 'orders', title: 'Đơn hàng', value: 1284, delta: 6.1, icon: 'check', color: 'success', trend: [80, 95, 90, 110, 120, 118, 130] },
+        { key: 'refund', title: 'Hoàn tiền', value: 23, delta: -18, invertDelta: true, icon: 'warning', color: 'warning', trend: [9, 7, 8, 5, 4, 5, 3] },
+        { key: 'visitors', title: 'Lượt truy cập', value: 48230, delta: -3.2, icon: 'user', color: 'info', trend: [60, 58, 61, 57, 55, 56, 54] },
+      ];
+    });
+    customElements.whenDefined('hui-sparkline').then(() => {
+      document.querySelector('#revenue-chart').data = days;
+      document.querySelector('#channels').data = [
+        { label: 'Website', value: 52 }, { label: 'Ứng dụng', value: 28 }, { label: 'Facebook', value: 12 }, { label: 'Zalo', value: 8 },
+      ];
+      document.querySelector('#top-products').data = [
+        { label: 'Áo thun basic', value: 420 }, { label: 'Quần jean slim', value: 318 }, { label: 'Túi tote', value: 260 },
+        { label: 'Giày sneaker', value: 190 }, { label: 'Mũ lưỡi trai', value: 145 },
+      ];
+    });
+    customElements.whenDefined('hui-data-view').then(() => {
+      const STATUS = ['Đang xử lý', 'Đã giao', 'Đã hủy'];
+      const dv = document.querySelector('#orders');
+      dv.columns = [
+        { key: 'code', title: 'Mã đơn', sortable: true },
+        { key: 'customer', title: 'Khách hàng', type: 'avatar' },
+        { key: 'total', title: 'Tổng tiền', type: 'currency', sortable: true, align: 'end' },
+        { key: 'status', title: 'Trạng thái', type: 'tag' },
+        { key: 'created', title: 'Thời gian', type: 'relative', sortable: true },
+      ];
+      dv.filters = [{ key: 'status', label: 'Trạng thái', options: STATUS.map((s) => ({ label: s, value: s })) }];
+      dv.data = Array.from({ length: 30 }, (_, i) => ({
+        id: i + 1,
+        code: `DH${String(1000 + i)}`,
+        customer: ['Nguyễn An', 'Trần Bình', 'Lê Cường', 'Phạm Dung', 'Hoàng Em'][i % 5],
+        total: 150000 + ((i * 97000) % 2_000_000),
+        status: STATUS[i % 7 === 0 ? 2 : i % 3 === 0 ? 0 : 1],
+        created: Date.now() - i * 3_600_000 * 5,
+      }));
+    });
+  </script>
+</head>
+<body>
+  <hui-layout>
+    <hui-header sticky style="padding: 0 16px; display: flex; align-items: center; justify-content: space-between; background: var(--hui-bg-container); border-bottom: 1px solid var(--hui-border);">
+      <strong>HUI Dashboard</strong>
+      <hui-space><hui-theme-toggle></hui-theme-toggle><hui-avatar name="Hoàng" size="sm"></hui-avatar></hui-space>
+    </hui-header>
+    <hui-content>
+      <main>
+        <div class="head">
+          <hui-title level="3" style="margin: 0">Tổng quan tuần này</hui-title>
+        </div>
+
+        <hui-kpi-row effect="lift" clickable></hui-kpi-row>
+
+        <div class="grid-2">
+          <hui-card title="Doanh thu 14 ngày">
+            <hui-sparkline id="revenue-chart" type="area" curve="smooth" height="180" format="compact" show-dots="last" reference="40000000" label="Doanh thu theo ngày"></hui-sparkline>
+          </hui-card>
+          <hui-card title="Kênh bán hàng">
+            <hui-donut id="channels" legend="bottom" format="percent:0" center-label="Tổng" size="170" label="Tỉ lệ đơn theo kênh"></hui-donut>
+          </hui-card>
+        </div>
+
+        <div class="grid-3">
+          <hui-card title="Sản phẩm bán chạy">
+            <hui-bar-mini id="top-products" orientation="horizontal" show-values="true" color="palette" label="Top sản phẩm"></hui-bar-mini>
+          </hui-card>
+          <hui-card title="Mục tiêu tháng">
+            <div style="display: grid; place-items: center">
+              <hui-gauge value="72" unit="%" size="200" thresholds='[{"value":40,"color":"danger"},{"value":70,"color":"warning"},{"value":100,"color":"success"}]' label="Tiến độ mục tiêu"></hui-gauge>
+            </div>
+          </hui-card>
+          <hui-progress-card title="Chiến dịch Black Friday" value="14" total="20" deadline="2026-11-28"></hui-progress-card>
+        </div>
+
+        <hui-card title="Đơn hàng gần đây">
+          <hui-data-view id="orders" view="table" views="table" search search-fields="code,customer" paging="pagination" page-size="8" row-key="id" selectable></hui-data-view>
+        </hui-card>
+      </main>
+    </hui-content>
+  </hui-layout>
+</body>
+</html>

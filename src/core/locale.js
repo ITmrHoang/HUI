@@ -10,6 +10,10 @@
 const vi = {
   common: { ok: 'Đồng ý', cancel: 'Hủy', close: 'Đóng', clear: 'Xóa', loading: 'Đang tải...', search: 'Tìm kiếm', copy: 'Sao chép', copied: 'Đã sao chép', expand: 'Mở rộng', collapse: 'Thu gọn', more: 'Xem thêm' },
   empty: { description: 'Không có dữ liệu' },
+  chart: { sparkline: 'Biểu đồ đường', bar: 'Biểu đồ cột', donut: 'Biểu đồ tròn', gauge: 'Đồng hồ đo', summary: 'Thấp nhất {min}, cao nhất {max}, hiện tại {last}', trendUp: 'xu hướng tăng', trendDown: 'xu hướng giảm', trendFlat: 'đi ngang', reference: 'mốc tham chiếu {value}', barSummary: '{count} mục, cao nhất {maxLabel}: {max}', donutSummary: '{count} phần, tổng {total}', total: 'Tổng', label: 'Nhãn', value: 'Giá trị', point: 'Điểm {index}', empty: 'Không có dữ liệu' },
+  dataView: { label: 'Danh sách dữ liệu', searchPlaceholder: 'Tìm kiếm...', searchLabel: 'Tìm trong danh sách', resultCount: '{count} kết quả', clearFilters: 'Xóa lọc', sort: 'Sắp xếp', sortDefault: 'Mặc định', views: 'Chế độ xem', viewList: 'Danh sách', viewGrid: 'Lưới', viewTable: 'Bảng', loadMore: 'Xem thêm', loadingMore: 'Đang tải thêm...', selected: 'Đã chọn {count}', clearSelection: 'Bỏ chọn', selectItem: 'Chọn {name}', selectAll: 'Chọn tất cả', noResults: 'Không tìm thấy kết quả phù hợp', yes: 'Có', no: 'Không' },
+  kpiRow: { label: 'Chỉ số chính' },
+  cardGrid: { loadMore: 'Tải thêm', select: 'Chọn mục {index}', loading: 'Đang tải thêm...' },
   blog: { readingTime: '{minutes} phút đọc' },
   stat: { up: 'Tăng', down: 'Giảm', flat: 'Không đổi', trend: 'Biểu đồ xu hướng' },
   pricing: { popular: 'Phổ biến', month: '/tháng', year: '/năm', cta: 'Chọn gói', included: 'Có', excluded: 'Không có', save: 'Tiết kiệm {percent}%' },
@@ -68,6 +72,10 @@ const vi = {
 const en = {
   common: { ok: 'OK', cancel: 'Cancel', close: 'Close', clear: 'Clear', loading: 'Loading...', search: 'Search', copy: 'Copy', copied: 'Copied', expand: 'Expand', collapse: 'Collapse', more: 'More' },
   empty: { description: 'No data' },
+  chart: { sparkline: 'Line chart', bar: 'Bar chart', donut: 'Donut chart', gauge: 'Gauge', summary: 'Min {min}, max {max}, latest {last}', trendUp: 'trending up', trendDown: 'trending down', trendFlat: 'flat', reference: 'reference {value}', barSummary: '{count} items, highest {maxLabel}: {max}', donutSummary: '{count} parts, total {total}', total: 'Total', label: 'Label', value: 'Value', point: 'Point {index}', empty: 'No data' },
+  dataView: { label: 'Data list', searchPlaceholder: 'Search...', searchLabel: 'Search the list', resultCount: '{count} results', clearFilters: 'Clear filters', sort: 'Sort by', sortDefault: 'Default', views: 'View', viewList: 'List', viewGrid: 'Grid', viewTable: 'Table', loadMore: 'Load more', loadingMore: 'Loading more...', selected: '{count} selected', clearSelection: 'Clear selection', selectItem: 'Select {name}', selectAll: 'Select all', noResults: 'No matching results', yes: 'Yes', no: 'No' },
+  kpiRow: { label: 'Key metrics' },
+  cardGrid: { loadMore: 'Load more', select: 'Select item {index}', loading: 'Loading more...' },
   blog: { readingTime: '{minutes} min read' },
   stat: { up: 'Up', down: 'Down', flat: 'No change', trend: 'Trend chart' },
   pricing: { popular: 'Popular', month: '/month', year: '/year', cta: 'Choose plan', included: 'Included', excluded: 'Not included', save: 'Save {percent}%' },

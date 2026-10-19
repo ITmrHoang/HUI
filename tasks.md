@@ -254,6 +254,33 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
 - [ ] **Template mẫu** — landing page, admin dashboard, trang đăng nhập (từ mốc G1, hoàn thiện thêm G2/G3)
 - [ ] **Phát hành npm** — semver, CHANGELOG, kiểm tra kích thước bundle từng component (giới hạn ~10KB gzip/component thường)
 
+### G4.CI — CI/CD: kiểm tra tự động, Storybook lên GitHub Pages, phát hành npm + CDN
+- [ ] **CI kiểm tra** — `.github/workflows/ci.yml`, chạy khi push / pull request:
+  `npm ci` → cài Playwright chromium-headless-shell (có cache) → `npm run build` (vite + custom-elements.json + .d.ts)
+  → `tsc` kiểm tra `dist/types` → `vitest` (unit + toàn bộ story) → báo cáo kích thước gzip từng component (cảnh báo khi vượt ngưỡng)
+  → lưu `dist/` làm artifact. Bật `test: 'error'` cho a11y khi đã sạch lỗi.
+- [ ] **Deploy Storybook lên GitHub Pages** — `.github/workflows/pages.yml`, chạy khi push `main` (và chạy tay):
+  `npm run build-storybook` → gộp thêm `examples/` + `dist/` vào `storybook-static/examples` để xem trang mẫu online
+  → `actions/upload-pages-artifact` + `actions/deploy-pages`. Địa chỉ dự kiến: `https://itmrhoang.github.io/HUI/`.
+  Cần: Settings → Pages → Source = **GitHub Actions** (bạn bật 1 lần); Storybook cấu hình `base` đúng đường dẫn con `/HUI/`.
+- [ ] **Phát hành npm** — `.github/workflows/release.yml`, chạy khi đẩy tag `v*` (hoặc tạo GitHub Release):
+  kiểm tra version trong `package.json` khớp tag → build + test → `npm publish --provenance --access public`.
+  Xác thực bằng npm **Trusted Publishing (OIDC)** — không cần lưu token; hoặc secret `NPM_TOKEN` nếu chưa bật được.
+  Bổ sung `package.json`: `repository`, `homepage` (link Storybook), `bugs`, `publishConfig`, `engines`; README song ngữ cập nhật.
+- [ ] **CDN (jsDelivr / unpkg)** — có sẵn ngay sau khi lên npm, không cần server riêng:
+  `<script type="module" src="https://cdn.jsdelivr.net/npm/<tên-gói>@0/dist/hui-button.esm.js"></script>`
+  Thêm bản build tối ưu cho CDN `dist/cdn/` (nén cả khoảng trắng — bản ES thường không nén để giữ tree-shaking),
+  ghi URL mẫu từng component vào README + Storybook "Getting started"; trường `jsdelivr`/`unpkg` trong package.json.
+- [ ] **Quản lý phiên bản** — Changesets (hoặc release-please): mỗi PR ghi thay đổi → tự tạo PR "Version packages" + CHANGELOG
+  → merge thì tự tag + publish. Dependabot cập nhật devDependencies hằng tuần.
+- [ ] **Bảo vệ nhánh main** — bắt buộc CI xanh trước khi merge (bạn bật trong Settings → Branches).
+
+**Câu hỏi cần chốt trước khi làm G4.CI:**
+1. **Tên gói npm:** `hui-lib` có thể đã có người dùng trên npm — dùng tên khác hay scope riêng (vd `@itmrhoang/hui`)?
+2. **Xác thực npm:** Trusted Publishing (OIDC, khuyên dùng) hay secret `NPM_TOKEN`? (bạn tự tạo trên npmjs.com — mình không nhập token hộ)
+3. **Cách ra phiên bản:** tag tay `v0.2.0` hay Changesets tự động?
+4. **Phiên bản đầu tiên:** `0.2.0` (đánh dấu còn thử nghiệm) hay `1.0.0`?
+
 ---
 
 # KẾ HOẠCH ATOMIC DESIGN — ATOMS · MOLECULES · ORGANISMS · TEMPLATES (bản review — chưa thực thi)
@@ -401,10 +428,10 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
 Mọi organism dưới đây dùng **DataController (A0.1)** → chung API `data` / `src` / `fetchFn` / `loading` / `error`
 và tự có skeleton – empty – error – thử lại.
 
-- [ ] 🆕 **`hui-card-grid`** — lưới card responsive từ `data` + `<template>`; `columns` / `min-card-width` (auto-fill),
+- [x] 🆕 **`hui-card-grid`** — lưới card responsive từ `data` + `<template>`; `columns` / `min-card-width` (auto-fill),
   chọn nhiều (`selectable` → `hui-selection-change`), sắp xếp/lọc phía client (`sort-by`, `filter` hàm), phân trang hoặc infinite scroll
-- [ ] 🆕 **`hui-kpi-row`** — dải `hui-stat-card` từ mảng `{title, value, delta, trend[]}`
-- [ ] 🆕 **Mini chart (SVG, zero-dependency)** — `hui-sparkline` (line/area), `hui-bar-mini`, `hui-donut` (phần trăm/nhiều lát),
+- [x] 🆕 **`hui-kpi-row`** — dải `hui-stat-card` từ mảng `{title, value, delta, trend[]}`
+- [x] 🆕 **Mini chart (SVG, zero-dependency)** — `hui-sparkline` (line/area), `hui-bar-mini`, `hui-donut` (phần trăm/nhiều lát),
   `hui-gauge`; nhận `data` mảng số / `{label, value}`, tooltip khi hover, màu từ palette token
 - [ ] (G3) `hui-table` — bổ sung yêu cầu: `columns` có `type` (text/number/currency/date/tag/avatar/progress/actions)
   để **khai báo là hiển thị đẹp ngay**, sửa trực tiếp trong ô (`editable`), xuất CSV
@@ -425,10 +452,10 @@ và tự có skeleton – empty – error – thử lại.
 ---
 
 ## A5 — TEMPLATES (trang mẫu ghép sẵn, trong `examples/` + Storybook `Templates/`)
-- [ ] `landing.html` — navbar → hero → logo marquee → feature-grid → **scroller** testimonial → pricing → faq → footer
-- [ ] `story.html` — **scroll-steps full-height** giới thiệu sản phẩm 5 bước + scrolly
-- [ ] `dashboard.html` — layout + sider menu + kpi-row + mini charts + card-grid + table + filter-bar
-- [ ] `catalog.html` — filter-bar + card-grid (product-card) + infinite-scroll
+- [x] `landing.html` — navbar → hero → logo marquee → feature-grid → **scroller** testimonial → pricing → faq → footer
+- [x] `story.html` — **scroll-steps full-height** giới thiệu sản phẩm 5 bước + scrolly
+- [x] `dashboard.html` — layout + sider menu + kpi-row + mini charts + card-grid + table + filter-bar
+- [x] `catalog.html` — filter-bar + card-grid (product-card) + infinite-scroll
 - [ ] `auth.html` — form đăng nhập/đăng ký (G1)
 - [ ] `kanban.html` — kanban + editable + command palette
 - [ ] `ecommerce.html` — product detail (gallery + image-zoom + variant-picker + price + add-to-cart + rating-summary + review-list) + cart-drawer
@@ -502,7 +529,7 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
 - [ ] 🆕 **`hui-reaction`** — nút cảm xúc (👍❤️😂…) kiểu mạng xã hội, giữ để chọn, đếm số
 
 ### A6.4 Data view (hiển thị danh sách dữ liệu)
-- [ ] 🆕 **`hui-data-view`** (organism trung tâm cho trang danh sách) — một nguồn `data` (DataController A0.1), **nhiều cách xem**:
+- [x] 🆕 **`hui-data-view`** (organism trung tâm cho trang danh sách) — một nguồn `data` (DataController A0.1), **nhiều cách xem**:
   - Thanh công cụ: ô tìm, chip lọc, sắp xếp, **chuyển chế độ xem list | grid | table** (nhớ lựa chọn), đếm kết quả
   - Mỗi chế độ dùng `<template view="list">`, `<template view="grid">`; chế độ table dùng `columns`
   - Phân trang | "Xem thêm" | cuộn vô hạn; chọn nhiều + thanh **thao tác hàng loạt** (xóa, xuất…)
@@ -581,7 +608,7 @@ bật `prefers-reduced-motion`; thời lượng/easing lấy từ token `--hui-m
    `hui-theme-toggle`, `hui-loading-bar`
 3. ✅ **A3.1 `hui-scroller` + A3.2 `hui-scroll-steps` + A3.4 `hui-reveal`** (xong 2026-10-19) → tiếp theo `hui-carousel` (trên scroller)
 4. ✅ **A2.1 + A6.5 card** (variants + `effect` lift/tilt/glow/zoom-media/reveal) + product/pricing/stat/blog card, **A2.2 progress/steps** (xong 2026-10-19; còn profile/feature/testimonial/media card, hover-card, post-list)
-5. **A6.4 `hui-data-view`** (list ↔ grid ↔ table, URL sync) + **A4** card-grid, kpi-row, mini chart, tương tác nhanh (editable, sortable, hotkey)
+5. ✅ **A6.4 `hui-data-view`** (list ↔ grid ↔ table, URL sync) + **A4** card-grid, kpi-row, mini chart (xong 2026-10-19) — còn tương tác nhanh (editable, sortable, hotkey)
 6. **A7.2–A7.8 hiệu ứng** (hover, chữ, nền, confetti, view transition) + trang `Foundations/Motion`
 7. **A6.2 nội dung** (lightbox/gallery, video facade, countdown, stats-counter, prose, code-block, share, toc)
 8. **A6.6 thương mại điện tử** + **A6.7 form liên hệ** + **A1 atoms còn thiếu** (làm xen kẽ khi cần)

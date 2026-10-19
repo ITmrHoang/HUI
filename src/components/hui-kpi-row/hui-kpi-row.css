@@ -1,0 +1,85 @@
+/*
+ * HUI KPI Row CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiKpiRow.
+ * Biến nội bộ --_kpi-*: JS ghi --_kpi-gap, --_kpi-min, --_kpi-cols theo attribute.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.kpi {
+  --_kpi-g: var(--_kpi-gap, var(--hui-kpi-row-gap, var(--hui-space-lg)));
+  --_kpi-w: var(--_kpi-min, var(--hui-kpi-row-min-width, 200px));
+}
+
+/* ================== LƯỚI auto-fit ================== */
+.kpi__row {
+  display: grid;
+  gap: var(--_kpi-g);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--_kpi-w)), 1fr));
+  align-items: stretch;
+}
+
+/* columns = số cột tối đa: ô không nhỏ hơn 1/n hàng, vẫn xuống dòng khi hẹp hơn min-width */
+.kpi--cols .kpi__row {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, max(var(--_kpi-w), calc((100% - (var(--_kpi-cols) - 1) * var(--_kpi-g)) / var(--_kpi-cols)))), 1fr)
+  );
+}
+
+.kpi__row ::slotted(*) {
+  min-width: 0;
+  height: 100%;
+  border-radius: var(--hui-kpi-row-radius, var(--hui-radius-lg));
+}
+
+/* ================== CLICKABLE ================== */
+.kpi__row ::slotted([role='button']) {
+  cursor: pointer;
+  outline: none;
+}
+
+.kpi__row ::slotted([role='button']:focus-visible) {
+  box-shadow: 0 0 0 2px var(--hui-kpi-row-focus-color, var(--hui-border-focus));
+}
+
+.kpi__row ::slotted([aria-pressed='true']) {
+  box-shadow: 0 0 0 2px var(--hui-kpi-row-active-color, var(--hui-primary));
+}
+
+/* ================== CUỘN NGANG (màn hình hẹp) ================== */
+@media (max-width: 575.98px) {
+  :host([scroll]) .kpi__row {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--hui-space-xs);
+    padding: var(--hui-space-xs);
+    margin: calc(-1 * var(--hui-space-xs));
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+
+  :host([scroll]) .kpi__row::-webkit-scrollbar {
+    display: none;
+  }
+
+  :host([scroll]) .kpi__row ::slotted(*),
+  :host([scroll]) .kpi__skeleton > * {
+    flex: 0 0 var(--hui-kpi-row-scroll-item-width, 80%);
+    scroll-snap-align: start;
+  }
+
+  :host([scroll]) .kpi__row:focus-visible {
+    outline: 2px solid var(--hui-kpi-row-focus-color, var(--hui-border-focus));
+    outline-offset: 2px;
+  }
+}

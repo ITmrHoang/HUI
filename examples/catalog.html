@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Trang danh mục sản phẩm</title>
+  <style>
+    body { margin: 0; font-family: var(--hui-font-family); background: var(--hui-bg-secondary); color: var(--hui-text); }
+    :not(:defined) { visibility: hidden; }
+    main { width: min(1200px, 100% - 32px); margin: 24px auto; display: grid; gap: 16px; }
+    .row { display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--hui-bg-container); border: 1px solid var(--hui-border); border-radius: 12px; }
+    .row img { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; }
+    .row .info { flex: 1; display: grid; gap: 4px; }
+  </style>
+  <script type="module" src="../src/index.js"></script>
+  <script type="module">
+    // Dữ liệu mẫu tự tạo — ảnh SVG nhúng, không cần mạng
+    const CATS = ['Áo', 'Quần', 'Phụ kiện', 'Giày'];
+    const NAMES = ['Áo thun basic', 'Áo sơ mi linen', 'Quần jean slim', 'Quần short kaki', 'Mũ lưỡi trai', 'Túi tote', 'Giày sneaker', 'Dép quai ngang'];
+    const img = (i) => {
+      const h = (i * 41) % 360;
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><rect width="300" height="300" fill="hsl(${h} 65% 62%)"/><circle cx="150" cy="150" r="70" fill="white" opacity=".25"/><text x="150" y="168" font-family="sans-serif" font-size="56" font-weight="700" fill="white" text-anchor="middle">${i + 1}</text></svg>`)}`;
+    };
+    const products = Array.from({ length: 40 }, (_, i) => {
+      const price = 129000 + ((i * 37000) % 600000);
+      return {
+        id: i + 1,
+        name: `${NAMES[i % NAMES.length]} ${i + 1}`,
+        category: CATS[i % CATS.length],
+        price,
+        original: i % 3 === 0 ? Math.round(price * 1.25 / 1000) * 1000 : null,
+        rating: 3.5 + ((i * 7) % 15) / 10,
+        reviews: 10 + (i * 13) % 300,
+        stock: (i * 17) % 60,
+        image: img(i),
+        isNew: i % 5 === 0,
+      };
+    });
+
+    customElements.whenDefined('hui-data-view').then(() => {
+      const dv = document.querySelector('hui-data-view');
+      dv.filters = [
+        { key: 'category', label: 'Danh mục', options: CATS.map((c) => ({ label: c, value: c })), multiple: true },
+      ];
+      dv.sortOptions = [
+        { label: 'Giá tăng dần', key: 'price', order: 'asc' },
+        { label: 'Giá giảm dần', key: 'price', order: 'desc' },
+        { label: 'Đánh giá cao', key: 'rating', order: 'desc' },
+      ];
+      dv.columns = [
+        { key: 'name', title: 'Sản phẩm', sortable: true },
+        { key: 'category', title: 'Danh mục', type: 'tag' },
+        { key: 'price', title: 'Giá', type: 'currency', sortable: true, align: 'end' },
+        { key: 'rating', title: 'Đánh giá', type: 'number', format: 'number:1', sortable: true, align: 'end' },
+        { key: 'stock', title: 'Tồn kho', type: 'number', sortable: true, align: 'end' },
+        { key: 'actions', title: '', type: 'actions', actions: [{ key: 'buy', label: 'Mua', icon: 'plus' }] },
+      ];
+      dv.data = products;
+      dv.addEventListener('hui-action', async (e) => {
+        const { message } = await import('../src/index.js');
+        message.success(`Đã thêm "${e.detail.item.name}" vào giỏ`);
+      });
+    });
+  </script>
+</head>
+<body>
+  <hui-announcement-bar type="success">Miễn phí vận chuyển cho đơn từ 499.000₫</hui-announcement-bar>
+  <main>
+    <hui-breadcrumb>
+      <hui-breadcrumb-item href="#" icon="home">Trang chủ</hui-breadcrumb-item>
+      <hui-breadcrumb-item>Cửa hàng</hui-breadcrumb-item>
+    </hui-breadcrumb>
+    <hui-title level="2" style="margin: 0">Cửa hàng HUI</hui-title>
+
+    <hui-data-view id="catalog" view="grid" search search-fields="name,category" paging="pagination" page-size="8"
+      row-key="id" sync-url persist-view label="Danh sách sản phẩm">
+      <template view="grid">
+        <hui-product-card data-bind-attr="image:image, name:name, price:price, original-price:original, rating:rating, reviews:reviews"
+          data-bind-prop="soldOut:soldOut" wishlist></hui-product-card>
+      </template>
+      <template view="list">
+        <div class="row">
+          <img data-bind-attr="src:image, alt:name">
+          <div class="info">
+            <strong data-bind="name"></strong>
+            <hui-rating-display data-bind-attr="value:rating, reviews:reviews" size="sm"></hui-rating-display>
+            <span data-bind="category"></span>
+          </div>
+          <hui-price data-bind-attr="value:price, original:original"></hui-price>
+          <hui-button data-action="buy" size="sm" icon="plus">Mua</hui-button>
+        </div>
+      </template>
+    </hui-data-view>
+  </main>
+  <hui-back-top></hui-back-top>
+</body>
+</html>

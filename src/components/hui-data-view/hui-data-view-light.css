@@ -1,0 +1,161 @@
+/*
+ * HUI Data View — CSS cho phần tử ở LIGHT DOM (gắn 1 lần cho document / shadow root chứa thẻ)
+ * Item list / grid nằm ở light DOM để CSS trang áp dụng được cho template của bạn.
+ * Mọi selector bọc trong :where() (độ ưu tiên 0) → CSS bạn viết luôn thắng, không cần !important.
+ *
+ *   [slot="view-list"] / [slot="view-grid"]  khung chứa (role="list")
+ *   .hui-dv-item                              wrapper mỗi item (role="listitem", data-key, [data-selected])
+ *   .hui-dv-item__check                       checkbox chọn (selectable)
+ *   .hui-dv-fallback(--list|--grid)           item dự phòng khi không có <template>
+ * Biến: --hui-data-view-list-gap, -grid-min, -grid-gap, -item-bg, -item-radius, -item-border-color,
+ *       -item-hover-shadow, -selected-color
+ */
+
+:where(hui-data-view) > :where(.hui-dv-container--list) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-data-view-list-gap, var(--hui-space-sm));
+}
+
+:where(hui-data-view) > :where(.hui-dv-container--grid) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--hui-data-view-grid-min, 220px)), 1fr));
+  gap: var(--hui-data-view-grid-gap, var(--hui-space-lg));
+}
+
+/* Wrapper: 1 ô lưới chứa nội dung template → nội dung tự giãn đều chiều cao trong grid */
+:where(.hui-dv-item) {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  border-radius: var(--hui-data-view-item-radius, var(--hui-radius-lg));
+}
+
+:where(.hui-dv-item) > :where(:not(.hui-dv-item__check)) {
+  min-width: 0;
+}
+
+/* Checkbox chọn: phủ góc trên trái của item */
+:where(.hui-dv-item__check) {
+  position: absolute;
+  top: var(--hui-space-sm);
+  left: var(--hui-space-sm);
+  z-index: 2;
+  padding: 2px 4px;
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-bg-elevated);
+  box-shadow: var(--hui-shadow-sm);
+}
+
+/* List: checkbox nằm giữa theo chiều dọc, chừa chỗ bên trái nội dung */
+:where(.hui-dv-item--list) > :where(.hui-dv-item__check) {
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  box-shadow: none;
+}
+
+:where(.hui-dv-item--list:has(> .hui-dv-item__check)) {
+  padding-inline-start: 40px;
+}
+
+:where(.hui-dv-item[data-selected]) {
+  outline: 2px solid var(--hui-data-view-selected-color, var(--hui-primary));
+  outline-offset: -1px;
+}
+
+/* ---------- Item dự phòng (không có template) ---------- */
+
+:where(.hui-dv-fallback) {
+  display: flex;
+  gap: var(--hui-space-md);
+  min-width: 0;
+  padding: var(--hui-space-md);
+  border: 1px solid var(--hui-data-view-item-border-color, var(--hui-border-secondary));
+  border-radius: var(--hui-data-view-item-radius, var(--hui-radius-lg));
+  background: var(--hui-data-view-item-bg, var(--hui-bg-container));
+  color: var(--hui-text);
+  font-family: var(--hui-font-family);
+  transition: box-shadow var(--hui-transition), transform var(--hui-transition);
+}
+
+:where(.hui-dv-fallback:hover) {
+  box-shadow: var(--hui-data-view-item-hover-shadow, var(--hui-shadow-md));
+}
+
+:where(.hui-dv-fallback--list) {
+  align-items: center;
+}
+
+:where(.hui-dv-fallback--grid) {
+  flex-direction: column;
+  padding: var(--hui-space-sm) var(--hui-space-sm) var(--hui-space-md);
+}
+
+:where(.hui-dv-fallback--grid:hover) {
+  transform: translateY(-2px);
+}
+
+:where(.hui-dv-fallback__media) {
+  flex: none;
+  display: block;
+  object-fit: cover;
+  border-radius: var(--hui-radius);
+  background: var(--hui-fill-tertiary);
+}
+
+:where(.hui-dv-fallback__media[hidden]) {
+  display: none;
+}
+
+:where(.hui-dv-fallback--list) :where(.hui-dv-fallback__media) {
+  width: 48px;
+  height: 48px;
+}
+
+:where(.hui-dv-fallback--grid) :where(.hui-dv-fallback__media) {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+}
+
+:where(.hui-dv-fallback__body) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+:where(.hui-dv-fallback--grid) :where(.hui-dv-fallback__body) {
+  padding-inline: var(--hui-space-xs);
+}
+
+:where(.hui-dv-fallback__title) {
+  overflow: hidden;
+  font-weight: var(--hui-font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:where(.hui-dv-fallback__desc) {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+:where(.hui-dv-fallback__desc[hidden]) {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.hui-dv-fallback) {
+    transition: none;
+  }
+
+  :where(.hui-dv-fallback--grid:hover) {
+    transform: none;
+  }
+}
