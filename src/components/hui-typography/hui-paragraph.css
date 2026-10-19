@@ -1,0 +1,25 @@
+/*
+ * HUI Paragraph CSS
+ * Biến CSS override từ ngoài:
+ *   --hui-paragraph-color        Màu chữ khi không có type
+ *   --hui-paragraph-font-size    Cỡ chữ (--hui-font-sm)
+ *   --hui-paragraph-line-height  Chiều cao dòng (--hui-line-height)
+ *   --hui-paragraph-margin       Lề ngoài (0 0 1em)
+ */
+
+:host {
+  display: block;
+  margin: var(--hui-paragraph-margin, 0 0 1em);
+  font-family: var(--hui-font-family);
+}
+
+.typo {
+  display: block;
+  color: var(--hui-paragraph-color, var(--hui-text));
+  font-size: var(--hui-paragraph-font-size, var(--hui-font-sm));
+  line-height: var(--hui-paragraph-line-height, var(--hui-line-height));
+}
+
+.typo--clamp {
+  display: flex;
+}

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Landing page mẫu</title>
+  <style>
+    body { margin: 0; font-family: var(--hui-font-family); background: var(--hui-bg); color: var(--hui-text); }
+    :not(:defined) { visibility: hidden; }
+    .logo { font-weight: 700; font-size: 1.25rem; color: var(--hui-primary); text-decoration: none; }
+    .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .price { font-size: 2rem; font-weight: 700; margin: 8px 0; }
+    .feature-icon { font-size: 28px; color: var(--hui-primary); }
+    footer { padding: 32px 16px; text-align: center; color: var(--hui-text-secondary); border-top: 1px solid var(--hui-border); }
+  </style>
+  <script type="module" src="../src/index.js"></script>
+</head>
+<body>
+  <hui-navbar sticky transparent-on-top>
+    <a slot="logo" class="logo" href="#">HUI</a>
+    <hui-menu mode="horizontal" selected-keys="home">
+      <hui-menu-item key="home" href="#">Trang chủ</hui-menu-item>
+      <hui-menu-item key="features" href="#features">Tính năng</hui-menu-item>
+      <hui-menu-item key="pricing" href="#pricing">Bảng giá</hui-menu-item>
+      <hui-menu-item key="faq" href="#faq">Hỏi đáp</hui-menu-item>
+    </hui-menu>
+    <hui-space slot="actions">
+      <hui-button variant="text">Đăng nhập</hui-button>
+      <hui-button>Dùng thử</hui-button>
+    </hui-space>
+  </hui-navbar>
+
+  <hui-section padding="xl" align="center" variant="tinted" max-width="md">
+    <hui-tag slot="eyebrow" color="primary">Mới · v0.2</hui-tag>
+    <hui-title slot="title" level="1">Dựng giao diện web nhanh với HUI</hui-title>
+    <span slot="description">Thư viện Web Components zero-dependency — dùng được với HTML thuần, Vue, React, Angular.</span>
+    <div class="hero-actions">
+      <hui-button size="lg" icon="download">Cài đặt</hui-button>
+      <hui-button size="lg" variant="outline" icon="chevron-right" icon-position="end">Xem tài liệu</hui-button>
+    </div>
+  </hui-section>
+
+  <hui-section id="features" heading="Tính năng nổi bật" description="Những gì bạn có sẵn ngay khi cài đặt" align="center">
+    <hui-row gutter="24,24">
+      <hui-col span-xs="24" span-md="8">
+        <hui-card hoverable>
+          <hui-icon class="feature-icon" name="settings"></hui-icon>
+          <hui-title level="4">Theme linh hoạt</hui-title>
+          <hui-paragraph type="secondary">Đổi một biến màu, mọi sắc độ tự tính. Dark mode có sẵn.</hui-paragraph>
+        </hui-card>
+      </hui-col>
+      <hui-col span-xs="24" span-md="8">
+        <hui-card hoverable>
+          <hui-icon class="feature-icon" name="check"></hui-icon>
+          <hui-title level="4">Form chuẩn native</hui-title>
+          <hui-paragraph type="secondary">Mọi control gửi được qua &lt;form&gt;, validate, reset như thẻ input.</hui-paragraph>
+        </hui-card>
+      </hui-col>
+      <hui-col span-xs="24" span-md="8">
+        <hui-card hoverable>
+          <hui-icon class="feature-icon" name="star"></hui-icon>
+          <hui-title level="4">Trợ năng</hui-title>
+          <hui-paragraph type="secondary">Bàn phím, ARIA và focus trap theo chuẩn WAI-ARIA.</hui-paragraph>
+        </hui-card>
+      </hui-col>
+    </hui-row>
+  </hui-section>
+
+  <hui-section variant="muted" padding="lg">
+    <hui-row gutter="24" justify="center">
+      <hui-col span-xs="12" span-md="6"><hui-statistic title="Component" value="77"></hui-statistic></hui-col>
+      <hui-col span-xs="12" span-md="6"><hui-statistic title="Test tự động" value="458"></hui-statistic></hui-col>
+      <hui-col span-xs="12" span-md="6"><hui-statistic title="Phụ thuộc runtime" value="0"></hui-statistic></hui-col>
+      <hui-col span-xs="12" span-md="6"><hui-statistic title="Kích thước nút (gzip)" value="5" suffix="KB"></hui-statistic></hui-col>
+    </hui-row>
+  </hui-section>
+
+  <hui-section id="pricing" heading="Bảng giá" align="center">
+    <hui-row gutter="24,24" justify="center">
+      <hui-col span-xs="24" span-md="8">
+        <hui-card title="Cá nhân">
+          <div class="price">0₫</div>
+          <hui-paragraph type="secondary">Mã nguồn mở MIT.</hui-paragraph>
+          <hui-button slot="actions" block variant="outline">Bắt đầu</hui-button>
+        </hui-card>
+      </hui-col>
+      <hui-col span-xs="24" span-md="8">
+        <hui-badge-ribbon text="Phổ biến">
+          <hui-card title="Doanh nghiệp">
+            <div class="price">Liên hệ</div>
+            <hui-paragraph type="secondary">Hỗ trợ tích hợp và theme riêng.</hui-paragraph>
+            <hui-button slot="actions" block>Liên hệ</hui-button>
+          </hui-card>
+        </hui-badge-ribbon>
+      </hui-col>
+    </hui-row>
+  </hui-section>
+
+  <hui-section id="faq" heading="Hỏi đáp" max-width="md">
+    <hui-collapse accordion>
+      <hui-collapse-panel header="HUI có cần framework không?">Không. HUI là Web Components chuẩn, chạy trên mọi trình duyệt hiện đại.</hui-collapse-panel>
+      <hui-collapse-panel header="Dùng với Vue thế nào?">Khai báo isCustomElement cho thẻ bắt đầu bằng hui- trong cấu hình Vue.</hui-collapse-panel>
+      <hui-collapse-panel header="Đổi màu thương hiệu?">Đặt --hui-primary trên :root hoặc dùng hui-config-provider.</hui-collapse-panel>
+    </hui-collapse>
+  </hui-section>
+
+  <footer>© 2026 HUI · <hui-link href="https://github.com/ITmrHoang/HUI" external>GitHub</hui-link></footer>
+</body>
+</html>

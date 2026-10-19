@@ -1,0 +1,47 @@
+/*
+ * HUI Radio Group CSS
+ *   --hui-radio-group-gap      Khoảng cách giữa các lựa chọn (dạng mặc định)
+ *   --hui-radio-group-row-gap  Khoảng cách dòng (xuống dòng / direction="vertical")
+ * Biến của từng nút/vòng tròn: xem hui-radio.css (đặt trên hui-radio-group cũng được, vì kế thừa)
+ * Parts: base · State: :state(user-invalid), :state(filled), :state(disabled)
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+  vertical-align: middle;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-radio-group,
+.hui-radio-group__options {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--hui-radio-group-gap, var(--hui-space-md));
+  row-gap: var(--hui-radio-group-row-gap, var(--hui-space-sm));
+}
+
+/* Khung options chỉ là vỏ — để các radio nằm chung 1 flex với slot */
+.hui-radio-group__options {
+  display: contents;
+}
+
+.hui-radio-group--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Dạng nút: liền nhau, không khoảng cách, không xuống dòng */
+.hui-radio-group--button {
+  flex-wrap: nowrap;
+  gap: 0;
+}
+
+/* Lỗi validate sau tương tác: viền vòng tròn / nút đỏ */
+:host(:state(user-invalid)) {
+  --_radio-invalid: var(--hui-danger);
+}

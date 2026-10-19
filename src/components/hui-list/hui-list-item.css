@@ -1,0 +1,54 @@
+/*
+ * HUI List Item CSS
+ * Đọc biến nội bộ --_list-* từ hui-list cha (fallback khi dùng độc lập).
+ */
+
+:host {
+  display: block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-list-item {
+  display: grid;
+  grid-template-columns: var(--_list-item-cols, minmax(0, 1fr) auto auto);
+  grid-template-areas: var(--_list-item-areas, "main actions extra");
+  align-items: var(--_list-item-align, center);
+  box-sizing: border-box;
+  height: 100%;
+  padding: var(--hui-list-item-padding, var(--_list-item-pad, var(--hui-space-md) 0));
+  background: var(--_list-item-bg, transparent);
+  border-radius: var(--_list-item-radius, 0);
+  border-block-end: var(--_list-item-split-w, 1px) solid var(--hui-list-split-color, var(--hui-border));
+  /* Viền thẻ ở chế độ lưới: dùng inset shadow để không xung đột với đường kẻ dưới */
+  box-shadow: inset 0 0 0 var(--_list-item-card-w, 0px) var(--hui-list-card-border-color, var(--hui-border));
+  color: var(--hui-list-item-color, var(--hui-text));
+}
+
+/* Item cuối không có đường kẻ */
+:host(:last-of-type) .hui-list-item {
+  border-block-end-width: 0;
+}
+
+.hui-list-item__main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.hui-list-item__actions {
+  grid-area: actions;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--hui-list-item-actions-gap, var(--hui-space-lg));
+  margin-inline-start: var(--_list-actions-ms, var(--hui-space-2xl));
+  margin-block-start: var(--_list-actions-mt, 0px);
+  color: var(--hui-text-secondary);
+}
+
+.hui-list-item__extra {
+  grid-area: extra;
+  margin-inline-start: var(--_list-extra-ms, var(--hui-space-2xl));
+}

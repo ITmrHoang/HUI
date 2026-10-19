@@ -1,0 +1,330 @@
+/*
+ * HUI Slider CSS
+ * Override: var(--hui-slider-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-slider-rail-size           Độ dày ray
+ *   --hui-slider-rail-bg             Màu ray
+ *   --hui-slider-rail-hover-bg       Màu ray khi hover
+ *   --hui-slider-track-bg            Màu đoạn đã chọn
+ *   --hui-slider-thumb-size          Cỡ tay nắm
+ *   --hui-slider-thumb-bg            Nền tay nắm
+ *   --hui-slider-thumb-border-color  Viền tay nắm
+ *   --hui-slider-focus-ring          box-shadow khi focus / kéo
+ *   --hui-slider-tooltip-bg          Nền bong bóng giá trị
+ *   --hui-slider-tooltip-color       Màu chữ bong bóng
+ *   --hui-slider-dot-size            Cỡ chấm
+ *   --hui-slider-mark-color          Màu chữ nhãn mốc
+ *   --hui-slider-vertical-height     Chiều cao khi vertical
+ *
+ * Parts: base, label, control, rail, track, thumb, thumb-start, thumb-end, tooltip, dot, dot-active, marks, mark
+ * Vị trí: biến nội bộ --_slider-pos (tay nắm, chấm, mốc), --_slider-start / --_slider-end (track) do JS gán.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  touch-action: none;
+}
+
+:host([vertical]) {
+  display: inline-block;
+  vertical-align: top;
+}
+
+:host([disabled]) {
+  pointer-events: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-slider {
+  --_slider-color: var(--hui-slider-track-bg, var(--hui-primary));
+  --_slider-thumb: var(--hui-slider-thumb-size, var(--_slider-thumb-default));
+  --_slider-rail: var(--hui-slider-rail-size, var(--_slider-rail-default));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hui-slider--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hui-slider__label {
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-text);
+}
+
+/* ================== KÍCH THƯỚC ================== */
+.hui-slider--sm {
+  --_slider-height: var(--hui-size-sm);
+  --_slider-thumb-default: 12px;
+  --_slider-rail-default: 3px;
+}
+
+.hui-slider--md {
+  --_slider-height: var(--hui-size-md);
+  --_slider-thumb-default: 16px;
+  --_slider-rail-default: 4px;
+}
+
+.hui-slider--lg {
+  --_slider-height: var(--hui-size-lg);
+  --_slider-thumb-default: 20px;
+  --_slider-rail-default: 6px;
+}
+
+/* ================== VÙNG BẤM / KÉO ================== */
+.hui-slider__control {
+  position: relative;
+  box-sizing: border-box;
+  height: var(--_slider-height);
+  margin: 0 calc(var(--_slider-thumb) / 2);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.hui-slider--has-marks .hui-slider__control {
+  margin-bottom: 1.5em;
+}
+
+.hui-slider__rail,
+.hui-slider__track {
+  position: absolute;
+  top: 50%;
+  height: var(--_slider-rail);
+  border-radius: var(--hui-radius-full);
+  transform: translateY(-50%);
+}
+
+.hui-slider__rail {
+  left: 0;
+  right: 0;
+  background: var(--hui-slider-rail-bg, var(--hui-fill-secondary));
+  transition: background var(--hui-transition-fast);
+}
+
+.hui-slider__control:hover .hui-slider__rail {
+  background: var(--hui-slider-rail-hover-bg, var(--hui-fill));
+}
+
+.hui-slider__track {
+  left: var(--_slider-start);
+  width: calc(var(--_slider-end) - var(--_slider-start));
+  background: var(--_slider-color);
+}
+
+/* ================== CHẤM + MỐC ================== */
+.hui-slider__dot {
+  position: absolute;
+  top: 50%;
+  left: var(--_slider-pos);
+  box-sizing: border-box;
+  width: var(--hui-slider-dot-size, 8px);
+  height: var(--hui-slider-dot-size, 8px);
+  border: 2px solid var(--hui-border);
+  border-radius: 50%;
+  background: var(--hui-bg);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.hui-slider__dot--active {
+  border-color: var(--_slider-color);
+}
+
+.hui-slider__marks {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+
+.hui-slider__mark {
+  position: absolute;
+  left: var(--_slider-pos);
+  transform: translateX(-50%);
+  color: var(--hui-slider-mark-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-xs);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* ================== TAY NẮM ================== */
+.hui-slider__thumb {
+  position: absolute;
+  top: 50%;
+  left: var(--_slider-pos);
+  z-index: 1;
+  box-sizing: border-box;
+  width: var(--_slider-thumb);
+  height: var(--_slider-thumb);
+  border: 2px solid var(--hui-slider-thumb-border-color, var(--_slider-color));
+  border-radius: 50%;
+  background: var(--hui-slider-thumb-bg, var(--hui-bg));
+  transform: translate(-50%, -50%);
+  outline: none;
+  cursor: grab;
+  transition: box-shadow var(--hui-transition-fast), transform var(--hui-transition-fast);
+}
+
+.hui-slider__thumb:hover {
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+.hui-slider__thumb:focus-visible,
+.hui-slider__thumb--active {
+  box-shadow: var(--hui-slider-focus-ring, 0 0 0 5px var(--hui-primary-light));
+}
+
+.hui-slider__thumb--active {
+  z-index: 2;
+  cursor: grabbing;
+}
+
+.hui-slider--dragging,
+.hui-slider--dragging .hui-slider__control {
+  cursor: grabbing;
+}
+
+/* ================== BONG BÓNG GIÁ TRỊ ================== */
+.hui-slider__tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  padding: 2px 8px;
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-slider-tooltip-bg, var(--hui-bg-spotlight));
+  color: var(--hui-slider-tooltip-color, var(--hui-text-light-solid));
+  font-size: var(--hui-font-xs);
+  line-height: 1.5;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition: opacity var(--hui-transition-fast), transform var(--hui-transition-fast);
+}
+
+.hui-slider__tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  border: 4px solid transparent;
+  border-top-color: var(--hui-slider-tooltip-bg, var(--hui-bg-spotlight));
+  transform: translateX(-50%);
+}
+
+.hui-slider--tooltip-always .hui-slider__tooltip,
+.hui-slider--tooltip-auto .hui-slider__thumb:hover .hui-slider__tooltip,
+.hui-slider--tooltip-auto .hui-slider__thumb:focus-visible .hui-slider__tooltip,
+.hui-slider--tooltip-auto .hui-slider__thumb--active .hui-slider__tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Bong bóng bên trong tay nắm phóng to theo khi hover → bù lại */
+.hui-slider__thumb:hover .hui-slider__tooltip {
+  scale: calc(1 / 1.15);
+}
+
+/* ================== DỌC ================== */
+.hui-slider--vertical {
+  height: var(--hui-slider-vertical-height, 12rem);
+  flex-direction: row;
+}
+
+.hui-slider--vertical .hui-slider__control {
+  width: var(--_slider-height);
+  height: auto;
+  flex: 1;
+  margin: calc(var(--_slider-thumb) / 2) 0;
+}
+
+.hui-slider--vertical.hui-slider--has-marks .hui-slider__control {
+  margin-bottom: calc(var(--_slider-thumb) / 2);
+  margin-right: 3em;
+}
+
+.hui-slider--vertical .hui-slider__rail,
+.hui-slider--vertical .hui-slider__track {
+  top: auto;
+  left: 50%;
+  width: var(--_slider-rail);
+  height: auto;
+  transform: translateX(-50%);
+}
+
+.hui-slider--vertical .hui-slider__rail {
+  top: 0;
+  bottom: 0;
+}
+
+.hui-slider--vertical .hui-slider__track {
+  bottom: var(--_slider-start);
+  height: calc(var(--_slider-end) - var(--_slider-start));
+}
+
+.hui-slider--vertical .hui-slider__dot,
+.hui-slider--vertical .hui-slider__thumb {
+  top: auto;
+  left: 50%;
+  bottom: var(--_slider-pos);
+  transform: translate(-50%, 50%);
+}
+
+.hui-slider--vertical .hui-slider__thumb:hover {
+  transform: translate(-50%, 50%) scale(1.15);
+}
+
+.hui-slider--vertical .hui-slider__marks {
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  right: auto;
+}
+
+.hui-slider--vertical .hui-slider__mark {
+  left: 4px;
+  bottom: var(--_slider-pos);
+  transform: translateY(50%);
+}
+
+/* Dọc: bong bóng nằm bên trái tay nắm (bên phải dành cho mốc) */
+.hui-slider--vertical .hui-slider__tooltip {
+  bottom: auto;
+  top: 50%;
+  left: auto;
+  right: calc(100% + 8px);
+  transform: translate(-4px, -50%);
+}
+
+.hui-slider--vertical .hui-slider__tooltip::after {
+  top: 50%;
+  left: 100%;
+  border-top-color: transparent;
+  border-left-color: var(--hui-slider-tooltip-bg, var(--hui-bg-spotlight));
+  transform: translateY(-50%);
+}
+
+.hui-slider--vertical.hui-slider--tooltip-always .hui-slider__tooltip,
+.hui-slider--vertical.hui-slider--tooltip-auto .hui-slider__thumb:hover .hui-slider__tooltip,
+.hui-slider--vertical.hui-slider--tooltip-auto .hui-slider__thumb:focus-visible .hui-slider__tooltip,
+.hui-slider--vertical.hui-slider--tooltip-auto .hui-slider__thumb--active .hui-slider__tooltip {
+  transform: translate(0, -50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-slider__thumb,
+  .hui-slider__tooltip,
+  .hui-slider__rail {
+    transition: none;
+  }
+}

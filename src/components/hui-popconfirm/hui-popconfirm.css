@@ -1,0 +1,52 @@
+/*
+ * HUI Popconfirm CSS
+ * Biến CSS (ngoài các biến --hui-popover-* của popover bên trong):
+ *   --hui-popconfirm-icon-color   Màu icon (mặc định màu cảnh báo)
+ *   --hui-popconfirm-max-width    Chiều rộng tối đa phần nội dung (mặc định 320px)
+ * Parts: popover (hui-popover bên trong), popup, arrow, body, icon, title, description, actions,
+ *        ok-button, cancel-button
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.body {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: var(--hui-popconfirm-max-width, 320px);
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-top: 0.2em;
+  font-size: 1.05em;
+  color: var(--hui-popconfirm-icon-color, var(--hui-warning));
+}
+
+.text {
+  min-width: 0;
+}
+
+.title {
+  font-weight: var(--hui-font-weight-semibold);
+  color: var(--hui-text);
+}
+
+.description {
+  margin-top: 4px;
+  color: var(--hui-text-secondary);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--hui-space-sm);
+  margin-top: 12px;
+}

@@ -1,0 +1,22 @@
+/* HUI Breadcrumb — khung <nav><ol>; style từng item nằm ở hui-breadcrumb-item.css */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-breadcrumb-font-size, var(--hui-font-sm));
+  line-height: var(--hui-line-height, 1.5);
+  color: var(--hui-breadcrumb-color, var(--hui-text-secondary));
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

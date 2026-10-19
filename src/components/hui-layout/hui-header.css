@@ -1,0 +1,33 @@
+/*
+ * HUI Header CSS
+ * Biến CSS override từ ngoài:
+ *   --hui-header-height        Chiều cao (64px)
+ *   --hui-header-padding-x     Khoảng đệm ngang (24px)
+ *   --hui-header-bg            Màu nền (--hui-bg-container)
+ *   --hui-header-color         Màu chữ (--hui-text)
+ *   --hui-header-border-color  Màu viền dưới (--hui-border-secondary)
+ *   --hui-header-shadow        Đổ bóng (none)
+ */
+
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-lg);
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  height: var(--hui-header-height, 64px);
+  padding: 0 var(--hui-header-padding-x, var(--hui-space-xl));
+  background: var(--hui-header-bg, var(--hui-bg-container));
+  color: var(--hui-header-color, var(--hui-text));
+  border-bottom: 1px solid var(--hui-header-border-color, var(--hui-border-secondary));
+  box-shadow: var(--hui-header-shadow, none);
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]) { display: none; }
+
+:host([sticky]) {
+  position: sticky;
+  top: 0;
+  z-index: var(--hui-z-sticky);
+}

@@ -1,0 +1,169 @@
+/*
+ * HUI Form Item CSS
+ *   --hui-form-item-margin-bottom  Khoảng cách dưới mỗi dòng
+ *   --hui-form-label-width         Chiều rộng cột nhãn (horizontal; attribute label-width của hui-form ưu tiên hơn)
+ *   --hui-form-label-color         Màu chữ nhãn
+ *   --hui-form-label-font-size     Cỡ chữ nhãn
+ *   --hui-form-required-color      Màu dấu *
+ *   --hui-form-help-font-size      Cỡ chữ dòng lỗi / gợi ý / extra
+ *   --hui-form-error-color         Màu dòng lỗi
+ *   --hui-form-warning-color       Màu dòng cảnh báo
+ *   --hui-form-help-color          Màu dòng gợi ý / extra
+ * Parts: base, label, label-text, required-mark, optional, tooltip, control, help, extra
+ * State: :state(error), :state(warning), :state(success), :state(validating)
+ * Thuộc tính tự đặt (đọc từ hui-form): data-layout (vertical|horizontal|inline), data-size
+ */
+
+:host {
+  /* Biến nội bộ: chiều cao control để canh nhãn ở layout ngang */
+  --_form-item-control-h: var(--hui-size-md);
+
+  display: block;
+  margin-bottom: var(--hui-form-item-margin-bottom, var(--hui-space-lg));
+  font-family: var(--hui-font-family);
+}
+
+:host([data-size='sm']) { --_form-item-control-h: var(--hui-size-sm); }
+:host([data-size='lg']) { --_form-item-control-h: var(--hui-size-lg); }
+
+:host([data-layout='inline']) {
+  display: inline-block;
+  vertical-align: top;
+  margin-inline-end: var(--hui-space-md);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-form-item {
+  display: flex;
+  flex-direction: column;
+}
+
+:host([data-layout='horizontal']) .hui-form-item,
+:host([data-layout='inline']) .hui-form-item {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+/* ================== NHÃN ================== */
+.hui-form-item__label {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding-bottom: var(--hui-space-sm);
+  color: var(--hui-form-label-color, var(--hui-text));
+  font-size: var(--hui-form-label-font-size, var(--hui-font-sm));
+  line-height: var(--hui-line-height);
+}
+
+:host([data-layout='horizontal']) .hui-form-item__label {
+  flex: 0 0 auto;
+  width: var(--_form-label-width, var(--hui-form-label-width, 120px));
+  min-height: var(--_form-item-control-h);
+  justify-content: flex-end;
+  padding-bottom: 0;
+  padding-inline-end: var(--hui-space-sm);
+  text-align: end;
+}
+
+:host([data-layout='horizontal']) .hui-form-item__label--left {
+  justify-content: flex-start;
+  text-align: start;
+}
+
+:host([data-layout='inline']) .hui-form-item__label {
+  min-height: var(--_form-item-control-h);
+  padding-bottom: 0;
+  padding-inline-end: var(--hui-space-sm);
+}
+
+.hui-form-item__label-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+}
+
+.hui-form-item__mark {
+  color: var(--hui-form-required-color, var(--hui-danger));
+}
+
+.hui-form-item__optional {
+  color: var(--hui-text-tertiary);
+}
+
+.hui-form-item__tooltip {
+  display: inline-flex;
+  color: var(--hui-text-tertiary);
+  cursor: help;
+}
+
+.hui-form-item__tooltip hui-icon {
+  border-radius: var(--hui-radius-full);
+  outline: none;
+}
+
+.hui-form-item__tooltip hui-icon:focus-visible {
+  box-shadow: var(--hui-focus-ring, 0 0 0 2px var(--hui-primary-light));
+}
+
+/* ================== CONTROL + LỖI / GỢI Ý ================== */
+.hui-form-item__control {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.hui-form-item__input {
+  display: flex;
+  align-items: center;
+  min-height: var(--_form-item-control-h);
+}
+
+/* Control co giãn hết chiều ngang cột (trừ checkbox / radio đứng riêng) */
+.hui-form-item__input ::slotted(*) {
+  flex: 1;
+  min-width: 0;
+}
+
+.hui-form-item__input ::slotted(hui-checkbox),
+.hui-form-item__input ::slotted(hui-switch),
+.hui-form-item__input ::slotted(hui-radio-group),
+.hui-form-item__input ::slotted(hui-checkbox-group),
+.hui-form-item__input ::slotted(hui-button) {
+  flex: 0 1 auto;
+}
+
+.hui-form-item__help,
+.hui-form-item__extra {
+  font-size: var(--hui-form-help-font-size, var(--hui-font-xs));
+  line-height: var(--hui-line-height);
+}
+
+.hui-form-item__help {
+  padding-top: 2px;
+}
+
+::slotted([slot='feedback']) {
+  color: var(--hui-form-help-color, var(--hui-text-tertiary));
+}
+
+::slotted([slot='feedback'][data-status='error']) {
+  color: var(--hui-form-error-color, var(--hui-danger));
+}
+
+::slotted([slot='feedback'][data-status='warning']) {
+  color: var(--hui-form-warning-color, var(--hui-warning));
+}
+
+::slotted([slot='feedback'][data-status='success']) {
+  color: var(--hui-success);
+}
+
+.hui-form-item__extra {
+  padding-top: 2px;
+  color: var(--hui-form-help-color, var(--hui-text-tertiary));
+}

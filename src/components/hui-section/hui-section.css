@@ -1,0 +1,128 @@
+/*
+ * HUI Section CSS — khối landing page
+ * Biến CSS override từ ngoài:
+ *   --hui-section-padding-y           Khoảng đệm dọc (thang theo attribute padding)
+ *   --hui-section-padding-x           Khoảng đệm ngang (16px; ≥ 768px: 24px)
+ *   --hui-section-bg                  Màu nền (variant đổi mặc định)
+ *   --hui-section-color               Màu chữ
+ *   --hui-section-max-width           Chiều rộng tối đa nội dung (attribute max-width độ dài thắng)
+ *   --hui-section-title-size          Cỡ chữ tiêu đề
+ *   --hui-section-title-color         Màu tiêu đề
+ *   --hui-section-description-color   Màu mô tả
+ *   --hui-section-header-gap          Khoảng cách các dòng trong header (12px)
+ *   --hui-section-header-margin       Khoảng cách header ↔ nội dung (40px)
+ * Parts: base, container, header, eyebrow, title, description, body
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]) { display: none; }
+
+[hidden] { display: none !important; }
+
+.section {
+  /* Biến nội bộ: thang padding, màu theo variant, max-width theo từ khóa */
+  --_section-py: clamp(2.5rem, 6vw, 4rem);
+  --_section-bg: transparent;
+  --_section-color: var(--hui-text);
+  --_section-title-color: var(--hui-text);
+  --_section-desc-color: var(--hui-text-secondary);
+  --_section-accent: var(--hui-primary);
+  --_section-max: 1200px;
+
+  box-sizing: border-box;
+  padding-block: var(--hui-section-padding-y, var(--_section-py));
+  padding-inline: var(--hui-section-padding-x, var(--hui-space-lg));
+  background: var(--hui-section-bg, var(--_section-bg));
+  color: var(--hui-section-color, var(--_section-color));
+}
+
+@media (min-width: 768px) {
+  .section { padding-inline: var(--hui-section-padding-x, var(--hui-space-xl)); }
+}
+
+/* ================== PADDING (thang, co theo màn hình) ================== */
+:host([padding="none"]) .section { --_section-py: 0px; }
+:host([padding="sm"]) .section { --_section-py: clamp(1.5rem, 4vw, 2rem); }
+:host([padding="md"]) .section { --_section-py: clamp(2.5rem, 6vw, 4rem); }
+:host([padding="lg"]) .section { --_section-py: clamp(3.5rem, 9vw, 6rem); }
+:host([padding="xl"]) .section { --_section-py: clamp(4.5rem, 12vw, 8rem); }
+
+/* ================== VARIANT (nền) ================== */
+:host([variant="muted"]) .section { --_section-bg: var(--hui-bg-secondary); }
+:host([variant="tinted"]) .section {
+  --_section-bg: var(--hui-primary-1);
+  --_section-title-color: var(--hui-primary-9);
+}
+:host([variant="primary"]) .section {
+  --_section-bg: var(--hui-primary);
+  --_section-color: var(--hui-text-inverse);
+  --_section-title-color: var(--hui-text-inverse);
+  --_section-desc-color: color-mix(in srgb, var(--hui-text-inverse) 80%, transparent);
+  --_section-accent: var(--hui-text-inverse);
+}
+
+/* ================== KHUNG NỘI DUNG ================== */
+:host([max-width="sm"]) .section { --_section-max: 640px; }
+:host([max-width="md"]) .section { --_section-max: 960px; }
+:host([max-width="lg"]) .section { --_section-max: 1200px; }
+:host([max-width="xl"]) .section { --_section-max: 1440px; }
+:host([max-width="full"]) .section { --_section-max: 100%; }
+
+.section__container {
+  --_section-max-custom: initial;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--_section-max-custom, var(--hui-section-max-width, var(--_section-max)));
+  margin-inline: auto;
+}
+
+/* ================== HEADER ================== */
+.section__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hui-section-header-gap, var(--hui-space-md));
+  max-width: 720px;
+  margin: 0 auto var(--hui-section-header-margin, 2.5rem);
+  text-align: center;
+}
+
+:host([align="start"]) .section__header {
+  align-items: flex-start;
+  margin-inline: 0;
+  text-align: start;
+}
+
+.section__eyebrow {
+  color: var(--_section-accent);
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.section__title {
+  margin: 0;
+  color: var(--hui-section-title-color, var(--_section-title-color));
+  font-size: var(--hui-section-title-size, clamp(1.625rem, 3.5vw, var(--hui-font-h2)));
+  font-weight: var(--hui-font-weight-bold);
+  line-height: var(--hui-line-height-heading);
+}
+
+.section__description {
+  margin: 0;
+  color: var(--hui-section-description-color, var(--_section-desc-color));
+  font-size: var(--hui-font-lg);
+  line-height: var(--hui-line-height);
+}
+
+::slotted([slot='title']),
+::slotted([slot='description']) {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+}

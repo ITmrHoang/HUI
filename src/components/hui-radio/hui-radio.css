@@ -1,0 +1,209 @@
+/*
+ * HUI Radio CSS
+ * Biến CSS override từ ngoài (đặt trên hui-radio, hui-radio-group, thẻ cha hoặc :root):
+ *   --hui-radio-size              Đường kính vòng tròn
+ *   --hui-radio-gap               Khoảng cách vòng tròn ↔ nhãn
+ *   --hui-radio-color             Màu khi được chọn
+ *   --hui-radio-border-color      Viền khi chưa chọn
+ *   --hui-radio-bg                Nền vòng tròn / nút
+ *   --hui-radio-label-color       Màu chữ nhãn
+ *   --hui-radio-font-size         Cỡ chữ nhãn
+ *   --hui-radio-button-height     Chiều cao dạng button
+ *   --hui-radio-button-padding-x  Đệm ngang dạng button
+ *   --hui-radio-button-radius     Bo góc 2 đầu nhóm nút
+ *   --hui-radio-solid-color       Chữ nút đang chọn (button-style="solid")
+ *   --hui-radio-focus-ring        box-shadow khi focus bàn phím
+ * Parts: base, control, dot, label · State: :state(checked)
+ * Thuộc tính do nhóm đặt: data-button, data-solid, data-size (sm|md|lg), data-disabled
+ */
+
+:host {
+  /* Biến nội bộ theo size */
+  --_radio-size: 16px;
+  --_radio-font-size: var(--hui-font-sm);
+  --_radio-btn-height: var(--hui-size-md);
+  --_radio-btn-padding-x: 15px;
+  --_radio-c: var(--hui-radio-color, var(--hui-primary));
+
+  display: inline-flex;
+  font-family: var(--hui-font-family);
+  vertical-align: middle;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:host([data-size='sm']) {
+  --_radio-size: 14px;
+  --_radio-font-size: var(--hui-font-xs);
+  --_radio-btn-height: var(--hui-size-sm);
+  --_radio-btn-padding-x: 7px;
+}
+
+:host([data-size='lg']) {
+  --_radio-size: 20px;
+  --_radio-font-size: var(--hui-font-base);
+  --_radio-btn-height: var(--hui-size-lg);
+  --_radio-btn-padding-x: 15px;
+}
+
+:host([data-disabled]) {
+  cursor: not-allowed;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ================== DẠNG MẶC ĐỊNH (vòng tròn) ================== */
+.hui-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-radio-gap, var(--hui-space-sm));
+  user-select: none;
+}
+
+.hui-radio__circle {
+  position: relative;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: var(--hui-radio-size, var(--_radio-size));
+  height: var(--hui-radio-size, var(--_radio-size));
+  border: 1px solid var(--_radio-invalid, var(--hui-radio-border-color, var(--hui-border)));
+  border-radius: 50%;
+  background: var(--hui-radio-bg, var(--hui-surface));
+  transition: border-color var(--hui-transition-fast), box-shadow var(--hui-transition-fast);
+}
+
+.hui-radio__dot {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  background: var(--_radio-c);
+  transform: scale(0);
+  transition: transform var(--hui-transition-fast);
+}
+
+:host(:hover:not([data-disabled])) .hui-radio__circle {
+  border-color: var(--_radio-c);
+}
+
+:host([checked]) .hui-radio__circle {
+  border-color: var(--_radio-c);
+}
+
+:host([checked]) .hui-radio__dot {
+  transform: scale(1);
+}
+
+:host(:focus-visible) .hui-radio__circle {
+  box-shadow: var(--hui-radio-focus-ring, 0 0 0 2px var(--hui-primary-light));
+  border-color: var(--_radio-c);
+}
+
+.hui-radio__label {
+  color: var(--hui-radio-label-color, var(--hui-text));
+  font-size: var(--hui-radio-font-size, var(--_radio-font-size));
+  line-height: var(--hui-line-height);
+}
+
+:host([data-disabled]) .hui-radio__circle {
+  background: var(--hui-fill-secondary);
+  border-color: var(--hui-border);
+}
+
+:host([data-disabled]) .hui-radio__dot {
+  background: var(--hui-text-disabled);
+}
+
+:host([data-disabled]) .hui-radio__label {
+  color: var(--hui-text-disabled);
+}
+
+/* ================== DẠNG NÚT (option-type="button") ================== */
+:host([data-button]) {
+  position: relative;
+}
+
+/* Nút liền nhau: viền trái chồng lên viền phải của nút trước */
+:host([data-button]:not(:first-of-type)) {
+  margin-inline-start: -1px;
+}
+
+:host([data-button]) .hui-radio__circle {
+  display: none;
+}
+
+:host([data-button]) .hui-radio {
+  box-sizing: border-box;
+  height: var(--hui-radio-button-height, var(--_radio-btn-height));
+  padding: 0 var(--hui-radio-button-padding-x, var(--_radio-btn-padding-x));
+  border: 1px solid var(--_radio-invalid, var(--hui-radio-border-color, var(--hui-border)));
+  background: var(--hui-radio-bg, var(--hui-surface));
+  transition: color var(--hui-transition-fast), background var(--hui-transition-fast),
+    border-color var(--hui-transition-fast), box-shadow var(--hui-transition-fast);
+}
+
+:host([data-button]:first-of-type) .hui-radio {
+  border-start-start-radius: var(--hui-radio-button-radius, var(--hui-radius));
+  border-end-start-radius: var(--hui-radio-button-radius, var(--hui-radius));
+}
+
+:host([data-button]:last-of-type) .hui-radio {
+  border-start-end-radius: var(--hui-radio-button-radius, var(--hui-radius));
+  border-end-end-radius: var(--hui-radio-button-radius, var(--hui-radius));
+}
+
+:host([data-button]:hover:not([data-disabled])) .hui-radio__label {
+  color: var(--_radio-c);
+}
+
+/* Nút đang chọn nổi lên trên để viền màu không bị nút bên cạnh che */
+:host([data-button][checked]) {
+  z-index: 1;
+}
+
+:host([data-button][checked]) .hui-radio {
+  border-color: var(--_radio-c);
+}
+
+:host([data-button][checked]) .hui-radio__label {
+  color: var(--_radio-c);
+}
+
+:host([data-solid][checked]) .hui-radio {
+  background: var(--_radio-c);
+}
+
+:host([data-solid][checked]) .hui-radio__label,
+:host([data-solid][checked]:hover) .hui-radio__label {
+  color: var(--hui-radio-solid-color, var(--hui-text-inverse));
+}
+
+:host([data-button]:focus-visible) {
+  z-index: 2;
+}
+
+:host([data-button]:focus-visible) .hui-radio {
+  box-shadow: var(--hui-radio-focus-ring, 0 0 0 2px var(--hui-primary-light));
+}
+
+:host([data-button][data-disabled]) .hui-radio {
+  background: var(--hui-fill-secondary);
+  border-color: var(--hui-border);
+}
+
+:host([data-button][data-disabled]) .hui-radio__label {
+  color: var(--hui-text-disabled);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-radio__circle,
+  .hui-radio__dot,
+  :host([data-button]) .hui-radio {
+    transition: none;
+  }
+}

@@ -1,0 +1,184 @@
+/*
+ * HUI List CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiList.
+ * Biến nội bộ --_list-* trên khung → hui-list-item con kế thừa (đệm, đường kẻ, kiểu thẻ lưới, bố cục).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-list {
+  /* md, không viền */
+  --_list-py: var(--hui-space-md);
+  --_list-px: 0px;
+  --_list-item-pad: var(--_list-py) var(--_list-px);
+  --_list-item-split-w: 0px;
+  --_list-item-card-w: 0px;
+  --_list-item-radius: 0;
+  --_list-item-bg: transparent;
+  /* Bố cục item: horizontal */
+  --_list-item-cols: minmax(0, 1fr) auto auto;
+  --_list-item-areas: "main actions extra";
+  --_list-item-align: center;
+  --_list-actions-ms: var(--hui-space-2xl);
+  --_list-actions-mt: 0px;
+  --_list-extra-ms: var(--hui-space-2xl);
+
+  position: relative;
+  box-sizing: border-box;
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+/* ================== SIZES ================== */
+.hui-list--sm { --_list-py: var(--hui-space-sm); }
+.hui-list--lg { --_list-py: var(--hui-space-lg); }
+
+/* ================== BORDERED ================== */
+.hui-list--bordered {
+  --_list-px: var(--hui-space-xl);
+  background: var(--hui-list-bg, var(--hui-bg-container));
+  border: 1px solid var(--hui-list-border-color, var(--hui-border));
+  border-radius: var(--hui-list-radius, var(--hui-radius-lg));
+}
+
+.hui-list--bordered.hui-list--sm { --_list-px: var(--hui-space-lg); }
+
+/* ================== SPLIT ================== */
+.hui-list--split {
+  --_list-item-split-w: 1px;
+}
+
+/* ================== VERTICAL ITEM LAYOUT ================== */
+.hui-list--vertical {
+  --_list-py: var(--hui-space-lg);
+  --_list-item-cols: minmax(0, 1fr) auto;
+  --_list-item-areas: "main extra" "actions extra";
+  --_list-item-align: start;
+  --_list-actions-ms: 0px;
+  --_list-actions-mt: var(--hui-space-md);
+  --_list-extra-ms: var(--hui-space-xl);
+}
+
+/* ================== HEADER / FOOTER ================== */
+.hui-list__header,
+.hui-list__footer {
+  padding: var(--_list-py) var(--_list-px);
+  background: var(--hui-list-header-bg, transparent);
+  color: var(--hui-text);
+}
+
+.hui-list--split .hui-list__header {
+  border-block-end: 1px solid var(--hui-list-split-color, var(--hui-border));
+}
+
+.hui-list--split .hui-list__footer {
+  border-block-start: 1px solid var(--hui-list-split-color, var(--hui-border));
+}
+
+/* ================== BODY / LOADING ================== */
+.hui-list__body {
+  position: relative;
+}
+
+.hui-list__body--loading {
+  min-height: 64px;
+}
+
+.hui-list__body--loading .hui-list__items {
+  opacity: 0.5;
+  transition: opacity var(--hui-transition);
+}
+
+.hui-list__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hui-list-loading-bg, color-mix(in srgb, var(--hui-bg) 40%, transparent));
+  z-index: 1;
+}
+
+.hui-list__data {
+  display: contents;
+}
+
+.hui-list__empty {
+  padding: var(--hui-space-lg) var(--_list-px);
+}
+
+/* ================== GRID (item dạng thẻ) ================== */
+.hui-list--grid {
+  --_list-item-pad: var(--hui-space-lg);
+  --_list-item-split-w: 0px;
+  --_list-item-card-w: 1px;
+  --_list-item-radius: var(--hui-list-card-radius, var(--hui-radius-lg));
+  --_list-item-bg: var(--hui-list-card-bg, var(--hui-bg-container));
+}
+
+.hui-list--grid .hui-list__items {
+  /* Mobile-first như Ant: breakpoint không đặt → dùng grid-column */
+  --_list-cols: var(--_list-col-xs, var(--_list-col, 1));
+  display: grid;
+  grid-template-columns: repeat(var(--_list-cols), minmax(0, 1fr));
+  gap: var(--_list-gutter, var(--hui-space-lg));
+}
+
+.hui-list--grid.hui-list--bordered .hui-list__items {
+  padding: var(--hui-space-lg);
+}
+
+@media (min-width: 576px) {
+  .hui-list--grid .hui-list__items {
+    --_list-cols: var(--_list-col-sm, var(--_list-col, 1));
+  }
+}
+
+@media (min-width: 768px) {
+  .hui-list--grid .hui-list__items {
+    --_list-cols: var(--_list-col-md, var(--_list-col-sm, var(--_list-col, 1)));
+  }
+}
+
+@media (min-width: 992px) {
+  .hui-list--grid .hui-list__items {
+    --_list-cols: var(--_list-col-lg, var(--_list-col-md, var(--_list-col-sm, var(--_list-col, 1))));
+  }
+}
+
+@media (min-width: 1200px) {
+  .hui-list--grid .hui-list__items {
+    --_list-cols: var(--_list-col-xl, var(--_list-col-lg, var(--_list-col-md, var(--_list-col-sm, var(--_list-col, 1)))));
+  }
+}
+
+@media (min-width: 1600px) {
+  .hui-list--grid .hui-list__items {
+    --_list-cols: var(--_list-col-xxl, var(--_list-col-xl, var(--_list-col-lg, var(--_list-col-md, var(--_list-col-sm, var(--_list-col, 1))))));
+  }
+}
+
+/* ================== PAGINATION ================== */
+.hui-list__pagination {
+  display: flex;
+  justify-content: var(--hui-list-pagination-justify, flex-end);
+  padding: var(--hui-space-lg) var(--_list-px);
+}
+
+.hui-list--bordered .hui-list__pagination {
+  border-block-start: 1px solid var(--hui-list-split-color, var(--hui-border));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-list__body--loading .hui-list__items {
+    transition: none;
+  }
+}

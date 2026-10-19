@@ -1,0 +1,92 @@
+/*
+ * HUI Space CSS
+ * Biến CSS override từ ngoài:
+ *   --hui-space-gap             Khoảng cách mặc định khi không có attribute size (--hui-space-sm = 8px)
+ *   --hui-space-split-color     Màu phân cách dạng chữ (--hui-text-muted)
+ *   --hui-space-compact-radius  Bo góc ngoài cùng khi compact (--hui-radius)
+ * Parts: base, item, split
+ */
+
+:host {
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+:host([block]) { display: flex; }
+:host([hidden]) { display: none; }
+
+.space {
+  display: inline-flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  column-gap: var(--_space-gap-x);
+  row-gap: var(--_space-gap-y);
+}
+
+.space--vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.space--wrap { flex-wrap: wrap; }
+
+/* ================== CĂN CHỈNH ================== */
+:host([align="start"]) .space { align-items: flex-start; }
+:host([align="center"]) .space { align-items: center; }
+:host([align="end"]) .space { align-items: flex-end; }
+:host([align="baseline"]) .space { align-items: baseline; }
+:host([align="stretch"]) .space { align-items: stretch; }
+
+.space__item {
+  display: flex;
+  min-width: 0;
+}
+
+.space--vertical .space__item {
+  flex-direction: column;
+}
+
+.space__split {
+  display: inline-flex;
+  align-items: center;
+  color: var(--hui-space-split-color, var(--hui-text-muted));
+}
+
+/* ================== COMPACT (gộp viền) ==================
+ * Ô liền nhau chồng viền 1px; bo góc chỉ giữ ở 2 đầu.
+ * Component HUI nhận bo góc qua biến công khai (--hui-button-radius...) — biến này nhận được
+ * giá trị 4 góc kiểu shorthand. Phần tử native (<button>, <input>) nhận border-radius trực tiếp. */
+.space--compact {
+  --_space-r: var(--hui-space-compact-radius, var(--hui-radius));
+  --_space-radius: 0;
+  gap: 0;
+}
+
+.space--compact .space__item:not(.space__item--first) { margin-inline-start: -1px; }
+.space--compact.space--vertical .space__item:not(.space__item--first) { margin-inline-start: 0; margin-block-start: -1px; }
+
+/* Ô đang hover / focus nổi lên trên để viền màu không bị ô bên cạnh che */
+.space--compact .space__item { position: relative; }
+.space--compact .space__item:hover,
+.space--compact .space__item:focus-within { z-index: 1; }
+
+/* Bo góc theo vị trí: ngang (trái / phải), dọc (trên / dưới) */
+.space--compact .space__item--first { --_space-radius: var(--_space-r) 0 0 var(--_space-r); }
+.space--compact .space__item--last { --_space-radius: 0 var(--_space-r) var(--_space-r) 0; }
+.space--compact .space__item--first.space__item--last { --_space-radius: var(--_space-r); }
+.space--compact.space--vertical .space__item--first { --_space-radius: var(--_space-r) var(--_space-r) 0 0; }
+.space--compact.space--vertical .space__item--last { --_space-radius: 0 0 var(--_space-r) var(--_space-r); }
+.space--compact.space--vertical .space__item--first.space__item--last { --_space-radius: var(--_space-r); }
+
+.space--compact ::slotted(*) {
+  --hui-button-radius: var(--_space-radius);
+  --hui-input-radius: var(--_space-radius);
+  --hui-select-radius: var(--_space-radius);
+  border-radius: var(--_space-radius);
+}
+
+/* block + compact: các ô giãn đều (hui-button cần thêm attribute block để nút bên trong giãn theo) */
+:host([block]) .space--compact .space__item { flex: 1 1 0; }
+:host([block]) .space--compact ::slotted(*) { flex: 1 1 auto; width: 100%; }

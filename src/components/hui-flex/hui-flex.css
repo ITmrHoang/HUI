@@ -1,0 +1,51 @@
+/*
+ * HUI Flex CSS — chính :host là flex container
+ * Biến CSS override từ ngoài:
+ *   --hui-flex-gap   Khoảng cách mặc định khi không có attribute gap (0)
+ * Attribute gap (từ khóa hoặc số) luôn thắng biến CSS. CSS ngoài `hui-flex { gap: … }` thắng tất cả.
+ */
+
+:host {
+  /* Reset biến nội bộ để hui-flex lồng nhau không kế thừa gap của thẻ cha */
+  --_flex-gap: initial;
+  --_flex-self: initial;
+
+  display: flex;
+  flex-direction: row;
+  gap: var(--_flex-gap, var(--hui-flex-gap, 0px));
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+:host([inline]) { display: inline-flex; }
+:host([vertical]) { flex-direction: column; }
+:host([hidden]) { display: none; }
+:host([flex]) { flex: var(--_flex-self); }
+
+/* ================== GAP (từ khóa) ================== */
+:host([gap="none"]) { --_flex-gap: 0px; }
+:host([gap="xs"]) { --_flex-gap: var(--hui-space-xs); }
+:host([gap="sm"]) { --_flex-gap: var(--hui-space-sm); }
+:host([gap="md"]) { --_flex-gap: var(--hui-space-lg); }
+:host([gap="lg"]) { --_flex-gap: var(--hui-space-xl); }
+:host([gap="xl"]) { --_flex-gap: var(--hui-space-2xl); }
+
+/* ================== WRAP ================== */
+:host([wrap]) { flex-wrap: wrap; }
+:host([wrap="wrap-reverse"]) { flex-wrap: wrap-reverse; }
+:host([wrap="nowrap"]) { flex-wrap: nowrap; }
+
+/* ================== ALIGN (align-items) ================== */
+:host([align="start"]), :host([align="flex-start"]) { align-items: flex-start; }
+:host([align="center"]) { align-items: center; }
+:host([align="end"]), :host([align="flex-end"]) { align-items: flex-end; }
+:host([align="stretch"]) { align-items: stretch; }
+:host([align="baseline"]) { align-items: baseline; }
+
+/* ================== JUSTIFY (justify-content) ================== */
+:host([justify="start"]), :host([justify="flex-start"]) { justify-content: flex-start; }
+:host([justify="center"]) { justify-content: center; }
+:host([justify="end"]), :host([justify="flex-end"]) { justify-content: flex-end; }
+:host([justify="between"]), :host([justify="space-between"]) { justify-content: space-between; }
+:host([justify="around"]), :host([justify="space-around"]) { justify-content: space-around; }
+:host([justify="evenly"]), :host([justify="space-evenly"]) { justify-content: space-evenly; }

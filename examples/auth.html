@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Đăng nhập / Đăng ký mẫu</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box;
+      font-family: var(--hui-font-family); background: var(--hui-bg-secondary); color: var(--hui-text); }
+    :not(:defined) { visibility: hidden; }
+    hui-card { width: min(440px, 100%); }
+  </style>
+  <script type="module">
+    import { message } from '../src/index.js';
+
+    const register = document.querySelector('#register');
+    // Luật tùy chỉnh: xác nhận mật khẩu phải khớp
+    register.querySelector('hui-form-item[name="confirm"]').rules = [{
+      validator: async (value, values) => {
+        if (value && value !== values.password) throw new Error('Mật khẩu xác nhận không khớp');
+      },
+    }];
+
+    for (const form of document.querySelectorAll('hui-form')) {
+      form.addEventListener('hui-submit', async (e) => {
+        message.loading('Đang gửi...', { key: 'auth', duration: 0 });
+        await new Promise((r) => setTimeout(r, 800));
+        message.success(`Thành công: ${JSON.stringify(e.detail.values)}`, { key: 'auth' });
+        window.__lastSubmit = e.detail.values;
+      });
+    }
+  </script>
+</head>
+<body>
+  <hui-card>
+    <hui-tabs active-key="login" centered>
+      <hui-tab-panel key="login" label="Đăng nhập">
+        <hui-form id="login" layout="vertical">
+          <hui-form-item label="Email" name="email" required type="email">
+            <hui-input name="email" placeholder="ban@vidu.com"><hui-icon slot="prefix" name="user"></hui-icon></hui-input>
+          </hui-form-item>
+          <hui-form-item label="Mật khẩu" name="password" required minlength="6">
+            <hui-input name="password" type="password" placeholder="Tối thiểu 6 ký tự"></hui-input>
+          </hui-form-item>
+          <hui-flex justify="between" align="center">
+            <hui-checkbox name="remember" checked>Ghi nhớ đăng nhập</hui-checkbox>
+            <hui-link href="#">Quên mật khẩu?</hui-link>
+          </hui-flex>
+          <hui-divider spacing="sm"></hui-divider>
+          <hui-button type="submit" block>Đăng nhập</hui-button>
+        </hui-form>
+      </hui-tab-panel>
+
+      <hui-tab-panel key="register" label="Đăng ký">
+        <hui-form id="register" layout="vertical">
+          <hui-form-item label="Họ tên" name="fullname" required>
+            <hui-input name="fullname"></hui-input>
+          </hui-form-item>
+          <hui-form-item label="Email" name="email" required type="email">
+            <hui-input name="email"></hui-input>
+          </hui-form-item>
+          <hui-form-item label="Mật khẩu" name="password" required minlength="6">
+            <hui-input name="password" type="password" show-count maxlength="32"></hui-input>
+          </hui-form-item>
+          <hui-form-item label="Xác nhận mật khẩu" name="confirm" required dependencies="password">
+            <hui-input name="confirm" type="password"></hui-input>
+          </hui-form-item>
+          <hui-form-item label="Bạn là" name="role">
+            <hui-radio-group name="role" value="dev" option-type="button">
+              <hui-radio value="dev">Lập trình viên</hui-radio>
+              <hui-radio value="design">Thiết kế</hui-radio>
+              <hui-radio value="other">Khác</hui-radio>
+            </hui-radio-group>
+          </hui-form-item>
+          <hui-form-item name="agree" required>
+            <hui-checkbox name="agree">Tôi đồng ý với điều khoản</hui-checkbox>
+          </hui-form-item>
+          <hui-button type="submit" block>Tạo tài khoản</hui-button>
+        </hui-form>
+      </hui-tab-panel>
+    </hui-tabs>
+  </hui-card>
+</body>
+</html>

@@ -1,0 +1,75 @@
+/*
+ * hui-skeleton-button / -input / -image / -avatar
+ * Biến CSS (ngoài các biến nền ở skeleton-base.css):
+ *   --hui-skeleton-button-width   Chiều rộng nút (mặc định 64px; block = 100%)
+ *   --hui-skeleton-input-width    Chiều rộng ô nhập (mặc định 160px; block = 100%)
+ *   --hui-skeleton-image-size     Kích thước ảnh (mặc định 96px)
+ * Kích thước sm | md | lg theo --hui-size-*; avatar nhận thêm số px.
+ * Part: base
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: top;
+  line-height: 0;
+}
+
+:host([block]) {
+  display: block;
+}
+
+.block {
+  --_skeleton-h: var(--hui-size-md);
+}
+
+.size--sm { --_skeleton-h: var(--hui-size-sm); }
+.size--lg { --_skeleton-h: var(--hui-size-lg); }
+
+/* Nút */
+.el--button {
+  width: var(--hui-skeleton-button-width, calc(var(--_skeleton-h) * 2));
+  height: var(--_skeleton-h);
+  border-radius: var(--hui-skeleton-radius, var(--hui-radius));
+}
+
+.el--button.shape--round { border-radius: 999px; }
+.el--button.shape--circle { width: var(--_skeleton-h); border-radius: 50%; }
+.el--button.shape--square { width: var(--_skeleton-h); }
+
+/* Ô nhập */
+.el--input {
+  width: var(--hui-skeleton-input-width, calc(var(--_skeleton-h) * 5));
+  height: var(--_skeleton-h);
+  border-radius: var(--hui-skeleton-radius, var(--hui-radius));
+}
+
+:host([block]) .el--button,
+:host([block]) .el--input {
+  width: 100%;
+}
+
+/* Avatar — --_skeleton-size (inline) khi size là số */
+.el--avatar {
+  width: var(--_skeleton-size, var(--_skeleton-h));
+  height: var(--_skeleton-size, var(--_skeleton-h));
+  border-radius: 50%;
+}
+
+.el--avatar.shape--square {
+  border-radius: var(--hui-skeleton-radius, var(--hui-radius-sm));
+}
+
+/* Ảnh: khối vuông có biểu tượng ảnh ở giữa */
+.el--image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--hui-skeleton-image-size, 96px);
+  height: var(--hui-skeleton-image-size, 96px);
+  color: var(--hui-text-disabled);
+}
+
+.el--image svg {
+  width: 40%;
+  height: 40%;
+}

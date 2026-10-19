@@ -5,7 +5,7 @@
 
 import { html } from 'lit';
 import { expect, waitFor } from 'storybook/test';
-import './index.js';
+import { modal } from './index.js';
 // Import button để dùng trong demo mở/đóng modal
 import '../hui-button/index.js';
 
@@ -39,24 +39,32 @@ Tab chạy vòng trong modal (xuyên Shadow DOM), khóa cuộn trang, đóng xon
 | \`open\` | boolean | \`false\` | Hiển thị/ẩn modal |
 | \`title\` | string | \`''\` | Tiêu đề modal |
 | \`size\` | string | \`md\` | Kích thước: sm, md, lg, full |
+| \`width\` | string | — | Chiều rộng: số (px) hoặc độ dài CSS — ưu tiên hơn \`size\` và \`--hui-modal-width\` |
+| \`centered\` | boolean | \`false\` | Căn giữa theo chiều dọc. Mặc định cách mép trên \`--hui-modal-top\` (giống Ant) |
 | \`closable\` | string | \`'true'\` | Cho phép đóng (nút X, ESC) |
 | \`close-on-overlay\` | string | \`'true'\` | Đóng khi click overlay |
+| \`mask-closable\` | string | — | Alias kiểu Ant của \`close-on-overlay\` (có giá trị thì ưu tiên hơn) |
+| \`destroy-on-close\` | boolean | \`false\` | Đóng xong gỡ nội dung dựng từ \`<template>\` con (mở lại → dựng mới) và reset các \`<form>\` bên trong |
 | \`ok-text\` | string | locale \`modal.ok\` | Chữ nút OK mặc định |
 | \`cancel-text\` | string | locale \`modal.cancel\` | Chữ nút Hủy mặc định |
+| \`ok-type\` | string | \`primary\` | Variant nút OK (\`primary\`, \`danger\`... của hui-button) |
+| \`confirm-loading\` | boolean | \`false\` | Nút OK hiện loading, chặn bấm lặp |
+| \`confirm-type\` | string | — | \`confirm\` \\| \`info\` \\| \`success\` \\| \`error\` \\| \`warning\` — bố cục hộp xác nhận (dùng bởi \`modal.confirm()\`): ẩn header, icon trước tiêu đề |
 | \`no-footer\` | boolean | \`false\` | Ẩn hẳn vùng footer |
 
 ### Events
 | Event | Mô tả |
 |-------|-------|
 | \`hui-open\` | Phát khi modal mở |
-| \`hui-close\` | Phát khi modal đóng |
+| \`hui-close\` | Phát khi modal bắt đầu đóng |
+| \`hui-after-close\` | Đã đóng xong (hết animation) |
 | \`hui-ok\` | Bấm nút OK mặc định. Cancelable: \`preventDefault()\` để giữ modal mở |
 | \`hui-cancel\` | Bấm Hủy / ✕ / Esc / click overlay. Cancelable: \`preventDefault()\` để giữ modal mở |
 
 ### Slots
 | Slot | Mô tả |
 |------|-------|
-| _(default)_ | Nội dung body chính |
+| _(default)_ | Nội dung body chính. Bọc trong \`<template>\` để chỉ dựng khi mở (kết hợp \`destroy-on-close\`) |
 | \`title\` | Tiêu đề tùy biến (thay attribute \`title\`) |
 | \`footer\` | Khu vực footer — thay cụm nút OK / Hủy mặc định |
 
@@ -67,11 +75,37 @@ Tab chạy vòng trong modal (xuyên Shadow DOM), khóa cuộn trang, đóng xon
 | \`close()\` | Đóng modal từ JS |
 | \`isOpen\` | (getter) Modal đang mở hay không |
 
+### Gọi bằng hàm — \`modal.confirm | info | success | error | warning(options)\`
+\`\`\`js
+import { modal } from 'hui-lib/hui-modal';
+const ok = await modal.confirm({ title: 'Xóa mục này?', content: 'Không thể hoàn tác.', okType: 'danger' });
+modal.confirm({ title: 'Gửi?', onOk: () => api.send() }); // onOk trả Promise → nút OK loading tới khi xong
+\`\`\`
+| Option | Type | Default | Mô tả |
+|--------|------|---------|-------|
+| \`title\` / \`content\` | string \\| Node | — | Tiêu đề / nội dung (chuỗi chèn dạng text) |
+| \`okText\` / \`cancelText\` | string | locale | Chữ nút |
+| \`okType\` | string | \`primary\` | Variant nút OK |
+| \`onOk\` | function | — | Trả Promise → nút OK loading tới khi resolve; reject → giữ hộp mở |
+| \`onCancel\` | function | — | Hủy / Esc |
+| \`width\` | number \\| string | \`416\` | Chiều rộng |
+| \`centered\` / \`maskClosable\` | boolean | \`false\` | Căn giữa / click mask để hủy |
+
+Trả về \`Promise<boolean>\` (\`true\` = OK) kèm \`.close()\`; \`modal.destroyAll()\` đóng mọi hộp đang mở.
+Chỉ \`confirm\` có nút Hủy; nút OK được focus sẵn.
+
+### Bàn phím
+| Phím | Tác dụng |
+|------|----------|
+| \`Esc\` | Đóng (phát \`hui-cancel\`) — chỉ lớp trên cùng |
+| \`Tab\` / \`Shift+Tab\` | Chạy vòng trong modal |
+
 ### Override giao diện từ bên ngoài
 | Biến CSS | Mô tả |
 |----------|-------|
-| \`--hui-modal-width\` | Chiều rộng (ghi đè size) |
+| \`--hui-modal-width\` | Chiều rộng (ghi đè size; attribute \`width\` ưu tiên hơn) |
 | \`--hui-modal-max-height\` | Chiều cao tối đa (90vh) |
+| \`--hui-modal-top\` | Khoảng cách tới mép trên khi không \`centered\` (min(100px, 10vh)) |
 | \`--hui-modal-bg\` / \`--hui-modal-color\` | Nền / màu chữ nội dung |
 | \`--hui-modal-radius\` / \`--hui-modal-shadow\` | Bo góc / đổ bóng |
 | \`--hui-modal-border-color\` | Đường kẻ header, footer |
@@ -80,7 +114,7 @@ Tab chạy vòng trong modal (xuyên Shadow DOM), khóa cuộn trang, đóng xon
 | \`--hui-modal-header-padding\` / \`--hui-modal-body-padding\` / \`--hui-modal-footer-padding\` | Padding từng vùng |
 | \`--hui-modal-title-font-size\` / \`--hui-modal-title-color\` | Tiêu đề |
 
-**Parts:** \`dialog\`, \`mask\`, \`panel\`, \`header\`, \`title\`, \`close\`, \`body\`, \`footer\`, \`ok-button\`, \`cancel-button\`.
+**Parts:** \`dialog\`, \`mask\`, \`panel\`, \`header\`, \`title\`, \`close\`, \`body\`, \`footer\`, \`ok-button\`, \`cancel-button\`, \`confirm-icon\`, \`confirm-title\`.
         `,
       },
     },
@@ -365,4 +399,147 @@ export const CustomizeFromOutside = {
       </hui-modal>
     </div>
   `,
+};
+
+/**
+ * Vị trí & chiều rộng — mặc định cách mép trên (Ant), `centered` căn giữa, `width` đặt chiều rộng tùy ý.
+ */
+export const CenteredAndWidth = {
+  render: () => html`
+    <div style="display: flex; gap: 12px; padding: 16px;">
+      <hui-button variant="outline" @hui-click=${() => openModal('modal-top')}>Mặc định (cách mép trên)</hui-button>
+      <hui-button variant="outline" @hui-click=${() => openModal('modal-centered')}>centered + width="720"</hui-button>
+    </div>
+    <hui-modal id="modal-top" title="Cách mép trên">
+      <p>Đặt <code>--hui-modal-top</code> để đổi khoảng cách.</p>
+    </hui-modal>
+    <hui-modal id="modal-centered" title="Căn giữa" centered width="720" mask-closable="false">
+      <p>Rộng 720px, click mask không đóng (<code>mask-closable="false"</code>).</p>
+    </hui-modal>
+  `,
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('#modal-centered');
+    const panel = el.shadowRoot.querySelector('[part="panel"]');
+    await expect(panel.style.getPropertyValue('--_modal-width-attr')).toBe('720px');
+    await expect(el.shadowRoot.querySelector('.wrap').classList.contains('wrap--centered')).toBe(true);
+
+    // mask-closable="false" → click mask không đóng; Esc vẫn đóng
+    const dialog = el.shadowRoot.querySelector('dialog');
+    el.open();
+    await waitFor(() => expect(dialog.open).toBe(true));
+    el.shadowRoot.querySelector('.wrap').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+    await new Promise((r) => setTimeout(r, 100));
+    await expect(el.isOpen).toBe(true);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await waitFor(() => expect(dialog.open).toBe(false), { timeout: 2000 });
+  },
+};
+
+/**
+ * Gọi bằng hàm — modal.confirm / info / success / error / warning trả Promise<boolean>.
+ * "Xóa (async)": onOk trả Promise → nút OK loading 1.5 giây rồi mới đóng.
+ */
+export const ConfirmApi = {
+  render: () => {
+    const result = (ok) => {
+      const out = document.querySelector('#confirm-result');
+      if (out) out.textContent = `Kết quả: ${ok}`;
+    };
+    return html`
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; padding: 16px;">
+        <hui-button @hui-click=${async () => result(await modal.confirm({ title: 'Bạn có chắc muốn rời trang?', content: 'Các thay đổi chưa lưu sẽ mất.' }))}>confirm</hui-button>
+        <hui-button variant="danger" @hui-click=${async () => result(await modal.confirm({
+          title: 'Xóa dự án này?',
+          content: 'Hành động không thể hoàn tác.',
+          okText: 'Xóa',
+          okType: 'danger',
+          onOk: () => new Promise((r) => setTimeout(r, 1500)),
+        }))}>Xóa (async)</hui-button>
+        <hui-button variant="outline" @hui-click=${() => modal.info({ title: 'Thông tin', content: 'Phiên bản 1.2.0' })}>info</hui-button>
+        <hui-button variant="outline" @hui-click=${() => modal.success({ title: 'Thành công', content: 'Đã gửi biểu mẫu.' })}>success</hui-button>
+        <hui-button variant="outline" @hui-click=${() => modal.error({ title: 'Lỗi', content: 'Không thể kết nối máy chủ.' })}>error</hui-button>
+        <hui-button variant="outline" @hui-click=${() => modal.warning({ title: 'Cảnh báo', content: 'Dung lượng sắp đầy.' })}>warning</hui-button>
+      </div>
+      <p id="confirm-result" style="padding: 0 16px;">Kết quả: —</p>
+    `;
+  },
+  // Kiểm thử: confirm có onOk async → OK loading → resolve true → modal tự gỡ khỏi body; Hủy → false
+  play: async () => {
+    const findModal = () => [...document.querySelectorAll('hui-modal[confirm-type]')].pop();
+    const inner = (btn) => btn.shadowRoot.querySelector('button');
+
+    let resolveOk;
+    const okDone = new Promise((r) => { resolveOk = r; });
+    const p = modal.confirm({ title: 'Xóa?', content: 'Test', onOk: () => okDone });
+    const el = findModal();
+    await expect(el.getAttribute('confirm-type')).toBe('confirm');
+    const dialog = el.shadowRoot.querySelector('dialog');
+    await waitFor(() => expect(dialog.open).toBe(true));
+    await expect(dialog.getAttribute('role')).toBe('alertdialog');
+    await expect(el.shadowRoot.querySelector('[part="header"]').hidden).toBe(true);
+
+    const okBtn = el.shadowRoot.querySelector('[part="ok-button"]');
+    inner(okBtn).click();
+    await waitFor(() => expect(okBtn.loading).toBe(true));
+    // Đang loading → Esc không đóng
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await expect(el.isOpen).toBe(true);
+
+    resolveOk();
+    await expect(await p).toBe(true);
+    await waitFor(() => expect(el.isConnected).toBe(false), { timeout: 2000 });
+
+    // Hủy → false; info chỉ có nút OK
+    const p2 = modal.confirm({ title: 'Hủy thử' });
+    const el2 = findModal();
+    await waitFor(() => expect(el2.shadowRoot.querySelector('dialog').open).toBe(true));
+    inner(el2.shadowRoot.querySelector('[part="cancel-button"]')).click();
+    await expect(await p2).toBe(false);
+
+    const p3 = modal.info({ title: 'Info' });
+    const el3 = findModal();
+    await expect(el3.shadowRoot.querySelector('[part="cancel-button"]').hidden).toBe(true);
+    p3.close();
+    await expect(await p3).toBe(false);
+    await waitFor(() => expect(document.querySelectorAll('hui-modal[confirm-type]').length).toBe(0), { timeout: 2000 });
+  },
+};
+
+/**
+ * destroy-on-close + <template>: nội dung chỉ dựng khi mở, đóng xong bị gỡ → mở lại là bản mới (ô nhập trống).
+ */
+export const DestroyOnClose = {
+  render: () => html`
+    <div style="padding: 16px;">
+      <hui-button @hui-click=${() => openModal('modal-destroy')}>Mở form</hui-button>
+    </div>
+    <hui-modal id="modal-destroy" title="Form mới mỗi lần mở" destroy-on-close>
+      <template>
+        <label>Tên: <input class="destroy-input" placeholder="Gõ gì đó rồi đóng" /></label>
+      </template>
+    </hui-modal>
+  `,
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('#modal-destroy');
+    const dialog = el.shadowRoot.querySelector('dialog');
+    await expect(el.querySelector('.destroy-input')).toBe(null);
+
+    el.open();
+    await waitFor(() => expect(dialog.open).toBe(true));
+    const input = el.querySelector('.destroy-input');
+    await expect(input).toBeTruthy();
+    input.value = 'abc';
+
+    let afterClose = 0;
+    el.addEventListener('hui-after-close', () => afterClose++);
+    el.close();
+    await waitFor(() => expect(afterClose).toBe(1), { timeout: 2000 });
+    await expect(el.querySelector('.destroy-input')).toBe(null);
+
+    el.open();
+    await waitFor(() => expect(dialog.open).toBe(true));
+    await expect(el.querySelector('.destroy-input').value).toBe('');
+    el.close();
+    await waitFor(() => expect(dialog.open).toBe(false), { timeout: 2000 });
+  },
 };

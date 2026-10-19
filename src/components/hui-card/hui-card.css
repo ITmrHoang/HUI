@@ -14,6 +14,7 @@
  *   --hui-card-cover-height     Chiều cao cover (attribute cover-height ưu tiên hơn)
  *   --hui-card-cover-width      Chiều rộng cover ở layout horizontal
  *   --hui-card-focus-color      Viền focus khi clickable
+ *   --hui-card-header-bg        Nền header (type="inner": --hui-fill-tertiary)
  * Biến nội bộ có tiền tố --_card- (tránh "rò" sang component lồng trong slot).
  */
 
@@ -86,6 +87,13 @@
 
 .hui-card--filled { --_card-bg: var(--hui-bg-secondary); }
 
+/* type="inner": card lồng trong card — đặt sau elevation để bỏ bóng */
+.hui-card--inner {
+  --_card-shadow: none;
+  --_card-border: var(--hui-border);
+  --_card-title-size: var(--hui-font-sm);
+}
+
 /* ================== HOVERABLE / CLICKABLE ================== */
 .hui-card--hoverable:hover {
   box-shadow: var(--hui-card-hover-shadow, var(--hui-shadow-lg));
@@ -141,6 +149,13 @@
 /* ================== HEADER ================== */
 .hui-card__header {
   padding: var(--_card-pad) var(--_card-pad) 0;
+  background: var(--hui-card-header-bg, transparent);
+}
+
+.hui-card--inner .hui-card__header {
+  padding: calc(var(--_card-pad) * 0.75) var(--_card-pad);
+  background: var(--hui-card-header-bg, var(--hui-fill-tertiary));
+  border-bottom: 1px solid var(--hui-card-divider-color, var(--hui-border));
 }
 
 .hui-card__header-default {

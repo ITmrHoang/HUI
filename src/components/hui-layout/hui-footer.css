@@ -1,0 +1,23 @@
+/*
+ * HUI Footer CSS
+ * Biến CSS override từ ngoài:
+ *   --hui-footer-padding       Khoảng đệm (24px 48px)
+ *   --hui-footer-bg            Màu nền (trong suốt)
+ *   --hui-footer-color         Màu chữ (--hui-text-secondary)
+ *   --hui-footer-font-size     Cỡ chữ (--hui-font-sm)
+ *   --hui-footer-border-color  Màu viền trên (transparent)
+ */
+
+:host {
+  display: block;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  padding: var(--hui-footer-padding, var(--hui-space-xl) var(--hui-space-3xl));
+  background: var(--hui-footer-bg, transparent);
+  color: var(--hui-footer-color, var(--hui-text-secondary));
+  font-size: var(--hui-footer-font-size, var(--hui-font-sm));
+  border-top: 1px solid var(--hui-footer-border-color, transparent);
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]) { display: none; }

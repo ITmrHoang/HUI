@@ -1,0 +1,275 @@
+/*
+ * HUI InputNumber CSS — cùng ngôn ngữ thiết kế với hui-input (cao, viền, focus ring, size, variant)
+ * Override: var(--hui-input-number-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-input-number-height               Chiều cao khung
+ *   --hui-input-number-padding-x            Khoảng đệm ngang của ô nhập
+ *   --hui-input-number-font-size            Cỡ chữ
+ *   --hui-input-number-radius               Bo góc
+ *   --hui-input-number-bg                   Màu nền
+ *   --hui-input-number-filled-bg            Màu nền variant filled
+ *   --hui-input-number-color                Màu chữ
+ *   --hui-input-number-placeholder-color    Màu placeholder
+ *   --hui-input-number-border-color         Màu viền
+ *   --hui-input-number-hover-border-color   Màu viền khi hover
+ *   --hui-input-number-focus-border-color   Màu viền khi focus
+ *   --hui-input-number-focus-shadow         Vòng sáng khi focus
+ *   --hui-input-number-label-color          Màu nhãn
+ *   --hui-input-number-affix-color          Màu prefix / suffix
+ *   --hui-input-number-controls-width       Bề ngang cột nút tăng/giảm
+ *   --hui-input-number-controls-color       Màu icon nút tăng/giảm
+ *   --hui-input-number-controls-hover-bg    Nền nút khi hover
+ *
+ * Parts: base, label, container, input, prefix, suffix, controls, increment, decrement, message
+ * State: :state(user-invalid) (vd: rangeOverflow sau khi rời ô), :state(filled), :state(disabled)
+ */
+
+:host {
+  display: inline-block;
+  width: 10rem;
+  vertical-align: top;
+  font-family: var(--hui-font-family);
+}
+
+:host([disabled]) {
+  pointer-events: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-input-number {
+  --_inum-border: var(--hui-input-number-border-color, var(--hui-border));
+  --_inum-hover-border: var(--hui-input-number-hover-border-color, var(--hui-border-hover));
+  --_inum-focus-border: var(--hui-input-number-focus-border-color, var(--hui-primary));
+  --_inum-focus-shadow: var(--hui-input-number-focus-shadow, var(--hui-focus-ring));
+  --_inum-bg: var(--hui-input-number-bg, var(--hui-bg));
+  --_inum-hover-bg: var(--_inum-bg);
+  --_inum-focus-bg: var(--_inum-bg);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+}
+
+.hui-input-number--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hui-input-number__label {
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-input-number-label-color, var(--hui-text));
+}
+
+.hui-input-number__label--required::after {
+  content: ' *';
+  color: var(--hui-danger);
+}
+
+/* ================== KHUNG VIỀN ================== */
+.hui-input-number__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--hui-input-number-height, var(--_inum-height));
+  overflow: hidden;
+  border: 1px solid var(--_inum-border);
+  border-radius: var(--hui-input-number-radius, var(--_inum-radius));
+  background: var(--_inum-bg);
+  transition: all var(--hui-transition);
+}
+
+.hui-input-number__container:hover {
+  border-color: var(--_inum-hover-border);
+  background: var(--_inum-hover-bg);
+}
+
+.hui-input-number__container:focus-within {
+  border-color: var(--_inum-focus-border);
+  background: var(--_inum-focus-bg);
+  box-shadow: var(--_inum-focus-shadow);
+}
+
+/* ================== VARIANT ================== */
+.hui-input-number--filled {
+  --_inum-border: transparent;
+  --_inum-hover-border: transparent;
+  --_inum-bg: var(--hui-input-number-filled-bg, var(--hui-fill-tertiary));
+  --_inum-hover-bg: var(--hui-fill-secondary);
+  --_inum-focus-bg: var(--hui-input-number-bg, var(--hui-bg));
+}
+
+/* ================== TRẠNG THÁI ================== */
+.hui-input-number--error,
+.hui-input-number--warning,
+.hui-input-number--success {
+  --_inum-border: var(--_inum-tone);
+  --_inum-hover-border: var(--_inum-tone);
+  --_inum-focus-border: var(--_inum-tone);
+}
+
+.hui-input-number--error {
+  --_inum-tone: var(--hui-danger);
+  --_inum-focus-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.hui-input-number--warning {
+  --_inum-tone: var(--hui-warning);
+  --_inum-focus-shadow: 0 0 0 3px var(--hui-warning-light);
+}
+
+.hui-input-number--success {
+  --_inum-tone: var(--hui-success);
+}
+
+:host(:state(user-invalid)) .hui-input-number {
+  --_inum-border: var(--hui-danger);
+  --_inum-hover-border: var(--hui-danger);
+  --_inum-focus-border: var(--hui-danger);
+  --_inum-focus-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.hui-input-number--borderless .hui-input-number__container,
+.hui-input-number--borderless .hui-input-number__container:hover,
+.hui-input-number--borderless .hui-input-number__container:focus-within {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ================== KÍCH THƯỚC ================== */
+.hui-input-number--sm {
+  --_inum-height: var(--hui-size-sm);
+  --_inum-radius: var(--hui-radius-sm);
+  --_inum-padding-x: 8px;
+  --_inum-font-size: var(--hui-font-xs);
+}
+
+.hui-input-number--md {
+  --_inum-height: var(--hui-size-md);
+  --_inum-radius: var(--hui-radius);
+  --_inum-padding-x: 12px;
+  --_inum-font-size: var(--hui-font-sm);
+}
+
+.hui-input-number--lg {
+  --_inum-height: var(--hui-size-lg);
+  --_inum-radius: var(--hui-radius-md);
+  --_inum-padding-x: 16px;
+  --_inum-font-size: var(--hui-font-base);
+}
+
+/* ================== Ô NHẬP ================== */
+.hui-input-number__field {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 var(--hui-input-number-padding-x, var(--_inum-padding-x));
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--hui-input-number-font-size, var(--_inum-font-size));
+  font-variant-numeric: tabular-nums;
+  color: var(--hui-input-number-color, var(--hui-text));
+}
+
+.hui-input-number__field::placeholder {
+  color: var(--hui-input-number-placeholder-color, var(--hui-text-muted));
+}
+
+.hui-input-number__field:disabled {
+  cursor: not-allowed;
+}
+
+/* prefix có mặt → ô nhập bớt đệm trái cho sát chữ */
+.hui-input-number__prefix:not([hidden]) + .hui-input-number__field {
+  padding-left: var(--hui-space-xs);
+}
+
+.hui-input-number__prefix,
+.hui-input-number__suffix {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--hui-input-number-affix-color, var(--hui-text-muted));
+  font-size: var(--hui-input-number-font-size, var(--_inum-font-size));
+}
+
+.hui-input-number__prefix {
+  padding-left: var(--hui-input-number-padding-x, var(--_inum-padding-x));
+}
+
+.hui-input-number__suffix {
+  padding-right: var(--hui-space-sm);
+}
+
+/* ================== NÚT TĂNG / GIẢM ================== */
+.hui-input-number__controls {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-self: stretch;
+  width: var(--hui-input-number-controls-width, 1.5rem);
+  border-left: 1px solid var(--hui-input-number-border-color, var(--hui-border));
+}
+
+.hui-input-number__step {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--hui-input-number-controls-color, var(--hui-text-muted));
+  font-size: 0.75em;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast), flex-grow var(--hui-transition-fast);
+}
+
+.hui-input-number__step + .hui-input-number__step {
+  border-top: 1px solid var(--hui-input-number-border-color, var(--hui-border));
+}
+
+/* Nút đang hover nở to hơn (giống Ant) */
+.hui-input-number__step:hover:not(:disabled) {
+  flex-grow: 1.5;
+  background: var(--hui-input-number-controls-hover-bg, var(--hui-fill-tertiary));
+  color: var(--_inum-focus-border);
+}
+
+.hui-input-number__step:active:not(:disabled) {
+  background: var(--hui-fill-secondary);
+}
+
+.hui-input-number__step:disabled {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+/* ================== THÔNG BÁO ================== */
+.hui-input-number__message {
+  font-size: var(--hui-font-xs);
+  min-height: 1.25rem;
+}
+
+.hui-input-number__message--error { color: var(--hui-danger); }
+.hui-input-number__message--success { color: var(--hui-success); }
+.hui-input-number__message--hint { color: var(--hui-text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-input-number__container,
+  .hui-input-number__step {
+    transition: none;
+  }
+}

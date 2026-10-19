@@ -1,0 +1,236 @@
+/*
+ * HUI Textarea CSS — cùng ngôn ngữ thiết kế với hui-input (viền, focus ring, size, variant, trạng thái)
+ * Override: var(--hui-textarea-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-textarea-padding               Khoảng đệm trong ô
+ *   --hui-textarea-font-size             Cỡ chữ
+ *   --hui-textarea-line-height           Chiều cao dòng
+ *   --hui-textarea-radius                Bo góc
+ *   --hui-textarea-bg                    Màu nền
+ *   --hui-textarea-filled-bg             Màu nền variant filled
+ *   --hui-textarea-color                 Màu chữ
+ *   --hui-textarea-placeholder-color     Màu placeholder
+ *   --hui-textarea-border-color          Màu viền
+ *   --hui-textarea-hover-border-color    Màu viền khi hover
+ *   --hui-textarea-focus-border-color    Màu viền khi focus
+ *   --hui-textarea-focus-shadow          Vòng sáng khi focus
+ *   --hui-textarea-label-color           Màu nhãn
+ *   --hui-textarea-label-font-size       Cỡ chữ nhãn
+ *   --hui-textarea-count-color           Màu chữ bộ đếm
+ *
+ * Parts: base, label, textarea, footer, message, count
+ * State: :state(user-invalid), :state(filled), :state(disabled)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([disabled]) {
+  pointer-events: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-textarea {
+  --_textarea-border: var(--hui-textarea-border-color, var(--hui-border));
+  --_textarea-hover-border: var(--hui-textarea-hover-border-color, var(--hui-border-hover));
+  --_textarea-focus-border: var(--hui-textarea-focus-border-color, var(--hui-primary));
+  --_textarea-focus-shadow: var(--hui-textarea-focus-shadow, var(--hui-focus-ring));
+  --_textarea-bg: var(--hui-textarea-bg, var(--hui-bg));
+  --_textarea-hover-bg: var(--_textarea-bg);
+  --_textarea-focus-bg: var(--_textarea-bg);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+}
+
+.hui-textarea--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hui-textarea--label-inline {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.hui-textarea__group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: var(--hui-space-xs);
+}
+
+.hui-textarea__label {
+  font-size: var(--hui-textarea-label-font-size, var(--hui-font-sm));
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-textarea-label-color, var(--hui-text));
+}
+
+.hui-textarea--label-inline .hui-textarea__label {
+  flex-shrink: 0;
+  margin-right: var(--hui-space-sm);
+  padding-top: var(--_textarea-padding-y);
+}
+
+.hui-textarea__label--required::after {
+  content: ' *';
+  color: var(--hui-danger);
+}
+
+/* ================== Ô NHẬP (cũng là khung viền) ================== */
+.hui-textarea__field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--hui-textarea-padding, var(--_textarea-padding-y) var(--_textarea-padding-x));
+  border: 1px solid var(--_textarea-border);
+  border-radius: var(--hui-textarea-radius, var(--_textarea-radius));
+  outline: none;
+  background: var(--_textarea-bg);
+  font-family: inherit;
+  font-size: var(--hui-textarea-font-size, var(--_textarea-font-size));
+  line-height: var(--hui-textarea-line-height, var(--hui-line-height, 1.5));
+  color: var(--hui-textarea-color, var(--hui-text));
+  resize: vertical;
+  transition: border-color var(--hui-transition), box-shadow var(--hui-transition), background var(--hui-transition);
+}
+
+.hui-textarea--resize-none .hui-textarea__field { resize: none; }
+.hui-textarea--resize-both .hui-textarea__field { resize: both; }
+
+.hui-textarea__field::placeholder {
+  color: var(--hui-textarea-placeholder-color, var(--hui-text-muted));
+}
+
+.hui-textarea__field:hover {
+  border-color: var(--_textarea-hover-border);
+  background: var(--_textarea-hover-bg);
+}
+
+.hui-textarea__field:focus {
+  border-color: var(--_textarea-focus-border);
+  background: var(--_textarea-focus-bg);
+  box-shadow: var(--_textarea-focus-shadow);
+}
+
+.hui-textarea__field:disabled {
+  cursor: not-allowed;
+}
+
+/* ================== VARIANT ================== */
+.hui-textarea--filled {
+  --_textarea-border: transparent;
+  --_textarea-hover-border: transparent;
+  --_textarea-bg: var(--hui-textarea-filled-bg, var(--hui-fill-tertiary));
+  --_textarea-hover-bg: var(--hui-fill-secondary);
+  --_textarea-focus-bg: var(--hui-textarea-bg, var(--hui-bg));
+}
+
+/* ================== TRẠNG THÁI ================== */
+.hui-textarea--error,
+.hui-textarea--warning,
+.hui-textarea--success {
+  --_textarea-border: var(--_textarea-tone);
+  --_textarea-hover-border: var(--_textarea-tone);
+  --_textarea-focus-border: var(--_textarea-tone);
+}
+
+.hui-textarea--error {
+  --_textarea-tone: var(--hui-danger);
+  --_textarea-focus-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.hui-textarea--warning {
+  --_textarea-tone: var(--hui-warning);
+  --_textarea-focus-shadow: 0 0 0 3px var(--hui-warning-light);
+}
+
+.hui-textarea--success {
+  --_textarea-tone: var(--hui-success);
+}
+
+.hui-textarea--error .hui-textarea__label {
+  color: var(--hui-danger);
+}
+
+:host(:state(user-invalid)) .hui-textarea {
+  --_textarea-border: var(--hui-danger);
+  --_textarea-hover-border: var(--hui-danger);
+  --_textarea-focus-border: var(--hui-danger);
+  --_textarea-focus-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.hui-textarea--borderless .hui-textarea__field,
+.hui-textarea--borderless .hui-textarea__field:hover,
+.hui-textarea--borderless .hui-textarea__field:focus {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ================== KÍCH THƯỚC — 1 dòng cao bằng hui-input cùng size ================== */
+.hui-textarea--sm {
+  --_textarea-padding-y: 3px;
+  --_textarea-padding-x: 8px;
+  --_textarea-radius: var(--hui-radius-sm);
+  --_textarea-font-size: var(--hui-font-xs);
+}
+
+.hui-textarea--md {
+  --_textarea-padding-y: 4.5px;
+  --_textarea-padding-x: 12px;
+  --_textarea-radius: var(--hui-radius);
+  --_textarea-font-size: var(--hui-font-sm);
+}
+
+.hui-textarea--lg {
+  --_textarea-padding-y: 6px;
+  --_textarea-padding-x: 16px;
+  --_textarea-radius: var(--hui-radius-md);
+  --_textarea-font-size: var(--hui-font-base);
+}
+
+/* ================== CHÂN: THÔNG BÁO + BỘ ĐẾM ================== */
+.hui-textarea__footer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hui-space-sm);
+  min-height: 1.25rem;
+  font-size: var(--hui-font-xs);
+}
+
+.hui-textarea__message {
+  flex: 1;
+  min-width: 0;
+}
+
+.hui-textarea__message--error { color: var(--hui-danger); }
+.hui-textarea__message--success { color: var(--hui-success); }
+.hui-textarea__message--hint { color: var(--hui-text-muted); }
+
+.hui-textarea__count {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--hui-textarea-count-color, var(--hui-text-muted));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.hui-textarea__count--exceed {
+  color: var(--hui-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-textarea__field {
+    transition: none;
+  }
+}

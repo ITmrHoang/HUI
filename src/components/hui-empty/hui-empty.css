@@ -1,0 +1,56 @@
+/*
+ * HUI Empty CSS
+ *   --hui-empty-image-height  Chiều cao hình (mặc định 100px; simple: 40px)
+ *   --hui-empty-color         Màu chữ mô tả
+ *   --hui-empty-font-size     Cỡ chữ mô tả
+ *   --hui-empty-padding       Khoảng đệm khung
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-empty {
+  --_empty-image-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  padding: var(--hui-empty-padding, var(--hui-space-xl) var(--hui-space-lg));
+  text-align: center;
+}
+
+:host([data-simple]) .hui-empty {
+  --_empty-image-height: 40px;
+  padding: var(--hui-empty-padding, var(--hui-space-md));
+}
+
+.hui-empty__image {
+  height: var(--hui-empty-image-height, var(--_empty-image-height));
+  display: flex;
+  justify-content: center;
+}
+
+.hui-empty__image svg {
+  height: 100%;
+  width: auto;
+}
+
+::slotted([slot='image']) {
+  max-height: var(--hui-empty-image-height, var(--_empty-image-height));
+}
+
+.hui-empty__description {
+  color: var(--hui-empty-color, var(--hui-text-tertiary));
+  font-size: var(--hui-empty-font-size, var(--hui-font-sm));
+  line-height: var(--hui-line-height);
+}
+
+.hui-empty__footer {
+  margin-top: var(--hui-space-sm);
+}

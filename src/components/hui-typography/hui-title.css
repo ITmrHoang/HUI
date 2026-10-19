@@ -1,0 +1,34 @@
+/*
+ * HUI Title CSS
+ * Biến CSS override từ ngoài:
+ *   --hui-title-color        Màu chữ khi không có type
+ *   --hui-title-font-size    Cỡ chữ (mặc định theo level: --hui-font-h1 … --hui-font-h5)
+ *   --hui-title-font-weight  Độ đậm (600)
+ *   --hui-title-line-height  Chiều cao dòng (--hui-line-height-heading)
+ *   --hui-title-margin       Lề ngoài (0 0 0.5em)
+ */
+
+:host {
+  display: block;
+  margin: var(--hui-title-margin, 0 0 0.5em);
+  font-family: var(--hui-font-family);
+}
+
+.typo {
+  --_title-size: var(--hui-font-h1);
+  color: var(--hui-title-color, var(--hui-text));
+  font-size: var(--hui-title-font-size, var(--_title-size));
+  font-weight: var(--hui-title-font-weight, var(--hui-font-weight-semibold));
+  line-height: var(--hui-title-line-height, var(--hui-line-height-heading));
+}
+
+.typo--h2 { --_title-size: var(--hui-font-h2); }
+.typo--h3 { --_title-size: var(--hui-font-h3); }
+.typo--h4 { --_title-size: var(--hui-font-h4); }
+.typo--h5 { --_title-size: var(--hui-font-h5); }
+
+/* Nút sao chép nhỏ hơn chữ tiêu đề một chút */
+.typo__actions {
+  font-size: 0.75em;
+  align-self: center;
+}

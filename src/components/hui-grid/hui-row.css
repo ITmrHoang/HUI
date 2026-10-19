@@ -1,0 +1,39 @@
+/*
+ * HUI Row CSS
+ * Biến CSS override từ ngoài:
+ *   --hui-row-gutter-x   Khoảng cách ngang mặc định khi không có attribute gutter (0)
+ *   --hui-row-gutter-y   Khoảng cách dọc mặc định (0)
+ * Part: base (khung flex, margin âm = gutter / 2 để cột ngoài cùng sát mép)
+ */
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+:host([hidden]) { display: none; }
+
+.row {
+  display: flex;
+  flex-flow: row wrap;
+  min-width: 0;
+  margin-inline: calc(var(--_row-gx, 0px) / -2);
+  row-gap: var(--_row-gy, 0px);
+}
+
+.row--nowrap { flex-wrap: nowrap; }
+
+/* ================== ALIGN (căn dọc) ================== */
+:host([align="top"]) .row { align-items: flex-start; }
+:host([align="middle"]) .row { align-items: center; }
+:host([align="bottom"]) .row { align-items: flex-end; }
+:host([align="stretch"]) .row { align-items: stretch; }
+:host([align="baseline"]) .row { align-items: baseline; }
+
+/* ================== JUSTIFY (căn ngang) ================== */
+:host([justify="start"]) .row { justify-content: flex-start; }
+:host([justify="end"]) .row { justify-content: flex-end; }
+:host([justify="center"]) .row { justify-content: center; }
+:host([justify="space-around"]) .row, :host([justify="around"]) .row { justify-content: space-around; }
+:host([justify="space-between"]) .row, :host([justify="between"]) .row { justify-content: space-between; }
+:host([justify="space-evenly"]) .row, :host([justify="evenly"]) .row { justify-content: space-evenly; }

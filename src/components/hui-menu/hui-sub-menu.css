@@ -1,0 +1,25 @@
+/* hui-sub-menu: tiêu đề dùng chung style với hui-menu-item (.item), phần dưới là khung chứa item con */
+
+.popup {
+  box-sizing: border-box;
+}
+
+/* Inline: mở rộng ngay trong menu (chiều cao animate bằng utils/motion collapse) */
+.popup--inline {
+  margin: 0;
+  padding: 0;
+  background: var(--hui-menu-sub-bg, var(--_menu-sub-bg, transparent));
+}
+
+/* Vertical / horizontal: popup nổi trên top-layer (utils/floating) */
+.popup--floating {
+  min-width: var(--hui-menu-popup-min-width, 160px);
+  max-height: var(--hui-menu-popup-max-height, 70vh);
+  overflow: auto;
+  padding: 4px 0;
+  border-radius: var(--hui-menu-popup-radius, var(--hui-radius-lg));
+  background: var(--hui-menu-popup-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-menu-popup-shadow, var(--hui-shadow-lg));
+  color: var(--hui-text);
+  font-family: var(--hui-font-family);
+}

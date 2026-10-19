@@ -1,0 +1,29 @@
+/* HUI Descriptions Item CSS — đọc biến nội bộ --_desc-* từ hui-descriptions cha */
+
+:host {
+  display: contents;
+}
+
+.hui-descriptions-item__label,
+.hui-descriptions-item__content {
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+
+.hui-descriptions-item__label {
+  padding: var(--hui-descriptions-cell-padding, var(--_desc-label-pad, 0 var(--hui-space-sm) var(--hui-space-lg) 0));
+  background: var(--_desc-label-bg, transparent);
+  color: var(--hui-descriptions-label-color, var(--hui-text-secondary));
+}
+
+/* Không viền + horizontal: dấu ":" sau nhãn */
+.hui-descriptions-item__label::after {
+  content: var(--_desc-label-after, '');
+  margin-inline-start: 1px;
+}
+
+.hui-descriptions-item__content {
+  padding: var(--hui-descriptions-cell-padding, var(--_desc-content-pad, 0 var(--hui-space-lg) var(--hui-space-lg) 0));
+  background: var(--_desc-content-bg, transparent);
+  color: var(--hui-descriptions-content-color, var(--hui-text));
+}

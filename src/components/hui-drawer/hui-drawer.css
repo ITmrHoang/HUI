@@ -1,0 +1,192 @@
+/*
+ * HUI Drawer CSS
+ * Biến CSS (đặt ở :root, thẻ cha hoặc chính <hui-drawer>):
+ *   --hui-drawer-size             Rộng (left/right) hoặc cao (top/bottom) — attribute size dạng độ dài CSS ưu tiên hơn
+ *   --hui-drawer-bg               Nền
+ *   --hui-drawer-color            Màu chữ nội dung
+ *   --hui-drawer-shadow           Đổ bóng
+ *   --hui-drawer-mask-bg          Nền lớp phủ
+ *   --hui-drawer-border-color     Đường kẻ header / footer
+ *   --hui-drawer-header-padding   Padding header
+ *   --hui-drawer-body-padding     Padding body
+ *   --hui-drawer-footer-padding   Padding footer
+ *   --hui-drawer-title-font-size  Cỡ chữ tiêu đề
+ *   --hui-drawer-title-color      Màu tiêu đề
+ *   --hui-drawer-push-distance    Khoảng đẩy drawer cha khi mở drawer con (mặc định 180px)
+ * Parts: dialog, mask, panel, header, close, title, extra, body, footer
+ */
+
+:host {
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* <dialog> phủ toàn màn hình, trong suốt; mask + panel nằm bên trong */
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: hidden;
+  z-index: var(--hui-z-modal);
+}
+
+/* mask="false": hiển thị bằng Popover API (không modal) → trang bên dưới vẫn thao tác được */
+.dialog:popover-open {
+  display: block;
+  pointer-events: none;
+}
+
+.dialog:popover-open .wrapper {
+  pointer-events: auto;
+}
+
+.dialog::backdrop {
+  background: transparent;
+}
+
+.dialog:focus,
+.panel:focus {
+  outline: none;
+}
+
+.mask {
+  position: absolute;
+  inset: 0;
+  background: var(--hui-drawer-mask-bg, var(--hui-overlay));
+}
+
+/* .wrapper: neo vào mép + kích thước + hiệu ứng "đẩy" khi có drawer con; .panel: animation trượt vào/ra */
+.wrapper {
+  --_drawer-size: var(--_drawer-size-attr, var(--hui-drawer-size, var(--_drawer-preset, 378px)));
+
+  position: absolute;
+  box-sizing: border-box;
+  transition: transform var(--hui-transition-slow);
+}
+
+.wrapper--large { --_drawer-preset: 736px; }
+
+.wrapper--right,
+.wrapper--left {
+  top: 0;
+  bottom: 0;
+  width: var(--_drawer-size);
+  max-width: 100vw;
+}
+
+.wrapper--right { right: 0; }
+.wrapper--left { left: 0; }
+
+.wrapper--top,
+.wrapper--bottom {
+  left: 0;
+  right: 0;
+  height: var(--_drawer-size);
+  max-height: 100vh;
+}
+
+.wrapper--top { top: 0; }
+.wrapper--bottom { bottom: 0; }
+
+/* Drawer con đang mở → drawer cha lùi vào trong */
+.wrapper--right.wrapper--pushed { transform: translateX(calc(-1 * var(--hui-drawer-push-distance, 180px))); }
+.wrapper--left.wrapper--pushed { transform: translateX(var(--hui-drawer-push-distance, 180px)); }
+.wrapper--top.wrapper--pushed { transform: translateY(var(--hui-drawer-push-distance, 180px)); }
+.wrapper--bottom.wrapper--pushed { transform: translateY(calc(-1 * var(--hui-drawer-push-distance, 180px))); }
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  background: var(--hui-drawer-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-drawer-shadow, var(--hui-shadow-xl));
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  padding: var(--hui-drawer-header-padding, 16px 24px);
+  border-bottom: 1px solid var(--hui-drawer-border-color, var(--hui-border-secondary));
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--hui-drawer-title-font-size, var(--hui-font-base));
+  font-weight: var(--hui-font-weight-semibold, 600);
+  line-height: 1.5;
+  color: var(--hui-drawer-title-color, var(--hui-text));
+}
+
+.extra {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  flex-shrink: 0;
+}
+
+.close {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-inline-start: -4px;
+  padding: 0;
+  border: none;
+  border-radius: var(--hui-radius);
+  background: transparent;
+  color: var(--hui-text-muted);
+  font-size: var(--hui-font-lg);
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.close:hover {
+  background: var(--hui-fill-secondary);
+  color: var(--hui-text);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 1px;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--hui-drawer-body-padding, 24px);
+  overflow: auto;
+  color: var(--hui-drawer-color, var(--hui-text-secondary));
+  line-height: var(--hui-line-height);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--hui-space-sm);
+  padding: var(--hui-drawer-footer-padding, 10px 16px);
+  border-top: 1px solid var(--hui-drawer-border-color, var(--hui-border-secondary));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrapper { transition: none; }
+}

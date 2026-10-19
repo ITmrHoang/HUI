@@ -1,0 +1,168 @@
+/* HUI Pagination — biến công khai var(--hui-pagination-*, mặc định); nội bộ --_pg-* đổi theo size */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.pagination {
+  --_pg-size: var(--hui-size-md);
+  --_pg-font: var(--hui-font-sm);
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-pagination-gap, var(--hui-space-sm));
+  font-size: var(--hui-pagination-font-size, var(--_pg-font));
+  line-height: var(--hui-line-height, 1.5);
+}
+
+.pagination--sm {
+  --_pg-size: var(--hui-size-sm);
+  --_pg-font: var(--hui-font-sm);
+}
+
+.total {
+  margin-inline-end: var(--hui-space-xs);
+  color: var(--hui-text-secondary);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-pagination-gap, var(--hui-space-sm));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pagination--sm .list { gap: var(--hui-pagination-gap, 2px); }
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: var(--hui-pagination-item-size, var(--_pg-size));
+  height: var(--hui-pagination-item-size, var(--_pg-size));
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: var(--hui-pagination-item-radius, var(--hui-radius));
+  background: var(--hui-pagination-item-bg, transparent);
+  color: var(--hui-pagination-item-color, var(--hui-text));
+  font: inherit;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--hui-transition-fast), color var(--hui-transition-fast), border-color var(--hui-transition-fast);
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--hui-pagination-item-hover-bg, var(--hui-fill-secondary));
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--hui-focus-ring);
+}
+
+.btn[aria-current='page'] {
+  border-color: var(--hui-pagination-active-border-color, var(--hui-primary));
+  background: var(--hui-pagination-active-bg, var(--hui-bg-container));
+  color: var(--hui-pagination-active-color, var(--hui-primary));
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.btn[aria-current='page']:hover:not(:disabled) {
+  background: var(--hui-pagination-active-bg, var(--hui-bg-container));
+  color: var(--hui-primary-hover);
+  border-color: var(--hui-primary-hover);
+}
+
+.btn:disabled {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.btn[aria-current='page']:disabled {
+  border-color: var(--hui-border);
+  background: var(--hui-fill-tertiary);
+}
+
+/* "•••" → hover / focus hiện mũi tên (giống Ant) */
+.btn--jump-prev .jump-icon,
+.btn--jump-next .jump-icon { display: none; color: var(--hui-primary); }
+
+.btn--jump-prev .dots,
+.btn--jump-next .dots {
+  color: var(--hui-text-tertiary);
+  letter-spacing: 1px;
+  font-size: 0.75em;
+}
+
+.btn--jump-prev:is(:hover, :focus-visible):not(:disabled) .jump-icon,
+.btn--jump-next:is(:hover, :focus-visible):not(:disabled) .jump-icon { display: inline-flex; }
+
+.btn--jump-prev:is(:hover, :focus-visible):not(:disabled) .dots,
+.btn--jump-next:is(:hover, :focus-visible):not(:disabled) .dots { display: none; }
+
+/* === Simple === */
+.simple {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+}
+
+.simple__sep { color: var(--hui-text-tertiary); }
+
+/* === Ô nhập (quick jumper + simple) === */
+.jumper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  color: var(--hui-text-secondary);
+  white-space: nowrap;
+}
+
+.jumper-input {
+  box-sizing: border-box;
+  width: 52px;
+  height: var(--hui-pagination-item-size, var(--_pg-size));
+  padding: 0 8px;
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-pagination-item-radius, var(--hui-radius));
+  background: var(--hui-bg-container);
+  color: var(--hui-text);
+  font: inherit;
+  text-align: center;
+  transition: border-color var(--hui-transition-fast), box-shadow var(--hui-transition-fast);
+}
+
+.jumper-input:hover:not(:disabled) { border-color: var(--hui-primary-hover); }
+
+.jumper-input:focus {
+  outline: none;
+  border-color: var(--hui-primary);
+  box-shadow: var(--hui-focus-ring);
+}
+
+.jumper-input:disabled {
+  background: var(--hui-fill-tertiary);
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.size-changer {
+  min-width: 110px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .jumper-input { transition: none; }
+}

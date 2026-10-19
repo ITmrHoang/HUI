@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Trang quản trị mẫu</title>
+  <style>
+    html, body { margin: 0; height: 100%; font-family: var(--hui-font-family); background: var(--hui-bg-secondary); color: var(--hui-text); }
+    :not(:defined) { visibility: hidden; }
+    hui-layout { min-height: 100vh; }
+    .brand { color: #fff; font-weight: 700; padding: 16px 24px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 24px; height: 56px;
+      background: var(--hui-bg-container); border-bottom: 1px solid var(--hui-border); }
+    .page { padding: 24px; display: grid; gap: 16px; }
+  </style>
+  <script type="module">
+    import { notification, modal } from '../src/index.js';
+
+    const users = [
+      { title: 'Nguyễn Văn An', description: 'an.nguyen@vidu.com · Quản trị viên' },
+      { title: 'Trần Thị Bình', description: 'binh.tran@vidu.com · Biên tập viên' },
+      { title: 'Lê Hoàng Cường', description: 'cuong.le@vidu.com · Thành viên' },
+      { title: 'Phạm Minh Dung', description: 'dung.pham@vidu.com · Thành viên' },
+    ];
+    const list = document.querySelector('hui-list');
+    list.dataSource = users;
+
+    document.querySelector('#detail-btn').addEventListener('hui-click', () => document.querySelector('hui-drawer').show());
+    document.querySelector('#notify-btn').addEventListener('hui-click', () => {
+      notification.success({ title: 'Đã lưu', description: 'Cấu hình hệ thống đã được cập nhật.' });
+    });
+    document.querySelector('#delete-btn').addEventListener('hui-click', async () => {
+      const ok = await modal.confirm({ title: 'Xóa người dùng?', content: 'Thao tác này không thể hoàn tác.', okType: 'danger' });
+      if (ok) notification.info({ title: 'Đã xóa', description: 'Người dùng đã bị xóa (mô phỏng).' });
+    });
+    document.querySelector('hui-pagination').addEventListener('change', (e) => {
+      document.querySelector('#page-info').textContent = `Trang ${e.detail.current}`;
+    });
+  </script>
+</head>
+<body>
+  <hui-layout>
+    <hui-sider collapsible breakpoint="lg" style="--hui-sider-bg: #0f172a;">
+      <div class="brand">HUI Admin</div>
+      <hui-menu mode="inline" theme="dark" selected-keys="users" open-keys="system">
+        <hui-menu-item key="dashboard" icon="home">Tổng quan</hui-menu-item>
+        <hui-menu-item key="users" icon="user">Người dùng</hui-menu-item>
+        <hui-sub-menu key="system" label="Hệ thống" icon="settings">
+          <hui-menu-item key="config">Cấu hình</hui-menu-item>
+          <hui-menu-item key="logs">Nhật ký</hui-menu-item>
+        </hui-sub-menu>
+      </hui-menu>
+    </hui-sider>
+    <hui-layout>
+      <div class="topbar">
+        <hui-breadcrumb>
+          <hui-breadcrumb-item href="#" icon="home">Trang chủ</hui-breadcrumb-item>
+          <hui-breadcrumb-item href="#">Hệ thống</hui-breadcrumb-item>
+          <hui-breadcrumb-item>Người dùng</hui-breadcrumb-item>
+        </hui-breadcrumb>
+        <hui-space>
+          <hui-badge count="3"><hui-button variant="ghost" shape="circle" icon="info" aria-label="Thông báo"></hui-button></hui-badge>
+          <hui-dropdown trigger="click" placement="bottom-end">
+            <hui-avatar name="Hoàng" size="sm"></hui-avatar>
+            <hui-menu slot="menu">
+              <hui-menu-item key="profile" icon="user">Hồ sơ</hui-menu-item>
+              <hui-menu-item key="logout" danger>Đăng xuất</hui-menu-item>
+            </hui-menu>
+          </hui-dropdown>
+        </hui-space>
+      </div>
+      <hui-content>
+        <div class="page">
+          <hui-row gutter="16,16">
+            <hui-col span-xs="24" span-sm="12" span-lg="6"><hui-card><hui-statistic title="Người dùng" value="1284"></hui-statistic></hui-card></hui-col>
+            <hui-col span-xs="24" span-sm="12" span-lg="6"><hui-card><hui-statistic title="Doanh thu" value="56890000" suffix="₫"></hui-statistic></hui-card></hui-col>
+            <hui-col span-xs="24" span-sm="12" span-lg="6"><hui-card><hui-statistic title="Tỉ lệ chuyển đổi" value="12.56" precision="2" suffix="%" type="success"></hui-statistic></hui-card></hui-col>
+            <hui-col span-xs="24" span-sm="12" span-lg="6"><hui-card><div>Dung lượng</div><hui-progress percent="72"></hui-progress></hui-card></hui-col>
+          </hui-row>
+
+          <hui-card title="Danh sách người dùng">
+            <hui-space slot="extra">
+              <hui-button id="notify-btn" variant="outline" size="sm">Lưu cấu hình</hui-button>
+              <hui-button id="detail-btn" size="sm" icon="eye">Chi tiết</hui-button>
+              <hui-popconfirm title="Xuất dữ liệu?" description="File CSV sẽ được tải xuống.">
+                <hui-button size="sm" variant="dashed" icon="download">Xuất</hui-button>
+              </hui-popconfirm>
+              <hui-button id="delete-btn" size="sm" variant="danger" icon="delete">Xóa</hui-button>
+            </hui-space>
+            <hui-list bordered>
+              <hui-flex slot="footer" justify="between" align="center">
+                <span id="page-info">Trang 1</span>
+                <hui-pagination total="48" page-size="4" size="sm"></hui-pagination>
+              </hui-flex>
+            </hui-list>
+          </hui-card>
+        </div>
+      </hui-content>
+    </hui-layout>
+  </hui-layout>
+
+  <hui-drawer title="Chi tiết người dùng">
+    <hui-descriptions column="1" bordered>
+      <hui-descriptions-item label="Họ tên">Nguyễn Văn An</hui-descriptions-item>
+      <hui-descriptions-item label="Email">an.nguyen@vidu.com</hui-descriptions-item>
+      <hui-descriptions-item label="Vai trò"><hui-tag color="primary">Quản trị viên</hui-tag></hui-descriptions-item>
+      <hui-descriptions-item label="Trạng thái"><hui-badge status="success" text="Hoạt động"></hui-badge></hui-descriptions-item>
+    </hui-descriptions>
+  </hui-drawer>
+</body>
+</html>

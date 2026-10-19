@@ -1,0 +1,58 @@
+/*
+ * HUI Menu CSS — khung menu. Style từng dòng nằm ở hui-menu-item.css (dùng chung với tiêu đề sub-menu).
+ * Biến nội bộ --_menu-* khai báo trên :host (theme dark) được item con (light DOM) kế thừa.
+ * --_menu-embedded-*: do hui-dropdown đặt khi menu nằm trong popup (bỏ nền / viền, item thấp hơn).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host([theme='dark']) {
+  --_menu-item-selected-bg: var(--hui-primary);
+  --_menu-item-selected-color: var(--hui-text-light-solid);
+  --_menu-horizontal-selected-color: var(--hui-primary);
+  --_menu-sub-bg: var(--hui-bg);
+}
+
+:host([mode='inline'][collapsed]) {
+  display: inline-block;
+}
+
+.menu {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 4px 0;
+  background: var(--hui-menu-bg, var(--_menu-embedded-bg, var(--hui-bg-container)));
+  color: var(--hui-text);
+  outline: none;
+}
+
+.menu--vertical,
+.menu--inline {
+  border-inline-end: 1px solid var(--hui-menu-border-color, var(--_menu-embedded-border, var(--hui-border-secondary)));
+}
+
+.menu--collapsed {
+  width: var(--hui-menu-collapsed-width, 64px);
+  transition: width var(--hui-transition);
+}
+
+.menu--horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--hui-menu-border-color, var(--hui-border-secondary));
+  line-height: var(--hui-menu-horizontal-height, 46px);
+}
+
+.menu--dark {
+  border-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu--collapsed { transition: none; }
+}

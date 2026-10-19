@@ -1,0 +1,45 @@
+/* HUI Card Meta CSS — biến công khai: xem JSDoc của HuiCardMeta */
+
+:host {
+  display: block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-card-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hui-card-meta-gap, var(--hui-space-lg));
+}
+
+.hui-card-meta__avatar {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.hui-card-meta__detail {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.hui-card-meta__title {
+  color: var(--hui-card-meta-title-color, var(--hui-text));
+  font-size: var(--hui-card-meta-title-font-size, var(--hui-font-base));
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hui-card-meta__description {
+  color: var(--hui-card-meta-description-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+.hui-card-meta__title:not([hidden]) + .hui-card-meta__description {
+  margin-top: var(--hui-space-sm);
+}

@@ -1,0 +1,184 @@
+/*
+ * HUI Progress CSS
+ * Biến CSS (đặt ở :root, thẻ cha hoặc chính <hui-progress>):
+ *   --hui-progress-color          Màu thanh tiến độ (attribute stroke-color ưu tiên hơn)
+ *   --hui-progress-success-color  Màu phần success-percent / trạng thái success
+ *   --hui-progress-trail-color    Màu rãnh nền
+ *   --hui-progress-radius         Bo góc thanh (line / steps)
+ *   --hui-progress-step-width     Chiều rộng một ô (steps)
+ *   --hui-progress-step-gap       Khoảng cách giữa các ô (steps)
+ *   --hui-progress-info-color     Màu chữ phần trăm
+ *   --hui-progress-font-size      Cỡ chữ phần trăm (line / steps)
+ * Parts: base, track, bar, success-bar, steps, step, circle, svg, trail, path, success-path, info
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([type='circle']),
+:host([type='dashboard']) {
+  display: inline-block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.progress {
+  /* --_progress-c: màu theo status; --_progress-stroke-attr / --_progress-trail-attr (inline) = attribute stroke-color / trail-color */
+  --_progress-c: var(--hui-primary);
+  --_progress-fill: var(--_progress-stroke-attr, var(--hui-progress-color, var(--_progress-c)));
+  --_progress-success: var(--hui-progress-success-color, var(--hui-success));
+  --_progress-trail: var(--_progress-trail-attr, var(--hui-progress-trail-color, var(--hui-fill-secondary)));
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--hui-progress-font-size, var(--_progress-font, var(--hui-font-sm)));
+  line-height: 1;
+}
+
+.progress--success { --_progress-c: var(--_progress-success); }
+.progress--exception { --_progress-c: var(--hui-danger); }
+
+/* Status success/exception luôn dùng màu trạng thái, kể cả khi có stroke-color */
+.progress--success,
+.progress--exception {
+  --_progress-fill: var(--_progress-c);
+}
+
+.progress--sm { --_progress-font: var(--hui-font-xs); }
+.progress--lg { --_progress-font: var(--hui-font-base); }
+
+/* ================== LINE ================== */
+.track {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: var(--_progress-stroke, 8px);
+  border-radius: var(--hui-progress-radius, var(--_progress-radius, 999px));
+  background: var(--_progress-trail);
+  overflow: hidden;
+}
+
+.bar,
+.success-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  transition: width var(--hui-transition-slow), background var(--hui-transition);
+}
+
+.bar {
+  background: var(--_progress-gradient, var(--_progress-fill));
+  overflow: hidden;
+}
+
+.success-bar {
+  background: var(--_progress-success);
+}
+
+/* status="active": vệt sáng chạy dọc thanh */
+.progress--active .bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--hui-bg) 55%, transparent), transparent);
+  transform: translateX(-100%);
+  animation: hui-progress-shimmer 2s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+}
+
+@keyframes hui-progress-shimmer {
+  0% { transform: translateX(-100%); opacity: 0.6; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.info {
+  flex-shrink: 0;
+  min-width: 2.5em;
+  color: var(--hui-progress-info-color, var(--hui-text));
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress--line .info,
+.progress--steps .info {
+  display: inline-flex;
+  align-items: center;
+}
+
+.info hui-icon {
+  font-size: 1.15em;
+}
+
+.progress--success .info hui-icon { color: var(--_progress-success); }
+.progress--exception .info hui-icon { color: var(--hui-danger); }
+
+/* ================== STEPS ================== */
+.steps {
+  display: flex;
+  gap: var(--hui-progress-step-gap, 2px);
+}
+
+.step {
+  width: var(--hui-progress-step-width, var(--_progress-step-width, 14px));
+  height: var(--_progress-stroke, 8px);
+  border-radius: var(--hui-progress-radius, 0);
+  background: var(--_progress-trail);
+  transition: background var(--hui-transition);
+}
+
+.step--on {
+  background: var(--_progress-step-color, var(--_progress-fill));
+}
+
+/* ================== CIRCLE / DASHBOARD ================== */
+.circle {
+  position: relative;
+  width: var(--_progress-diameter, 120px);
+  height: var(--_progress-diameter, 120px);
+  container-type: inline-size;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.trail {
+  stroke: var(--_progress-trail);
+}
+
+.path {
+  stroke: var(--_progress-fill);
+  transition: stroke-dasharray var(--hui-transition-slow), stroke var(--hui-transition), opacity var(--hui-transition);
+}
+
+.success-path {
+  stroke: var(--_progress-success);
+  transition: stroke-dasharray var(--hui-transition-slow), opacity var(--hui-transition);
+}
+
+.circle .info {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  /* Cỡ chữ tỉ lệ theo đường kính (container query unit) */
+  font-size: var(--hui-progress-font-size, max(12px, 20cqi));
+}
+
+.circle .info hui-icon {
+  font-size: 1.3em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress--active .bar::after { animation: none; }
+  .bar, .success-bar, .path, .success-path { transition: none; }
+}

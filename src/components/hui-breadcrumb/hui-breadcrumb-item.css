@@ -1,0 +1,78 @@
+/* HUI Breadcrumb Item — biến công khai --hui-breadcrumb-* (xem JSDoc hui-breadcrumb) */
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]),
+[hidden] {
+  display: none !important;
+}
+
+.item,
+.ellipsis-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  padding: 0 4px;
+  margin: 0 -4px;
+  border-radius: var(--hui-radius-sm);
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--hui-transition-fast), background-color var(--hui-transition-fast);
+}
+
+a.link {
+  color: var(--hui-breadcrumb-link-color, var(--hui-text-secondary));
+  cursor: pointer;
+}
+
+a.link:hover,
+hui-dropdown .link:hover {
+  color: var(--hui-breadcrumb-link-hover-color, var(--hui-text));
+  background: var(--hui-breadcrumb-link-hover-bg, var(--hui-fill-secondary));
+}
+
+a.link:focus-visible,
+.ellipsis:focus-visible {
+  outline: none;
+  box-shadow: var(--hui-focus-ring);
+}
+
+.item--last .link {
+  color: var(--hui-breadcrumb-last-color, var(--hui-text));
+}
+
+.caret {
+  font-size: 0.85em;
+}
+
+.sep {
+  display: inline-flex;
+  align-items: center;
+  margin: var(--hui-breadcrumb-separator-margin, 0 8px);
+  color: var(--hui-breadcrumb-separator-color, var(--hui-text-tertiary));
+}
+
+.ellipsis {
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-fill-tertiary);
+  color: inherit;
+  font: inherit;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.ellipsis:hover {
+  background: var(--hui-fill-secondary);
+  color: var(--hui-text);
+}

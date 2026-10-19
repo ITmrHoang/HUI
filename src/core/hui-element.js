@@ -280,6 +280,8 @@ export class HuiElement extends HTMLElement {
       // Lần đầu: coi như MỌI property đều vừa đổi → updated() đồng bộ toàn bộ giao diện
       const all = new Map();
       for (const name of this.constructor._getPropertyMap().keys()) all.set(name, undefined);
+      // Component dùng chuỗi locale cũng cần vẽ chữ ở lần đầu (không chỉ khi đổi ngôn ngữ)
+      if (this.constructor.localized) all.set('locale', undefined);
       this._changed.forEach((v, k) => all.set(k, v));
       this._changed = new Map();
       this.updated(all);

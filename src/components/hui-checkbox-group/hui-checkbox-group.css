@@ -1,0 +1,35 @@
+/*
+ * HUI Checkbox Group CSS
+ *   --hui-checkbox-group-gap      Khoảng cách giữa các lựa chọn
+ *   --hui-checkbox-group-row-gap  Khoảng cách dòng (xuống dòng / direction="vertical")
+ * Biến của từng ô: xem hui-checkbox.css (đặt trên hui-checkbox-group cũng được, vì kế thừa)
+ * Parts: base · State: :state(user-invalid), :state(filled), :state(disabled)
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+  vertical-align: middle;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-checkbox-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--hui-checkbox-group-gap, var(--hui-space-md));
+  row-gap: var(--hui-checkbox-group-row-gap, var(--hui-space-sm));
+}
+
+/* Vỏ chứa checkbox sinh từ options — để chúng nằm chung 1 flex với slot */
+.hui-checkbox-group__options {
+  display: contents;
+}
+
+.hui-checkbox-group--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}

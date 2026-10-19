@@ -1,0 +1,33 @@
+/*
+ * HUI Layout CSS
+ * Biến CSS override từ ngoài:
+ *   --hui-layout-bg   Màu nền (--hui-bg-secondary)
+ * Part: base (khung flex; có hui-sider → xếp ngang)
+ * Đặt chiều cao bằng CSS ngoài: hui-layout { min-height: 100vh; }
+ */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: auto;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  background: var(--hui-layout-bg, var(--hui-bg-secondary));
+  color: var(--hui-text);
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]) { display: none; }
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  flex: auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.layout--has-sider {
+  flex-direction: row;
+}

@@ -1,0 +1,31 @@
+/*
+ * HUI Col CSS — chính :host là cột (flex item của hui-row)
+ * Biến CSS override từ ngoài:
+ *   --hui-col-padding-y   Khoảng đệm dọc trong cột (0)
+ * Quy tắc span / offset / order / push / pull + responsive được sinh trong hui-col.js (gridCss).
+ * Khoảng cách ngang lấy từ --_row-gx do hui-row đặt (kế thừa xuyên slot).
+ */
+
+:host {
+  /* Reset để cột lồng nhau không kế thừa span/offset của cột ngoài */
+  --_col-span: initial;
+  --_col-offset: 0;
+  --_col-flex: initial;
+
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 1px;
+  padding-inline: calc(var(--_row-gx, 0px) / 2);
+  padding-block: var(--hui-col-padding-y, 0);
+  /* --_col-span chưa đặt → khai báo không hợp lệ → flex về mặc định (rộng theo nội dung) */
+  flex: 0 0 calc(var(--_col-span) / 24 * 100%);
+  max-width: calc(var(--_col-span, 24) / 24 * 100%);
+  margin-inline-start: calc(var(--_col-offset) / 24 * 100%);
+}
+
+:host([flex]) {
+  flex: var(--_col-flex);
+  max-width: 100%;
+}

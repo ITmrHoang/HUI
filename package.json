@@ -31,6 +31,11 @@
       "import": "./dist/hui-badge.esm.js",
       "default": "./dist/hui-badge.esm.js"
     },
+    "./hui-breadcrumb": {
+      "types": "./dist/types/hui-breadcrumb.d.ts",
+      "import": "./dist/hui-breadcrumb.esm.js",
+      "default": "./dist/hui-breadcrumb.esm.js"
+    },
     "./hui-button": {
       "types": "./dist/types/hui-button.d.ts",
       "import": "./dist/hui-button.esm.js",
@@ -46,15 +51,65 @@
       "import": "./dist/hui-checkbox.esm.js",
       "default": "./dist/hui-checkbox.esm.js"
     },
+    "./hui-checkbox-group": {
+      "types": "./dist/types/hui-checkbox-group.d.ts",
+      "import": "./dist/hui-checkbox-group.esm.js",
+      "default": "./dist/hui-checkbox-group.esm.js"
+    },
+    "./hui-collapse": {
+      "types": "./dist/types/hui-collapse.d.ts",
+      "import": "./dist/hui-collapse.esm.js",
+      "default": "./dist/hui-collapse.esm.js"
+    },
     "./hui-config-provider": {
       "types": "./dist/types/hui-config-provider.d.ts",
       "import": "./dist/hui-config-provider.esm.js",
       "default": "./dist/hui-config-provider.esm.js"
     },
+    "./hui-container": {
+      "types": "./dist/types/hui-container.d.ts",
+      "import": "./dist/hui-container.esm.js",
+      "default": "./dist/hui-container.esm.js"
+    },
+    "./hui-descriptions": {
+      "types": "./dist/types/hui-descriptions.d.ts",
+      "import": "./dist/hui-descriptions.esm.js",
+      "default": "./dist/hui-descriptions.esm.js"
+    },
     "./hui-divider": {
       "types": "./dist/types/hui-divider.d.ts",
       "import": "./dist/hui-divider.esm.js",
       "default": "./dist/hui-divider.esm.js"
+    },
+    "./hui-drawer": {
+      "types": "./dist/types/hui-drawer.d.ts",
+      "import": "./dist/hui-drawer.esm.js",
+      "default": "./dist/hui-drawer.esm.js"
+    },
+    "./hui-dropdown": {
+      "types": "./dist/types/hui-dropdown.d.ts",
+      "import": "./dist/hui-dropdown.esm.js",
+      "default": "./dist/hui-dropdown.esm.js"
+    },
+    "./hui-empty": {
+      "types": "./dist/types/hui-empty.d.ts",
+      "import": "./dist/hui-empty.esm.js",
+      "default": "./dist/hui-empty.esm.js"
+    },
+    "./hui-flex": {
+      "types": "./dist/types/hui-flex.d.ts",
+      "import": "./dist/hui-flex.esm.js",
+      "default": "./dist/hui-flex.esm.js"
+    },
+    "./hui-form": {
+      "types": "./dist/types/hui-form.d.ts",
+      "import": "./dist/hui-form.esm.js",
+      "default": "./dist/hui-form.esm.js"
+    },
+    "./hui-grid": {
+      "types": "./dist/types/hui-grid.d.ts",
+      "import": "./dist/hui-grid.esm.js",
+      "default": "./dist/hui-grid.esm.js"
     },
     "./hui-icon": {
       "types": "./dist/types/hui-icon.d.ts",
@@ -66,35 +121,140 @@
       "import": "./dist/hui-input.esm.js",
       "default": "./dist/hui-input.esm.js"
     },
+    "./hui-input-number": {
+      "types": "./dist/types/hui-input-number.d.ts",
+      "import": "./dist/hui-input-number.esm.js",
+      "default": "./dist/hui-input-number.esm.js"
+    },
+    "./hui-layout": {
+      "types": "./dist/types/hui-layout.d.ts",
+      "import": "./dist/hui-layout.esm.js",
+      "default": "./dist/hui-layout.esm.js"
+    },
+    "./hui-list": {
+      "types": "./dist/types/hui-list.d.ts",
+      "import": "./dist/hui-list.esm.js",
+      "default": "./dist/hui-list.esm.js"
+    },
+    "./hui-menu": {
+      "types": "./dist/types/hui-menu.d.ts",
+      "import": "./dist/hui-menu.esm.js",
+      "default": "./dist/hui-menu.esm.js"
+    },
+    "./hui-message": {
+      "types": "./dist/types/hui-message.d.ts",
+      "import": "./dist/hui-message.esm.js",
+      "default": "./dist/hui-message.esm.js"
+    },
     "./hui-modal": {
       "types": "./dist/types/hui-modal.d.ts",
       "import": "./dist/hui-modal.esm.js",
       "default": "./dist/hui-modal.esm.js"
+    },
+    "./hui-navbar": {
+      "types": "./dist/types/hui-navbar.d.ts",
+      "import": "./dist/hui-navbar.esm.js",
+      "default": "./dist/hui-navbar.esm.js"
+    },
+    "./hui-notification": {
+      "types": "./dist/types/hui-notification.d.ts",
+      "import": "./dist/hui-notification.esm.js",
+      "default": "./dist/hui-notification.esm.js"
+    },
+    "./hui-pagination": {
+      "types": "./dist/types/hui-pagination.d.ts",
+      "import": "./dist/hui-pagination.esm.js",
+      "default": "./dist/hui-pagination.esm.js"
+    },
+    "./hui-popconfirm": {
+      "types": "./dist/types/hui-popconfirm.d.ts",
+      "import": "./dist/hui-popconfirm.esm.js",
+      "default": "./dist/hui-popconfirm.esm.js"
+    },
+    "./hui-popover": {
+      "types": "./dist/types/hui-popover.d.ts",
+      "import": "./dist/hui-popover.esm.js",
+      "default": "./dist/hui-popover.esm.js"
+    },
+    "./hui-progress": {
+      "types": "./dist/types/hui-progress.d.ts",
+      "import": "./dist/hui-progress.esm.js",
+      "default": "./dist/hui-progress.esm.js"
+    },
+    "./hui-radio": {
+      "types": "./dist/types/hui-radio.d.ts",
+      "import": "./dist/hui-radio.esm.js",
+      "default": "./dist/hui-radio.esm.js"
+    },
+    "./hui-result": {
+      "types": "./dist/types/hui-result.d.ts",
+      "import": "./dist/hui-result.esm.js",
+      "default": "./dist/hui-result.esm.js"
+    },
+    "./hui-section": {
+      "types": "./dist/types/hui-section.d.ts",
+      "import": "./dist/hui-section.esm.js",
+      "default": "./dist/hui-section.esm.js"
     },
     "./hui-select": {
       "types": "./dist/types/hui-select.d.ts",
       "import": "./dist/hui-select.esm.js",
       "default": "./dist/hui-select.esm.js"
     },
+    "./hui-skeleton": {
+      "types": "./dist/types/hui-skeleton.d.ts",
+      "import": "./dist/hui-skeleton.esm.js",
+      "default": "./dist/hui-skeleton.esm.js"
+    },
+    "./hui-slider": {
+      "types": "./dist/types/hui-slider.d.ts",
+      "import": "./dist/hui-slider.esm.js",
+      "default": "./dist/hui-slider.esm.js"
+    },
+    "./hui-space": {
+      "types": "./dist/types/hui-space.d.ts",
+      "import": "./dist/hui-space.esm.js",
+      "default": "./dist/hui-space.esm.js"
+    },
     "./hui-spinner": {
       "types": "./dist/types/hui-spinner.d.ts",
       "import": "./dist/hui-spinner.esm.js",
       "default": "./dist/hui-spinner.esm.js"
+    },
+    "./hui-statistic": {
+      "types": "./dist/types/hui-statistic.d.ts",
+      "import": "./dist/hui-statistic.esm.js",
+      "default": "./dist/hui-statistic.esm.js"
     },
     "./hui-switch": {
       "types": "./dist/types/hui-switch.d.ts",
       "import": "./dist/hui-switch.esm.js",
       "default": "./dist/hui-switch.esm.js"
     },
+    "./hui-tabs": {
+      "types": "./dist/types/hui-tabs.d.ts",
+      "import": "./dist/hui-tabs.esm.js",
+      "default": "./dist/hui-tabs.esm.js"
+    },
     "./hui-tag": {
       "types": "./dist/types/hui-tag.d.ts",
       "import": "./dist/hui-tag.esm.js",
       "default": "./dist/hui-tag.esm.js"
     },
+    "./hui-textarea": {
+      "types": "./dist/types/hui-textarea.d.ts",
+      "import": "./dist/hui-textarea.esm.js",
+      "default": "./dist/hui-textarea.esm.js"
+    },
     "./hui-tooltip": {
       "types": "./dist/types/hui-tooltip.d.ts",
       "import": "./dist/hui-tooltip.esm.js",
       "default": "./dist/hui-tooltip.esm.js"
+    },
+    "./hui-typography": {
+      "types": "./dist/types/hui-typography.d.ts",
+      "import": "./dist/hui-typography.esm.js",
+      "default": "./dist/hui-typography.esm.js"
     },
     "./style.css": "./dist/style.css",
     "./types/vue": {

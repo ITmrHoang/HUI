@@ -1,0 +1,120 @@
+/*
+ * HUI Collapse Panel CSS
+ * Đọc biến nội bộ --_collapse-* từ hui-collapse cha (fallback = kiểu bordered khi dùng độc lập).
+ * Biến công khai: xem hui-collapse.css.
+ */
+
+:host {
+  display: block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-collapse-panel {
+  border-block-end: var(--_collapse-item-border-w, 1px) solid var(--hui-collapse-border-color, var(--hui-border));
+}
+
+/* Panel cuối: viền ngoài của collapse đã bao */
+:host(:last-of-type) .hui-collapse-panel {
+  border-block-end-width: 0;
+}
+
+/* ================== HEADER ================== */
+.hui-collapse-panel__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hui-space-md);
+  padding: var(--hui-collapse-header-padding, var(--_collapse-header-pad, var(--hui-space-md) var(--hui-space-lg)));
+  background: var(--hui-collapse-header-bg, transparent);
+  color: var(--hui-collapse-header-color, var(--hui-text));
+  line-height: var(--hui-line-height);
+  outline: none;
+  transition: background var(--hui-transition-fast);
+}
+
+.hui-collapse-panel--collapsible-all .hui-collapse-panel__header,
+.hui-collapse-panel--collapsible-header .hui-collapse-panel__title,
+.hui-collapse-panel--collapsible-header .hui-collapse-panel__icon,
+.hui-collapse-panel--collapsible-icon .hui-collapse-panel__icon {
+  cursor: pointer;
+}
+
+.hui-collapse-panel--collapsible-header .hui-collapse-panel__title {
+  flex: 0 1 auto;
+}
+
+/* Vòng focus trên phần tử đang đóng vai trò nút */
+[role='button']:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: -2px;
+  border-radius: var(--hui-radius-sm);
+}
+
+.hui-collapse-panel__icon {
+  order: var(--_collapse-icon-order, 0);
+  display: inline-flex;
+  align-items: center;
+  /* Cao bằng 1 dòng chữ để mũi tên thẳng hàng với dòng đầu tiêu đề */
+  height: calc(1em * var(--hui-line-height));
+  color: var(--hui-collapse-icon-color, currentColor);
+  font-size: var(--hui-font-xs);
+}
+
+.hui-collapse-panel__arrow {
+  display: inline-flex;
+  transition: transform var(--hui-transition);
+}
+
+.hui-collapse-panel__icon ::slotted(*) {
+  transition: transform var(--hui-transition);
+}
+
+.hui-collapse-panel--active .hui-collapse-panel__arrow,
+.hui-collapse-panel--active .hui-collapse-panel__icon ::slotted(*) {
+  transform: rotate(90deg);
+}
+
+.hui-collapse-panel__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.hui-collapse-panel__extra {
+  order: 1;
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+}
+
+/* ================== DISABLED ================== */
+.hui-collapse-panel--disabled .hui-collapse-panel__header {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.hui-collapse-panel--disabled .hui-collapse-panel__title,
+.hui-collapse-panel--disabled .hui-collapse-panel__icon {
+  cursor: not-allowed;
+}
+
+/* ================== NỘI DUNG ================== */
+.hui-collapse-panel__content {
+  background: var(--hui-collapse-content-bg, var(--_collapse-content-bg, var(--hui-bg-container)));
+  border-block-start: var(--_collapse-content-border-w, 1px) solid var(--hui-collapse-border-color, var(--hui-border));
+  color: var(--hui-collapse-content-color, var(--hui-text));
+}
+
+.hui-collapse-panel__content-box {
+  padding: var(--hui-collapse-content-padding, var(--_collapse-content-pad, var(--hui-space-lg)));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-collapse-panel__arrow,
+  .hui-collapse-panel__icon ::slotted(*) {
+    transition: none;
+  }
+}

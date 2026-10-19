@@ -1,0 +1,51 @@
+/* HUI List Item Meta CSS — biến công khai: xem JSDoc của HuiListItemMeta */
+
+:host {
+  display: block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-list-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hui-list-meta-gap, var(--hui-space-lg));
+}
+
+.hui-list-meta__avatar {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.hui-list-meta__content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.hui-list-meta__title {
+  color: var(--hui-list-meta-title-color, var(--hui-text));
+  font-size: var(--hui-list-meta-title-font-size, var(--hui-font-sm));
+  font-weight: var(--hui-font-weight-medium);
+  line-height: var(--hui-line-height);
+}
+
+.hui-list-meta__title ::slotted(a) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hui-list-meta__title ::slotted(a:hover) {
+  color: var(--hui-primary);
+}
+
+.hui-list-meta__description {
+  color: var(--hui-list-meta-description-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+.hui-list-meta__title:not([hidden]) + .hui-list-meta__description {
+  margin-top: var(--hui-space-xs);
+}

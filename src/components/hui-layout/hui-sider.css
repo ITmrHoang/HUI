@@ -1,0 +1,130 @@
+/*
+ * HUI Sider CSS
+ * Biến CSS override từ ngoài:
+ *   --hui-sider-width            Chiều rộng khi mở (200px; attribute width thắng)
+ *   --hui-sider-collapsed-width  Chiều rộng khi thu gọn (80px; attribute collapsed-width thắng)
+ *   --hui-sider-bg               Màu nền (--hui-bg-container)
+ *   --hui-sider-color            Màu chữ (--hui-text)
+ *   --hui-sider-border-color     Màu viền phải (--hui-border-secondary)
+ *   --hui-sider-trigger-height   Chiều cao nút thu/mở (48px)
+ *   --hui-sider-trigger-bg       Màu nền nút thu/mở
+ *   --hui-sider-trigger-color    Màu icon nút thu/mở
+ * Parts: base, children, trigger
+ */
+
+:host {
+  /* Biến nội bộ do JS đặt khi có attribute width / collapsed-width (reset để sider lồng không kế thừa) */
+  --_sider-width: initial;
+  --_sider-collapsed-width: initial;
+  --_sider-w: var(--_sider-width, var(--hui-sider-width, 200px));
+
+  display: block;
+  position: relative;
+  flex: 0 0 var(--_sider-w);
+  width: var(--_sider-w);
+  min-width: var(--_sider-w);
+  max-width: var(--_sider-w);
+  box-sizing: border-box;
+  background: var(--hui-sider-bg, var(--hui-bg-container));
+  color: var(--hui-sider-color, var(--hui-text));
+  transition: all var(--hui-motion-duration, 200ms) var(--hui-motion-ease-in-out, ease);
+  font-family: var(--hui-font-family);
+}
+
+:host([collapsed]) {
+  --_sider-w: var(--_sider-collapsed-width, var(--hui-sider-collapsed-width, 80px));
+}
+
+:host([hidden]) { display: none; }
+
+[hidden] { display: none !important; }
+
+.sider {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  border-inline-end: 1px solid var(--hui-sider-border-color, var(--hui-border-secondary));
+}
+
+.sider--zero.sider--collapsed { border-inline-end-width: 0; }
+
+.sider__children {
+  flex: auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Có nút ở đáy → chừa chỗ cho nút (nút dính đáy khi sider cao hơn màn hình) */
+.sider__trigger {
+  appearance: none;
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 100%;
+  height: var(--hui-sider-trigger-height, 48px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--hui-sider-border-color, var(--hui-border-secondary));
+  background: var(--hui-sider-trigger-bg, var(--hui-bg-container));
+  color: var(--hui-sider-trigger-color, var(--hui-text-secondary));
+  font: inherit;
+  cursor: pointer;
+  transition: color var(--hui-transition-fast), background var(--hui-transition-fast);
+}
+
+.sider__trigger:hover {
+  color: var(--hui-primary);
+  background: var(--hui-fill-tertiary);
+}
+
+.sider__trigger:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: -2px;
+}
+
+/* Mũi tên: mở = trỏ trái (thu vào), thu gọn = trỏ phải; reverse-arrow đảo lại */
+.sider__icon {
+  transition: transform var(--hui-transition);
+}
+
+.sider--collapsed .sider__icon,
+.sider--reverse:not(.sider--collapsed) .sider__icon {
+  transform: rotate(180deg);
+}
+
+.sider--reverse.sider--collapsed .sider__icon {
+  transform: none;
+}
+
+/* ================== ZERO-WIDTH (collapsed-width="0") ==================
+ * Thu gọn về 0 → nút nổi ra ngoài mép phải để còn mở lại được */
+:host([collapsed]) .sider--zero .sider__children { visibility: hidden; }
+
+.sider--zero .sider__trigger {
+  position: absolute;
+  top: var(--hui-space-lg);
+  inset-inline-end: -40px;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--hui-sider-border-color, var(--hui-border-secondary));
+  border-inline-start: 0;
+  border-radius: 0 var(--hui-radius) var(--hui-radius) 0;
+  box-shadow: var(--hui-shadow-sm);
+}
+
+.sider--zero .sider__icon,
+.sider--zero.sider--collapsed .sider__icon {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host, .sider__icon, .sider__trigger { transition: none; }
+}

@@ -1,0 +1,55 @@
+/*
+ * HUI Dropdown CSS — biến công khai var(--hui-dropdown-*, mặc định).
+ * --_menu-embedded-*: báo cho hui-menu bên trong bỏ nền / viền riêng và dùng item thấp hơn.
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.trigger {
+  display: inline-block;
+}
+
+.popup {
+  --_menu-embedded-bg: transparent;
+  --_menu-embedded-border: transparent;
+  --_menu-embedded-item-height: 34px;
+
+  color: var(--hui-text);
+  font-family: var(--hui-font-family);
+}
+
+.content {
+  box-sizing: border-box;
+  min-width: var(--hui-dropdown-min-width, 140px);
+  max-height: var(--hui-dropdown-max-height, 70vh);
+  overflow: auto;
+  padding: var(--hui-dropdown-padding, 0);
+  border-radius: var(--hui-dropdown-radius, var(--hui-radius-lg));
+  background: var(--hui-dropdown-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-dropdown-shadow, var(--hui-shadow-lg));
+}
+
+/* Mũi tên: hình vuông xoay 45°, vị trí do computePosition tính (--_dropdown-arrow-x / -y) */
+.arrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--hui-dropdown-bg, var(--hui-bg-elevated));
+  transform: rotate(45deg);
+  box-shadow: var(--hui-shadow-sm);
+}
+
+.popup[data-side='bottom'] .arrow { top: -5px; left: var(--_dropdown-arrow-x, 12px); }
+.popup[data-side='top'] .arrow { bottom: -5px; left: var(--_dropdown-arrow-x, 12px); }
+.popup[data-side='right'] .arrow { left: -5px; top: var(--_dropdown-arrow-y, 12px); }
+.popup[data-side='left'] .arrow { right: -5px; top: var(--_dropdown-arrow-y, 12px); }
+
+/* Nội dung đè lên nửa trong của mũi tên */
+.popup--arrow .content { position: relative; }

@@ -1,0 +1,89 @@
+/*
+ * HUI Skeleton CSS
+ * Biến CSS (ngoài các biến nền ở skeleton-base.css):
+ *   --hui-skeleton-avatar-size      Kích thước avatar (mặc định 40px)
+ *   --hui-skeleton-title-height     Chiều cao dòng tiêu đề (mặc định 16px)
+ *   --hui-skeleton-title-width      Chiều rộng tiêu đề (mặc định 38% khi có avatar, 50% khi không)
+ *   --hui-skeleton-row-height       Chiều cao mỗi dòng đoạn văn (mặc định 16px)
+ *   --hui-skeleton-row-gap          Khoảng cách giữa các dòng (mặc định 16px)
+ *   --hui-skeleton-last-row-width   Chiều rộng dòng cuối (mặc định 61%)
+ * Parts: base, avatar, content, title, paragraph, row
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+.skeleton {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: var(--hui-skeleton-avatar-size, 40px);
+  height: var(--hui-skeleton-avatar-size, 40px);
+  border-radius: 50%;
+}
+
+.avatar--square {
+  border-radius: var(--hui-skeleton-radius, var(--hui-radius-sm));
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  width: var(--hui-skeleton-title-width, var(--_skeleton-title-width, 50%));
+  height: var(--hui-skeleton-title-height, 16px);
+  margin: 0;
+}
+
+.skeleton--with-avatar {
+  --_skeleton-title-width: 38%;
+}
+
+/* Có avatar → tiêu đề căn giữa avatar */
+.skeleton--with-avatar .title {
+  margin-top: calc((var(--hui-skeleton-avatar-size, 40px) - var(--hui-skeleton-title-height, 16px)) / 2 - 4px);
+}
+
+.paragraph {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-skeleton-row-gap, 16px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.title + .paragraph {
+  margin-top: 24px;
+}
+
+.row {
+  width: 100%;
+  height: var(--hui-skeleton-row-height, 16px);
+}
+
+.row:last-child:not(:first-child) {
+  width: var(--hui-skeleton-last-row-width, 61%);
+}
+
+/* round: bo tròn hai đầu tiêu đề và các dòng */
+.skeleton--round .title,
+.skeleton--round .row {
+  border-radius: 999px;
+}
+
+.real {
+  display: contents;
+}

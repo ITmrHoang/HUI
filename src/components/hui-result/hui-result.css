@@ -1,0 +1,99 @@
+/*
+ * HUI Result CSS
+ * Biến CSS (đặt ở :root, thẻ cha hoặc chính <hui-result>):
+ *   --hui-result-padding          Padding khung (mặc định 48px 32px)
+ *   --hui-result-icon-size        Kích thước icon trạng thái (mặc định 72px)
+ *   --hui-result-icon-color       Màu icon (ghi đè màu theo status)
+ *   --hui-result-image-width      Chiều rộng hình minh họa 404/403/500 (mặc định 250px)
+ *   --hui-result-title-font-size  Cỡ chữ tiêu đề
+ *   --hui-result-title-color      Màu tiêu đề
+ *   --hui-result-subtitle-color   Màu phụ đề
+ *   --hui-result-content-bg       Nền vùng nội dung (slot mặc định)
+ * Parts: base, icon, image, title, subtitle, extra, content
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.result {
+  --_result-c: var(--hui-info);
+
+  padding: var(--hui-result-padding, 48px 32px);
+  text-align: center;
+}
+
+.result--success { --_result-c: var(--hui-success); }
+.result--warning { --_result-c: var(--hui-warning); }
+.result--error { --_result-c: var(--hui-danger); }
+
+.icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  font-size: var(--hui-result-icon-size, 72px);
+  line-height: 1;
+  color: var(--hui-result-icon-color, var(--_result-c));
+}
+
+.icon hui-icon {
+  --hui-icon-stroke-width: 1.5;
+}
+
+/* Hình minh họa 404 / 403 / 500 — mọi màu lấy từ token → tự đổi theo dark mode */
+.image {
+  width: var(--hui-result-image-width, 250px);
+  max-width: 100%;
+  height: auto;
+}
+
+.ill-ground { fill: var(--hui-fill-tertiary); }
+.ill-soft { fill: var(--hui-primary-1); }
+.ill-mid { fill: var(--hui-primary-3); }
+.ill-main { fill: var(--hui-primary); }
+.ill-paper { fill: var(--hui-bg-elevated); stroke: var(--hui-border); stroke-width: 2; }
+.ill-line { fill: none; stroke: var(--hui-border-hover); stroke-width: 4; stroke-linecap: round; }
+.ill-stroke { fill: none; stroke: var(--hui-primary); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.ill-danger { fill: var(--hui-danger); }
+.ill-warning { fill: var(--hui-warning); }
+.ill-text {
+  fill: var(--hui-primary);
+  font-family: var(--hui-font-family);
+  font-weight: var(--hui-font-weight-bold);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--hui-result-title-font-size, var(--hui-font-2xl));
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: 1.35;
+  color: var(--hui-result-title-color, var(--hui-text));
+}
+
+.subtitle {
+  margin-top: 8px;
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+  color: var(--hui-result-subtitle-color, var(--hui-text-tertiary));
+}
+
+.extra {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--hui-space-sm);
+  margin-top: 24px;
+}
+
+.content {
+  margin-top: 24px;
+  padding: 24px 40px;
+  border-radius: var(--hui-radius);
+  background: var(--hui-result-content-bg, var(--hui-fill-tertiary));
+  text-align: start;
+}

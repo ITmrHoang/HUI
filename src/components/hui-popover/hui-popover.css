@@ -1,0 +1,84 @@
+/*
+ * HUI Popover CSS
+ * Biến CSS (đặt ở :root, thẻ cha hoặc chính <hui-popover>):
+ *   --hui-popover-bg             Nền
+ *   --hui-popover-color          Màu chữ nội dung
+ *   --hui-popover-title-color    Màu tiêu đề
+ *   --hui-popover-min-width      Chiều rộng tối thiểu (mặc định 177px)
+ *   --hui-popover-max-width      Chiều rộng tối đa (mặc định 360px)
+ *   --hui-popover-radius         Bo góc
+ *   --hui-popover-shadow         Đổ bóng
+ *   --hui-popover-padding        Padding
+ *   --hui-popover-font-size      Cỡ chữ
+ * Parts: trigger, popup, inner, title, content, arrow
+ */
+
+:host {
+  display: inline-block; /* Ôm sát trigger để đo vị trí chính xác */
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.trigger {
+  display: inline-block;
+}
+
+/* Popup: vị trí do utils/floating.js tính (top-layer qua Popover API) */
+.popup {
+  --_popover-fill: var(--hui-popover-bg, var(--hui-bg-elevated));
+
+  box-sizing: border-box;
+  min-width: var(--hui-popover-min-width, 177px);
+  max-width: min(var(--hui-popover-max-width, 360px), calc(100vw - 16px));
+  background: var(--_popover-fill);
+  color: var(--hui-popover-color, var(--hui-text-secondary));
+  border-radius: var(--hui-popover-radius, var(--hui-radius-lg));
+  box-shadow: var(--hui-popover-shadow, var(--hui-shadow-lg));
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-popover-font-size, var(--hui-font-sm));
+  line-height: var(--hui-line-height);
+  overflow-wrap: break-word;
+  text-align: start;
+}
+
+.popup:focus {
+  outline: none;
+}
+
+.inner {
+  padding: var(--hui-popover-padding, 12px);
+}
+
+.title {
+  margin-bottom: 8px;
+  font-weight: var(--hui-font-weight-semibold);
+  color: var(--hui-popover-title-color, var(--hui-text));
+}
+
+/* ================== ARROW (giống hui-tooltip) ================== */
+.arrow {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.arrow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--_popover-fill);
+}
+
+.popup[data-side='top'] .arrow { bottom: -6px; left: var(--_arrow-x, calc(50% - 6px)); }
+.popup[data-side='bottom'] .arrow { top: -6px; left: var(--_arrow-x, calc(50% - 6px)); }
+.popup[data-side='left'] .arrow { right: -6px; top: var(--_arrow-y, calc(50% - 6px)); }
+.popup[data-side='right'] .arrow { left: -6px; top: var(--_arrow-y, calc(50% - 6px)); }
+
+.popup[data-side='top'] .arrow::before { clip-path: polygon(0 50%, 100% 50%, 50% 100%); }
+.popup[data-side='bottom'] .arrow::before { clip-path: polygon(0 50%, 50% 0, 100% 50%); }
+.popup[data-side='left'] .arrow::before { clip-path: polygon(50% 0, 100% 50%, 50% 100%); }
+.popup[data-side='right'] .arrow::before { clip-path: polygon(50% 0, 50% 100%, 0 50%); }

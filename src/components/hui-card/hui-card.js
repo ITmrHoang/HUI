@@ -48,6 +48,7 @@ const hasContent = (slot) => slot.assignedNodes().some((n) =>
  * @cssprop --hui-card-cover-height - Chiều cao cover (attribute cover-height ưu tiên hơn)
  * @cssprop --hui-card-cover-width - Chiều rộng cover ở layout horizontal
  * @cssprop --hui-card-focus-color - Màu viền focus khi clickable
+ * @cssprop --hui-card-header-bg - Nền header (mặc định trong suốt; type="inner": --hui-fill-tertiary)
  */
 class HuiCard extends HuiElement {
   static properties = {
@@ -73,6 +74,8 @@ class HuiCard extends HuiElement {
     coverHeight: { type: String },
     /** vertical | horizontal */
     orientation: { type: String, default: 'vertical' },
+    /** inner — card lồng bên trong card khác: header nền nhạt + kẻ dưới, viền mảnh, không bóng */
+    type: { type: String },
   };
 
   static styles = styles;
@@ -128,7 +131,7 @@ class HuiCard extends HuiElement {
   updated(changed) {
     const card = this._card;
 
-    if (['variant', 'elevation', 'size', 'orientation', 'hoverable', 'clickable', 'loading'].some((k) => changed.has(k))) {
+    if (['variant', 'elevation', 'size', 'orientation', 'hoverable', 'clickable', 'loading', 'type'].some((k) => changed.has(k))) {
       const elevation = Number.isFinite(this.elevation) ? Math.min(4, Math.max(0, Math.round(this.elevation))) : 1;
       card.className = [
         'hui-card',
@@ -140,6 +143,7 @@ class HuiCard extends HuiElement {
         this.hoverable || this.clickable ? 'hui-card--hoverable' : '',
         this.clickable ? 'hui-card--clickable' : '',
         this.loading ? 'hui-card--loading' : '',
+        this.type === 'inner' ? 'hui-card--inner' : '',
       ].filter(Boolean).join(' ');
     }
 

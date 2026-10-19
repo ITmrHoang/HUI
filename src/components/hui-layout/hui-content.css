@@ -1,0 +1,18 @@
+/*
+ * HUI Content CSS
+ * Biến CSS override từ ngoài:
+ *   --hui-content-padding   Khoảng đệm (24px)
+ *   --hui-content-bg        Màu nền (trong suốt)
+ */
+
+:host {
+  display: block;
+  flex: auto;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: var(--hui-content-padding, var(--hui-space-xl));
+  background: var(--hui-content-bg, transparent);
+}
+
+:host([hidden]) { display: none; }

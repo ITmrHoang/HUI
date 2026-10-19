@@ -1,0 +1,24 @@
+/*
+ * HUI Text CSS — chữ inline
+ * Biến CSS override từ ngoài:
+ *   --hui-text-color      Màu chữ khi không có type (mặc định kế thừa từ thẻ cha)
+ *   --hui-text-font-size  Cỡ chữ (mặc định kế thừa)
+ * Biến dùng chung (code, mark, nút sao chép): xem hui-typography.css
+ */
+
+:host {
+  display: inline;
+}
+
+/* Cắt chữ cần một hộp có chiều rộng giới hạn → inline-block, tối đa bằng thẻ cha */
+:host([ellipsis]),
+:host([rows]) {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: bottom;
+}
+
+.typo {
+  color: var(--hui-text-color, currentColor);
+  font-size: var(--hui-text-font-size, inherit);
+}

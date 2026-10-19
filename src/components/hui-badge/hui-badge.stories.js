@@ -7,6 +7,7 @@ import { html } from 'lit';
 import { expect } from 'storybook/test';
 import './index.js';
 import '../hui-button/index.js';
+import '../hui-card/index.js';
 
 // Hộp vuông giả lập nội dung được bọc (giống demo của Ant Design)
 const box = (label = '') => html`
@@ -35,6 +36,7 @@ export default {
   title: 'Components/HuiBadge',
   // Tên thẻ HTML custom element
   component: 'hui-badge',
+  subcomponents: { HuiBadgeRibbon: 'hui-badge-ribbon' },
   // Tự sinh trang Docs
   tags: ['autodocs'],
 
@@ -105,6 +107,34 @@ Biến CSS đặt trên badge, thẻ cha hoặc \`:root\` đều có hiệu lự
 | \`base\` | Khung bọc nội dung + chỉ báo |
 | \`indicator\` | Chỉ báo (số đếm / chấm) |
 | \`status\`, \`status-dot\`, \`status-text\` | Status mode |
+
+### \`hui-badge-ribbon\` (Ant Badge.Ribbon)
+Bọc nội dung (thường là \`hui-card\`) và gắn dải ruy-băng ở mép trên.
+\`\`\`html
+<hui-badge-ribbon text="Bán chạy" color="danger" placement="end">
+  <hui-card title="Gói Pro">...</hui-card>
+</hui-badge-ribbon>
+\`\`\`
+
+| Attribute | Type | Default | Mô tả |
+|-----------|------|---------|-------|
+| \`text\` | string | — | Chữ trên ruy-băng (hoặc \`slot="text"\`) |
+| \`color\` | string | \`'primary'\` | \`primary\` / \`secondary\` / \`success\` / \`warning\` / \`danger\` / \`info\` hoặc màu CSS bất kỳ |
+| \`placement\` | string | \`'end'\` | \`start\` / \`end\` — mép gắn (theo chiều viết, hỗ trợ RTL) |
+
+Slots: _(default)_ nội dung, \`text\` · Parts: \`base\`, \`ribbon\`, \`text\`, \`corner\`
+
+| Biến CSS | Mặc định | Mô tả |
+|----------|----------|-------|
+| \`--hui-badge-ribbon-bg\` | theo \`color\` | Màu ruy-băng |
+| \`--hui-badge-ribbon-color\` | \`--hui-text-inverse\` | Màu chữ |
+| \`--hui-badge-ribbon-top\` | \`8px\` | Khoảng cách mép trên |
+| \`--hui-badge-ribbon-height\` | \`22px\` | Chiều cao |
+| \`--hui-badge-ribbon-radius\` | \`--hui-radius-sm\` | Bo góc |
+| \`--hui-badge-ribbon-font-size\` | \`--hui-font-sm\` | Cỡ chữ |
+
+### Bàn phím
+Badge / ribbon chỉ hiển thị, không nhận focus. Chỉ báo dạng chấm có \`role="img"\` + \`aria-label\` (từ \`text\` / \`status\`).
         `,
       },
     },
@@ -455,6 +485,60 @@ export const OnButton = {
 };
 
 /**
+ * Ribbon — dải ruy-băng gắn ở mép trên của card (Ant Badge.Ribbon); placement start / end, màu preset hoặc tự do.
+ */
+export const Ribbon = {
+  render: () => html`
+    <div style="display: grid; grid-template-columns: repeat(3, 240px); gap: 32px; padding: 8px 16px;">
+      <hui-badge-ribbon text="Bán chạy">
+        <hui-card title="Gói Pro" variant="outlined">placement="end" (mặc định)</hui-card>
+      </hui-badge-ribbon>
+      <hui-badge-ribbon text="Mới" color="success" placement="start">
+        <hui-card title="Gói Team" variant="outlined">placement="start"</hui-card>
+      </hui-badge-ribbon>
+      <hui-badge-ribbon color="#ec4899">
+        <span slot="text">−20%</span>
+        <hui-card title="Gói Lite" variant="outlined">Màu CSS tự do + slot text</hui-card>
+      </hui-badge-ribbon>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const [r1, r2, r3] = canvasElement.querySelectorAll('hui-badge-ribbon');
+    const ribbon = r1.shadowRoot.querySelector('[part="ribbon"]');
+    await expect(ribbon.textContent).toContain('Bán chạy');
+    await expect(ribbon.classList.contains('hui-badge-ribbon--end')).toBe(true);
+    await expect(getComputedStyle(ribbon).position).toBe('absolute');
+    // Ruy-băng nằm ở mép phải của card (nhô ra 8px)
+    const rb = ribbon.getBoundingClientRect();
+    const host = r1.getBoundingClientRect();
+    await expect(Math.round(rb.right - host.right)).toBe(8);
+
+    await expect(r2.shadowRoot.querySelector('[part="ribbon"]').classList.contains('hui-badge-ribbon--start')).toBe(true);
+    await expect(r3.shadowRoot.querySelector('[part="ribbon"]').style.getPropertyValue('--_ribbon-bg')).toBe('#ec4899');
+    await expect(r2.shadowRoot.querySelector('[part="ribbon"]').style.getPropertyValue('--_ribbon-bg')).toBe('var(--hui-success)');
+
+    r1.placement = 'start';
+    await r1.updateComplete;
+    await expect(ribbon.classList.contains('hui-badge-ribbon--start')).toBe(true);
+  },
+};
+
+/**
+ * Status processing — chấm có vòng sóng lan tỏa (tắt khi prefers-reduced-motion).
+ */
+export const ProcessingPulse = {
+  render: () => html`<hui-badge status="processing" text="Đang đồng bộ"></hui-badge>`,
+  play: async ({ canvasElement }) => {
+    const badge = canvasElement.querySelector('hui-badge');
+    const dot = badge.shadowRoot.querySelector('[part="status-dot"]');
+    await expect(dot.classList.contains('hui-badge-status__dot--processing')).toBe(true);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      await expect(getComputedStyle(dot, '::after').animationName).toBe('hui-badge-ripple');
+    }
+  },
+};
+
+/**
  * Override từ bên ngoài — biến CSS đặt trên thẻ cha / chính badge, và ::part().
  */
 export const CustomizeFromOutside = {
@@ -473,6 +557,15 @@ export const CustomizeFromOutside = {
       <hui-badge class="brand" count="42">${box()}</hui-badge>
       <hui-badge class="tilt" count="HOT" variant="soft"></hui-badge>
       <hui-badge class="big-dot" dot color="warning">${box()}</hui-badge>
+    </div>
+    <style>
+      hui-badge-ribbon.brand-ribbon { --hui-badge-ribbon-bg: var(--hui-primary-7); --hui-badge-ribbon-radius: 0; --hui-badge-ribbon-top: 16px; }
+      hui-badge-ribbon.brand-ribbon::part(text) { text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; }
+    </style>
+    <div style="max-width: 260px; margin-top: 32px;">
+      <hui-badge-ribbon class="brand-ribbon" text="Ribbon tùy biến">
+        <hui-card title="--hui-badge-ribbon-*" variant="outlined">Biến CSS + ::part(text)</hui-card>
+      </hui-badge-ribbon>
     </div>
   `,
 };

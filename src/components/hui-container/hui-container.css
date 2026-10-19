@@ -1,0 +1,40 @@
+/*
+ * HUI Container CSS — chính :host là khung căn giữa
+ * Biến CSS override từ ngoài:
+ *   --hui-container-max-width   Ghi đè max-width ở mọi breakpoint (attribute max-width="800px" thắng)
+ *   --hui-container-padding-x   Khoảng đệm hai bên (16px; ≥ 768px: 24px)
+ * Breakpoint: sm 576 · md 768 · lg 992 · xl 1200 · xxl 1600 (giống hui-row / hui-col)
+ */
+
+:host {
+  /* Biến nội bộ: --_container-max theo breakpoint; --_container-custom do JS đặt (attribute độ dài) */
+  --_container-max: 100%;
+  --_container-pad: var(--hui-space-lg);
+  --_container-custom: initial;
+
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--hui-container-padding-x, var(--_container-pad));
+  max-width: var(--_container-custom, var(--hui-container-max-width, var(--_container-max)));
+}
+
+:host([hidden]) { display: none; }
+
+@media (min-width: 576px) { :host { --_container-max: 540px; } }
+@media (min-width: 768px) { :host { --_container-max: 720px; --_container-pad: var(--hui-space-xl); } }
+@media (min-width: 992px) { :host { --_container-max: 960px; } }
+@media (min-width: 1200px) { :host { --_container-max: 1140px; } }
+@media (min-width: 1600px) { :host { --_container-max: 1320px; } }
+
+/* max-width từ khóa: cố định giới hạn trên (vẫn co lại 100% ở màn hình nhỏ hơn) */
+:host([max-width="xs"]) { --_container-max: 444px; }
+:host([max-width="sm"]) { --_container-max: 540px; }
+:host([max-width="md"]) { --_container-max: 720px; }
+:host([max-width="lg"]) { --_container-max: 960px; }
+:host([max-width="xl"]) { --_container-max: 1140px; }
+:host([max-width="xxl"]) { --_container-max: 1320px; }
+
+:host([fluid]) { --_container-max: 100%; --_container-custom: 100%; }
+:host([disable-gutters]) { padding-inline: 0; }

@@ -1,0 +1,108 @@
+/*
+ * HUI Descriptions CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiDescriptions.
+ * Biến nội bộ --_desc-* trên khung → ô của hui-descriptions-item (display: contents) kế thừa.
+ * Viền bordered = khe 1px của lưới để lộ nền màu viền (mọi hàng luôn được lấp đầy nên không có lỗ).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-descriptions {
+  /* Đệm dưới / đệm cuối (md); nhãn và giá trị có đệm riêng */
+  --_desc-pb: var(--hui-space-lg);
+  --_desc-pe: var(--hui-space-lg);
+  --_desc-label-pad: 0 var(--hui-space-sm) var(--_desc-pb) 0;
+  --_desc-content-pad: 0 var(--_desc-pe) var(--_desc-pb) 0;
+  --_desc-label-bg: transparent;
+  --_desc-content-bg: transparent;
+  --_desc-label-after: '';
+
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+/* ================== HEADER ================== */
+.hui-descriptions__header {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-md);
+  margin-bottom: var(--hui-space-lg);
+}
+
+.hui-descriptions__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--hui-descriptions-title-color, var(--hui-text));
+  font-size: var(--hui-descriptions-title-font-size, var(--hui-font-base));
+  font-weight: var(--hui-font-weight-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hui-descriptions__extra {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+}
+
+/* ================== LƯỚI ================== */
+.hui-descriptions__view {
+  display: grid;
+  box-sizing: border-box;
+}
+
+.hui-descriptions--horizontal .hui-descriptions__view {
+  grid-template-columns: repeat(var(--_desc-cols, 3), auto minmax(0, 1fr));
+}
+
+.hui-descriptions--vertical .hui-descriptions__view {
+  grid-template-columns: repeat(var(--_desc-cols, 3), minmax(0, 1fr));
+}
+
+/* ================== KHÔNG VIỀN ================== */
+.hui-descriptions--sm { --_desc-pb: var(--hui-space-sm); --_desc-pe: var(--hui-space-md); }
+.hui-descriptions--lg { --_desc-pe: var(--hui-space-xl); }
+
+.hui-descriptions--vertical {
+  --_desc-label-pad: 0 var(--_desc-pe) var(--hui-space-xs) 0;
+}
+
+.hui-descriptions--colon {
+  --_desc-label-after: ':';
+}
+
+/* ================== BORDERED ================== */
+.hui-descriptions--bordered {
+  --_desc-label-pad: var(--hui-space-md) var(--hui-space-xl);
+  --_desc-content-pad: var(--hui-space-md) var(--hui-space-xl);
+  --_desc-label-bg: var(--hui-descriptions-label-bg, color-mix(in srgb, var(--hui-text) 3%, var(--hui-bg-container)));
+  --_desc-content-bg: var(--hui-descriptions-content-bg, var(--hui-bg-container));
+}
+
+.hui-descriptions--bordered.hui-descriptions--sm {
+  --_desc-label-pad: var(--hui-space-sm) var(--hui-space-lg);
+  --_desc-content-pad: var(--hui-space-sm) var(--hui-space-lg);
+}
+
+.hui-descriptions--bordered.hui-descriptions--lg {
+  --_desc-label-pad: var(--hui-space-lg) var(--hui-space-xl);
+  --_desc-content-pad: var(--hui-space-lg) var(--hui-space-xl);
+}
+
+.hui-descriptions--bordered .hui-descriptions__view {
+  gap: 1px;
+  background: var(--hui-descriptions-border-color, var(--hui-border));
+  border: 1px solid var(--hui-descriptions-border-color, var(--hui-border));
+  border-radius: var(--hui-descriptions-radius, var(--hui-radius-lg));
+  overflow: hidden;
+}

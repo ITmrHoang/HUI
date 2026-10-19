@@ -4,7 +4,8 @@
  * các trạng thái validation, kích thước.
  */
 
-import { html } from 'lit';
+import { html, nothing } from 'lit';
+import { expect, userEvent } from 'storybook/test';
 import './index.js';
 
 export default {
@@ -53,7 +54,10 @@ export default {
 | \`error\` | string | — | Thông báo lỗi (đỏ) |
 | \`success\` | string | — | Thông báo thành công (xanh) |
 | \`hint\` | string | — | Gợi ý nhỏ phía dưới |
-| \`clearable\` | boolean | \`false\` | Hiện nút xóa (✕) — tự ẩn khi input trống |
+| \`clearable\` / \`allow-clear\` | boolean | \`false\` | Hiện nút xóa (✕) — tự ẩn khi input trống (\`allow-clear\` là tên kiểu Ant) |
+| \`show-count\` | boolean | \`false\` | Bộ đếm ký tự trong khung: \`12\` hoặc \`12 / 50\` khi có \`maxlength\` |
+| \`variant\` | string | \`outlined\` | Kiểu khung: \`outlined\`, \`filled\`, \`borderless\` |
+| \`password-visible\` | boolean | \`false\` | \`type="password"\`: đang hiện mật khẩu (nút con mắt bật/tắt) |
 | \`icon-left\` | string | — | Icon/emoji hiển thị bên trái input |
 | \`icon-right\` | string | — | Icon/emoji hiển thị bên phải input |
 | \`name\` | string | \`''\` | Tên field khi gửi form |
@@ -74,12 +78,21 @@ CSS bắt lỗi sau khi người dùng đã tương tác: \`hui-input:state(user
 | \`change\` | \`{ value }\` | Phát khi blur ra ngoài |
 | \`hui-search\` | \`{ value }\` | Phát debounced (300ms) khi type="search" |
 | \`clear\` | — | Phát khi nhấn nút xóa |
+| \`hui-visibility-change\` | \`{ visible }\` | \`type="password"\`: bấm nút ẩn/hiện |
 
 ### Slots
 | Slot | Mô tả |
 |------|-------|
-| \`prefix\` | Nội dung HTML tùy ý phía trước input (bị ghi đè nếu có icon-left) |
-| \`suffix\` | Nội dung HTML tùy ý phía sau input (bị ghi đè nếu có icon-right) |
+| \`prefix\` | Nội dung HTML tùy ý phía trước input, trong khung (bị ghi đè nếu có icon-left) |
+| \`suffix\` | Nội dung HTML tùy ý phía sau input, trong khung (bị ghi đè nếu có icon-right) |
+| \`addon-before\` | Hộp xám gắn liền bên trái khung (vd: \`https://\`) |
+| \`addon-after\` | Hộp xám gắn liền bên phải khung (vd: \`.com\`) |
+
+### Bàn phím
+| Phím | Tác dụng |
+|------|----------|
+| \`Tab\` | Vào ô nhập → nút ẩn/hiện mật khẩu (nút xóa không nhận focus) |
+| \`Space\` / \`Enter\` trên nút con mắt | Bật/tắt hiện mật khẩu (\`aria-pressed\`) |
 
 ### Override giao diện từ bên ngoài
 Biến CSS đặt được trên chính thẻ, thẻ cha hoặc \`:root\`; \`::part()\` để chỉnh sâu hơn.
@@ -95,9 +108,13 @@ Biến CSS đặt được trên chính thẻ, thẻ cha hoặc \`:root\`; \`::p
 | \`--hui-input-border-color\` / \`--hui-input-hover-border-color\` | Viền / viền khi hover |
 | \`--hui-input-focus-border-color\` / \`--hui-input-focus-shadow\` | Viền / vòng sáng khi focus |
 | \`--hui-input-label-color\` / \`--hui-input-label-font-size\` | Màu / cỡ chữ nhãn |
-| \`--hui-input-icon-color\` | Màu icon, prefix, suffix |
+| \`--hui-input-icon-color\` | Màu icon, prefix, suffix, nút ẩn/hiện mật khẩu |
+| \`--hui-input-filled-bg\` | Nền variant \`filled\` |
+| \`--hui-input-addon-bg\` | Nền hộp addon |
+| \`--hui-input-count-color\` | Màu bộ đếm ký tự |
 
-**Parts:** \`base\`, \`label\`, \`container\`, \`input\`, \`prefix\`, \`suffix\`, \`icon\` (\`icon-left\`, \`icon-right\`), \`clear\`, \`message\`.
+**Parts:** \`base\`, \`label\`, \`control\`, \`container\`, \`input\`, \`prefix\`, \`suffix\`, \`addon-before\`, \`addon-after\`,
+\`icon\` (\`icon-left\`, \`icon-right\`), \`clear\`, \`count\`, \`password-toggle\`, \`message\`.
         `,
       },
     },
@@ -131,6 +148,14 @@ Biến CSS đặt được trên chính thẻ, thẻ cha hoặc \`:root\`; \`::p
     success: { control: 'text', description: 'Thông báo thành công (xanh)' },
     hint: { control: 'text', description: 'Gợi ý nhỏ' },
     clearable: { control: 'boolean', description: 'Hiện nút xóa nhanh (✕) — tự ẩn khi trống' },
+    'show-count': { control: 'boolean', description: 'Hiện bộ đếm ký tự' },
+    maxlength: { control: 'number', description: 'Số ký tự tối đa' },
+    variant: {
+      control: 'select',
+      options: ['outlined', 'filled', 'borderless'],
+      description: 'Kiểu khung viền',
+      table: { type: { summary: 'string' }, defaultValue: { summary: 'outlined' } },
+    },
     'icon-left': { control: 'text', description: 'Icon/emoji bên trái input' },
     'icon-right': { control: 'text', description: 'Icon/emoji bên phải input' },
   },
@@ -154,6 +179,9 @@ export const Default = {
         ?disabled=${args.disabled}
         ?required=${args.required}
         ?clearable=${args.clearable}
+        ?show-count=${args['show-count']}
+        maxlength=${args.maxlength ?? nothing}
+        variant=${args.variant || 'outlined'}
         error=${args.error || ''}
         success=${args.success || ''}
         hint=${args.hint || ''}
@@ -172,6 +200,9 @@ export const Default = {
     disabled: false,
     required: false,
     clearable: false,
+    'show-count': false,
+    maxlength: undefined,
+    variant: 'outlined',
     error: '',
     success: '',
     hint: '',
@@ -415,4 +446,139 @@ export const CustomizeFromOutside = {
       <hui-input class="underline" label="::part(container)" placeholder="Kiểu gạch chân"></hui-input>
     </div>
   `,
+};
+
+/**
+ * Mật khẩu — nút con mắt ẩn/hiện (aria-pressed), giữ nguyên vị trí con trỏ khi đổi.
+ */
+export const Password = {
+  render: () => html`
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 400px;">
+      <hui-input id="pw" label="Mật khẩu" type="password" value="hui-secret" placeholder="Nhập mật khẩu..."></hui-input>
+      <hui-input label="Đang hiện sẵn" type="password" value="hiện-sẵn" password-visible></hui-input>
+    </div>
+  `,
+  // Kiểm thử: bấm nút → type đổi password ↔ text, aria-pressed + event theo đúng
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('#pw');
+    const input = el.shadowRoot.querySelector('input');
+    const toggle = el.shadowRoot.querySelector('[part="password-toggle"]');
+    let visible = null;
+    el.addEventListener('hui-visibility-change', (e) => { visible = e.detail.visible; });
+
+    await expect(input.type).toBe('password');
+    await expect(toggle.getAttribute('aria-pressed')).toBe('false');
+    await userEvent.click(toggle);
+    await el.updateComplete;
+    await expect(input.type).toBe('text');
+    await expect(toggle.getAttribute('aria-pressed')).toBe('true');
+    await expect(visible).toBe(true);
+    await expect(el.value).toBe('hui-secret');
+    await userEvent.click(toggle);
+    await el.updateComplete;
+    await expect(input.type).toBe('password');
+  },
+};
+
+/**
+ * Đếm ký tự — show-count, kèm maxlength thì hiện "12 / 50".
+ */
+export const ShowCount = {
+  render: () => html`
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 400px;">
+      <hui-input id="count-max" label="Tiêu đề" show-count maxlength="20" placeholder="Tối đa 20 ký tự"></hui-input>
+      <hui-input label="Không giới hạn" show-count value="HUI" allow-clear></hui-input>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('#count-max');
+    const count = el.shadowRoot.querySelector('[part="count"]');
+    await expect(count.textContent).toBe('0 / 20');
+    await userEvent.type(el.shadowRoot.querySelector('input'), 'Hello');
+    await el.updateComplete;
+    await expect(el.value).toBe('Hello');
+    await expect(count.textContent).toBe('5 / 20');
+  },
+};
+
+/**
+ * Addon — hộp xám gắn liền hai bên khung (Ant addonBefore / addonAfter), khác prefix/suffix nằm TRONG khung.
+ */
+export const Addons = {
+  render: () => html`
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 420px;">
+      <hui-input label="Website" placeholder="mysite">
+        <span slot="addon-before">https://</span>
+        <span slot="addon-after">.com</span>
+      </hui-input>
+      <hui-input label="Giá" placeholder="0" allow-clear>
+        <span slot="addon-before">₫</span>
+        <span slot="suffix">/ tháng</span>
+      </hui-input>
+      <hui-input size="sm" placeholder="size sm"><span slot="addon-after">kg</span></hui-input>
+      <hui-input size="lg" placeholder="size lg"><span slot="addon-before">@</span></hui-input>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const [first, , third] = canvasElement.querySelectorAll('hui-input');
+    await expect(first.shadowRoot.querySelector('[part="addon-before"]').hidden).toBe(false);
+    await expect(first.shadowRoot.querySelector('[part="addon-after"]').hidden).toBe(false);
+    await expect(third.shadowRoot.querySelector('[part="addon-before"]').hidden).toBe(true);
+  },
+};
+
+/**
+ * Variant — outlined (mặc định) · filled · borderless; kết hợp status.
+ */
+export const Variants = {
+  render: () => html`
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 760px;">
+      ${['outlined', 'filled', 'borderless'].map((variant) => html`
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <hui-input variant=${variant} label=${variant} placeholder="Bình thường"></hui-input>
+          <hui-input variant=${variant} status="warning" placeholder="status=warning"></hui-input>
+          <hui-input variant=${variant} status="error" placeholder="status=error"></hui-input>
+          <hui-input variant=${variant} disabled value="disabled"></hui-input>
+        </div>
+      `)}
+    </div>
+  `,
+};
+
+/**
+ * Trong <form> — FormData, required, reset về giá trị ban đầu.
+ */
+export const InForm = {
+  render: () => html`
+    <form id="input-form" style="display: flex; flex-direction: column; gap: 12px; max-width: 400px;"
+      @submit=${(e) => {
+        e.preventDefault();
+        const out = e.target.querySelector('output');
+        out.textContent = JSON.stringify(Object.fromEntries(new FormData(e.target)));
+      }}>
+      <hui-input name="user" label="Tài khoản" value="hoang" required></hui-input>
+      <hui-input name="password" label="Mật khẩu" type="password" required minlength="6"></hui-input>
+      <hui-input name="site" label="Website" show-count maxlength="30">
+        <span slot="addon-before">https://</span>
+      </hui-input>
+      <div style="display: flex; gap: 8px;">
+        <button type="submit">Gửi</button>
+        <button type="reset">Reset</button>
+      </div>
+      <output style="font-family: monospace; font-size: 12px;"></output>
+    </form>
+  `,
+  play: async ({ canvasElement }) => {
+    const form = canvasElement.querySelector('#input-form');
+    const [user, pass] = form.querySelectorAll('hui-input');
+    await expect(form.checkValidity()).toBe(false); // password trống
+    pass.value = '123456';
+    await expect(form.checkValidity()).toBe(true);
+    user.value = 'khac';
+    await expect(new FormData(form).get('user')).toBe('khac');
+    await expect(new FormData(form).get('password')).toBe('123456');
+    form.reset();
+    await expect(user.value).toBe('hoang');
+    await expect(pass.value).toBe('');
+  },
 };

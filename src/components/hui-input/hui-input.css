@@ -8,6 +8,7 @@
  *   --hui-input-font-size            Cỡ chữ
  *   --hui-input-radius               Bo góc
  *   --hui-input-bg                   Màu nền
+ *   --hui-input-filled-bg            Màu nền variant filled
  *   --hui-input-color                Màu chữ
  *   --hui-input-placeholder-color    Màu placeholder
  *   --hui-input-border-color         Màu viền
@@ -16,9 +17,12 @@
  *   --hui-input-focus-shadow         Vòng sáng khi focus
  *   --hui-input-label-color          Màu nhãn
  *   --hui-input-label-font-size      Cỡ chữ nhãn
- *   --hui-input-icon-color           Màu icon / prefix / suffix
+ *   --hui-input-icon-color           Màu icon / prefix / suffix / nút ẩn-hiện mật khẩu
+ *   --hui-input-addon-bg             Màu nền hộp addon-before / addon-after
+ *   --hui-input-count-color          Màu chữ bộ đếm ký tự
  *
- * Parts: base, label, container, input, prefix, suffix, icon, icon-left, icon-right, clear, message
+ * Parts: base, label, control, container, input, prefix, suffix, addon-before, addon-after,
+ *        icon, icon-left, icon-right, clear, count, password-toggle, message
  * State: :state(user-invalid) (lỗi validate sau khi người dùng đã tương tác), :state(filled), :state(disabled)
  */
 
@@ -37,11 +41,14 @@
 
 /* ================== WRAPPER + BỐ CỤC LABEL ================== */
 .hui-input {
-  /* Biến nội bộ: đổi theo size / trạng thái */
-  --_border: var(--hui-input-border-color, var(--hui-border));
-  --_focus-border: var(--hui-input-focus-border-color, var(--hui-primary));
-  --_focus-shadow: var(--hui-input-focus-shadow, 0 0 0 2px var(--hui-primary-light));
-  --_label-bg: var(--hui-input-bg, var(--hui-bg));
+  /* Biến nội bộ: đổi theo size / variant / trạng thái */
+  --_input-border: var(--hui-input-border-color, var(--hui-border));
+  --_input-hover-border: var(--hui-input-hover-border-color, var(--hui-border-hover));
+  --_input-focus-border: var(--hui-input-focus-border-color, var(--hui-primary));
+  --_input-focus-shadow: var(--hui-input-focus-shadow, var(--hui-focus-ring));
+  --_input-bg: var(--hui-input-bg, var(--hui-bg));
+  --_input-hover-bg: var(--_input-bg);
+  --_input-focus-bg: var(--_input-bg);
 
   display: flex;
   flex-direction: column;
@@ -90,7 +97,7 @@
   transform: translateY(-50%) scale(1);
   transform-origin: left center;
   color: var(--hui-input-label-color, var(--hui-text-muted));
-  background: var(--_label-bg);
+  background: var(--_input-bg);
   padding: 0 4px;
   pointer-events: none;
   transition: all var(--hui-transition-fast);
@@ -105,7 +112,7 @@
 }
 
 .hui-input--label-inside .hui-input__container:focus-within .hui-input__label {
-  color: var(--_focus-border);
+  color: var(--_input-focus-border);
 }
 
 /* Label chưa bay lên thì ẩn placeholder để không đè chữ */
@@ -113,48 +120,70 @@
   color: transparent;
 }
 
+/* ================== HÀNG ĐIỀU KHIỂN (addon + khung) ================== */
+.hui-input__control {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+
 /* ================== KHUNG VIỀN ================== */
 .hui-input__container {
   position: relative;
   display: flex;
+  flex: 1;
+  min-width: 0;
   align-items: center;
   box-sizing: border-box;
-  height: var(--hui-input-height, var(--_height));
-  border: 1px solid var(--_border);
-  border-radius: var(--hui-input-radius, var(--_radius));
-  background: var(--hui-input-bg, var(--hui-bg));
+  height: var(--hui-input-height, var(--_input-height));
+  border: 1px solid var(--_input-border);
+  border-radius: var(--hui-input-radius, var(--_input-radius));
+  background: var(--_input-bg);
   transition: all var(--hui-transition);
 }
 
 .hui-input__container:hover {
-  border-color: var(--hui-input-hover-border-color, var(--hui-border-hover));
+  border-color: var(--_input-hover-border);
+  background: var(--_input-hover-bg);
 }
 
 .hui-input__container:focus-within {
-  border-color: var(--_focus-border);
-  box-shadow: var(--_focus-shadow);
+  border-color: var(--_input-focus-border);
+  background: var(--_input-focus-bg);
+  box-shadow: var(--_input-focus-shadow);
+}
+
+/* ================== VARIANT ================== */
+/* filled: nền xám nhạt, không viền — focus thì trở lại nền thường + viền màu chủ đạo */
+.hui-input--filled {
+  --_input-border: transparent;
+  --_input-hover-border: transparent;
+  --_input-bg: var(--hui-input-filled-bg, var(--hui-fill-tertiary));
+  --_input-hover-bg: var(--hui-fill-secondary);
+  --_input-focus-bg: var(--hui-input-bg, var(--hui-bg));
 }
 
 /* ================== TRẠNG THÁI (error / warning / success) ================== */
 .hui-input--error,
 .hui-input--warning,
 .hui-input--success {
-  --_border: var(--_tone);
-  --_focus-border: var(--_tone);
+  --_input-border: var(--_input-tone);
+  --_input-hover-border: var(--_input-tone);
+  --_input-focus-border: var(--_input-tone);
 }
 
 .hui-input--error {
-  --_tone: var(--hui-danger);
-  --_focus-shadow: 0 0 0 2px var(--hui-danger-light);
+  --_input-tone: var(--hui-danger);
+  --_input-focus-shadow: 0 0 0 3px var(--hui-danger-light);
 }
 
 .hui-input--warning {
-  --_tone: var(--hui-warning);
-  --_focus-shadow: 0 0 0 2px var(--hui-warning-light);
+  --_input-tone: var(--hui-warning);
+  --_input-focus-shadow: 0 0 0 3px var(--hui-warning-light);
 }
 
 .hui-input--success {
-  --_tone: var(--hui-success);
+  --_input-tone: var(--hui-success);
 }
 
 .hui-input--error .hui-input__label {
@@ -163,31 +192,45 @@
 
 /* Lỗi validate (required, email...) chỉ báo sau khi người dùng đã chạm vào ô */
 :host(:state(user-invalid)) .hui-input {
-  --_border: var(--hui-danger);
-  --_focus-border: var(--hui-danger);
-  --_focus-shadow: 0 0 0 2px var(--hui-danger-light);
+  --_input-border: var(--hui-danger);
+  --_input-hover-border: var(--hui-danger);
+  --_input-focus-border: var(--hui-danger);
+  --_input-focus-shadow: 0 0 0 3px var(--hui-danger-light);
 }
+
+/* borderless: không viền, không nền, không vòng sáng (kể cả khi lỗi — chữ lỗi ở message) */
+.hui-input--borderless .hui-input__container,
+.hui-input--borderless .hui-input__container:hover,
+.hui-input--borderless .hui-input__container:focus-within {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* borderless không có viền để tô → báo trạng thái bằng màu chữ */
+.hui-input--borderless.hui-input--error .hui-input__field { color: var(--hui-danger); }
+.hui-input--borderless.hui-input--warning .hui-input__field { color: var(--hui-warning); }
 
 /* ================== KÍCH THƯỚC ================== */
 .hui-input--sm {
-  --_height: var(--hui-size-sm);
-  --_radius: var(--hui-radius-sm);
-  --_padding-x: 8px;
-  --_font-size: var(--hui-font-xs);
+  --_input-height: var(--hui-size-sm);
+  --_input-radius: var(--hui-radius-sm);
+  --_input-padding-x: 8px;
+  --_input-font-size: var(--hui-font-xs);
 }
 
 .hui-input--md {
-  --_height: var(--hui-size-md);
-  --_radius: var(--hui-radius);
-  --_padding-x: 12px;
-  --_font-size: var(--hui-font-sm);
+  --_input-height: var(--hui-size-md);
+  --_input-radius: var(--hui-radius);
+  --_input-padding-x: 12px;
+  --_input-font-size: var(--hui-font-sm);
 }
 
 .hui-input--lg {
-  --_height: var(--hui-size-lg);
-  --_radius: var(--hui-radius-md);
-  --_padding-x: 16px;
-  --_font-size: var(--hui-font-base);
+  --_input-height: var(--hui-size-lg);
+  --_input-radius: var(--hui-radius-md);
+  --_input-padding-x: 16px;
+  --_input-font-size: var(--hui-font-base);
 }
 
 /* ================== Ô NHẬP NATIVE ================== */
@@ -197,12 +240,12 @@
   min-width: 0;
   height: 100%;
   box-sizing: border-box;
-  padding: 0 var(--hui-input-padding-x, var(--_padding-x));
+  padding: 0 var(--hui-input-padding-x, var(--_input-padding-x));
   border: none;
   outline: none;
   background: transparent;
   font-family: inherit;
-  font-size: var(--hui-input-font-size, var(--_font-size));
+  font-size: var(--hui-input-font-size, var(--_input-font-size));
   color: var(--hui-input-color, var(--hui-text));
 }
 
@@ -214,6 +257,11 @@
   cursor: not-allowed;
 }
 
+/* Ẩn con mắt mặc định của Edge để không trùng nút ẩn/hiện */
+.hui-input__field::-ms-reveal {
+  display: none;
+}
+
 /* ================== PREFIX / SUFFIX / ICON ================== */
 .hui-input__prefix,
 .hui-input__suffix,
@@ -223,7 +271,7 @@
   flex-shrink: 0;
   padding: 0 var(--hui-space-sm);
   color: var(--hui-input-icon-color, var(--hui-text-muted));
-  font-size: var(--hui-input-font-size, var(--_font-size));
+  font-size: var(--hui-input-font-size, var(--_input-font-size));
 }
 
 .hui-input__icon {
@@ -236,7 +284,42 @@
 }
 
 .hui-input__container:focus-within .hui-input__icon {
-  color: var(--_focus-border);
+  color: var(--_input-focus-border);
+}
+
+/* ================== ADDON (hộp xám gắn liền 2 bên) ================== */
+.hui-input__addon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: var(--hui-input-height, var(--_input-height));
+  padding: 0 var(--hui-input-padding-x, var(--_input-padding-x));
+  border: 1px solid var(--hui-input-border-color, var(--hui-border));
+  background: var(--hui-input-addon-bg, var(--hui-fill-tertiary));
+  color: var(--hui-text);
+  font-size: var(--hui-input-font-size, var(--_input-font-size));
+  white-space: nowrap;
+}
+
+.hui-input__addon--before {
+  border-right: 0;
+  border-radius: var(--hui-input-radius, var(--_input-radius)) 0 0 var(--hui-input-radius, var(--_input-radius));
+}
+
+.hui-input__addon--after {
+  border-left: 0;
+  border-radius: 0 var(--hui-input-radius, var(--_input-radius)) var(--hui-input-radius, var(--_input-radius)) 0;
+}
+
+.hui-input__control--addon-before .hui-input__container {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.hui-input__control--addon-after .hui-input__container {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 /* ================== NÚT XÓA ================== */
@@ -269,6 +352,49 @@
   transform: scale(0.8);
 }
 
+/* ================== BỘ ĐẾM ================== */
+.hui-input__count {
+  flex-shrink: 0;
+  padding: 0 var(--hui-space-sm) 0 var(--hui-space-xs);
+  color: var(--hui-input-count-color, var(--hui-text-muted));
+  font-size: var(--hui-input-font-size, var(--_input-font-size));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.hui-input__count--exceed {
+  color: var(--hui-danger);
+}
+
+/* ================== NÚT ẨN / HIỆN MẬT KHẨU ================== */
+.hui-input__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-right: var(--hui-space-xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-input-icon-color, var(--hui-text-muted));
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: color var(--hui-transition-fast), background var(--hui-transition-fast);
+}
+
+.hui-input__toggle:hover {
+  color: var(--hui-text);
+  background: var(--hui-fill-secondary);
+}
+
+.hui-input__toggle:focus-visible {
+  outline: 2px solid var(--_input-focus-border);
+  outline-offset: -2px;
+}
+
 /* ================== THÔNG BÁO ================== */
 .hui-input__message {
   font-size: var(--hui-font-xs);
@@ -282,7 +408,8 @@
 @media (prefers-reduced-motion: reduce) {
   .hui-input__container,
   .hui-input__label,
-  .hui-input__clear {
+  .hui-input__clear,
+  .hui-input__toggle {
     transition: none;
   }
 }

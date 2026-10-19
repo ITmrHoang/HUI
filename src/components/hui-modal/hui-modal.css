@@ -1,8 +1,9 @@
 /*
  * HUI Modal CSS
  * Biến CSS (đặt ở :root, thẻ cha hoặc chính <hui-modal>):
- *   --hui-modal-width            Chiều rộng hộp thoại (ghi đè size)
+ *   --hui-modal-width            Chiều rộng hộp thoại (ghi đè size; attribute width ưu tiên hơn)
  *   --hui-modal-max-height       Chiều cao tối đa (mặc định 90vh)
+ *   --hui-modal-top              Khoảng cách tới mép trên khi không centered (mặc định min(100px, 10vh))
  *   --hui-modal-bg               Nền hộp thoại
  *   --hui-modal-color            Màu chữ phần nội dung
  *   --hui-modal-radius           Bo góc
@@ -15,7 +16,8 @@
  *   --hui-modal-footer-padding   Padding footer
  *   --hui-modal-title-font-size  Cỡ chữ tiêu đề
  *   --hui-modal-title-color      Màu tiêu đề
- * Parts: dialog, mask, panel, header, title, close, body, footer, ok-button, cancel-button
+ * Parts: dialog, mask, panel, header, title, close, body, footer, ok-button, cancel-button,
+ *        confirm-icon, confirm-title
  */
 
 :host {
@@ -62,22 +64,32 @@
 .wrap {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   box-sizing: border-box;
   height: 100%;
   padding: var(--hui-modal-gutter, 12px);
+  /* Mặc định cách mép trên như Ant; centered → căn giữa theo chiều dọc */
+  padding-top: max(var(--hui-modal-gutter, 12px), var(--hui-modal-top, min(100px, 10vh)));
+}
+
+.wrap--centered,
+.wrap:has(.panel--full) {
+  align-items: center;
+  padding-top: var(--hui-modal-gutter, 12px);
 }
 
 .panel {
-  --_width: 560px;
+  --_modal-width: 560px;
 
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  width: var(--hui-modal-width, var(--_width));
+  /* --_modal-width-attr: do attribute width đặt (inline) */
+  width: var(--_modal-width-attr, var(--hui-modal-width, var(--_modal-width)));
   max-width: 100%;
-  max-height: var(--hui-modal-max-height, 90vh);
+  /* 100% = phần còn lại của .wrap (đã trừ padding) → không tràn khi cách mép trên */
+  max-height: min(var(--hui-modal-max-height, 90vh), 100%);
   background: var(--hui-modal-bg, var(--hui-bg-elevated));
   border-radius: var(--hui-modal-radius, var(--hui-radius-lg));
   box-shadow: var(--hui-modal-shadow, var(--hui-shadow-xl));
@@ -85,10 +97,10 @@
 }
 
 /* === Sizes === */
-.panel--sm { --_width: 400px; }
-.panel--lg { --_width: 800px; }
+.panel--sm { --_modal-width: 400px; }
+.panel--lg { --_modal-width: 800px; }
 .panel--full {
-  --_width: 95vw;
+  --_modal-width: 95vw;
   height: 90vh;
 }
 
@@ -156,4 +168,47 @@
 /* Nút mặc định (fallback của slot footer) cách nhau như khi người dùng tự đặt */
 .footer slot {
   display: contents;
+}
+
+/* === Hộp xác nhận (confirm-type / modal.confirm()) === */
+.confirm-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.confirm-icon {
+  --_modal-confirm-color: var(--hui-warning);
+
+  flex-shrink: 0;
+  font-size: 1.375rem;
+  color: var(--_modal-confirm-color);
+}
+
+.confirm-icon[data-type='info'] { --_modal-confirm-color: var(--hui-info); }
+.confirm-icon[data-type='success'] { --_modal-confirm-color: var(--hui-success); }
+.confirm-icon[data-type='error'] { --_modal-confirm-color: var(--hui-danger); }
+
+.confirm-title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--hui-modal-title-font-size, var(--hui-font-base));
+  font-weight: var(--hui-font-weight-semibold, 600);
+  line-height: 1.4;
+  color: var(--hui-modal-title-color, var(--hui-text));
+}
+
+/* Nội dung thụt vào thẳng hàng với tiêu đề (bỏ qua cột icon) */
+.panel--confirm .content {
+  margin-top: 8px;
+  padding-inline-start: calc(1.375rem + 12px);
+}
+
+.panel--confirm .body {
+  padding: var(--hui-modal-body-padding, 20px 24px 8px);
+}
+
+.panel--confirm .footer {
+  padding: var(--hui-modal-footer-padding, 12px 24px 20px);
+  border-top: 0;
 }

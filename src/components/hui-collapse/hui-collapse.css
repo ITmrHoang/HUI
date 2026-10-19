@@ -1,0 +1,68 @@
+/*
+ * HUI Collapse CSS
+ * Biến công khai (KHÔNG khai báo ở đây — đặt ở collapse / thẻ cha / :root):
+ *   --hui-collapse-bg, --hui-collapse-border-color, --hui-collapse-radius,
+ *   --hui-collapse-header-bg, --hui-collapse-header-padding, --hui-collapse-header-color,
+ *   --hui-collapse-content-bg, --hui-collapse-content-padding, --hui-collapse-content-color,
+ *   --hui-collapse-icon-color
+ * Biến nội bộ --_collapse-* khai báo trên khung → panel con (slot) kế thừa qua flat tree.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+.hui-collapse {
+  /* Kích thước (md) */
+  --_collapse-header-pad: var(--hui-space-md) var(--hui-space-lg);
+  --_collapse-content-pad: var(--hui-space-lg);
+  --_collapse-font-size: var(--hui-font-sm);
+  /* Kiểu dáng (bordered) */
+  --_collapse-bg: var(--hui-fill-tertiary);
+  --_collapse-content-bg: var(--hui-bg-container);
+  --_collapse-outer-border-w: 1px;
+  --_collapse-item-border-w: 1px;
+  --_collapse-content-border-w: 1px;
+  --_collapse-icon-order: 0;
+
+  box-sizing: border-box;
+  background: var(--hui-collapse-bg, var(--_collapse-bg));
+  border: var(--_collapse-outer-border-w) solid var(--hui-collapse-border-color, var(--hui-border));
+  border-radius: var(--hui-collapse-radius, var(--hui-radius-lg));
+  font-size: var(--_collapse-font-size);
+  line-height: var(--hui-line-height);
+  overflow: hidden; /* Bo góc cả header/nội dung của panel con */
+}
+
+/* ================== SIZES ================== */
+.hui-collapse--sm {
+  --_collapse-header-pad: var(--hui-space-sm) var(--hui-space-md);
+  --_collapse-content-pad: var(--hui-space-sm) var(--hui-space-md);
+}
+
+.hui-collapse--lg {
+  --_collapse-header-pad: var(--hui-space-lg) var(--hui-space-xl);
+  --_collapse-content-pad: var(--hui-space-xl);
+  --_collapse-font-size: var(--hui-font-base);
+}
+
+/* ================== KIỂU DÁNG ================== */
+.hui-collapse--borderless {
+  --_collapse-content-bg: transparent;
+  --_collapse-outer-border-w: 0;
+  --_collapse-content-border-w: 0;
+}
+
+.hui-collapse--ghost {
+  --_collapse-bg: transparent;
+  --_collapse-content-bg: transparent;
+  --_collapse-outer-border-w: 0;
+  --_collapse-item-border-w: 0;
+  --_collapse-content-border-w: 0;
+}
+
+.hui-collapse--icon-end {
+  --_collapse-icon-order: 2;
+}

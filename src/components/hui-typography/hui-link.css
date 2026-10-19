@@ -1,0 +1,83 @@
+/*
+ * HUI Link CSS
+ * Biến CSS override từ ngoài:
+ *   --hui-link-color             Màu chữ (--hui-primary; type thắng)
+ *   --hui-link-hover-color       Màu khi hover
+ *   --hui-link-active-color      Màu khi nhấn
+ *   --hui-link-disabled-color    Màu khi disabled
+ *   --hui-link-font-weight       Độ đậm chữ (kế thừa)
+ *   --hui-link-underline-offset  Khoảng cách gạch chân (0.2em)
+ *   --hui-link-gap               Khoảng cách icon ↔ chữ (0.25em)
+ * Parts: base, external-icon
+ */
+
+:host {
+  display: inline;
+}
+
+:host([disabled]) {
+  cursor: not-allowed;
+}
+
+.link {
+  --_link-color: var(--hui-link-color, var(--hui-primary));
+  --_link-hover: var(--hui-link-hover-color, var(--hui-primary-hover));
+  --_link-active: var(--hui-link-active-color, var(--hui-primary-active));
+
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--hui-link-gap, 0.25em);
+  color: var(--_link-color);
+  font-weight: var(--hui-link-font-weight, inherit);
+  text-decoration: none;
+  text-underline-offset: var(--hui-link-underline-offset, 0.2em);
+  cursor: pointer;
+  border-radius: var(--hui-radius-sm);
+  transition: color var(--hui-transition-fast);
+}
+
+.link:hover { color: var(--_link-hover); }
+.link:active { color: var(--_link-active); }
+
+.link:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+/* ================== GẠCH CHÂN ================== */
+.link--underline-always,
+.link--underline-hover:hover {
+  text-decoration: underline;
+}
+
+/* ================== TYPE ================== */
+.link--secondary { --_link-color: var(--hui-text-secondary); --_link-hover: var(--hui-text); --_link-active: var(--hui-text); }
+.link--success { --_link-color: var(--hui-success); --_link-hover: var(--hui-success-hover); --_link-active: var(--hui-success-active); }
+.link--warning { --_link-color: var(--hui-warning); --_link-hover: var(--hui-warning-hover); --_link-active: var(--hui-warning-active); }
+.link--danger { --_link-color: var(--hui-danger); --_link-hover: var(--hui-danger-hover); --_link-active: var(--hui-danger-active); }
+
+/* ================== DISABLED ================== */
+.link--disabled,
+.link--disabled:hover,
+.link--disabled:active {
+  color: var(--hui-link-disabled-color, var(--hui-text-disabled));
+  text-decoration: none;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ================== ICON ================== */
+.link__external {
+  width: 0.85em;
+  height: 0.85em;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+::slotted([slot='icon']) {
+  align-self: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link { transition: none; }
+}

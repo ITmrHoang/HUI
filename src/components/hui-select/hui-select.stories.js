@@ -5,6 +5,7 @@
  */
 
 import { html } from 'lit';
+import { expect, waitFor } from 'storybook/test';
 import './index.js';
 
 export default {
@@ -74,6 +75,19 @@ export default {
 | \`name\` | string | \`''\` | Tên field khi gửi form |
 | \`label-position\` | string | \`top\` | Vị trí label: top, inline, inside (floating) |
 | \`status\` | string | — | Viền theo trạng thái: error, warning (không cần thông báo) |
+| \`mode\` | \`'' \\| multiple \\| tags\` | \`''\` | Chọn nhiều (value là mảng); \`tags\`: gõ + Enter để tạo giá trị mới |
+| \`show-search\` | boolean | \`false\` | Ô tìm kiếm + lọc theo nhãn (tên kiểu Ant của \`searchable\`) |
+| \`allow-clear\` | boolean | \`false\` | Nút xóa (tên kiểu Ant của \`clearable\`) |
+| \`max-tag-count\` | number | — | Số tag tối đa hiển thị, phần còn lại gộp thành tag \`+N\` |
+| \`loading\` | boolean | \`false\` | Vòng xoay ở trigger, dropdown hiện "Đang tải..." |
+
+### Nhiều giá trị · nhóm · virtual list
+- \`mode="multiple"\`: \`value\` là mảng (attribute nhận JSON \`'["a","b"]'\` hoặc \`a,b\`), option bật/tắt, dropdown vẫn mở,
+  \`Backspace\` xóa tag cuối. Trong \`<form>\` mỗi giá trị là 1 entry cùng \`name\` → \`FormData.getAll(name)\`.
+- \`mode="tags"\`: như multiple + gõ chữ chưa có trong danh sách → dòng "tạo mới", \`Enter\` để thêm.
+- Nhóm option: \`{ label: 'Châu Á', options: [...] }\` (lẫn với option thường được).
+- Hơn 100 option (sau khi lọc) → virtual list: chỉ vẽ các dòng đang nhìn thấy trong listbox.
+- Không có option: slot \`not-found\` (mặc định \`<hui-empty image="simple">\`).
 
 ### Form
 \`<hui-select>\` tham gia \`<form>\`: \`FormData\` (value primitive → chuỗi, object → JSON), \`form.reset()\`,
@@ -91,16 +105,23 @@ Dropdown nằm ở top-layer nên không bị \`overflow: hidden\` của thẻ c
 ### Events
 | Event | Detail | Mô tả |
 |-------|--------|-------|
-| \`change\` | \`{ value, label, option }\` | Phát khi chọn option |
+| \`change\` | \`{ value, label, option }\` | Phát khi chọn / bỏ chọn option (mode nhiều giá trị: cả 3 là mảng) |
 | \`clear\` | — | Phát khi xóa lựa chọn |
+
+### Slots
+| Slot | Mô tả |
+|------|-------|
+| \`not-found\` | Nội dung khi không có option (mặc định \`<hui-empty image="simple">\`) |
 
 ### Keyboard
 | Phím | Hành động |
 |------|-----------|
 | \`↑ ↓\` | Mở dropdown / di chuyển highlight |
 | \`Home\` / \`End\` | Về option đầu / cuối |
-| \`Enter\` / \`Space\` | Mở dropdown / chọn option đang highlight |
+| \`Enter\` / \`Space\` | Mở dropdown / chọn option đang highlight (multiple: bật/tắt, giữ dropdown mở) |
 | \`Escape\` | Đóng dropdown |
+| \`Backspace\` | mode multiple/tags: xóa tag cuối (khi ô tìm kiếm trống) |
+| \`Enter\` (tags) | Tạo giá trị mới từ chữ đang gõ |
 
 ### Override giao diện từ bên ngoài
 Biến CSS đặt được trên chính thẻ, thẻ cha hoặc \`:root\` (popup cũng nhận); \`::part()\` để chỉnh sâu hơn.
@@ -117,9 +138,11 @@ Biến CSS đặt được trên chính thẻ, thẻ cha hoặc \`:root\` (popup
 | \`--hui-select-dropdown-max-height\` | Chiều cao tối đa danh sách |
 | \`--hui-select-option-padding\` / \`--hui-select-option-hover-bg\` | Đệm / nền hover option |
 | \`--hui-select-option-selected-bg\` / \`--hui-select-option-selected-color\` | Nền / chữ option đang chọn |
+| \`--hui-select-tag-bg\` / \`--hui-select-tag-color\` / \`--hui-select-tag-radius\` | Tag (mode nhiều giá trị) |
 
-**Parts:** \`base\`, \`label\`, \`trigger\`, \`value\`, \`clear\`, \`arrow\`, \`dropdown\`, \`search\`, \`listbox\`,
-\`option\` (+ \`option-selected\`, \`option-active\`, \`option-disabled\`), \`check\`, \`empty\` (+ \`loading\`), \`message\`.
+**Parts:** \`base\`, \`label\`, \`trigger\`, \`value\`, \`tags\`, \`tag\` (+ \`tag-rest\`), \`tag-remove\`, \`clear\`, \`arrow\`, \`loading\`,
+\`dropdown\`, \`search\`, \`listbox\`, \`group-label\`, \`option\` (+ \`option-selected\`, \`option-active\`, \`option-disabled\`,
+\`option-create\`), \`check\`, \`empty\` (+ \`loading\`), \`message\`.
         `,
       },
     },
@@ -639,5 +662,201 @@ export const CustomizeFromOutside = {
         </div>
       </div>
     `;
+  },
+};
+
+// ========================================================
+// NÂNG CẤP: multiple / tags / nhóm / loading / not-found / virtual list
+// ========================================================
+
+/** Gửi phím lên phần tử trong shadow (composed như phím thật) */
+const press = (el, key) => el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, composed: true, cancelable: true }));
+const part = (el, name) => el.shadowRoot.querySelector(`[part~="${name}"]`);
+const typeSearch = (sel, text) => {
+  const search = part(sel, 'search');
+  search.value = text;
+  search.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+  return search;
+};
+
+const GROUPED_OPTIONS = [
+  { label: 'Châu Á', options: [{ label: 'Việt Nam', value: 'VN' }, { label: 'Nhật Bản', value: 'JP' }, { label: 'Hàn Quốc', value: 'KR' }] },
+  { label: 'Châu Âu', options: [{ label: 'Pháp', value: 'FR' }, { label: 'Đức', value: 'DE', disabled: true }] },
+  { label: 'Khác (không thuộc nhóm)', value: 'OTHER' },
+];
+
+const MANY_OPTIONS = Array.from({ length: 1000 }, (_, i) => ({ label: `Mục số ${i + 1}`, value: i + 1 }));
+
+/**
+ * mode="multiple" — value là mảng, tag có nút ✕, max-tag-count gộp tag thừa thành "+N".
+ * Trong <form>: mỗi giá trị là 1 entry cùng name.
+ */
+export const Multiple = {
+  render: () => html`
+    <form id="select-multi-form" style="max-width: 400px; padding: 20px; display: flex; flex-direction: column; gap: 12px;"
+      @submit=${(e) => {
+        e.preventDefault();
+        e.target.querySelector('output').textContent = JSON.stringify(new FormData(e.target).getAll('countries'));
+      }}>
+      <hui-select
+        name="countries"
+        label="Quốc gia đã đến"
+        mode="multiple"
+        allow-clear
+        show-search
+        max-tag-count="2"
+        placeholder="Chọn nhiều quốc gia"
+        .options=${COUNTRY_OPTIONS}
+        value='["VN"]'
+      ></hui-select>
+      <div style="display: flex; gap: 8px;"><button type="submit">Gửi</button><button type="reset">Đặt lại</button></div>
+      <output>[]</output>
+    </form>
+  `,
+  play: async ({ canvasElement }) => {
+    const form = canvasElement.querySelector('#select-multi-form');
+    const sel = form.querySelector('hui-select');
+    await waitFor(() => expect(sel.value).toEqual(['VN']));
+    await expect(new FormData(form).getAll('countries')).toEqual(['VN']);
+
+    const changes = [];
+    sel.addEventListener('change', (e) => changes.push(e.detail.value));
+    part(sel, 'trigger').click();
+    await waitFor(() => expect(sel.shadowRoot.querySelector('#option-1')).toBeTruthy());
+    sel.shadowRoot.querySelector('#option-1').click(); // JP
+    sel.shadowRoot.querySelector('#option-2').click(); // KR
+    await expect(sel.value).toEqual(['VN', 'JP', 'KR']);
+    await expect(part(sel, 'base').classList.contains('hui-select--open')).toBe(true); // vẫn mở
+    await expect(new FormData(form).getAll('countries')).toEqual(['VN', 'JP', 'KR']);
+    await waitFor(() => expect(sel.shadowRoot.querySelectorAll('[part="tag"]').length).toBe(2));
+    await expect(part(sel, 'tag-rest').textContent).toBe('+1');
+    await expect(sel.shadowRoot.querySelector('#option-1').getAttribute('aria-selected')).toBe('true');
+
+    // Bỏ chọn bằng click lại, Backspace (ô tìm kiếm trống) xóa tag cuối
+    sel.shadowRoot.querySelector('#option-1').click();
+    await expect(sel.value).toEqual(['VN', 'KR']);
+    press(part(sel, 'search'), 'Backspace');
+    await expect(sel.value).toEqual(['VN']);
+    await expect(changes).toEqual([['VN', 'JP'], ['VN', 'JP', 'KR'], ['VN', 'KR'], ['VN']]);
+
+    // Nút ✕ trên tag → rỗng → không gửi form; reset về attribute value
+    await waitFor(() => expect(part(sel, 'tag-remove')).toBeTruthy());
+    part(sel, 'tag-remove').click();
+    await expect(sel.value).toEqual([]);
+    await expect(sel.formValue()).toBe(null);
+    await expect(new FormData(form).getAll('countries')).toEqual([]);
+    form.reset();
+    await waitFor(() => expect(sel.value).toEqual(['VN']));
+    press(part(sel, 'search'), 'Escape');
+  },
+};
+
+/** mode="tags" — gõ chữ chưa có rồi Enter để tạo giá trị mới */
+export const Tags = {
+  render: () => html`
+    <div style="max-width: 400px; padding: 20px;">
+      <hui-select id="select-tags" label="Nhãn" mode="tags" allow-clear placeholder="Gõ rồi Enter để thêm"
+        .options=${['frontend', 'backend', 'devops']}></hui-select>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const sel = canvasElement.querySelector('#select-tags');
+    await waitFor(() => expect(part(sel, 'trigger')).toBeTruthy());
+    part(sel, 'trigger').click();
+
+    let search = typeSearch(sel, 'mobile');
+    await expect(part(sel, 'option-create').textContent).toContain('mobile');
+    press(search, 'Enter');
+    await expect(sel.value).toEqual(['mobile']);
+    await expect(search.value).toBe(''); // tự xóa chữ sau khi chọn
+
+    search = typeSearch(sel, 'backend'); // khớp option có sẵn → không có dòng "tạo mới"
+    await expect(part(sel, 'option-create')).toBe(null);
+    press(search, 'Enter');
+    await expect(sel.value).toEqual(['mobile', 'backend']);
+    await waitFor(() => expect([...sel.shadowRoot.querySelectorAll('[part="tag"]')]
+      .map((t) => t.querySelector('.hui-select__tag-label').textContent)).toEqual(['mobile', 'backend']));
+    press(search, 'Escape');
+  },
+};
+
+/** Nhóm option: { label, options: [...] } — option lẻ đặt cùng cấp với nhóm */
+export const OptionGroups = {
+  render: () => html`
+    <div style="max-width: 360px; padding: 20px;">
+      <hui-select id="select-groups" label="Quốc gia (theo châu lục)" show-search allow-clear .options=${GROUPED_OPTIONS}></hui-select>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const sel = canvasElement.querySelector('#select-groups');
+    await waitFor(() => expect(part(sel, 'trigger')).toBeTruthy());
+    part(sel, 'trigger').click();
+    await waitFor(() => expect(sel.shadowRoot.querySelectorAll('[role="group"]').length).toBe(2));
+    await expect([...sel.shadowRoot.querySelectorAll('[part="group-label"]')].map((g) => g.textContent)).toEqual(['Châu Á', 'Châu Âu']);
+    const search = typeSearch(sel, 'pháp');
+    await expect(sel.shadowRoot.querySelectorAll('[role="group"]').length).toBe(1);
+    press(search, 'Enter');
+    await expect(sel.value).toBe('FR');
+    await waitFor(() => expect(part(sel, 'value').textContent).toBe('Pháp'));
+  },
+};
+
+/** loading: vòng xoay ở trigger; slot not-found thay nội dung khi không có option */
+export const LoadingAndNotFound = {
+  render: () => html`
+    <div style="max-width: 360px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+      <hui-select label="Đang tải dữ liệu" loading placeholder="Đợi chút..."></hui-select>
+      <hui-select id="select-empty" label="Mặc định: hui-empty" show-search .options=${['Một', 'Hai']}></hui-select>
+      <hui-select label="Slot not-found tùy chỉnh" show-search>
+        <div slot="not-found" style="padding: 8px; text-align: center; color: var(--hui-text-tertiary);">
+          Chưa có gì — <a href="#" @click=${(e) => e.preventDefault()}>tạo mới</a>
+        </div>
+      </hui-select>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const sel = canvasElement.querySelector('#select-empty');
+    await waitFor(() => expect(part(sel, 'trigger')).toBeTruthy());
+    part(sel, 'trigger').click();
+    const search = typeSearch(sel, 'không có');
+    const status = part(sel, 'empty');
+    await expect(status.hidden).toBe(false);
+    await expect(status.querySelector('hui-empty')).toBeTruthy();
+    press(search, 'Escape');
+  },
+};
+
+/** > 100 option → virtual list: chỉ vẽ các dòng đang nhìn thấy (1000 option ở đây) */
+export const VirtualList = {
+  render: () => html`
+    <div style="max-width: 360px; padding: 20px;">
+      <hui-select id="select-virtual" label="1000 option" show-search .options=${MANY_OPTIONS}></hui-select>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const sel = canvasElement.querySelector('#select-virtual');
+    await waitFor(() => expect(part(sel, 'trigger')).toBeTruthy());
+    part(sel, 'trigger').click();
+    const listbox = part(sel, 'listbox');
+    await waitFor(() => expect(listbox.classList.contains('hui-select__listbox--virtual')).toBe(true));
+    const rendered = listbox.querySelectorAll('[role="option"]').length;
+    await expect(rendered).toBeGreaterThan(0);
+    await expect(rendered).toBeLessThan(60);
+
+    // ↑ khi chưa highlight → option cuối được vẽ + highlight; Enter chọn
+    const search = part(sel, 'search');
+    press(search, 'ArrowUp');
+    await waitFor(() => expect(sel.shadowRoot.querySelector('#option-999')).toBeTruthy());
+    await expect(search.getAttribute('aria-activedescendant')).toBe('option-999');
+    await expect(listbox.querySelectorAll('[role="option"]').length).toBeLessThan(60);
+    press(search, 'Enter');
+    await expect(sel.value).toBe(1000);
+
+    // Lọc còn ít option → về danh sách thường
+    part(sel, 'trigger').click();
+    typeSearch(sel, 'Mục số 99');
+    await expect(listbox.classList.contains('hui-select__listbox--virtual')).toBe(false);
+    await expect(listbox.querySelectorAll('[role="option"]').length).toBe(11); // 99, 990–999
+    press(search, 'Escape');
   },
 };

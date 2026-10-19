@@ -1,0 +1,139 @@
+/*
+ * HUI Typography — CSS dùng chung cho hui-text / hui-title / hui-paragraph
+ * Biến CSS override từ ngoài (không khai báo trong file này):
+ *   --hui-typography-code-bg            Nền chữ dạng code
+ *   --hui-typography-code-border-color  Viền chữ dạng code
+ *   --hui-typography-kbd-bg             Nền phím (keyboard)
+ *   --hui-typography-mark-bg            Nền chữ tô sáng (mark)
+ *   --hui-typography-mark-color         Màu chữ tô sáng
+ *   --hui-typography-action-color       Màu nút sao chép / "Xem thêm"
+ *   --hui-typography-action-hover-color Màu nút khi hover
+ *   --hui-typography-copied-color       Màu nút sau khi đã sao chép
+ * Parts: base, content, actions, copy + thẻ kiểu chữ: code, keyboard, mark, delete, underline, strong, italic
+ */
+
+[hidden] {
+  display: none !important;
+}
+
+/* ================== MÀU THEO TYPE ================== */
+/* Selector 2 class để thắng màu mặc định của từng thẻ (.typo) */
+.typo.typo--secondary { color: var(--hui-text-secondary); }
+.typo.typo--success { color: var(--hui-success); }
+.typo.typo--warning { color: var(--hui-warning); }
+.typo.typo--danger { color: var(--hui-danger); }
+
+.typo.typo--disabled {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+  user-select: none;
+}
+
+/* ================== KIỂU CHỮ ================== */
+strong {
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+code {
+  margin: 0 0.2em;
+  padding: 0.2em 0.4em 0.1em;
+  font-family: var(--hui-font-mono);
+  font-size: 85%;
+  background: var(--hui-typography-code-bg, var(--hui-fill-tertiary));
+  border: 1px solid var(--hui-typography-code-border-color, var(--hui-fill-secondary));
+  border-radius: var(--hui-radius-sm);
+}
+
+kbd {
+  margin: 0 0.2em;
+  padding: 0.15em 0.4em 0.1em;
+  font-family: var(--hui-font-mono);
+  font-size: 90%;
+  background: var(--hui-typography-kbd-bg, var(--hui-fill-tertiary));
+  border: 1px solid var(--hui-border);
+  border-bottom-width: 2px;
+  border-radius: var(--hui-radius-sm);
+}
+
+mark {
+  padding: 0;
+  background: var(--hui-typography-mark-bg, var(--hui-warning-3));
+  color: var(--hui-typography-mark-color, inherit);
+}
+
+/* ================== CẮT CHỮ (ELLIPSIS) ================== */
+/* Khung flex: nội dung co lại (min-width: 0) để còn chỗ cho nút hành động ở cuối */
+.typo--clamp {
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.typo--clamp .typo__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.typo--single .typo__content {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.typo--multi .typo__content {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--_typo-rows);
+  overflow-wrap: anywhere;
+}
+
+/* ================== NÚT HÀNH ĐỘNG (sao chép, xem thêm) ================== */
+.typo__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  margin-inline-start: 0.25em;
+  flex-shrink: 0;
+  vertical-align: baseline;
+}
+
+.typo__action {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  margin: 0;
+  padding: 0 2px;
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: none;
+  font: inherit;
+  line-height: inherit;
+  color: var(--hui-typography-action-color, var(--hui-primary));
+  cursor: pointer;
+  transition: color var(--hui-transition-fast);
+}
+
+.typo__action:hover {
+  color: var(--hui-typography-action-hover-color, var(--hui-primary-hover));
+}
+
+.typo__action:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 1px;
+}
+
+.typo__action:disabled {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.typo__copy--copied,
+.typo__copy--copied:hover {
+  color: var(--hui-typography-copied-color, var(--hui-success));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typo__action { transition: none; }
+}

@@ -1,0 +1,241 @@
+/*
+ * HUI Tabs CSS — biến công khai dạng var(--hui-tabs-*, mặc định), không khai báo trên :host.
+ * Biến nội bộ: --_tabs-* (đổi theo size / type).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.tabs {
+  --_tabs-pad: 12px 0;
+  --_tabs-gap: 32px;
+  --_tabs-font: var(--hui-font-sm);
+
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tabs--sm { --_tabs-pad: 8px 0; --_tabs-font: var(--hui-font-sm); }
+.tabs--lg { --_tabs-pad: 16px 0; --_tabs-font: var(--hui-font-base); }
+
+.tabs--bottom { flex-direction: column-reverse; }
+.tabs--left { flex-direction: row; }
+.tabs--right { flex-direction: row-reverse; }
+
+/* === Thanh tab === */
+.tabs__nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: none;
+  min-width: 0;
+  gap: var(--hui-space-xs);
+}
+
+.tabs--top .tabs__nav {
+  margin-bottom: var(--hui-tabs-nav-margin, var(--hui-space-lg));
+  border-bottom: 1px solid var(--hui-tabs-border-color, var(--hui-border));
+}
+
+.tabs--bottom .tabs__nav {
+  margin-top: var(--hui-tabs-nav-margin, var(--hui-space-lg));
+  border-top: 1px solid var(--hui-tabs-border-color, var(--hui-border));
+}
+
+.tabs--vertical .tabs__nav {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.tabs--left .tabs__nav {
+  margin-right: var(--hui-tabs-nav-margin, var(--hui-space-xl));
+  border-right: 1px solid var(--hui-tabs-border-color, var(--hui-border));
+}
+
+.tabs--right .tabs__nav {
+  margin-left: var(--hui-tabs-nav-margin, var(--hui-space-xl));
+  border-left: 1px solid var(--hui-tabs-border-color, var(--hui-border));
+}
+
+/* Vùng tab chỉ rộng bằng nội dung → nút "+" nằm ngay sau tab cuối; extra đẩy sang mép phải */
+.tabs__nav-wrap {
+  position: relative;
+  flex: 0 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.tabs__nav-wrap::-webkit-scrollbar { display: none; }
+
+.tabs__list {
+  position: relative;
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
+  gap: var(--hui-tabs-gap, var(--_tabs-gap));
+}
+
+.tabs--vertical .tabs__list {
+  flex-direction: column;
+  width: auto;
+  min-width: 0;
+  gap: var(--hui-tabs-gap, 0);
+}
+
+.tabs--centered .tabs__nav-wrap { flex-grow: 1; }
+.tabs--centered .tabs__list { justify-content: center; }
+
+/* === Từng tab === */
+.tabs__tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  padding: var(--hui-tabs-tab-padding, var(--_tabs-pad));
+  font-size: var(--hui-tabs-font-size, var(--_tabs-font));
+  line-height: var(--hui-line-height, 1.5);
+  color: var(--hui-tabs-color, var(--hui-text));
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  border-radius: var(--hui-radius-sm);
+  transition: color var(--hui-transition-fast), background-color var(--hui-transition-fast);
+}
+
+.tabs--vertical .tabs__tab { padding: var(--hui-tabs-tab-padding, 8px 24px); }
+
+.tabs__tab:hover { color: var(--hui-tabs-hover-color, var(--hui-primary-hover)); }
+
+.tabs__tab[aria-selected='true'] { color: var(--hui-tabs-active-color, var(--hui-primary)); }
+
+.tabs__tab:focus-visible { box-shadow: var(--hui-focus-ring); }
+
+.tabs__tab[aria-disabled='true'] {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.tabs__label { display: inline-flex; align-items: center; gap: var(--hui-space-xs); }
+
+.tabs__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline-start: 2px;
+  padding: 2px;
+  border-radius: var(--hui-radius-sm);
+  font-size: var(--hui-font-xs);
+  color: var(--hui-text-tertiary);
+  transition: color var(--hui-transition-fast), background-color var(--hui-transition-fast);
+}
+
+.tabs__close:hover {
+  color: var(--hui-text);
+  background: var(--hui-fill-secondary);
+}
+
+/* === Ink bar (type line) === */
+.tabs__ink {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: var(--hui-tabs-ink-size, 2px);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-tabs-ink-color, var(--hui-primary));
+  pointer-events: none;
+}
+
+.tabs__ink--animated {
+  transition: transform var(--hui-transition), width var(--hui-transition), height var(--hui-transition);
+}
+
+.tabs--bottom .tabs__ink { top: 0; bottom: auto; }
+.tabs--left .tabs__ink { top: 0; right: 0; left: auto; width: var(--hui-tabs-ink-size, 2px); height: 0; }
+.tabs--right .tabs__ink { top: 0; left: 0; width: var(--hui-tabs-ink-size, 2px); height: 0; }
+
+/* === Type card / editable-card === */
+.tabs--card .tabs__list { gap: var(--hui-tabs-gap, 2px); }
+.tabs--card .tabs__ink { display: none; }
+
+.tabs--card .tabs__tab {
+  padding: var(--hui-tabs-tab-padding, 8px 16px);
+  border: 1px solid var(--hui-tabs-border-color, var(--hui-border));
+  background: var(--hui-tabs-card-bg, var(--hui-fill-tertiary));
+}
+
+.tabs--card.tabs--top .tabs__tab { border-radius: var(--hui-radius) var(--hui-radius) 0 0; border-bottom-color: transparent; }
+.tabs--card.tabs--bottom .tabs__tab { border-radius: 0 0 var(--hui-radius) var(--hui-radius); border-top-color: transparent; }
+.tabs--card.tabs--left .tabs__tab { border-radius: var(--hui-radius) 0 0 var(--hui-radius); border-right-color: transparent; }
+.tabs--card.tabs--right .tabs__tab { border-radius: 0 var(--hui-radius) var(--hui-radius) 0; border-left-color: transparent; }
+
+.tabs--card .tabs__tab[aria-selected='true'] {
+  background: var(--hui-tabs-card-active-bg, var(--hui-bg-container));
+}
+
+.tabs--card.tabs--sm .tabs__tab { padding: var(--hui-tabs-tab-padding, 4px 12px); }
+.tabs--card.tabs--lg .tabs__tab { padding: var(--hui-tabs-tab-padding, 10px 20px); }
+
+/* === Nút cuộn / thêm === */
+.tabs__scroll,
+.tabs__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-text-secondary);
+  font: inherit;
+  cursor: pointer;
+  transition: color var(--hui-transition-fast), background-color var(--hui-transition-fast);
+}
+
+.tabs__scroll:hover:not(:disabled),
+.tabs__add:hover {
+  color: var(--hui-primary);
+  background: var(--hui-fill-secondary);
+}
+
+.tabs__scroll:disabled {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.tabs__add {
+  border: 1px solid var(--hui-tabs-border-color, var(--hui-border));
+  background: var(--hui-tabs-card-bg, var(--hui-fill-tertiary));
+}
+
+.tabs__add:focus-visible,
+.tabs__scroll:focus-visible { outline: none; box-shadow: var(--hui-focus-ring); }
+
+.tabs__extra { flex: none; display: flex; align-items: center; margin-inline-start: auto; }
+.tabs--vertical .tabs__extra { margin-inline-start: 0; margin-block-start: auto; }
+
+/* === Nội dung === */
+.tabs__content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs__ink--animated,
+  .tabs__tab { transition: none; }
+}

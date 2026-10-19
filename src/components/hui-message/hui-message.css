@@ -1,0 +1,89 @@
+/*
+ * HUI Message CSS
+ * Biến CSS (đặt ở :root hoặc thẻ cha của <body>):
+ *   --hui-message-top         Khoảng cách tới mép trên (message.config({ top }) ưu tiên hơn), mặc định 8px
+ *   --hui-message-gap         Khoảng cách giữa các message
+ *   --hui-message-bg          Nền
+ *   --hui-message-color       Màu chữ
+ *   --hui-message-radius      Bo góc
+ *   --hui-message-shadow      Đổ bóng
+ *   --hui-message-padding     Padding
+ *   --hui-message-font-size   Cỡ chữ
+ *   --hui-message-icon-size   Kích thước icon
+ * Parts: list, notice, icon, content (+ notice-success | notice-error | notice-warning | notice-info | notice-loading)
+ */
+
+/* Host = popover="manual" → nằm trên top-layer (trên cả Modal). Reset style mặc định của [popover] */
+:host {
+  position: fixed;
+  inset: auto;
+  top: var(--_message-top, var(--hui-message-top, 8px));
+  left: 0;
+  right: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+  /* Chỉ có tác dụng khi trình duyệt không hỗ trợ Popover API */
+  z-index: var(--hui-z-message);
+  /* Vùng trống không chặn click xuống trang */
+  pointer-events: none;
+  font-family: var(--hui-font-family);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Lớp bọc để thu gọn chiều cao khi đóng (collapse) — tách khỏi .notice để 2 animation không hủy nhau */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: calc(100vw - 32px);
+}
+
+.notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  max-width: 100%;
+  margin-bottom: var(--hui-message-gap, 8px);
+  padding: var(--hui-message-padding, 9px 12px);
+  background: var(--hui-message-bg, var(--hui-bg-elevated));
+  color: var(--hui-message-color, var(--hui-text));
+  border-radius: var(--hui-message-radius, var(--hui-radius));
+  box-shadow: var(--hui-message-shadow, var(--hui-shadow-lg));
+  font-size: var(--hui-message-font-size, var(--hui-font-sm));
+  line-height: var(--hui-line-height);
+  pointer-events: auto;
+}
+
+.icon {
+  --_message-icon: var(--hui-info);
+
+  flex-shrink: 0;
+  font-size: var(--hui-message-icon-size, 1.15em);
+  color: var(--_message-icon);
+}
+
+.notice--success .icon { --_message-icon: var(--hui-success); }
+.notice--error .icon { --_message-icon: var(--hui-danger); }
+.notice--warning .icon { --_message-icon: var(--hui-warning); }
+.notice--loading .icon { --_message-icon: var(--hui-primary); }
+
+.content {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+[hidden] {
+  display: none !important;
+}

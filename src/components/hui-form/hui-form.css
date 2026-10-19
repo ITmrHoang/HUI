@@ -1,0 +1,19 @@
+/*
+ * HUI Form CSS
+ *   --hui-form-inline-gap  Khoảng cách giữa các item ở layout inline
+ * Biến của từng dòng (nhãn, lỗi, khoảng cách...): xem hui-form-item.css — đặt trên hui-form cũng được.
+ * Parts: base
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+.hui-form--inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  column-gap: var(--hui-form-inline-gap, 0px);
+}

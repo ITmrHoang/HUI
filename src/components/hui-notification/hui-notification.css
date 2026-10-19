@@ -1,0 +1,171 @@
+/*
+ * HUI Notification CSS
+ * Biến CSS (đặt ở :root hoặc thẻ cha của <body>):
+ *   --hui-notification-width        Chiều rộng (mặc định 384px)
+ *   --hui-notification-offset       Khoảng cách tới mép màn hình theo chiều ngang (mặc định 24px)
+ *   --hui-notification-top          Khoảng cách tới mép trên (notification.config({ top }) ưu tiên hơn)
+ *   --hui-notification-bottom       Khoảng cách tới mép dưới (notification.config({ bottom }) ưu tiên hơn)
+ *   --hui-notification-gap          Khoảng cách giữa các thông báo
+ *   --hui-notification-bg           Nền
+ *   --hui-notification-color        Màu chữ mô tả
+ *   --hui-notification-title-color  Màu tiêu đề
+ *   --hui-notification-radius       Bo góc
+ *   --hui-notification-shadow       Đổ bóng
+ *   --hui-notification-padding      Padding
+ *   --hui-notification-icon-size    Kích thước icon trạng thái
+ * Parts: stack, notice, icon, main, title, description, actions, close
+ */
+
+/* Host phủ toàn màn hình trên top-layer nhưng không chặn click; chỉ các thông báo nhận chuột */
+:host {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+  z-index: var(--hui-z-notification);
+  pointer-events: none;
+  font-family: var(--hui-font-family);
+}
+
+.stack {
+  --_notif-offset: var(--hui-notification-offset, 24px);
+
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: var(--hui-notification-width, 384px);
+  max-width: calc(100vw - 2 * var(--_notif-offset));
+  max-height: 100vh;
+}
+
+.stack--topRight,
+.stack--topLeft,
+.stack--top { top: var(--_notif-top, var(--hui-notification-top, 24px)); }
+
+.stack--bottomRight,
+.stack--bottomLeft,
+.stack--bottom {
+  bottom: var(--_notif-bottom, var(--hui-notification-bottom, 24px));
+  justify-content: flex-end;
+}
+
+.stack--topRight,
+.stack--bottomRight { right: var(--_notif-offset); }
+
+.stack--topLeft,
+.stack--bottomLeft { left: var(--_notif-offset); }
+
+.stack--top,
+.stack--bottom {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Lớp bọc để thu gọn chiều cao khi đóng — tách khỏi .notice để 2 animation không hủy nhau */
+.wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-sizing: border-box;
+  margin-bottom: var(--hui-notification-gap, 16px);
+  padding: var(--hui-notification-padding, 16px 20px);
+  background: var(--hui-notification-bg, var(--hui-bg-elevated));
+  color: var(--hui-notification-color, var(--hui-text-secondary));
+  border-radius: var(--hui-notification-radius, var(--hui-radius-lg));
+  box-shadow: var(--hui-notification-shadow, var(--hui-shadow-xl));
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+.stack--bottomRight .notice,
+.stack--bottomLeft .notice,
+.stack--bottom .notice {
+  margin-bottom: 0;
+  margin-top: var(--hui-notification-gap, 16px);
+}
+
+.notice--clickable {
+  cursor: pointer;
+}
+
+.icon {
+  --_notif-icon: var(--hui-info);
+
+  flex-shrink: 0;
+  font-size: var(--hui-notification-icon-size, 1.5rem);
+  color: var(--_notif-icon);
+}
+
+.notice--success .icon { --_notif-icon: var(--hui-success); }
+.notice--error .icon { --_notif-icon: var(--hui-danger); }
+.notice--warning .icon { --_notif-icon: var(--hui-warning); }
+
+.main {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.title {
+  margin-bottom: 4px;
+  font-size: var(--hui-font-base);
+  font-weight: var(--hui-font-weight-medium);
+  color: var(--hui-notification-title-color, var(--hui-text));
+}
+
+.title:only-child {
+  margin-bottom: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--hui-space-sm);
+  margin-top: 12px;
+}
+
+.close {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: -2px -8px 0 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-text-muted);
+  font-size: var(--hui-font-base);
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.close:hover {
+  background: var(--hui-fill-secondary);
+  color: var(--hui-text);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 1px;
+}
+
+[hidden] {
+  display: none !important;
+}

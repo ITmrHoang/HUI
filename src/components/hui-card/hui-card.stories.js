@@ -8,6 +8,7 @@ import { expect } from 'storybook/test';
 import './index.js';
 // Import button để dùng trong các demo slot actions / extra
 import '../hui-button/index.js';
+import '../hui-avatar/index.js';
 
 // Ảnh mẫu dùng chung cho các story có cover
 const SAMPLE_COVER = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=60';
@@ -23,6 +24,7 @@ const avatar = (text, bg = 'var(--hui-primary, #6366f1)') => html`
 export default {
   title: 'Components/HuiCard',
   component: 'hui-card',
+  subcomponents: { HuiCardMeta: 'hui-card-meta' },
   tags: ['autodocs'],
 
   parameters: {
@@ -57,6 +59,7 @@ export default {
 | \`cover\` | string | — | URL ảnh cover (MUI CardMedia) |
 | \`cover-height\` | string | \`'180px'\` | Chiều cao vùng cover |
 | \`orientation\` | string | \`'vertical'\` | \`vertical\` hoặc \`horizontal\` (cover bên trái) |
+| \`type\` | string | — | \`inner\`: card lồng trong card (header nền nhạt + kẻ dưới, viền mảnh, không bóng) |
 
 ### Events
 | Event | Detail | Mô tả |
@@ -105,6 +108,7 @@ Biến CSS đặt trên card, thẻ cha hoặc \`:root\` đều có hiệu lực
 | \`--hui-card-cover-height\` | \`180px\` | Chiều cao cover (attribute \`cover-height\` ưu tiên hơn) |
 | \`--hui-card-cover-width\` | \`40%\` | Chiều rộng cover ở layout \`horizontal\` (tối đa 280px) |
 | \`--hui-card-focus-color\` | \`--hui-primary\` | Viền focus khi clickable |
+| \`--hui-card-header-bg\` | trong suốt (inner: \`--hui-fill-tertiary\`) | Nền header |
 
 | Part | Phần tử |
 |------|---------|
@@ -114,12 +118,36 @@ Biến CSS đặt trên card, thẻ cha hoặc \`:root\` đều có hiệu lực
 | \`header\`, \`avatar\`, \`title\`, \`subtitle\`, \`extra\` | Các phần của header |
 | \`body\`, \`skeleton\` | Body, skeleton khi loading |
 | \`actions\`, \`footer\` | Thanh actions, chân card |
+
+### \`hui-card-meta\` (Ant Card.Meta)
+Đặt trong body: avatar + tiêu đề + mô tả.
+
+| Attribute / Slot | Mô tả |
+|------------------|-------|
+| \`title\` / slot \`title\` | Tiêu đề (1 dòng, ellipsis) |
+| \`description\` / slot \`description\` | Mô tả |
+| slot \`avatar\` | Avatar bên trái |
+
+Parts: \`base\`, \`avatar\`, \`detail\`, \`title\`, \`description\` ·
+Biến CSS: \`--hui-card-meta-title-color\`, \`--hui-card-meta-title-font-size\`, \`--hui-card-meta-description-color\`, \`--hui-card-meta-gap\`
+
+### Bàn phím
+| Phím | Hành động |
+|------|-----------|
+| \`Tab\` | Focus vào card \`clickable\` |
+| \`Enter\` / \`Space\` | Phát \`click\` (card clickable) |
         `,
       },
     },
   },
 
   argTypes: {
+    type: {
+      control: 'radio',
+      options: ['', 'inner'],
+      description: 'Card lồng trong card',
+      table: { type: { summary: 'string' } },
+    },
     title: { control: 'text', description: 'Tiêu đề card', table: { type: { summary: 'string' } } },
     subtitle: { control: 'text', description: 'Phụ đề', table: { type: { summary: 'string' } } },
     variant: {
@@ -178,6 +206,7 @@ export const Default = {
         cover=${args.cover}
         cover-height=${args['cover-height']}
         orientation=${args.orientation}
+        type=${args.type}
       >
         Một chiếc card mẫu với ảnh cover, tiêu đề, phụ đề và các nút hành động ở cuối.
         <div slot="actions">
@@ -199,6 +228,7 @@ export const Default = {
     cover: SAMPLE_COVER,
     'cover-height': '180px',
     orientation: 'vertical',
+    type: '',
   },
 };
 
@@ -397,6 +427,76 @@ export const BodyOnly = {
       <hui-card variant="filled">Card tối giản chỉ có nội dung.</hui-card>
     </div>
   `,
+};
+
+/**
+ * Card Meta — avatar + tiêu đề + mô tả trong body (Ant Card.Meta), kết hợp cover + hoverable.
+ */
+export const Meta = {
+  render: () => html`
+    <div style="display: grid; grid-template-columns: repeat(2, 300px); gap: 24px;">
+      <hui-card hoverable cover=${SAMPLE_COVER} cover-height="160">
+        <hui-card-meta title="Hồ Hallstatt" description="Ngôi làng bên hồ đẹp nhất nước Áo">
+          <hui-avatar slot="avatar">H</hui-avatar>
+        </hui-card-meta>
+        <div slot="actions" style="display:flex;gap:8px;">
+          <hui-button size="sm" variant="ghost">Lưu</hui-button>
+          <hui-button size="sm">Đặt tour</hui-button>
+        </div>
+      </hui-card>
+      <hui-card variant="outlined">
+        <hui-card-meta>
+          <span slot="title">Tiêu đề qua slot</span>
+          <span slot="description">Mô tả qua slot, không có avatar.</span>
+        </hui-card-meta>
+      </hui-card>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelector('hui-card[hoverable]');
+    const inner = card.shadowRoot.querySelector('[part="card"]');
+    await expect(inner.classList.contains('hui-card--hoverable')).toBe(true);
+    // Hoverable không biến card thành nút
+    await expect(inner.hasAttribute('role')).toBe(false);
+
+    const meta = card.querySelector('hui-card-meta');
+    await expect(meta.shadowRoot.querySelector('[part="title"]').textContent).toBe('Hồ Hallstatt');
+    await expect(meta.shadowRoot.querySelector('[part="avatar"]').hidden).toBe(false);
+
+    const slotted = canvasElement.querySelectorAll('hui-card-meta')[1];
+    await expect(slotted.shadowRoot.querySelector('[part="avatar"]').hidden).toBe(true);
+    await expect(slotted.shadowRoot.querySelector('[part="title"]').hidden).toBe(false);
+
+    meta.description = '';
+    await meta.updateComplete;
+    await expect(meta.shadowRoot.querySelector('[part="description"]').hidden).toBe(true);
+  },
+};
+
+/**
+ * type="inner" — card lồng trong card: header nền nhạt + kẻ dưới, không bóng.
+ */
+export const InnerType = {
+  render: () => html`
+    <div style="max-width: 520px;">
+      <hui-card title="Card ngoài" variant="outlined">
+        <hui-card type="inner" title="Card con 1" size="sm">
+          <a slot="extra" href="#">Thêm</a>
+          Nội dung card con.
+        </hui-card>
+        <div style="height: 16px;"></div>
+        <hui-card type="inner" title="Card con 2" size="sm">Nội dung card con.</hui-card>
+      </hui-card>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const inner = canvasElement.querySelector('hui-card[type="inner"]');
+    const frame = inner.shadowRoot.querySelector('[part="card"]');
+    await expect(frame.classList.contains('hui-card--inner')).toBe(true);
+    await expect(getComputedStyle(frame).boxShadow).toBe('none');
+    const header = inner.shadowRoot.querySelector('[part="header"]');
+    await expect(getComputedStyle(header).borderBottomStyle).toBe('solid');
+  },
 };
 
 /**
