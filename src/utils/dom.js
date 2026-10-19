@@ -62,17 +62,35 @@ export function createStyle(css) {
 }
 
 /**
- * Inject design tokens vào shadow root nếu chưa có
- * @param {ShadowRoot} shadowRoot
+ * Gắn design tokens vào document đúng MỘT lần (dùng chung cho mọi component).
+ *
+ * Vì sao không chép tokens vào từng shadow root nữa?
+ * - Custom properties (--hui-*) tự kế thừa xuyên qua ranh giới Shadow DOM,
+ *   nên chỉ cần khai báo ở document là component nào cũng đọc được.
+ * - Nếu khai báo lại trên :host thì giá trị đó CHẶN giá trị kế thừa từ ngoài vào
+ *   → `:root { --hui-primary: red }` hay `html[data-theme="dark"]` không có tác dụng.
+ * - Mỗi instance mang 1 bản CSS tokens → tốn bộ nhớ vô ích.
+ *
+ * Thẻ <style> được chèn ở ĐẦU <head> để đứng trước mọi CSS của người dùng; kết hợp
+ * selector :where(...) (độ ưu tiên 0) trong tokens.css → override nào của người dùng cũng thắng.
+ * Gọi hàm này trong connectedCallback của từng component để vẫn chạy khi import lẻ
+ * (import 'hui-lib/hui-button') mà không cần import bundle tổng.
  */
-export function injectTokens(shadowRoot) {
-  if (shadowRoot.querySelector('[data-hui-tokens]')) return;
+let tokensReady = false;
+
+export function ensureTokens() {
+  if (tokensReady || typeof document === 'undefined') return; // Đã gắn rồi / không có DOM (SSR)
+  // Kiểm tra DOM phòng khi trang tải 2 bản HUI (mỗi bản có biến tokensReady riêng)
+  if (document.querySelector('style[data-hui-tokens]')) {
+    tokensReady = true;
+    return;
+  }
+  tokensReady = true;
 
   const style = document.createElement('style');
   style.setAttribute('data-hui-tokens', '');
-  
-  // Thay thế :root của external tokens CSS thành :host để áp dụng đúng phạm vi Shadow DOM
-  style.textContent = rawTokens.replace(/:root/g, ':host');
-  
-  shadowRoot.prepend(style);
+  style.textContent = rawTokens;
+
+  const head = document.head || document.documentElement;
+  head.prepend(style);
 }

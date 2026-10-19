@@ -3,7 +3,7 @@
  * Hỗ trợ: kích thước (sm/md/lg/full), đóng mở, overlay click, ESC key
  */
 
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import { emitEvent } from '../../utils/events.js';
 
 const STYLES = `
@@ -118,7 +118,7 @@ class HuiModal extends HTMLElement {
   }
 
   connectedCallback() {
-    injectTokens(this.shadowRoot);
+    ensureTokens();
     this.shadowRoot.appendChild(createStyle(STYLES));
     this._render();
   }

@@ -6,7 +6,7 @@
 // Import file CSS dưới dạng chuỗi thô (raw string) nhờ Vite flag '?raw'
 import styles from './hui-button.css?raw';
 
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import { emitEvent } from '../../utils/events.js';
 
 class HuiButton extends HTMLElement {
@@ -33,8 +33,8 @@ class HuiButton extends HTMLElement {
    * Hàm này tự động chạy khi cái thẻ <hui-button> được chèn vào màn hình trang web thật.
    */
   connectedCallback() {
-    // Tiêm các biến màu sắc('--hui-primary',...) vào
-    injectTokens(this.shadowRoot);
+    // Đảm bảo design tokens ('--hui-primary',...) đã được gắn 1 lần vào document
+    ensureTokens();
     // Nhét phần CSS string từ file import vào thẻ <style> bên trong cái màng bọc Shadow DOM
     this.shadowRoot.appendChild(createStyle(styles));
     

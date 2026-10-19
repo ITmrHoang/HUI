@@ -10,7 +10,7 @@
  */
 
 import styles from './hui-alert.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import { emitEvent } from '../../utils/events.js';
 
 // Bộ icon SVG mặc định cho từng severity (vẽ bằng stroke để ăn theo currentColor)
@@ -74,7 +74,7 @@ class HuiAlert extends HTMLElement {
     // Khi element bị gỡ ra rồi gắn lại (ví dụ di chuyển trong DOM), connectedCallback chạy lại.
     // Dùng cờ để không nhân bản thẻ <style> trong Shadow DOM.
     if (!this._stylesInjected) {
-      injectTokens(this.shadowRoot);
+      ensureTokens();
       this.shadowRoot.appendChild(createStyle(styles));
       this._stylesInjected = true;
     }

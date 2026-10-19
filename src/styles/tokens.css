@@ -1,8 +1,21 @@
 /* ============================================
    HUI Design Tokens — Biến thiết kế toàn cục
-   ============================================ */
+   ============================================
 
-:root {
+   File này được gắn MỘT lần vào <head> của document (xem ensureTokens trong
+   src/utils/dom.js). Custom properties tự kế thừa xuyên qua Shadow DOM nên mọi
+   component đều đọc được, không cần chép tokens vào từng shadow root.
+
+   Mọi selector đều bọc trong :where(...) → độ ưu tiên = 0. Nhờ vậy người dùng
+   override bằng bất kỳ selector nào cũng thắng, ví dụ:
+     :root { --hui-primary: #e11d48; }
+     html[data-theme="dark"] { --hui-bg: #000; }
+     .my-section { --hui-radius: 0; }   (chỉ áp cho vùng con)
+*/
+
+/* === Theme sáng (mặc định) — cũng dùng cho vùng con data-theme="light" === */
+:where(:root),
+:where([data-theme="light"]) {
   /* === Bảng màu chính === */
   --hui-primary: #6366f1;
   --hui-primary-hover: #818cf8;
@@ -99,4 +112,110 @@
   --hui-z-modal: 300;
   --hui-z-tooltip: 400;
   --hui-z-toast: 500;
+}
+
+/* ============================================
+   Dark mode
+   - Bật thủ công: <html data-theme="dark"> (hoặc đặt trên một vùng con bất kỳ)
+   - Tự động theo hệ điều hành (prefers-color-scheme) khi <html> KHÔNG có
+     data-theme; muốn tắt tự động thì đặt <html data-theme="light">
+   Chỉ khai báo lại các token khác theme sáng (màu, shadow).
+   LƯU Ý: hai khối dưới phải giữ giống hệt nhau (CSS không cho dùng chung
+   một khối khai báo giữa selector thường và @media).
+   ============================================ */
+
+:where([data-theme="dark"]) {
+  /* === Bảng màu chính (sáng hơn một bậc để đủ tương phản trên nền tối) === */
+  --hui-primary: #818cf8;
+  --hui-primary-hover: #a5b4fc;
+  --hui-primary-active: #6366f1;
+  --hui-primary-light: rgba(129, 140, 248, 0.16);
+
+  --hui-secondary: #94a3b8;
+  --hui-secondary-hover: #cbd5e1;
+  --hui-secondary-active: #64748b;
+
+  --hui-success: #34d399;
+  --hui-success-light: rgba(52, 211, 153, 0.16);
+
+  --hui-warning: #fbbf24;
+  --hui-warning-light: rgba(251, 191, 36, 0.16);
+
+  --hui-danger: #f87171;
+  --hui-danger-light: rgba(248, 113, 113, 0.16);
+
+  --hui-info: #60a5fa;
+  --hui-info-light: rgba(96, 165, 250, 0.16);
+
+  /* === Màu nền & text === */
+  --hui-bg: #0f172a;
+  --hui-bg-secondary: #1e293b;
+  --hui-bg-tertiary: #334155;
+  --hui-surface: #1e293b;
+  --hui-overlay: rgba(0, 0, 0, 0.7);
+
+  --hui-text: #f1f5f9;
+  --hui-text-secondary: #cbd5e1;
+  --hui-text-muted: #64748b;
+  /* Chữ trên nền màu (nút primary, badge...) → tối để tương phản với màu sáng hơn */
+  --hui-text-inverse: #0f172a;
+
+  /* === Border === */
+  --hui-border: #334155;
+  --hui-border-hover: #475569;
+  /* Khai báo lại để var() lấy --hui-primary của theme tối (var() được tính tại phần tử khai báo) */
+  --hui-border-focus: var(--hui-primary);
+
+  /* === Shadow (đậm hơn vì nền tối) === */
+  --hui-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --hui-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --hui-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --hui-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --hui-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme])) {
+    --hui-primary: #818cf8;
+    --hui-primary-hover: #a5b4fc;
+    --hui-primary-active: #6366f1;
+    --hui-primary-light: rgba(129, 140, 248, 0.16);
+
+    --hui-secondary: #94a3b8;
+    --hui-secondary-hover: #cbd5e1;
+    --hui-secondary-active: #64748b;
+
+    --hui-success: #34d399;
+    --hui-success-light: rgba(52, 211, 153, 0.16);
+
+    --hui-warning: #fbbf24;
+    --hui-warning-light: rgba(251, 191, 36, 0.16);
+
+    --hui-danger: #f87171;
+    --hui-danger-light: rgba(248, 113, 113, 0.16);
+
+    --hui-info: #60a5fa;
+    --hui-info-light: rgba(96, 165, 250, 0.16);
+
+    --hui-bg: #0f172a;
+    --hui-bg-secondary: #1e293b;
+    --hui-bg-tertiary: #334155;
+    --hui-surface: #1e293b;
+    --hui-overlay: rgba(0, 0, 0, 0.7);
+
+    --hui-text: #f1f5f9;
+    --hui-text-secondary: #cbd5e1;
+    --hui-text-muted: #64748b;
+    --hui-text-inverse: #0f172a;
+
+    --hui-border: #334155;
+    --hui-border-hover: #475569;
+    --hui-border-focus: var(--hui-primary);
+
+    --hui-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --hui-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+    --hui-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+    --hui-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+    --hui-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  }
 }

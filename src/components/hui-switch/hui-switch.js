@@ -10,7 +10,7 @@
  */
 
 import styles from './hui-switch.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import { emitEvent } from '../../utils/events.js';
 
 // Bộ đếm để sinh id duy nhất cho label (dùng với aria-labelledby)
@@ -88,7 +88,7 @@ class HuiSwitch extends HTMLElement {
 
   connectedCallback() {
     if (!this._styled) {
-      injectTokens(this.shadowRoot);
+      ensureTokens();
       this.shadowRoot.appendChild(createStyle(styles));
       this._styled = true;
       // Ghi nhớ trạng thái ban đầu để reset form đưa về đúng giá trị này

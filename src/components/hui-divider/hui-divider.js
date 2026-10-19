@@ -12,7 +12,7 @@
  */
 
 import styles from './hui-divider.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 
 const ALIGNS = ['center', 'left', 'right'];
 const VARIANTS = ['solid', 'dashed', 'dotted'];
@@ -36,7 +36,7 @@ class HuiDivider extends HTMLElement {
   connectedCallback() {
     // Chỉ chèn style một lần, tránh nhân bản khi element bị gỡ ra rồi gắn lại
     if (!this._stylesInjected) {
-      injectTokens(this.shadowRoot);
+      ensureTokens();
       this.shadowRoot.appendChild(createStyle(styles));
       this._stylesInjected = true;
     }

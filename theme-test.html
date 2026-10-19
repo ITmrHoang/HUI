@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HUI Theme Test</title>
+  <style>
+    /* Override của người dùng — phải thắng tokens mặc định của thư viện */
+    :root { --hui-primary: #e11d48; }
+    body { font-family: sans-serif; padding: 24px; background: var(--hui-bg); color: var(--hui-text); }
+    section { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <!--
+    Trang kiểm tra thủ công cho cơ chế design tokens:
+    - Override :root ở trên phải đổi màu nút primary thành đỏ hồng.
+    - Nút "Dark" bật data-theme="dark" trên <html> → component phải đổi sang bộ màu tối.
+    - Chỉ import lẻ từng component (không import bundle tổng) để chắc tokens vẫn tới khi tree-shaking.
+  -->
+  <section>
+    <button id="toggle-theme" type="button">Đổi theme (light/dark/auto)</button>
+    <span id="theme-state">auto</span>
+  </section>
+  <section>
+    <hui-button variant="primary">Primary</hui-button>
+    <hui-button variant="secondary">Secondary</hui-button>
+    <hui-button variant="outline">Outline</hui-button>
+    <hui-switch checked></hui-switch>
+    <hui-tag color="success">Tag</hui-tag>
+  </section>
+  <section>
+    <hui-card style="width: 320px">Card nội dung</hui-card>
+  </section>
+  <section data-theme="dark" style="padding: 12px; background: var(--hui-bg)">
+    <span>Vùng con data-theme="dark":</span>
+    <hui-button variant="primary">Primary</hui-button>
+    <hui-tag color="info">Tag</hui-tag>
+  </section>
+
+  <script type="module">
+    import './src/components/hui-button/index.js';
+    import './src/components/hui-switch/index.js';
+    import './src/components/hui-tag/index.js';
+    import './src/components/hui-card/index.js';
+
+    const modes = ['auto', 'light', 'dark'];
+    let i = 0;
+    document.getElementById('toggle-theme').addEventListener('click', () => {
+      i = (i + 1) % modes.length;
+      const mode = modes[i];
+      if (mode === 'auto') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', mode);
+      document.getElementById('theme-state').textContent = mode;
+    });
+  </script>
+</body>
+</html>
