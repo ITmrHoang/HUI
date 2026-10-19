@@ -1,257 +1,261 @@
 /*
- * ==========================================================
- * HUI Input CSS - File style độc lập cho Component Ô nhập liệu
- * ==========================================================
+ * HUI Input CSS
+ * Override: mọi giá trị viết dạng var(--hui-input-xxx, <mặc định>) — biến KHÔNG khai báo trên :host,
+ * nên đặt ở đâu cũng có hiệu lực (chính <hui-input>, thẻ cha, :root).
+ *
+ *   --hui-input-height               Chiều cao khung
+ *   --hui-input-padding-x            Khoảng đệm ngang của ô nhập
+ *   --hui-input-font-size            Cỡ chữ
+ *   --hui-input-radius               Bo góc
+ *   --hui-input-bg                   Màu nền
+ *   --hui-input-color                Màu chữ
+ *   --hui-input-placeholder-color    Màu placeholder
+ *   --hui-input-border-color         Màu viền
+ *   --hui-input-hover-border-color   Màu viền khi hover
+ *   --hui-input-focus-border-color   Màu viền khi focus
+ *   --hui-input-focus-shadow         Vòng sáng khi focus
+ *   --hui-input-label-color          Màu nhãn
+ *   --hui-input-label-font-size      Cỡ chữ nhãn
+ *   --hui-input-icon-color           Màu icon / prefix / suffix
+ *
+ * Parts: base, label, container, input, prefix, suffix, icon, icon-left, icon-right, clear, message
+ * State: :state(user-invalid) (lỗi validate sau khi người dùng đã tương tác), :state(filled), :state(disabled)
  */
 
-/* 
- * 1. :host - Ám chỉ thẻ <hui-input> bên ngoài HTML.
- * display: block giúp ô input luôn chiếm toàn bộ chiều ngang vùng chứa nó mặc định.
- */
 :host {
   display: block;
   font-family: var(--hui-font-family);
 }
 
-/* 
- * 2. :host([disabled]) - Nếu người dùng viết thẻ <hui-input disabled>
- * Mờ toàn bộ component đi (opacity 0.5) và khóa toàn bộ click/tương tác chuột (pointer-events: none).
- */
 :host([disabled]) {
   pointer-events: none;
-  opacity: 0.5;
 }
 
-/* 
- * 3. Selector cho các class bên trong Shadow Root 
- */
-.hui-input-wrapper {
+[hidden] {
+  display: none !important;
+}
+
+/* ================== WRAPPER + BỐ CỤC LABEL ================== */
+.hui-input {
+  /* Biến nội bộ: đổi theo size / trạng thái */
+  --_border: var(--hui-input-border-color, var(--hui-border));
+  --_focus-border: var(--hui-input-focus-border-color, var(--hui-primary));
+  --_focus-shadow: var(--hui-input-focus-shadow, 0 0 0 2px var(--hui-primary-light));
+  --_label-bg: var(--hui-input-bg, var(--hui-bg));
+
   display: flex;
-  gap: var(--hui-space-xs); /* Khoảng cách giữa ô nhập và thông báo lỗi */
-}
-
-/* Các kiểu hiển thị label */
-.hui-input-wrapper--label-top {
   flex-direction: column;
+  gap: var(--hui-space-xs);
 }
 
-.hui-input-wrapper--label-inline {
+.hui-input--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hui-input--label-inline {
   flex-direction: row;
   align-items: center;
 }
 
-.hui-input-wrapper--label-inside {
+.hui-input__group {
+  display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: var(--hui-space-xs);
 }
 
-/* Mặc định cho layout top/inline */
-.hui-input-wrapper--label-top .hui-input__label,
-.hui-input-wrapper--label-inline .hui-input__label {
-  font-size: var(--hui-font-sm);
+.hui-input__label {
+  font-size: var(--hui-input-label-font-size, var(--hui-font-sm));
   font-weight: var(--hui-font-weight-medium, 500);
-  color: var(--hui-text);
+  color: var(--hui-input-label-color, var(--hui-text));
 }
 
-/* Khi layout inline, label có độ rộng tự nhiên, group kia ôm phần còn lại */
-.hui-input-wrapper--label-inline .hui-input__label {
+.hui-input--label-inline .hui-input__label {
   flex-shrink: 0;
   margin-right: var(--hui-space-sm);
 }
 
-.hui-input__right-group {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: var(--hui-space-xs);
-}
-
-/* Khi layout là inside (floating) thì label mới nằm ảo đè lên khung */
-.hui-input-wrapper--label-inside .hui-input__label {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%) scale(1);
-  transform-origin: left center;
-  font-size: var(--hui-font-sm);
-  font-weight: var(--hui-font-weight-medium, 500);
-  color: var(--hui-text-muted);
-  background: var(--hui-bg);
-  padding: 0 4px;
-  pointer-events: none; /* Click xuyên qua label để trỏ vào input */
-  transition: all var(--hui-transition-fast);
-  z-index: 1; /* Nổi đè lên viền container */
-}
-
-/* Thêm dấu sao đỏ nều trường này là bắt buộc (required) */
 .hui-input__label--required::after {
   content: ' *';
   color: var(--hui-danger);
 }
 
-/* Hiệu ứng Floating Label (nhảy lên viền và thu nhỏ lại để chống va chạm "g") */
-.hui-input-wrapper--label-inside.hui-input-wrapper--has-value .hui-input__label,
-.hui-input-wrapper--label-inside .hui-input__container:focus-within .hui-input__label {
+/* Floating label: nằm giữa khung, có giá trị / focus thì bay lên viền trên */
+.hui-input--label-inside .hui-input__label {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%) scale(1);
+  transform-origin: left center;
+  color: var(--hui-input-label-color, var(--hui-text-muted));
+  background: var(--_label-bg);
+  padding: 0 4px;
+  pointer-events: none;
+  transition: all var(--hui-transition-fast);
+  z-index: 1;
+}
+
+.hui-input--label-inside.hui-input--has-value .hui-input__label,
+.hui-input--label-inside .hui-input__container:focus-within .hui-input__label {
   top: 0;
   transform: translateY(-50%) scale(0.82);
-  color: var(--hui-text);
+  color: var(--hui-input-label-color, var(--hui-text));
 }
 
-/* Đổi màu label thành primary khi thẻ input đang được focus (áp dụng chung nếu muốn, ở đây floating) */
-.hui-input-wrapper--label-inside .hui-input__container:focus-within .hui-input__label {
-  color: var(--hui-primary);
+.hui-input--label-inside .hui-input__container:focus-within .hui-input__label {
+  color: var(--_focus-border);
 }
 
-/* Đổi màu label thành màu đỏ nếu có trạng thái lỗi (không cần focus nó cũng đỏ gắt theo viền) */
-.hui-input-wrapper--label-inside .hui-input__container--error .hui-input__label,
-.hui-input-wrapper--label-top.hui-input-wrapper--has-error .hui-input__label,
-.hui-input-wrapper--label-inline.hui-input-wrapper--has-error .hui-input__label {
-  color: var(--hui-danger);
+/* Label chưa bay lên thì ẩn placeholder để không đè chữ */
+.hui-input--label-inside.hui-input--has-label:not(.hui-input--has-value) .hui-input__container:not(:focus-within) .hui-input__field::placeholder {
+  color: transparent;
 }
 
+/* ================== KHUNG VIỀN ================== */
 .hui-input__container {
   position: relative;
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  border: 1px solid var(--hui-border);
-  background: var(--hui-bg);
+  height: var(--hui-input-height, var(--_height));
+  border: 1px solid var(--_border);
+  border-radius: var(--hui-input-radius, var(--_radius));
+  background: var(--hui-input-bg, var(--hui-bg));
   transition: all var(--hui-transition);
 }
 
 .hui-input__container:hover {
-  border-color: var(--hui-border-hover);
+  border-color: var(--hui-input-hover-border-color, var(--hui-border-hover));
 }
 
-/* :focus-within - Kích hoạt khi có bất kỳ phần tử con nào bên trong container đang được focus */
 .hui-input__container:focus-within {
-  border-color: var(--hui-primary);
-  box-shadow: 0 0 0 2px var(--hui-primary-light);
+  border-color: var(--_focus-border);
+  box-shadow: var(--_focus-shadow);
 }
 
-.hui-input__container--error {
-  border-color: var(--hui-danger);
+/* ================== TRẠNG THÁI (error / warning / success) ================== */
+.hui-input--error,
+.hui-input--warning,
+.hui-input--success {
+  --_border: var(--_tone);
+  --_focus-border: var(--_tone);
 }
 
-.hui-input__container--error:focus-within {
-  box-shadow: 0 0 0 2px var(--hui-danger-light);
+.hui-input--error {
+  --_tone: var(--hui-danger);
+  --_focus-shadow: 0 0 0 2px var(--hui-danger-light);
 }
 
-.hui-input__container--success {
-  border-color: var(--hui-success);
+.hui-input--warning {
+  --_tone: var(--hui-warning);
+  --_focus-shadow: 0 0 0 2px var(--hui-warning-light);
 }
 
-/* ================== KÍCH THƯỚC (SIZES) GÁN CHẶT CONTAINER ================== */
-.hui-input__container--sm { height: var(--hui-size-sm); border-radius: var(--hui-radius-sm); }
-.hui-input__container--md { height: var(--hui-size-md); border-radius: var(--hui-radius); }
-.hui-input__container--lg { height: var(--hui-size-lg); border-radius: var(--hui-radius-md); }
-
-.hui-input__field--sm {
-  padding: 6px 8px;
-  font-size: var(--hui-font-xs); /* 12px */
-  height: 100%;
+.hui-input--success {
+  --_tone: var(--hui-success);
 }
 
-.hui-input__field--md {
-  padding: 8px 12px;
-  font-size: var(--hui-font-sm); /* 14px */
-  height: 100%;
-}
-
-.hui-input__field--lg {
-  padding: 10px 16px;
-  font-size: var(--hui-font-base); /* 16px */
-  height: 100%;
-}
-
-/* Thẻ <input> HTML thật nằm sâu bên trong */
-.hui-input__field {
-  flex: 1; /* Cố gắng chiếm toàn bộ không gian còn trống */
-  width: 100%;
-  background: transparent;
-  border: none;
-  outline: none; /* Tắt viền xanh mặc định của trình duyệt */
-  font-family: inherit;
-  color: var(--hui-text);
-  box-sizing: border-box;
-}
-
-.hui-input__field::placeholder {
-  color: var(--hui-text-muted); /* Màu chữ mờ cho dòng chữ gợi ý */
-}
-
-/* Nếu có label đang làm placeholder ở giữa (chưa float), ẩn tạm native placeholder tránh đè chữ */
-.hui-input-wrapper--label-inside.hui-input-wrapper--has-label:not(.hui-input-wrapper--has-value) .hui-input__container:not(:focus-within) .hui-input__field::placeholder {
-  color: transparent;
-}
-
-/* Khối chứa icon slot ở đầu (prefix) hoặc cuối (suffix) ô nhập */
-.hui-input__prefix,
-.hui-input__suffix {
-  display: flex;
-  align-items: center;
-  padding: 0 var(--hui-space-sm);
-  color: var(--hui-text-muted);
-  flex-shrink: 0; /* Không cho phép bị teo nhỏ lại nếu chữ quá dài */
-}
-
-/* ================== ICON QUA ATTRIBUTE (icon-left / icon-right) ================== */
-/* 
- * Khác với slot prefix/suffix (nhận HTML từ bên ngoài), icon attribute
- * nhận chuỗi text/emoji trực tiếp — dùng cho trường hợp đơn giản.
- */
-.hui-input__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--hui-space-sm);
-  color: var(--hui-text-muted);
-  flex-shrink: 0;
-  font-size: 1.1em;
-  line-height: 1;
-  user-select: none;
-  pointer-events: none; /* Icon không tương tác, chỉ trang trí */
-}
-
-/* Khi focus vào input → icon chuyển sang màu primary cho nổi bật */
-.hui-input__container:focus-within .hui-input__icon {
-  color: var(--hui-primary);
-  transition: color var(--hui-transition-fast);
-}
-
-/* Dòng chữ thông báo nhỏ ở dưới ô nhập (trạng thái lỗi, thành công, gợi ý) */
-.hui-input__message {
-  font-size: var(--hui-font-xs);
-  min-height: 1.25rem;
-}
-
-.hui-input__message--error {
+.hui-input--error .hui-input__label {
   color: var(--hui-danger);
 }
 
-.hui-input__message--success {
-  color: var(--hui-success);
+/* Lỗi validate (required, email...) chỉ báo sau khi người dùng đã chạm vào ô */
+:host(:state(user-invalid)) .hui-input {
+  --_border: var(--hui-danger);
+  --_focus-border: var(--hui-danger);
+  --_focus-shadow: 0 0 0 2px var(--hui-danger-light);
 }
 
-.hui-input__message--hint {
-  color: var(--hui-text-muted);
+/* ================== KÍCH THƯỚC ================== */
+.hui-input--sm {
+  --_height: var(--hui-size-sm);
+  --_radius: var(--hui-radius-sm);
+  --_padding-x: 8px;
+  --_font-size: var(--hui-font-xs);
 }
 
-/* ================== Nút Xóa Nhanh (Clear Button) ================== */
+.hui-input--md {
+  --_height: var(--hui-size-md);
+  --_radius: var(--hui-radius);
+  --_padding-x: 12px;
+  --_font-size: var(--hui-font-sm);
+}
+
+.hui-input--lg {
+  --_height: var(--hui-size-lg);
+  --_radius: var(--hui-radius-md);
+  --_padding-x: 16px;
+  --_font-size: var(--hui-font-base);
+}
+
+/* ================== Ô NHẬP NATIVE ================== */
+.hui-input__field {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 var(--hui-input-padding-x, var(--_padding-x));
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--hui-input-font-size, var(--_font-size));
+  color: var(--hui-input-color, var(--hui-text));
+}
+
+.hui-input__field::placeholder {
+  color: var(--hui-input-placeholder-color, var(--hui-text-muted));
+}
+
+.hui-input__field:disabled {
+  cursor: not-allowed;
+}
+
+/* ================== PREFIX / SUFFIX / ICON ================== */
+.hui-input__prefix,
+.hui-input__suffix,
+.hui-input__icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0 var(--hui-space-sm);
+  color: var(--hui-input-icon-color, var(--hui-text-muted));
+  font-size: var(--hui-input-font-size, var(--_font-size));
+}
+
+.hui-input__icon {
+  justify-content: center;
+  font-size: 1.1em;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  transition: color var(--hui-transition-fast);
+}
+
+.hui-input__container:focus-within .hui-input__icon {
+  color: var(--_focus-border);
+}
+
+/* ================== NÚT XÓA ================== */
 .hui-input__clear {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: 1.5rem;
   height: 1.5rem;
   margin-right: var(--hui-space-xs);
+  padding: 0;
+  border: none;
   border-radius: var(--hui-radius-full);
   background: var(--hui-bg-tertiary);
   color: var(--hui-text-muted);
-  cursor: pointer;
   font-size: var(--hui-font-sm);
-  border: none;
+  cursor: pointer;
   transition: all var(--hui-transition-fast);
-  flex-shrink: 0;
 }
 
 .hui-input__clear:hover {
@@ -259,9 +263,26 @@
   color: var(--hui-text);
 }
 
-/* Ẩn nút clear khi input trống — mượt mà bằng opacity + scale */
 .hui-input__clear--hidden {
   opacity: 0;
   pointer-events: none;
   transform: scale(0.8);
+}
+
+/* ================== THÔNG BÁO ================== */
+.hui-input__message {
+  font-size: var(--hui-font-xs);
+  min-height: 1.25rem;
+}
+
+.hui-input__message--error { color: var(--hui-danger); }
+.hui-input__message--success { color: var(--hui-success); }
+.hui-input__message--hint { color: var(--hui-text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-input__container,
+  .hui-input__label,
+  .hui-input__clear {
+    transition: none;
+  }
 }

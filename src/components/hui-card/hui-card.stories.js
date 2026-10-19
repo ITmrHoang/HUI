@@ -4,6 +4,7 @@
  */
 
 import { html } from 'lit';
+import { expect } from 'storybook/test';
 import './index.js';
 // Import button để dùng trong các demo slot actions / extra
 import '../hui-button/index.js';
@@ -80,10 +81,39 @@ export default {
 |--------|-------|
 | _(không có)_ | Điều khiển hoàn toàn qua attribute |
 
-### CSS Custom Properties
-| Biến | Mô tả |
-|------|-------|
-| \`--hui-card-cover-width\` | Chiều rộng cover ở layout \`horizontal\` (mặc định \`40%\`, tối đa 280px) |
+### Mọi attribute đều có property tương ứng
+\`\`\`js
+card.loading = true;      // attribute "loading" tự được thêm
+card.coverHeight = '120px'; // ↔ cover-height
+\`\`\`
+
+### Override giao diện từ bên ngoài
+Biến CSS đặt trên card, thẻ cha hoặc \`:root\` đều có hiệu lực. Cần chỉnh sâu hơn → \`hui-card::part(...)\`.
+
+| Biến CSS | Mặc định | Mô tả |
+|----------|----------|-------|
+| \`--hui-card-bg\` | \`--hui-bg-container\` | Nền card (filled: \`--hui-bg-secondary\`) |
+| \`--hui-card-color\` | \`--hui-text-secondary\` | Màu chữ body |
+| \`--hui-card-radius\` | \`--hui-radius-lg\` | Bo góc |
+| \`--hui-card-padding\` | 12 / 16 / 24px | Khoảng đệm (theo size) |
+| \`--hui-card-border-color\` | theo variant | Màu viền |
+| \`--hui-card-shadow\` | theo elevation | Bóng đổ |
+| \`--hui-card-hover-shadow\` | \`--hui-shadow-lg\` | Bóng đổ khi hover |
+| \`--hui-card-title-color\` | \`--hui-text\` | Màu tiêu đề |
+| \`--hui-card-title-font-size\` | theo size | Cỡ chữ tiêu đề |
+| \`--hui-card-divider-color\` | \`--hui-border\` | Đường kẻ trên actions / footer |
+| \`--hui-card-cover-height\` | \`180px\` | Chiều cao cover (attribute \`cover-height\` ưu tiên hơn) |
+| \`--hui-card-cover-width\` | \`40%\` | Chiều rộng cover ở layout \`horizontal\` (tối đa 280px) |
+| \`--hui-card-focus-color\` | \`--hui-primary\` | Viền focus khi clickable |
+
+| Part | Phần tử |
+|------|---------|
+| \`card\` | Khung card |
+| \`cover\`, \`cover-img\` | Vùng cover, ảnh cover |
+| \`main\` | Khối header + body + actions + footer |
+| \`header\`, \`avatar\`, \`title\`, \`subtitle\`, \`extra\` | Các phần của header |
+| \`body\`, \`skeleton\` | Body, skeleton khi loading |
+| \`actions\`, \`footer\` | Thanh actions, chân card |
         `,
       },
     },
@@ -230,6 +260,26 @@ export const HoverableAndClickable = {
       </hui-card>
     </div>
   `,
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelector('hui-card[clickable]');
+    const inner = card.shadowRoot.querySelector('[part="card"]');
+    await expect(inner.getAttribute('role')).toBe('button');
+
+    let clicks = 0;
+    card.addEventListener('click', () => clicks++);
+    inner.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
+    await expect(clicks).toBe(1);
+
+    // Đổi property không dựng lại DOM
+    card.loading = true;
+    await card.updateComplete;
+    await expect(card.hasAttribute('loading')).toBe(true);
+    await expect(card.shadowRoot.querySelector('[part="card"]')).toBe(inner);
+    await expect(card.shadowRoot.querySelector('[part="skeleton"]').hidden).toBe(false);
+    card.loading = false;
+    await card.updateComplete;
+    await expect(card.shadowRoot.querySelector('[part="skeleton"]').hidden).toBe(true);
+  },
 };
 
 /**
@@ -345,6 +395,34 @@ export const BodyOnly = {
   render: () => html`
     <div style="max-width: 320px;">
       <hui-card variant="filled">Card tối giản chỉ có nội dung.</hui-card>
+    </div>
+  `,
+};
+
+/**
+ * Override từ bên ngoài — biến CSS đặt trên thẻ cha / chính card, và ::part().
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .demo-cards { --hui-card-radius: 4px; --hui-card-padding: 20px; }
+      hui-card.brand {
+        --hui-card-bg: var(--hui-primary-1);
+        --hui-card-border-color: var(--hui-primary-3);
+        --hui-card-title-color: var(--hui-primary-7);
+        --hui-card-divider-color: var(--hui-primary-3);
+        --hui-card-shadow: none;
+      }
+      hui-card.caps::part(title) { text-transform: uppercase; letter-spacing: 0.06em; }
+      hui-card.caps::part(header) { border-bottom: 1px dashed var(--hui-border); padding-bottom: 12px; }
+    </style>
+    <div class="demo-cards" style="display: grid; grid-template-columns: repeat(3, 240px); gap: 24px; align-items: start;">
+      <hui-card title="Biến CSS trên thẻ cha" variant="outlined">radius 4px + padding 20px cho mọi card con.</hui-card>
+      <hui-card class="brand" title="Màu thương hiệu" subtitle="--hui-card-*">
+        Nền, viền, tiêu đề theo palette primary.
+        <div slot="actions"><hui-button size="sm">OK</hui-button></div>
+      </hui-card>
+      <hui-card class="caps" title="::part(title)" variant="filled">Chỉnh sâu bằng ::part().</hui-card>
     </div>
   `,
 };

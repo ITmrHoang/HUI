@@ -1,61 +1,46 @@
 /*
- * ==========================================================
- * HUI Avatar Group CSS - Style cho nhóm avatar xếp chồng
- * ==========================================================
- * Group không style trực tiếp avatar con (bị Shadow DOM cô lập), mà đặt các biến
- * CSS công khai trên :host. Biến CSS được KẾ THỪA xuyên qua slot xuống avatar con:
- *   --hui-avatar-size, --hui-avatar-radius, --hui-avatar-ring
+ * HUI Avatar Group CSS
+ * Biến công khai — KHÔNG khai báo trong file này:
+ *   --hui-avatar-group-spacing     Độ chồng lấn (ghi đè attribute spacing: sm 4px, md 8px, lg 12px)
+ *   --hui-avatar-group-hover-lift  Độ nhấc avatar khi hover (2px)
+ * Truyền xuống avatar con (biến nội bộ, kế thừa xuyên slot — xem hui-avatar.css):
+ *   --_avatar-group-size, --_avatar-group-radius (JS đặt inline theo size / shape), --_avatar-group-ring
  */
 
 :host {
-  /* Avatar trong nhóm luôn có vòng viền trắng để tách nhau */
-  --hui-avatar-ring: 2px;
-  /* Mức chồng lấn mặc định */
-  --_spacing: 8px;
-
   display: inline-block;
   vertical-align: middle;
 }
 
-/* ================== SIZE (truyền xuống avatar con chưa tự đặt size) ================== */
-:host([size="sm"]) { --hui-avatar-size: var(--hui-size-sm); }
-:host([size="md"]) { --hui-avatar-size: var(--hui-size-md); }
-:host([size="lg"]) { --hui-avatar-size: var(--hui-size-lg); }
-:host([size="xl"]) { --hui-avatar-size: 56px; }
-
-/* ================== SHAPE ================== */
-:host([shape="circle"]) { --hui-avatar-radius: 50%; }
-:host([shape="rounded"]) { --hui-avatar-radius: var(--hui-radius); }
-:host([shape="square"]) { --hui-avatar-radius: 0; }
-
-/* ================== KHUNG XẾP CHỒNG ================== */
 .hui-avatar-group {
+  /* Avatar trong nhóm luôn có vòng viền để tách nhau */
+  --_avatar-group-ring: 2px;
+  --_avatar-group-spacing: var(--hui-avatar-group-spacing, 8px);
+
   display: inline-flex;
   align-items: center;
-  /* Bù lại phần margin âm của avatar đầu tiên để nhóm không bị lệch trái */
-  padding-inline-start: var(--_spacing);
+  /* Bù margin âm của avatar đầu tiên để nhóm không bị lệch trái */
+  padding-inline-start: var(--_avatar-group-spacing);
 }
 
-.hui-avatar-group--spacing-sm { --_spacing: 4px; }
-.hui-avatar-group--spacing-md { --_spacing: 8px; }
-.hui-avatar-group--spacing-lg { --_spacing: 12px; }
+.hui-avatar-group--spacing-sm { --_avatar-group-spacing: var(--hui-avatar-group-spacing, 4px); }
+.hui-avatar-group--spacing-lg { --_avatar-group-spacing: var(--hui-avatar-group-spacing, 12px); }
 
 /* Mỗi avatar (kể cả "+N") kéo sang trái để chồng lên avatar trước nó */
 ::slotted(*),
 .hui-avatar-group__surplus {
   position: relative;
-  margin-inline-start: calc(var(--_spacing) * -1);
+  margin-inline-start: calc(var(--_avatar-group-spacing) * -1);
   transition: transform var(--hui-transition-fast);
 }
 
-/* Hover: nhấc avatar lên trên các avatar khác để dễ nhìn */
 ::slotted(:hover) {
   z-index: 1;
-  transform: translateY(-2px);
+  transform: translateY(calc(var(--hui-avatar-group-hover-lift, 2px) * -1));
 }
 
-/* Avatar bị group ẩn (vượt quá max) */
-::slotted([hidden]) {
+::slotted([hidden]),
+.hui-avatar-group__surplus[hidden] {
   display: none;
 }
 

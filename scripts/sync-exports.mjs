@@ -30,6 +30,9 @@ const exportsField = {
 };
 for (const name of components) exportsField[`./${name}`] = entry(name);
 exportsField['./style.css'] = './dist/style.css';
+// Kiểu cho framework (chỉ có types): tsconfig → compilerOptions.types: ['hui-lib/types/vue']
+exportsField['./types/vue'] = { types: './dist/types/vue.d.ts' };
+exportsField['./types/react'] = { types: './dist/types/react.d.ts' };
 exportsField['./custom-elements.json'] = './dist/custom-elements.json';
 exportsField['./package.json'] = './package.json';
 

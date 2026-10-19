@@ -64,27 +64,27 @@
  */
 .hui-btn {
   /* Biến nội bộ (tiền tố --_): do variant/size đặt, người dùng không cần biết */
-  --_bg: var(--hui-primary);
-  --_color: var(--hui-text-inverse);
-  --_border: var(--hui-primary);
-  --_hover-bg: var(--hui-primary-hover);
-  --_hover-color: var(--_color);
-  --_hover-border: var(--_hover-bg);
-  --_active-bg: var(--hui-primary-active);
-  --_lift: -1px;
+  --_btn-bg: var(--hui-primary);
+  --_btn-color: var(--hui-text-inverse);
+  --_btn-border: var(--hui-primary);
+  --_btn-hover-bg: var(--hui-primary-hover);
+  --_btn-hover-color: var(--_btn-color);
+  --_btn-hover-border: var(--_btn-hover-bg);
+  --_btn-active-bg: var(--hui-primary-active);
+  --_btn-lift: -1px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
   gap: var(--hui-button-gap, 6px);
-  min-height: var(--hui-button-height, var(--_height));
-  padding: 0 var(--hui-button-padding-x, var(--_padding-x));
-  font-size: var(--hui-button-font-size, var(--_font-size));
-  border-radius: var(--hui-button-radius, var(--_radius));
-  border: 1px solid var(--hui-button-border-color, var(--_border));
-  background: var(--hui-button-bg, var(--_bg));
-  color: var(--hui-button-color, var(--_color));
+  min-height: var(--hui-button-height, var(--_btn-height));
+  padding: 0 var(--hui-button-padding-x, var(--_btn-padding-x));
+  font-size: var(--hui-button-font-size, var(--_btn-font-size));
+  border-radius: var(--hui-button-radius, var(--_btn-radius));
+  border: 1px solid var(--hui-button-border-color, var(--_btn-border));
+  background: var(--hui-button-bg, var(--_btn-bg));
+  color: var(--hui-button-color, var(--_btn-color));
   font-family: inherit;
   font-weight: var(--hui-button-font-weight, var(--hui-font-weight-semibold, 600));
   line-height: 1.2;
@@ -97,15 +97,15 @@
 }
 
 .hui-btn:hover {
-  background: var(--hui-button-hover-bg, var(--_hover-bg));
-  color: var(--hui-button-hover-color, var(--_hover-color));
-  border-color: var(--hui-button-hover-border-color, var(--_hover-border));
-  box-shadow: var(--hui-button-shadow, var(--_shadow, var(--hui-shadow-md)));
-  transform: translateY(var(--_lift)); /* Nổi lên một chút */
+  background: var(--hui-button-hover-bg, var(--_btn-hover-bg));
+  color: var(--hui-button-hover-color, var(--_btn-hover-color));
+  border-color: var(--hui-button-hover-border-color, var(--_btn-hover-border));
+  box-shadow: var(--hui-button-shadow, var(--_btn-shadow, var(--hui-shadow-md)));
+  transform: translateY(var(--_btn-lift)); /* Nổi lên một chút */
 }
 
 .hui-btn:active {
-  background: var(--_active-bg, var(--_hover-bg));
+  background: var(--_btn-active-bg, var(--_btn-hover-bg));
   transform: translateY(0); /* Nhấn xuống thì tụt trở lại */
 }
 
@@ -129,113 +129,113 @@
 
 /* ================== SIZES (KÍCH THƯỚC) ================== */
 .hui-btn--sm {
-  --_height: var(--hui-size-sm);
-  --_padding-x: 10px;
-  --_font-size: var(--hui-font-xs); /* 12px */
-  --_radius: var(--hui-radius-sm);
+  --_btn-height: var(--hui-size-sm);
+  --_btn-padding-x: 10px;
+  --_btn-font-size: var(--hui-font-xs); /* 12px */
+  --_btn-radius: var(--hui-radius-sm);
 }
 
 .hui-btn--md {
-  --_height: var(--hui-size-md);
-  --_padding-x: 14px;
-  --_font-size: var(--hui-font-sm); /* 14px */
-  --_radius: var(--hui-radius);
+  --_btn-height: var(--hui-size-md);
+  --_btn-padding-x: 14px;
+  --_btn-font-size: var(--hui-font-sm); /* 14px */
+  --_btn-radius: var(--hui-radius);
 }
 
 .hui-btn--lg {
-  --_height: var(--hui-size-lg);
-  --_padding-x: 18px;
-  --_font-size: var(--hui-font-base); /* 16px */
-  --_radius: var(--hui-radius-md);
+  --_btn-height: var(--hui-size-lg);
+  --_btn-padding-x: 18px;
+  --_btn-font-size: var(--hui-font-base); /* 16px */
+  --_btn-radius: var(--hui-radius-md);
 }
 
 /* ================== SHAPES (HÌNH DẠNG — Ant Design shape) ================== */
 .hui-btn--round {
-  --_radius: var(--hui-radius-full);
+  --_btn-radius: var(--hui-radius-full);
 }
 
 /* Nút tròn chỉ chứa icon: rộng = cao */
 .hui-btn--circle {
-  --_radius: var(--hui-radius-full);
-  --_padding-x: 0;
-  width: var(--hui-button-height, var(--_height));
+  --_btn-radius: var(--hui-radius-full);
+  --_btn-padding-x: 0;
+  width: var(--hui-button-height, var(--_btn-height));
 }
 
 /* ================== VARIANTS (PHÂN LOẠI MÀU SẮC) ================== */
 /* primary: dùng giá trị mặc định khai báo ở .hui-btn */
 
 .hui-btn--secondary {
-  --_bg: var(--hui-secondary);
-  --_border: var(--hui-secondary);
-  --_hover-bg: var(--hui-secondary-hover);
-  --_active-bg: var(--hui-secondary-active);
+  --_btn-bg: var(--hui-secondary);
+  --_btn-border: var(--hui-secondary);
+  --_btn-hover-bg: var(--hui-secondary-hover);
+  --_btn-active-bg: var(--hui-secondary-active);
 }
 
 .hui-btn--danger {
-  --_bg: var(--hui-danger);
-  --_border: var(--hui-danger);
-  --_hover-bg: var(--hui-danger-hover);
-  --_active-bg: var(--hui-danger-active);
+  --_btn-bg: var(--hui-danger);
+  --_btn-border: var(--hui-danger);
+  --_btn-hover-bg: var(--hui-danger-hover);
+  --_btn-active-bg: var(--hui-danger-active);
 }
 
 .hui-btn--outline {
-  --_bg: transparent;
-  --_color: var(--hui-primary);
-  --_border: var(--hui-primary);
-  --_hover-bg: var(--hui-primary-light);
-  --_hover-border: var(--hui-primary);
-  --_active-bg: var(--hui-primary-light);
-  --_shadow: var(--hui-shadow);
+  --_btn-bg: transparent;
+  --_btn-color: var(--hui-primary);
+  --_btn-border: var(--hui-primary);
+  --_btn-hover-bg: var(--hui-primary-light);
+  --_btn-hover-border: var(--hui-primary);
+  --_btn-active-bg: var(--hui-primary-light);
+  --_btn-shadow: var(--hui-shadow);
 }
 
 /* dashed (Ant Design): viền nét đứt, hay dùng cho nút "Thêm mới" */
 .hui-btn--dashed {
-  --_bg: transparent;
-  --_color: var(--hui-text);
-  --_border: var(--hui-border-hover);
-  --_hover-bg: transparent;
-  --_hover-color: var(--hui-primary);
-  --_hover-border: var(--hui-primary);
-  --_active-bg: var(--hui-primary-light);
-  --_shadow: none;
+  --_btn-bg: transparent;
+  --_btn-color: var(--hui-text);
+  --_btn-border: var(--hui-border-hover);
+  --_btn-hover-bg: transparent;
+  --_btn-hover-color: var(--hui-primary);
+  --_btn-hover-border: var(--hui-primary);
+  --_btn-active-bg: var(--hui-primary-light);
+  --_btn-shadow: none;
   border-style: dashed;
 }
 
 .hui-btn--ghost {
-  --_bg: transparent;
-  --_color: var(--hui-text-secondary);
-  --_border: transparent;
-  --_hover-bg: var(--hui-bg-tertiary);
-  --_hover-color: var(--hui-text);
-  --_hover-border: transparent;
-  --_active-bg: var(--hui-border);
-  --_shadow: none;
-  --_lift: 0;
+  --_btn-bg: transparent;
+  --_btn-color: var(--hui-text-secondary);
+  --_btn-border: transparent;
+  --_btn-hover-bg: var(--hui-bg-tertiary);
+  --_btn-hover-color: var(--hui-text);
+  --_btn-hover-border: transparent;
+  --_btn-active-bg: var(--hui-border);
+  --_btn-shadow: none;
+  --_btn-lift: 0;
 }
 
 /* text (Ant type="text" / MUI variant="text"): không nền, không viền, chữ màu chính */
 .hui-btn--text {
-  --_bg: transparent;
-  --_color: var(--hui-primary);
-  --_border: transparent;
-  --_hover-bg: var(--hui-primary-light);
-  --_hover-border: transparent;
-  --_active-bg: var(--hui-primary-light);
-  --_shadow: none;
-  --_lift: 0;
+  --_btn-bg: transparent;
+  --_btn-color: var(--hui-primary);
+  --_btn-border: transparent;
+  --_btn-hover-bg: var(--hui-primary-light);
+  --_btn-hover-border: transparent;
+  --_btn-active-bg: var(--hui-primary-light);
+  --_btn-shadow: none;
+  --_btn-lift: 0;
 }
 
 /* link (Ant type="link"): trông như liên kết */
 .hui-btn--link {
-  --_bg: transparent;
-  --_color: var(--hui-primary);
-  --_border: transparent;
-  --_hover-bg: transparent;
-  --_hover-color: var(--hui-primary-hover);
-  --_hover-border: transparent;
-  --_active-bg: transparent;
-  --_shadow: none;
-  --_lift: 0;
+  --_btn-bg: transparent;
+  --_btn-color: var(--hui-primary);
+  --_btn-border: transparent;
+  --_btn-hover-bg: transparent;
+  --_btn-hover-color: var(--hui-primary-hover);
+  --_btn-hover-border: transparent;
+  --_btn-active-bg: transparent;
+  --_btn-shadow: none;
+  --_btn-lift: 0;
 }
 
 .hui-btn--link:hover .hui-btn__label {

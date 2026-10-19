@@ -97,6 +97,12 @@
       "default": "./dist/hui-tooltip.esm.js"
     },
     "./style.css": "./dist/style.css",
+    "./types/vue": {
+      "types": "./dist/types/vue.d.ts"
+    },
+    "./types/react": {
+      "types": "./dist/types/react.d.ts"
+    },
     "./custom-elements.json": "./dist/custom-elements.json",
     "./package.json": "./package.json"
   },
@@ -111,10 +117,13 @@
   "scripts": {
     "prebuild": "node scripts/sync-exports.mjs",
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cem analyze && node scripts/gen-types.mjs",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test": "vitest run --project unit",
+    "test:stories": "vitest run --project storybook",
+    "analyze": "cem analyze"
   },
   "keywords": [
     "ui",
@@ -127,6 +136,7 @@
   "license": "MIT",
   "devDependencies": {
     "@chromatic-com/storybook": "^5.1.2",
+    "@custom-elements-manifest/analyzer": "^0.11.0",
     "@storybook/addon-a11y": "^10.3.5",
     "@storybook/addon-docs": "^10.3.5",
     "@storybook/addon-vitest": "^10.3.5",
@@ -141,5 +151,5 @@
     "vitest": "^4.1.4"
   },
   "types": "./dist/types/index.d.ts",
-  "customElements": "./dist/custom-elements.json"
+  "customElements": "dist/custom-elements.json"
 }

@@ -1,79 +1,88 @@
 /*
- * ==========================================================
- * HUI Select CSS - File style độc lập cho Component Select (Dropdown)
- * Hỗ trợ: dropdown menu, tìm kiếm, loading, states, sizes
- * ==========================================================
+ * HUI Select CSS
+ * Override: mọi giá trị viết dạng var(--hui-select-xxx, <mặc định>) — biến KHÔNG khai báo trên :host,
+ * nên đặt ở đâu cũng có hiệu lực (chính <hui-select>, thẻ cha, :root).
+ * Popup nằm ở top-layer nhưng vẫn là con của shadow root → vẫn kế thừa biến từ <hui-select>.
+ *
+ *   --hui-select-height                  Chiều cao ô
+ *   --hui-select-padding-x               Khoảng đệm ngang của ô
+ *   --hui-select-font-size               Cỡ chữ
+ *   --hui-select-radius                  Bo góc ô
+ *   --hui-select-bg                      Màu nền ô
+ *   --hui-select-color                   Màu chữ
+ *   --hui-select-placeholder-color       Màu placeholder
+ *   --hui-select-border-color            Màu viền
+ *   --hui-select-hover-border-color      Màu viền khi hover
+ *   --hui-select-focus-border-color      Màu viền khi mở / focus
+ *   --hui-select-focus-shadow            Vòng sáng khi mở
+ *   --hui-select-label-color             Màu nhãn
+ *   --hui-select-label-font-size         Cỡ chữ nhãn
+ *   --hui-select-dropdown-bg             Nền popup
+ *   --hui-select-dropdown-radius         Bo góc popup
+ *   --hui-select-dropdown-shadow         Đổ bóng popup
+ *   --hui-select-dropdown-max-height     Chiều cao tối đa danh sách
+ *   --hui-select-option-padding          Khoảng đệm mỗi option
+ *   --hui-select-option-hover-bg         Nền option hover / highlight bằng phím
+ *   --hui-select-option-selected-bg      Nền option đang chọn
+ *   --hui-select-option-selected-color   Màu chữ option đang chọn
+ *
+ * Parts: base, label, trigger, value, clear, arrow, dropdown, search, listbox,
+ *        option (+ option-selected, option-active, option-disabled), check, empty (+ loading), message
+ * State: :state(open), :state(user-invalid), :state(filled), :state(disabled)
  */
 
-/* 1. :host — Thẻ <hui-select> ngoài Light DOM */
 :host {
   display: block;
   font-family: var(--hui-font-family);
-  position: relative;
 }
 
 :host([disabled]) {
   pointer-events: none;
-  opacity: 0.5;
 }
 
-/* ================== WRAPPER TỔNG ================== */
-.hui-select-wrapper {
+[hidden] {
+  display: none !important;
+}
+
+/* ================== WRAPPER + BỐ CỤC LABEL ================== */
+.hui-select {
+  /* Biến nội bộ: đổi theo size / trạng thái */
+  --_border: var(--hui-select-border-color, var(--hui-border));
+  --_focus-border: var(--hui-select-focus-border-color, var(--hui-primary));
+  --_focus-shadow: var(--hui-select-focus-shadow, 0 0 0 2px var(--hui-primary-light));
+
   display: flex;
+  flex-direction: column;
   gap: var(--hui-space-xs);
 }
 
-/* Các kiểu hiển thị label */
-.hui-select-wrapper--label-top {
-  flex-direction: column;
+.hui-select--disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
-.hui-select-wrapper--label-inline {
+.hui-select--label-inline {
   flex-direction: row;
   align-items: center;
 }
 
-.hui-select-wrapper--label-inside {
-  flex-direction: column;
-}
-
-/* Mặc định cho layout top/inline */
-.hui-select-wrapper--label-top .hui-select__label,
-.hui-select-wrapper--label-inline .hui-select__label {
-  font-size: var(--hui-font-sm);
-  font-weight: 500;
-  color: var(--hui-text);
-}
-
-/* Khi layout inline, label có độ rộng dự tính */
-.hui-select-wrapper--label-inline .hui-select__label {
-  flex-shrink: 0;
-  margin-right: var(--hui-space-sm);
-}
-
-.hui-select__right-group {
+.hui-select__group {
   display: flex;
   flex-direction: column;
   flex: 1;
-  position: relative;
+  min-width: 0;
   gap: var(--hui-space-xs);
 }
 
-/* ================== LABEL INSIDE (Floating) ================== */
-.hui-select-wrapper--label-inside .hui-select__label {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%) scale(1);
-  transform-origin: left center;
-  font-size: var(--hui-font-sm);
-  font-weight: 500;
-  color: var(--hui-text-muted);
-  background: var(--hui-bg);
-  padding: 0 4px;
-  pointer-events: none; /* Click xuyên qua label để mở select */
-  transition: all var(--hui-transition-fast);
-  z-index: 1; /* Nổi đè lên viền */
+.hui-select__label {
+  font-size: var(--hui-select-label-font-size, var(--hui-font-sm));
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-select-label-color, var(--hui-text));
+}
+
+.hui-select--label-inline .hui-select__label {
+  flex-shrink: 0;
+  margin-right: var(--hui-space-sm);
 }
 
 .hui-select__label--required::after {
@@ -81,121 +90,154 @@
   color: var(--hui-danger);
 }
 
-/* Hiệu ứng Floating Label (nhảy lên viền) khi mở hoặc đã chọn, thu nhỏ để chống đè g */
-.hui-select-wrapper--label-inside.hui-select-wrapper--has-value .hui-select__label,
-.hui-select-wrapper--label-inside .hui-select__trigger--open .hui-select__label {
+/* Floating label: nằm giữa ô, đã chọn / đang mở thì bay lên viền trên */
+.hui-select--label-inside .hui-select__label {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%) scale(1);
+  transform-origin: left center;
+  color: var(--hui-select-label-color, var(--hui-text-muted));
+  background: var(--hui-select-bg, var(--hui-bg));
+  padding: 0 4px;
+  pointer-events: none;
+  transition: all var(--hui-transition-fast);
+  z-index: 1;
+}
+
+.hui-select--label-inside.hui-select--has-value .hui-select__label,
+.hui-select--label-inside.hui-select--open .hui-select__label {
   top: 0;
   transform: translateY(-50%) scale(0.82);
-  color: var(--hui-text);
+  color: var(--hui-select-label-color, var(--hui-text));
 }
 
-/* Đổi màu label thành primary khi thẻ select đang được open (mô phỏng focus) */
-.hui-select-wrapper--label-inside .hui-select__trigger--open .hui-select__label {
-  color: var(--hui-primary);
+.hui-select--label-inside.hui-select--open .hui-select__label {
+  color: var(--_focus-border);
 }
 
-/* Đổi màu label thành màu đỏ nếu có trạng thái lỗi (không cần focus nó cũng đỏ gắt theo viền) */
-.hui-select-wrapper--label-inside .hui-select__trigger--error .hui-select__label,
-.hui-select-wrapper--label-top.hui-select-wrapper--has-error .hui-select__label,
-.hui-select-wrapper--label-inline.hui-select-wrapper--has-error .hui-select__label {
-  color: var(--hui-danger);
+/* Label chưa bay lên thì ẩn placeholder để không đè chữ */
+.hui-select--label-inside.hui-select--has-label:not(.hui-select--has-value):not(.hui-select--open) .hui-select__value--placeholder {
+  color: transparent;
 }
 
-/* ================== TRIGGER (Ô hiển thị giá trị đã chọn) ================== */
+/* ================== TRIGGER ================== */
 .hui-select__trigger {
   position: relative;
   display: flex;
   align-items: center;
-  border: 1px solid var(--hui-border);
-  background: var(--hui-bg);
   box-sizing: border-box;
+  height: var(--hui-select-height, var(--_height));
+  padding: 0 var(--hui-select-padding-x, var(--_padding-x));
+  font-size: var(--hui-select-font-size, var(--_font-size));
+  border: 1px solid var(--_border);
+  border-radius: var(--hui-select-radius, var(--_radius));
+  background: var(--hui-select-bg, var(--hui-bg));
+  color: var(--hui-select-color, var(--hui-text));
   cursor: pointer;
-  transition: all var(--hui-transition);
   user-select: none;
+  transition: all var(--hui-transition);
 }
 
 .hui-select__trigger:hover {
-  border-color: var(--hui-border-hover);
+  border-color: var(--hui-select-hover-border-color, var(--hui-border-hover));
 }
 
-/* Trạng thái mở dropdown */
-.hui-select__trigger--open {
-  border-color: var(--hui-primary);
-  box-shadow: 0 0 0 2px var(--hui-primary-light);
+.hui-select--open .hui-select__trigger {
+  border-color: var(--_focus-border);
+  box-shadow: var(--_focus-shadow);
 }
 
-/* Trạng thái lỗi */
-.hui-select__trigger--error {
-  border-color: var(--hui-danger);
+.hui-select__trigger:focus-visible {
+  outline: 2px solid var(--_focus-border);
+  outline-offset: 2px;
 }
 
-.hui-select__trigger--error.hui-select__trigger--open {
-  box-shadow: 0 0 0 2px var(--hui-danger-light);
+/* ================== TRẠNG THÁI (error / warning / success) ================== */
+.hui-select--error,
+.hui-select--warning,
+.hui-select--success {
+  --_border: var(--_tone);
+  --_focus-border: var(--_tone);
 }
 
-/* Trạng thái thành công */
-.hui-select__trigger--success {
-  border-color: var(--hui-success);
+.hui-select--error {
+  --_tone: var(--hui-danger);
+  --_focus-shadow: 0 0 0 2px var(--hui-danger-light);
 }
 
-/* ================== KÍCH THƯỚC (SIZES) ================== */
-.hui-select__trigger--sm {
-  padding: 6px 8px; /* Khôi phục padding vertical cho chuẩn UI box */
-  font-size: var(--hui-font-xs);
-  height: var(--hui-size-sm);
-  border-radius: var(--hui-radius-sm);
+.hui-select--warning {
+  --_tone: var(--hui-warning);
+  --_focus-shadow: 0 0 0 2px var(--hui-warning-light);
 }
 
-.hui-select__trigger--md {
-  padding: 8px 12px;
-  font-size: var(--hui-font-sm);
-  height: var(--hui-size-md);
-  border-radius: var(--hui-radius);
+.hui-select--success {
+  --_tone: var(--hui-success);
 }
 
-.hui-select__trigger--lg {
-  padding: 10px 16px;
-  font-size: var(--hui-font-base);
-  height: var(--hui-size-lg);
-  border-radius: var(--hui-radius-md);
+.hui-select--error .hui-select__label {
+  color: var(--hui-danger);
 }
 
-/* Phần text hiển thị giá trị đã chọn */
+/* Lỗi validate (required) chỉ báo sau khi người dùng đã tương tác */
+:host(:state(user-invalid)) .hui-select {
+  --_border: var(--hui-danger);
+  --_focus-border: var(--hui-danger);
+  --_focus-shadow: 0 0 0 2px var(--hui-danger-light);
+}
+
+/* ================== KÍCH THƯỚC ================== */
+.hui-select--sm {
+  --_height: var(--hui-size-sm);
+  --_radius: var(--hui-radius-sm);
+  --_padding-x: 8px;
+  --_font-size: var(--hui-font-xs);
+}
+
+.hui-select--md {
+  --_height: var(--hui-size-md);
+  --_radius: var(--hui-radius);
+  --_padding-x: 12px;
+  --_font-size: var(--hui-font-sm);
+}
+
+.hui-select--lg {
+  --_height: var(--hui-size-lg);
+  --_radius: var(--hui-radius-md);
+  --_padding-x: 16px;
+  --_font-size: var(--hui-font-base);
+}
+
+/* ================== GIÁ TRỊ / NÚT XÓA / MŨI TÊN ================== */
 .hui-select__value {
   flex: 1;
-  color: var(--hui-text);
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Placeholder khi chưa chọn gì */
 .hui-select__value--placeholder {
-  color: var(--hui-text-muted);
+  color: var(--hui-select-placeholder-color, var(--hui-text-muted));
 }
 
-/* Nếu kéo label vào làm placeholder tạm (chưa pick data, chưa mở dropdown), ẩn native placeholder đi */
-.hui-select-wrapper--label-inside.hui-select-wrapper--has-label:not(.hui-select-wrapper--has-value) .hui-select__trigger:not(.hui-select__trigger--open) .hui-select__value--placeholder {
-  color: transparent;
-}
-
-/* Nút xóa lựa chọn */
 .hui-select__clear {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: 1.25rem;
   height: 1.25rem;
   margin: 0 var(--hui-space-xs);
+  padding: 0;
+  border: none;
   border-radius: var(--hui-radius-full);
   background: var(--hui-bg-tertiary);
   color: var(--hui-text-muted);
-  cursor: pointer;
   font-size: 0.7rem;
-  border: none;
-  transition: all var(--hui-transition-fast);
-  flex-shrink: 0;
   line-height: 1;
+  cursor: pointer;
+  transition: all var(--hui-transition-fast);
 }
 
 .hui-select__clear:hover {
@@ -203,69 +245,49 @@
   color: var(--hui-text);
 }
 
-/* Mũi tên dropdown ▼ */
 .hui-select__arrow {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
   flex-shrink: 0;
+  width: 1.5rem;
   color: var(--hui-text-muted);
-  transition: transform var(--hui-transition);
   font-size: 0.65rem;
+  transition: transform var(--hui-transition);
 }
 
-.hui-select__arrow--open {
+.hui-select--open .hui-select__arrow {
   transform: rotate(180deg);
 }
 
-/* ================== DROPDOWN MENU ================== */
+/* ================== DROPDOWN (popup ở top-layer, xem utils/floating) ================== */
 .hui-select__dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 4px;
-  background: var(--hui-surface);
+  box-sizing: border-box;
+  max-width: calc(100vw - 16px);
+  font-size: var(--hui-select-font-size, var(--_font-size));
+  background: var(--hui-select-dropdown-bg, var(--hui-bg-elevated));
   border: 1px solid var(--hui-border);
-  border-radius: var(--hui-radius-md);
-  box-shadow: var(--hui-shadow-lg);
-  z-index: var(--hui-z-dropdown);
-  max-height: 240px;
-  overflow-y: auto;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-4px);
-  transition: all var(--hui-transition-fast);
+  border-radius: var(--hui-select-dropdown-radius, var(--hui-radius-md));
+  box-shadow: var(--hui-select-dropdown-shadow, var(--hui-shadow-lg));
+  overflow: hidden;
 }
 
-.hui-select__dropdown--open {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-/* ================== Ô TÌM KIẾM BÊN TRONG DROPDOWN ================== */
 .hui-select__search-wrap {
-  position: sticky;
-  top: 0;
   padding: var(--hui-space-sm);
-  background: var(--hui-surface);
   border-bottom: 1px solid var(--hui-border);
-  z-index: 1;
 }
 
 .hui-select__search {
   width: 100%;
+  box-sizing: border-box;
   padding: var(--hui-space-xs) var(--hui-space-sm);
   border: 1px solid var(--hui-border);
   border-radius: var(--hui-radius-sm);
   background: var(--hui-bg);
-  font-size: var(--hui-font-sm);
-  font-family: inherit;
   color: var(--hui-text);
+  font-family: inherit;
+  font-size: var(--hui-font-sm);
   outline: none;
-  box-sizing: border-box;
   transition: border-color var(--hui-transition-fast);
 }
 
@@ -277,65 +299,72 @@
   color: var(--hui-text-muted);
 }
 
-/* ================== OPTION ITEMS ================== */
+.hui-select__listbox {
+  position: relative; /* mốc offsetTop khi cuộn tới option */
+  max-height: var(--hui-select-dropdown-max-height, 240px);
+  overflow-y: auto;
+}
+
+.hui-select__listbox:empty {
+  display: none;
+}
+
+/* ================== OPTION ================== */
 .hui-select__option {
   display: flex;
   align-items: center;
-  padding: 5px 10px;
+  gap: 6px;
+  padding: var(--hui-select-option-padding, 5px 10px);
+  color: var(--hui-text);
   cursor: pointer;
   transition: background var(--hui-transition-fast);
-  color: var(--hui-text);
-  font-size: inherit;
-  gap: 6px;
 }
 
-.hui-select__option:hover,
 .hui-select__option--highlighted {
-  background: var(--hui-bg-tertiary);
+  background: var(--hui-select-option-hover-bg, var(--hui-fill-secondary));
 }
 
-/* Option đang được chọn */
-.hui-select__option--selected {
-  background: var(--hui-primary-light);
-  color: var(--hui-primary);
-  font-weight: 500;
+.hui-select__option--selected,
+.hui-select__option--selected.hui-select__option--highlighted {
+  background: var(--hui-select-option-selected-bg, var(--hui-primary-light));
+  color: var(--hui-select-option-selected-color, var(--hui-primary));
+  font-weight: var(--hui-font-weight-medium, 500);
 }
 
-.hui-select__option--selected:hover {
-  background: var(--hui-primary-light);
-}
-
-/* Dấu tích ✓ ở option được chọn */
-.hui-select__check {
-  width: 1rem;
-  text-align: center;
-  font-size: 0.75rem;
-  flex-shrink: 0;
-}
-
-/* Option bị disable */
 .hui-select__option--disabled {
-  opacity: 0.4;
+  color: var(--hui-text-disabled);
   cursor: not-allowed;
-  pointer-events: none;
 }
 
-/* ================== TRẠNG THÁI TRỐNG / LOADING ================== */
-.hui-select__empty,
-.hui-select__loading {
+.hui-select__check {
+  flex-shrink: 0;
+  width: 1rem;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.hui-select__option-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ================== TRỐNG / ĐANG TẢI ================== */
+.hui-select__status {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   padding: 10px;
   color: var(--hui-text-muted);
   font-size: var(--hui-font-sm);
-  gap: 6px;
 }
 
-/* Spinner xoay tròn khi loading */
 .hui-select__spinner {
   width: 1em;
   height: 1em;
+  box-sizing: border-box;
   border: 2px solid var(--hui-border);
   border-top-color: var(--hui-primary);
   border-radius: 50%;
@@ -343,64 +372,29 @@
 }
 
 @keyframes hui-select-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-/* ================== MESSAGE (Lỗi / Thành công / Gợi ý) ================== */
+/* ================== THÔNG BÁO ================== */
 .hui-select__message {
   font-size: var(--hui-font-xs);
   min-height: 1.25rem;
 }
 
-.hui-select__message--error {
-  color: var(--hui-danger);
-}
+.hui-select__message--error { color: var(--hui-danger); }
+.hui-select__message--success { color: var(--hui-success); }
+.hui-select__message--hint { color: var(--hui-text-muted); }
 
-.hui-select__message--success {
-  color: var(--hui-success);
-}
+/* ================== SCROLLBAR ================== */
+.hui-select__listbox::-webkit-scrollbar { width: 6px; }
+.hui-select__listbox::-webkit-scrollbar-track { background: transparent; }
+.hui-select__listbox::-webkit-scrollbar-thumb { background: var(--hui-border); border-radius: 3px; }
+.hui-select__listbox::-webkit-scrollbar-thumb:hover { background: var(--hui-border-hover); }
 
-.hui-select__message--hint {
-  color: var(--hui-text-muted);
-}
-
-/* ================== NHÓM OPTIONS (Group) ================== */
-.hui-select__group-label {
-  padding: var(--hui-space-sm) var(--hui-space-md);
-  font-size: var(--hui-font-xs);
-  font-weight: 600;
-  color: var(--hui-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-top: 1px solid var(--hui-border);
-}
-
-.hui-select__group-label:first-child {
-  border-top: none;
-}
-
-/* ================== SCROLLBAR TÙY CHỈNH ================== */
-.hui-select__dropdown::-webkit-scrollbar {
-  width: 6px;
-}
-
-.hui-select__dropdown::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.hui-select__dropdown::-webkit-scrollbar-thumb {
-  background: var(--hui-border);
-  border-radius: 3px;
-}
-
-.hui-select__dropdown::-webkit-scrollbar-thumb:hover {
-  background: var(--hui-border-hover);
-}
-
-/* ================== ACCESSIBILITY ================== */
-.hui-select__trigger:focus-visible {
-  outline: 2px solid var(--hui-primary);
-  outline-offset: 2px;
+@media (prefers-reduced-motion: reduce) {
+  .hui-select__trigger,
+  .hui-select__label,
+  .hui-select__arrow {
+    transition: none;
+  }
 }

@@ -16,6 +16,10 @@
  *        5. Custom state + :state()         → hui-demo.css PHẦN 5
  *   D. Sự kiện ra ngoài (emit)
  *   E. Bảng tra cứu pseudo-class / pseudo-element → hui-demo.css PHẦN 6, 7
+ *   F. Trợ năng & media query                     → hui-demo.css PHẦN 8
+ *   G. Theme bằng token: :where(), color-mix(), data-theme, độ ưu tiên selector → PHẦN 9
+ *   H. Trạng thái form: :state(invalid | user-invalid | filled), :has()        → PHẦN 10
+ *   I. Lớp nổi: Popover API, top-layer, ::backdrop, :popover-open             → PHẦN 11
  *
  * CÁCH DÙNG (xem story Components/HuiDemo):
  *   <hui-demo heading="Xin chào" count="2" variant="success">

@@ -1,257 +1,265 @@
 /**
- * HUI Input — Ô nhập liệu đa năng (Web Component Vanilla JS)
- * Component này hoàn toàn tách biệt, bảo bọc CSS bên trong Shadow DOM.
- *
- * Hỗ trợ:
- * - Icon trái/phải qua attribute `icon-left`, `icon-right` (emoji, text, ký tự Unicode)
- * - Slot `prefix` / `suffix` cho nội dung phức tạp (HTML tùy ý) từ bên ngoài
- * - Nút xóa nhanh (clearable) tự ẩn/hiện theo giá trị input
+ * HUI Input — Ô nhập liệu (Ant Input + MUI TextField), tham gia <form> native qua HuiFormElement
+ * Parts / slots / events / biến CSS: xem JSDoc của class bên dưới. Cách override: xem hui-demo.
  */
 
-// Import file CSS dưới dạng chuỗi thô nhờ Vite flag '?raw'
 import styles from './hui-input.css?raw';
 
-import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
-import { emitEvent, debounce } from '../../utils/events.js';
+import { defineElement } from '../../core/hui-element.js';
+import { HuiFormElement } from '../../core/hui-form-element.js';
+import { t } from '../../core/locale.js';
+import { createElement } from '../../utils/dom.js';
+import { debounce } from '../../utils/events.js';
 
-class HuiInput extends HTMLElement {
-  /**
-   * 1. observedAttributes:
-   * Liệt kê các danh sách thuộc tính (property in HTML attribute) mà UI Component cần phản ứng lập tức khi thay đổi.
-   */
-  static get observedAttributes() {
-    return ['type', 'label', 'label-position', 'placeholder', 'value', 'size', 'disabled',
-            'required', 'error', 'success', 'hint', 'clearable', 'name',
-            'icon-left', 'icon-right'];
-  }
+/** Tên cũ của label-position vẫn được chấp nhận */
+const LABEL_ALIAS = { above: 'top', left: 'inline' };
+const LABEL_POSITIONS = ['top', 'inline', 'inside'];
+
+/** <input> tách rời để kiểm định dạng email/url theo đúng luật của trình duyệt */
+let probe = null;
+
+/**
+ * Ô nhập liệu một dòng, tham gia <form> native.
+ * @fires input - Khi gõ chữ, detail: { value }
+ * @fires change - Khi giá trị đã đổi và rời ô nhập, detail: { value }
+ * @fires hui-search - type="search": phát sau 300ms ngừng gõ, detail: { value }
+ * @fires clear - Khi bấm nút xóa (clearable)
+ * @slot prefix - Nội dung trước ô nhập (bị thay bằng icon-left nếu có)
+ * @slot suffix - Nội dung sau ô nhập (bị thay bằng icon-right nếu có)
+ * @csspart base - Khung ngoài cùng (label + ô + thông báo)
+ * @csspart label - Nhãn
+ * @csspart container - Khung viền chứa ô nhập, icon, prefix/suffix
+ * @csspart input - Thẻ <input> native
+ * @csspart prefix - Vùng slot prefix
+ * @csspart suffix - Vùng slot suffix
+ * @csspart icon - Cả hai icon (icon-left, icon-right là từng bên)
+ * @csspart icon-left - Icon bên trái
+ * @csspart icon-right - Icon bên phải
+ * @csspart clear - Nút xóa ✕
+ * @csspart message - Dòng thông báo lỗi / thành công / gợi ý
+ * @cssprop --hui-input-height - Chiều cao khung
+ * @cssprop --hui-input-padding-x - Khoảng đệm ngang của ô nhập
+ * @cssprop --hui-input-font-size - Cỡ chữ
+ * @cssprop --hui-input-radius - Bo góc
+ * @cssprop --hui-input-bg - Màu nền
+ * @cssprop --hui-input-color - Màu chữ
+ * @cssprop --hui-input-placeholder-color - Màu placeholder
+ * @cssprop --hui-input-border-color - Màu viền
+ * @cssprop --hui-input-hover-border-color - Màu viền khi hover
+ * @cssprop --hui-input-focus-border-color - Màu viền khi focus
+ * @cssprop --hui-input-focus-shadow - Vòng sáng khi focus
+ * @cssprop --hui-input-label-color - Màu nhãn
+ * @cssprop --hui-input-label-font-size - Cỡ chữ nhãn
+ * @cssprop --hui-input-icon-color - Màu icon / prefix / suffix
+ */
+class HuiInput extends HuiFormElement {
+  static properties = {
+    /** text | email | password | search | number | tel | url ... */
+    type: { type: String, default: 'text' },
+    /** Nhãn của ô nhập */
+    label: { type: String, default: '' },
+    /** top | inline | inside (floating label) — alias cũ: above, left */
+    labelPosition: { type: String, default: 'top' },
+    /** Chữ gợi ý khi ô trống */
+    placeholder: { type: String, default: '' },
+    /** Thông báo lỗi (viền đỏ) — ưu tiên hơn success / hint */
+    error: { type: String, default: '' },
+    /** Thông báo thành công (viền xanh) */
+    success: { type: String, default: '' },
+    /** Gợi ý nhỏ phía dưới */
+    hint: { type: String, default: '' },
+    /** Hiện nút ✕ khi có giá trị */
+    clearable: { type: Boolean },
+    /** Icon chữ/emoji bên trái, thay cho slot prefix */
+    iconLeft: { type: String, default: '' },
+    /** Icon chữ/emoji bên phải, thay cho slot suffix */
+    iconRight: { type: String, default: '' },
+  };
+
+  static styles = styles;
 
   constructor() {
     super();
-    // 2. Attach Shadow DOM (open). Bọc lại các logic thẻ HTML thật và style cách ly vào đây.
-    this.attachShadow({ mode: 'open' });
-    this._input = null;   // Trỏ tới thẻ <input> vật lý ẩn chứa bên trong
-    this._wrapper = null; // Trỏ tới div container ngoài cùng
-    this._clearBtn = null; // Trỏ tới nút clear (✕)
-
-    // Biện pháp tránh kích âm lượng ảo (Debounce) dùng cho chức năng search.
-    // Nếu họ gõ nhanh quá, nó sẽ chờ 300ms tịt ngừng gõ rồi mới phát đi sự kiện.
-    this._debouncedEmit = debounce((value) => {
-      emitEvent(this, 'hui-search', { value });
-    }, 300);
+    this._debouncedSearch = debounce((value) => this.emit('hui-search', { value }), 300);
   }
 
-  /**
-   * 3. connectedCallback (Móc xích vòng đời hệ thống - DOM Inserted)
-   * Tự động chạy khi custom element thả vào cây DOM. Phục vụ khởi tạo màn hình.
-   */
-  connectedCallback() {
-    // Đảm bảo design tokens (màu sắc / layout) đã được gắn 1 lần vào document
-    ensureTokens();
-    // Ghim mã CSS đọc từ file trên cùng thả vào trong hệ quản lý đổ bóng Shadow DOM
-    this.shadowRoot.appendChild(createStyle(styles));
-    
-    // Gọi lệnh dựng giao diện bên trong
-    this._render();
-  }
+  render() {
+    this._label = createElement('label', { className: 'hui-input__label', part: 'label', id: 'label', for: 'input' });
 
-  /**
-   * 4. attributeChangedCallback 
-   * Sinh ra tự động nếu mã HTML bị sửa chữ ở thuộc tính bên kia, component ta sẽ bắt lệnh và làm lại giao diện (Render)
-   */
-  attributeChangedCallback() {
-    // Render luôn cho nóng nếu màn ngoài khung wrapper đã được phác thảo
-    if (this._wrapper) this._render();
-  }
-
-  /** 
-   * Tính năng truy xuất nhanh value cho lập trình viên (e.g. `document.querySelector('hui-input').value`)
-   */
-  get value() {
-    return this._input?.value || '';
-  }
-
-  /** Gán giá trị input từ mã JS */
-  set value(val) {
-    if (this._input) this._input.value = val;
-  }
-
-  /** 
-   * 5. Hàm xây dựng vẽ nên hình hài ảo cho Web Element
-   */
-  _render() {
-    // Đập bỏ phần tử bọc tổng cũ đi xây mới lại theo chuẩn Reactivity thủ công.
-    if (this._wrapper) this._wrapper.remove();
-
-    // Lấy thông số (Prop value) cấp cho các thành phần con
-    const type = this.getAttribute('type') || 'text';
-    const label = this.getAttribute('label');
-    let labelPos = this.getAttribute('label-position') || 'top';
-    if (labelPos === 'above') labelPos = 'top'; // alias
-    if (labelPos === 'left') labelPos = 'inline'; // alias
-    
-    const placeholder = this.getAttribute('placeholder') || '';
-    const value = this.getAttribute('value') || '';
-    const size = this.getAttribute('size') || 'md';
-    const disabled = this.hasAttribute('disabled');
-    const required = this.hasAttribute('required');
-    const error = this.getAttribute('error');
-    const success = this.getAttribute('success');
-    const hint = this.getAttribute('hint');
-    const clearable = this.hasAttribute('clearable');
-    const name = this.getAttribute('name') || '';
-    const iconLeft = this.getAttribute('icon-left');    // Icon bên trái (emoji/text)
-    const iconRight = this.getAttribute('icon-right');  // Icon bên phải (emoji/text)
-
-    // Tạo cái nhãn thẻ Label nếu thuộc tính label được đưa vào
-    const labelEl = label
-      ? createElement('label', {
-          className: `hui-input__label${required ? ' hui-input__label--required' : ''}`,
-        }, label)
-      : null;
-
-    // Dịch ô nhập văn bản chính
-    this._input = createElement('input', {
-      className: `hui-input__field hui-input__field--${size}`,
-      type,
-      placeholder,
-      value,
-      disabled,
-      name,
+    this._input = createElement('input', { className: 'hui-input__field', part: 'input', id: 'input' });
+    this.relayNativeEvents(this._input);
+    this._input.addEventListener('input', () => {
+      if (this.type === 'search') this._debouncedSearch(this._input.value);
     });
 
-    // 6. Quản lý hệ sinh thái event (Event Emitters/Subscribers)
-    // - Lắng nghe sự kiện gõ chữ 'input' trực tiếp trên thẻ <input> sâu phía lòng mề.
-    this._input.addEventListener('input', (e) => {
-      // Bắn event ra ngoài lớp vỏ <hui-input> cho khách hàng nghe lỏm để xử lý.
-      emitEvent(this, 'input', { value: e.target.value });
-
-      // Nếu type là 'search', bắn thêm sự kiện hoãn binh debounce.
-      if (type === 'search') this._debouncedEmit(e.target.value);
-
-      // Cập nhật hiện trạng wrapper có giá trị hay không để giữ floating label luôn bay lên
-      if (this._wrapper) {
-        if (e.target.value.length > 0) {
-          this._wrapper.classList.add('hui-input-wrapper--has-value');
-        } else {
-          this._wrapper.classList.remove('hui-input-wrapper--has-value');
-        }
-      }
-
-      // Cập nhật hiển thị nút clear theo giá trị hiện tại (chỉ hiện khi có text)
-      this._updateClearVisibility();
+    this._iconLeft = createElement('span', {
+      className: 'hui-input__icon hui-input__icon--left', part: 'icon icon-left', 'aria-hidden': 'true',
+    });
+    this._iconRight = createElement('span', {
+      className: 'hui-input__icon hui-input__icon--right', part: 'icon icon-right', 'aria-hidden': 'true',
     });
 
-    // Bắn event 'change' khi user thoát khỏi input
-    this._input.addEventListener('change', (e) => {
-      emitEvent(this, 'change', { value: e.target.value });
-    });
+    this._prefixSlot = createElement('slot', { name: 'prefix' });
+    this._suffixSlot = createElement('slot', { name: 'suffix' });
+    this._prefix = createElement('span', { className: 'hui-input__prefix', part: 'prefix' }, this._prefixSlot);
+    this._suffix = createElement('span', { className: 'hui-input__suffix', part: 'suffix' }, this._suffixSlot);
+    this._prefixSlot.addEventListener('slotchange', () => this._syncAffixes());
+    this._suffixSlot.addEventListener('slotchange', () => this._syncAffixes());
 
-    // ---- PHẦN TRÁI: Icon attribute HOẶC Slot prefix ----
-    // Ưu tiên 1: Nếu có attribute icon-left → render icon trực tiếp (đơn giản, nhanh gọn)
-    // Ưu tiên 2: Nếu không có icon-left → dùng slot prefix cho nội dung HTML phức tạp từ bên ngoài
-    const leftEl = iconLeft
-      ? createElement('span', { className: 'hui-input__icon hui-input__icon--left' }, iconLeft)
-      : createElement('span', { className: 'hui-input__prefix' },
-          createElement('slot', { name: 'prefix' }));
+    this._clearBtn = createElement('button', {
+      className: 'hui-input__clear', part: 'clear', type: 'button', tabindex: '-1',
+    }, '✕');
+    // Giữ focus trong ô nhập khi bấm nút xóa
+    this._clearBtn.addEventListener('mousedown', (e) => e.preventDefault());
+    this._clearBtn.addEventListener('click', () => this._clear());
 
-    // ---- PHẦN PHẢI: Icon attribute HOẶC Slot suffix ----
-    const rightEl = iconRight
-      ? createElement('span', { className: 'hui-input__icon hui-input__icon--right' }, iconRight)
-      : createElement('span', { className: 'hui-input__suffix' },
-          createElement('slot', { name: 'suffix' }));
+    this._container = createElement('div', { className: 'hui-input__container', part: 'container' },
+      this._iconLeft, this._prefix, this._input, this._clearBtn, this._suffix, this._iconRight);
 
-    // Nút làm sạch Clear (✕) — chỉ hiện khi clearable=true VÀ input có giá trị
-    const hasValue = value.length > 0;
-    this._clearBtn = clearable
-      ? createElement('button', {
-          className: `hui-input__clear${hasValue ? '' : ' hui-input__clear--hidden'}`,
-          type: 'button',
-          'aria-label': 'Clear',
-          onClick: () => {
-            this._input.value = '';
-            // Nút clear bị bấm -> mất value -> gỡ class để label rớt xuống
-            if (this._wrapper) {
-              this._wrapper.classList.remove('hui-input-wrapper--has-value');
-            }
-            emitEvent(this, 'input', { value: '' });
-            emitEvent(this, 'clear');
-            this._input.focus(); // Tập trung lại con trỏ chuột vào vùng type chữ
-            this._updateClearVisibility();
-          },
-        }, '✕')
-      : null;
+    this._message = createElement('div', { className: 'hui-input__message', part: 'message', id: 'message' });
+    this._group = createElement('div', { className: 'hui-input__group' }, this._container, this._message);
+    this._wrapper = createElement('div', { className: 'hui-input', part: 'base' }, this._label, this._group);
+    return this._wrapper;
+  }
 
-    // Bố trí giao diện tổng mảng
-    const containerClass = [
-      'hui-input__container',
-      `hui-input__container--${size}`, // Ép size vào container ngoài cùng
-      error ? 'hui-input__container--error' : '',
-      success ? 'hui-input__container--success' : '',
+  updated(changed) {
+    const input = this._input;
+
+    // Chỉ ghi vào <input> khi khác giá trị → không làm nhảy con trỏ khi đang gõ
+    if (changed.has('value')) {
+      const v = this.value == null ? '' : String(this.value);
+      if (input.value !== v) input.value = v;
+    }
+    if (changed.has('type')) input.type = this.type || 'text';
+    if (changed.has('placeholder')) input.placeholder = this.placeholder || '';
+    if (changed.has('name')) input.name = this.name || '';
+    if (changed.has('readonly')) input.readOnly = this.readonly;
+    if (changed.has('maxlength')) {
+      if (this.maxlength != null) input.maxLength = this.maxlength;
+      else input.removeAttribute('maxlength');
+    }
+    if (changed.has('disabled')) input.disabled = this.isDisabled;
+    if (changed.has('required')) {
+      input.toggleAttribute('aria-required', this.required);
+      this._label.classList.toggle('hui-input__label--required', this.required);
+    }
+    if (changed.has('label')) {
+      this._label.textContent = this.label || '';
+      this._label.hidden = !this.label;
+    }
+    if (changed.has('labelPosition')) this._placeLabel();
+    if (changed.has('iconLeft') || changed.has('iconRight')) {
+      this._iconLeft.textContent = this.iconLeft || '';
+      this._iconRight.textContent = this.iconRight || '';
+      this._syncAffixes();
+    }
+    if (['error', 'success', 'hint', 'status'].some((k) => changed.has(k))) this._syncMessage();
+    if (changed.has('locale')) this._clearBtn.setAttribute('aria-label', t('common.clear'));
+
+    this._syncClasses();
+    super.updated(changed);
+    // Đổi type (vd: text → email) làm đổi luật validate
+    if (changed.has('type')) this._syncValidity();
+  }
+
+  /** Thêm luật cho type="email" / type="url" */
+  checkConstraints() {
+    const error = super.checkConstraints();
+    if (error || this.isDisabled || this._isEmpty()) return error;
+    if ((this.type === 'email' || this.type === 'url') && this._typeMismatch()) {
+      return { flags: { typeMismatch: true }, message: t(this.type === 'email' ? 'form.typeEmail' : 'form.typeUrl') };
+    }
+    return null;
+  }
+
+  /** Kiểm trên <input> tách rời: validate chạy ngay khi gán value, lúc <input> bên trong chưa kịp cập nhật */
+  _typeMismatch() {
+    probe ||= document.createElement('input');
+    probe.type = this.type;
+    probe.value = String(this.value);
+    return probe.validity.typeMismatch;
+  }
+
+  validationAnchor() {
+    return this._input;
+  }
+
+  get _labelPos() {
+    const pos = LABEL_ALIAS[this.labelPosition] || this.labelPosition;
+    return LABEL_POSITIONS.includes(pos) ? pos : 'top';
+  }
+
+  /** Floating label (inside) nằm trong khung viền, các kiểu khác nằm đầu wrapper — chỉ di chuyển label, không đụng <input> */
+  _placeLabel() {
+    const parent = this._labelPos === 'inside' ? this._container : this._wrapper;
+    if (this._label.parentNode !== parent) parent.prepend(this._label);
+  }
+
+  /** Icon attribute ưu tiên hơn slot; prefix/suffix trống thì ẩn để không dư khoảng đệm */
+  _syncAffixes() {
+    this._iconLeft.hidden = !this.iconLeft;
+    this._iconRight.hidden = !this.iconRight;
+    this._prefix.hidden = Boolean(this.iconLeft) || !this._prefixSlot.assignedNodes().length;
+    this._suffix.hidden = Boolean(this.iconRight) || !this._suffixSlot.assignedNodes().length;
+  }
+
+  _syncMessage() {
+    const text = this.error || this.success || this.hint || '';
+    const kind = this.error ? 'error' : this.success ? 'success' : 'hint';
+    this._message.textContent = text;
+    this._message.hidden = !text;
+    this._message.className = `hui-input__message hui-input__message--${kind}`;
+    if (text) this._input.setAttribute('aria-describedby', 'message');
+    else this._input.removeAttribute('aria-describedby');
+    if (this.error || this.status === 'error') this._input.setAttribute('aria-invalid', 'true');
+    else this._input.removeAttribute('aria-invalid');
+  }
+
+  _syncClasses() {
+    const hasValue = this._input.value.length > 0;
+    const tone = this.error || this.status === 'error' ? 'error'
+      : this.status === 'warning' ? 'warning'
+        : this.success ? 'success' : '';
+
+    this._wrapper.className = [
+      'hui-input',
+      `hui-input--${this.effectiveSize}`,
+      `hui-input--label-${this._labelPos}`,
+      this.label ? 'hui-input--has-label' : '',
+      hasValue ? 'hui-input--has-value' : '',
+      tone ? `hui-input--${tone}` : '',
+      this.isDisabled ? 'hui-input--disabled' : '',
     ].filter(Boolean).join(' ');
 
-    const containerChildren = [leftEl, this._input, ...[this._clearBtn, rightEl].filter(Boolean)];
-    if (labelPos === 'inside' && labelEl) {
-      // Chèn label vào container nếu dùng kiểu floating (inside)
-      containerChildren.unshift(labelEl);
-    }
-
-    const container = createElement('div', { className: containerClass }, ...containerChildren);
-
-    // Nơi đổ bộ câu tin thông báo phía dưới: lỗi đỏ, xanh lá, hay gợi ý xám
-    const message = error || success || hint;
-    const messageEl = message
-      ? createElement('span', {
-          className: `hui-input__message hui-input__message--${error ? 'error' : success ? 'success' : 'hint'}`,
-        }, message)
-      : null;
-
-    // Hàn gắn liên hợp tất cả phụ kiện thành một thân hình duy nhất
-    const wrapperClasses = [
-      'hui-input-wrapper',
-      `hui-input-wrapper--label-${labelPos}`,
-      hasValue ? 'hui-input-wrapper--has-value' : '',
-      label ? 'hui-input-wrapper--has-label' : '',
-      error ? 'hui-input-wrapper--has-error' : ''
-    ].filter(Boolean).join(' ');
-    
-    // Xử lý bộ khung tùy thuộc vào loại label-position
-    let wrapperChildren = [];
-    if (labelPos === 'inline') {
-      const rightGroup = createElement('div', { className: 'hui-input__right-group' }, ...[container, messageEl].filter(Boolean));
-      wrapperChildren = [labelEl, rightGroup];
-    } else if (labelPos === 'inside') {
-      wrapperChildren = [container, messageEl];
-    } else {
-      wrapperChildren = [labelEl, container, messageEl];
-    }
-
-    this._wrapper = createElement('div', { className: wrapperClasses },
-      ...wrapperChildren.filter(Boolean));
-
-    // Nhét cơ thể hoàn thiện vào bên trong Shadow DOM cho trình duyệt vẽ hình
-    this.shadowRoot.appendChild(this._wrapper);
+    this._clearBtn.hidden = !this.clearable;
+    this._clearBtn.classList.toggle('hui-input__clear--hidden', !hasValue || this.isDisabled || this.readonly);
+    this.setState('disabled', this.isDisabled);
   }
 
-  /**
-   * Cập nhật hiển thị nút clear — chỉ hiện khi input có giá trị, ẩn khi trống.
-   * Dùng class toggle thay vì re-render toàn bộ component (hiệu năng cao hơn).
-   */
-  _updateClearVisibility() {
-    const hasText = this._input && this._input.value.length > 0;
-    
-    // Cập nhật class has-value trên wrapper để label biết khi nào cần đẩy lên
-    if (this._wrapper) {
-      this._wrapper.classList.toggle('hui-input-wrapper--has-value', hasText);
-    }
+  _clear() {
+    if (this.isDisabled || this.readonly) return;
+    this._input.value = '';
+    this.value = '';
+    this.emit('input', { value: '' });
+    this.emit('clear');
+    this._input.focus();
+  }
 
-    if (!this._clearBtn) return;
-    this._clearBtn.classList.toggle('hui-input__clear--hidden', !hasText);
+  /** Đưa focus vào <input> thật bên trong (giống HTMLInputElement) */
+  focus(options) {
+    if (this._input) this._input.focus(options);
+    else super.focus(options);
+  }
+
+  blur() {
+    this._input?.blur();
+  }
+
+  select() {
+    this._input?.select();
   }
 }
 
-// Chốt hệ thống chuẩn thư viện chung
-if (!customElements.get('hui-input')) {
-  customElements.define('hui-input', HuiInput);
-}
+defineElement('hui-input', HuiInput);
 
 export default HuiInput;

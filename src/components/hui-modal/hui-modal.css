@@ -1,0 +1,159 @@
+/*
+ * HUI Modal CSS
+ * Biến CSS (đặt ở :root, thẻ cha hoặc chính <hui-modal>):
+ *   --hui-modal-width            Chiều rộng hộp thoại (ghi đè size)
+ *   --hui-modal-max-height       Chiều cao tối đa (mặc định 90vh)
+ *   --hui-modal-bg               Nền hộp thoại
+ *   --hui-modal-color            Màu chữ phần nội dung
+ *   --hui-modal-radius           Bo góc
+ *   --hui-modal-shadow           Đổ bóng
+ *   --hui-modal-border-color     Đường kẻ dưới header / trên footer
+ *   --hui-modal-mask-bg          Nền lớp phủ phía sau
+ *   --hui-modal-gutter           Khoảng cách tối thiểu tới mép màn hình
+ *   --hui-modal-header-padding   Padding header
+ *   --hui-modal-body-padding     Padding body
+ *   --hui-modal-footer-padding   Padding footer
+ *   --hui-modal-title-font-size  Cỡ chữ tiêu đề
+ *   --hui-modal-title-color      Màu tiêu đề
+ * Parts: dialog, mask, panel, header, title, close, body, footer, ok-button, cancel-button
+ */
+
+:host {
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* <dialog> phủ toàn màn hình, trong suốt; mask + panel nằm bên trong */
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: hidden;
+  /* Chỉ có tác dụng khi trình duyệt không hỗ trợ showModal() (không có top-layer) */
+  z-index: var(--hui-z-modal);
+}
+
+.dialog:focus,
+.panel:focus {
+  outline: none;
+}
+
+.dialog::backdrop {
+  background: transparent;
+}
+
+.mask {
+  position: absolute;
+  inset: 0;
+  background: var(--hui-modal-mask-bg, var(--hui-overlay));
+}
+
+.wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 100%;
+  padding: var(--hui-modal-gutter, 12px);
+}
+
+.panel {
+  --_width: 560px;
+
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: var(--hui-modal-width, var(--_width));
+  max-width: 100%;
+  max-height: var(--hui-modal-max-height, 90vh);
+  background: var(--hui-modal-bg, var(--hui-bg-elevated));
+  border-radius: var(--hui-modal-radius, var(--hui-radius-lg));
+  box-shadow: var(--hui-modal-shadow, var(--hui-shadow-xl));
+  overflow: hidden;
+}
+
+/* === Sizes === */
+.panel--sm { --_width: 400px; }
+.panel--lg { --_width: 800px; }
+.panel--full {
+  --_width: 95vw;
+  height: 90vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-sm);
+  padding: var(--hui-modal-header-padding, 10px 16px);
+  border-bottom: 1px solid var(--hui-modal-border-color, var(--hui-border));
+}
+
+.title {
+  margin: 0;
+  min-width: 0;
+  font-size: var(--hui-modal-title-font-size, var(--hui-font-lg));
+  font-weight: var(--hui-font-weight-semibold, 600);
+  color: var(--hui-modal-title-color, var(--hui-text));
+}
+
+.close {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--hui-radius);
+  background: transparent;
+  color: var(--hui-text-muted);
+  font-size: var(--hui-font-lg);
+  cursor: pointer;
+  transition: all var(--hui-transition-fast);
+}
+
+.close:hover {
+  background: var(--hui-bg-tertiary);
+  color: var(--hui-text);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 1px;
+}
+
+.body {
+  flex: 1;
+  padding: var(--hui-modal-body-padding, 14px 16px);
+  overflow-y: auto;
+  color: var(--hui-modal-color, var(--hui-text-secondary));
+  line-height: var(--hui-line-height, 1.6);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--hui-space-sm);
+  padding: var(--hui-modal-footer-padding, 10px 16px);
+  border-top: 1px solid var(--hui-modal-border-color, var(--hui-border));
+}
+
+/* Nút mặc định (fallback của slot footer) cách nhau như khi người dùng tự đặt */
+.footer slot {
+  display: contents;
+}

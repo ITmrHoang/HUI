@@ -4,6 +4,7 @@
  */
 
 import { html } from 'lit';
+import { expect, waitFor } from 'storybook/test';
 import './index.js';
 // Import button làm phần tử trigger trong các demo
 import '../hui-button/index.js';
@@ -19,8 +20,9 @@ export default {
         component: `
 **HUI Tooltip** — Chú thích nổi hiển thị khi hover / focus / click vào phần tử, kết hợp API của Ant Design Tooltip và MUI Tooltip.
 
-Popup dùng \`position: fixed\` tính từ \`getBoundingClientRect()\` của trigger, tự lật sang phía đối diện khi thiếu chỗ,
-luôn nằm trong viewport (cách mép 8px) và tự định vị lại khi cuộn / đổi kích thước cửa sổ.
+Định vị bằng engine dùng chung \`utils/floating.js\`: tự lật sang phía đối diện khi thiếu chỗ,
+luôn nằm trong viewport (cách mép 8px), tự định vị lại khi cuộn / đổi kích thước. Popup nằm trên top-layer
+(Popover API) nên không bị \`overflow: hidden\` hay \`z-index\` của thẻ cha che mất (kể cả bên trong Modal).
 
 ### Cách sử dụng cơ bản
 \`\`\`html
@@ -67,6 +69,19 @@ luôn nằm trong viewport (cách mép 8px) và tự định vị lại khi cu�
 - Rê chuột từ trigger sang tooltip → tooltip vẫn mở (interactive như MUI).
 - \`Escape\` đóng tooltip (trừ \`trigger="manual"\`); \`trigger="click"\` đóng khi click ra ngoài.
 - Popup có \`role="tooltip"\` và host được gắn \`aria-describedby\`.
+
+### Override giao diện từ bên ngoài
+| Biến CSS | Mô tả |
+|----------|-------|
+| \`--hui-tooltip-bg\` | Màu nền (attribute \`color\` được ưu tiên hơn) |
+| \`--hui-tooltip-color\` | Màu chữ |
+| \`--hui-tooltip-max-width\` | Chiều rộng tối đa (attribute \`max-width\` ưu tiên hơn), mặc định 250px |
+| \`--hui-tooltip-radius\` | Bo góc |
+| \`--hui-tooltip-shadow\` | Đổ bóng |
+| \`--hui-tooltip-font-size\` | Cỡ chữ |
+| \`--hui-tooltip-padding\` | Padding nội dung |
+
+**Parts:** \`trigger\`, \`popup\`, \`content\`, \`arrow\`. Custom state: \`hui-tooltip:state(open)\`.
         `,
       },
     },
@@ -331,4 +346,43 @@ export const AutoFlip = {
       </hui-tooltip>
     </div>
   `,
+};
+
+/**
+ * Override từ bên ngoài — biến CSS trên thẻ cha (áp cho mọi tooltip con), ::part() và :state(open).
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .tip-brand {
+        --hui-tooltip-bg: var(--hui-primary-9);
+        --hui-tooltip-radius: 10px;
+        --hui-tooltip-padding: 8px 14px;
+        --hui-tooltip-font-size: var(--hui-font-xs);
+      }
+      .tip-brand hui-tooltip::part(content) { font-weight: var(--hui-font-weight-semibold); letter-spacing: 0.02em; }
+      .tip-brand hui-tooltip::part(popup) { border: 1px solid var(--hui-primary-5); }
+      .tip-brand hui-tooltip:state(open)::part(trigger) { outline: 2px dashed var(--hui-primary); outline-offset: 4px; border-radius: 4px; }
+    </style>
+    <div class="tip-brand" style="padding: 80px; display: flex; gap: 24px;">
+      <hui-tooltip content="Biến CSS từ thẻ cha" open trigger="manual"><hui-button>Mở sẵn</hui-button></hui-tooltip>
+      <hui-tooltip content="Hover để thấy :state(open)" placement="bottom"><hui-button variant="outline">Hover</hui-button></hui-tooltip>
+    </div>
+  `,
+  // Kiểm thử: show() → popup hiện, open-change phát, attribute open phản chiếu; hide() → ẩn
+  play: async ({ canvasElement }) => {
+    const tip = canvasElement.querySelectorAll('hui-tooltip')[1];
+    const popup = tip.shadowRoot.querySelector('[part="popup"]');
+    const events = [];
+    tip.addEventListener('open-change', (e) => events.push(e.detail.open));
+
+    tip.show();
+    await waitFor(() => expect(popup.hidden).toBe(false));
+    await expect(tip.hasAttribute('open')).toBe(true);
+    await expect(popup.dataset.side).toBe('bottom');
+
+    tip.hide();
+    await waitFor(() => expect(popup.hidden).toBe(true), { timeout: 2000 });
+    await expect(events).toEqual([true, false]);
+  },
 };

@@ -4,6 +4,7 @@
  */
 
 import { html } from 'lit';
+import { expect } from 'storybook/test';
 import './index.js';
 import '../hui-button/index.js';
 
@@ -77,6 +78,33 @@ Bọc quanh nội dung (icon, avatar, nút...) để gắn chỉ báo ở góc, 
 |------|-------|
 | (default) | Nội dung được gắn badge. Bỏ trống → badge hiển thị inline độc lập |
 | \`count\` | Nội dung tùy biến cho chỉ báo (ví dụ icon) thay cho số đếm |
+
+### Mọi attribute đều có property tương ứng
+\`\`\`js
+badge.count = 12;         // attribute count="12"
+badge.showZero = true;    // ↔ show-zero
+\`\`\`
+
+### Override giao diện từ bên ngoài
+Biến CSS đặt trên badge, thẻ cha hoặc \`:root\` đều có hiệu lực. Cần chỉnh sâu hơn → \`hui-badge::part(...)\`.
+
+| Biến CSS | Mặc định | Mô tả |
+|----------|----------|-------|
+| \`--hui-badge-bg\` | theo \`color\` / \`status\` | Nền chỉ báo |
+| \`--hui-badge-color\` | \`--hui-text-inverse\` | Màu chữ chỉ báo |
+| \`--hui-badge-height\` | md 20px / sm 16px | Chiều cao (và min-width) chỉ báo số |
+| \`--hui-badge-padding-x\` | md 6px / sm 4px | Khoảng đệm ngang |
+| \`--hui-badge-font-size\` | \`--hui-font-xs\` | Cỡ chữ số đếm |
+| \`--hui-badge-radius\` | \`--hui-radius-full\` | Bo góc |
+| \`--hui-badge-dot-size\` | md 8px / sm 6px | Kích thước chấm (dot) |
+| \`--hui-badge-ring-color\` | \`--hui-bg\` | Vòng viền tách chỉ báo khỏi nội dung |
+| \`--hui-badge-status-size\` | 6px | Chấm ở status mode |
+
+| Part | Phần tử |
+|------|---------|
+| \`base\` | Khung bọc nội dung + chỉ báo |
+| \`indicator\` | Chỉ báo (số đếm / chấm) |
+| \`status\`, \`status-dot\`, \`status-text\` | Status mode |
         `,
       },
     },
@@ -260,6 +288,26 @@ export const Invisible = {
       </div>
     `;
   },
+  play: async ({ canvasElement }) => {
+    const badge = canvasElement.querySelector('hui-badge');
+    const indicator = badge.shadowRoot.querySelector('[part="indicator"]');
+    await expect(indicator.textContent).toBe('5');
+
+    badge.count = 120;
+    await badge.updateComplete;
+    await expect(indicator.textContent).toBe('99+');
+
+    badge.invisible = true;
+    await badge.updateComplete;
+    await expect(indicator.classList.contains('hui-badge__indicator--hidden')).toBe(true);
+    // Cùng một node — không dựng lại DOM
+    await expect(badge.shadowRoot.querySelector('[part="indicator"]')).toBe(indicator);
+
+    badge.invisible = false;
+    badge.count = 5;
+    await badge.updateComplete;
+    await expect(indicator.classList.contains('hui-badge__indicator--hidden')).toBe(false);
+  },
 };
 
 /**
@@ -403,5 +451,28 @@ export const OnButton = {
     <hui-badge count="7" text="7 thông báo chưa đọc">
       <hui-button variant="outline">Thông báo</hui-button>
     </hui-badge>
+  `,
+};
+
+/**
+ * Override từ bên ngoài — biến CSS đặt trên thẻ cha / chính badge, và ::part().
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .demo-badges { --hui-badge-height: 24px; --hui-badge-font-size: 13px; --hui-badge-radius: 6px; }
+      hui-badge.brand { --hui-badge-bg: var(--hui-primary-7); --hui-badge-ring-color: var(--hui-primary-2); }
+      hui-badge.tilt::part(indicator) { font-style: italic; letter-spacing: 0.04em; }
+      hui-badge.big-dot { --hui-badge-dot-size: 12px; }
+    </style>
+    <div style="display: flex; gap: 32px; align-items: center;">
+      <span class="demo-badges" style="display: flex; gap: 32px;">
+        <hui-badge count="8">${box('cha')}</hui-badge>
+        <hui-badge count="NEW" color="success"></hui-badge>
+      </span>
+      <hui-badge class="brand" count="42">${box()}</hui-badge>
+      <hui-badge class="tilt" count="HOT" variant="soft"></hui-badge>
+      <hui-badge class="big-dot" dot color="warning">${box()}</hui-badge>
+    </div>
   `,
 };

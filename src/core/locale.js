@@ -12,6 +12,7 @@ const vi = {
   empty: { description: 'Không có dữ liệu' },
   form: {
     required: 'Vui lòng nhập trường này',
+    requiredChecked: 'Vui lòng chọn mục này',
     requiredSelect: 'Vui lòng chọn một giá trị',
     tooShort: 'Tối thiểu {min} ký tự',
     tooLong: 'Tối đa {max} ký tự',
@@ -38,6 +39,7 @@ const en = {
   empty: { description: 'No data' },
   form: {
     required: 'Please fill out this field',
+    requiredChecked: 'Please check this box',
     requiredSelect: 'Please select a value',
     tooShort: 'At least {min} characters',
     tooLong: 'At most {max} characters',

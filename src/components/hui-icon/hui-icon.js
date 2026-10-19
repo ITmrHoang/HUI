@@ -10,6 +10,11 @@ import { getIcon } from './icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+/**
+ * @csspart svg - Thẻ <svg>
+ * @cssprop --hui-icon-size - Kích thước (mặc định 1em)
+ * @cssprop --hui-icon-stroke-width - Độ dày nét (mặc định 2)
+ */
 class HuiIcon extends HuiElement {
   static properties = {
     /** Tên icon trong registry (xem icons.js) */

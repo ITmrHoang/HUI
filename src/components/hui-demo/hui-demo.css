@@ -48,8 +48,13 @@
  *
  * Biến NỘI BỘ (tiền tố --_) thì ĐƯỢC khai báo trong component, dùng để variant/size đổi giá trị
  * mà không đụng vào biến công khai. Xem cách dùng ở hui-button.css:
- *     .hui-btn--danger { --_bg: var(--hui-danger); }
- *     .hui-btn { background: var(--hui-button-bg, var(--_bg)); }   ← biến công khai luôn ưu tiên
+ *     .hui-btn--danger { --_btn-bg: var(--hui-danger); }
+ *     .hui-btn { background: var(--hui-button-bg, var(--_btn-bg)); }   ← biến công khai luôn ưu tiên
+ *
+ * ⚠ Biến nội bộ PHẢI có tiền tố tên component (--_btn-, --_card-, --_demo-...):
+ *   biến CSS kế thừa theo cây hiển thị (flat tree) — <hui-button> được slot vào trong <hui-card>
+ *   sẽ thừa hưởng mọi biến mà card khai báo. Nếu cả hai cùng dùng tên chung `--_shadow`,
+ *   nút trong card sẽ lấy nhầm bóng của card ở những variant không tự khai báo lại.
  *
  * Biến công khai của hui-demo:
  *   --hui-demo-accent   Màu nhấn (viền trái, hộp)
@@ -65,11 +70,11 @@
 
 .demo {
   /* Biến nội bộ: đổi theo variant ở PHẦN 4 */
-  --_accent: var(--hui-demo-accent, var(--hui-primary));
+  --_demo-accent: var(--hui-demo-accent, var(--hui-primary));
 
   padding: var(--hui-demo-padding, var(--hui-space-lg));
   border: 1px solid var(--hui-border);
-  border-left: 4px solid var(--_accent);
+  border-left: 4px solid var(--_demo-accent);
   border-radius: var(--hui-demo-radius, var(--hui-radius-lg));
   background: var(--hui-surface);
   transition: box-shadow var(--hui-transition), outline-color var(--hui-transition);
@@ -139,7 +144,7 @@
 [part~='box'] {
   padding: var(--hui-space-md);
   border-radius: var(--hui-radius);
-  background: var(--_accent);
+  background: var(--_demo-accent);
   color: var(--hui-text-inverse);
   cursor: pointer;
   user-select: none;
@@ -178,7 +183,7 @@
 
 ::slotted(.tieu-de) {
   font-weight: var(--hui-font-weight-semibold);
-  color: var(--_accent);
+  color: var(--_demo-accent);
 }
 
 slot[name='actions']::slotted(*) {
@@ -214,15 +219,15 @@ slot[name='actions']::slotted(*) {
   color: #f1f5f9;
 }
 
-:host([variant='success']) .demo { --_accent: var(--hui-demo-accent, var(--hui-success)); }
-:host([variant='danger']) .demo { --_accent: var(--hui-demo-accent, var(--hui-danger)); }
+:host([variant='success']) .demo { --_demo-accent: var(--hui-demo-accent, var(--hui-success)); }
+:host([variant='danger']) .demo { --_demo-accent: var(--hui-demo-accent, var(--hui-danger)); }
 
 :host(.compact) .demo {
   padding: var(--hui-space-sm);
 }
 
 :host(:focus-within) .demo {
-  outline: 2px solid var(--_accent);
+  outline: 2px solid var(--_demo-accent);
   outline-offset: 2px;
 }
 
@@ -243,7 +248,7 @@ slot[name='actions']::slotted(*) {
  */
 
 :host(:state(has-count)) .demo__count {
-  color: var(--_accent);
+  color: var(--_demo-accent);
   font-weight: var(--hui-font-weight-bold);
 }
 
@@ -298,7 +303,7 @@ slot[name='actions']::slotted(*) {
 
 .demo__input:focus-visible {
   outline: none;
-  border-color: var(--_accent);
+  border-color: var(--_demo-accent);
   box-shadow: 0 0 0 3px var(--hui-primary-light);
 }
 
@@ -333,7 +338,7 @@ slot[name='actions']::slotted(*) {
 }
 
 [part~='item']::marker {
-  color: var(--_accent);
+  color: var(--_demo-accent);
 }
 
 
@@ -357,3 +362,64 @@ slot[name='actions']::slotted(*) {
     border: 1px solid CanvasText;
   }
 }
+
+
+/* ==========================================================
+ * PHẦN 9: THEME BẰNG TOKEN — :where(), color-mix(), data-theme
+ * ==========================================================
+ * tokens.css (gắn 1 lần vào <head> bởi ensureTokens()) khai báo biến trong :where(...):
+ *     :where(:root) { --hui-primary: #6366f1; }
+ *   :where() có ĐỘ ƯU TIÊN = 0 → mọi CSS của người dùng đều thắng, kể cả `:root { ... }` đơn giản.
+ *   So sánh độ ưu tiên (specificity) để nhớ:
+ *     :where(.a #b)      → 0,0,0  (luôn thua)
+ *     :is(.a, #b)        → 1,0,0  (lấy selector mạnh nhất bên trong)
+ *     :root / .class     → 0,1,0
+ *     #id                → 1,0,0
+ *     style=""           → thắng mọi selector (trừ !important)
+ *
+ * Màu suy ra bằng color-mix() — đổi 1 biến gốc, mọi sắc độ đổi theo:
+ *     --hui-primary-hover: color-mix(in oklab, var(--hui-primary) 82%, white);
+ *     --hui-primary-1:     color-mix(in oklab, var(--hui-primary) 8%, var(--hui-bg));
+ *   ⚠ var() được tính TẠI PHẦN TỬ KHAI BÁO. Nếu chỉ khai báo trên :root thì vùng con đổi
+ *     --hui-primary sẽ không làm hover đổi theo → tokens.css khai báo khối suy ra trên cả
+ *     [data-theme] và hui-config-provider.
+ *
+ * Dark mode:
+ *     <html data-theme="dark">                     ép tối toàn trang
+ *     <section data-theme="dark">                  chỉ một vùng
+ *     <hui-config-provider theme="dark">           như trên, kèm primary-color, radius, size
+ *     @media (prefers-color-scheme: dark)           tự theo HĐH khi <html> không có data-theme
+ *     color-scheme: dark                            thanh cuộn + input native cũng chuyển tối
+ */
+
+
+/* ==========================================================
+ * PHẦN 10: TRẠNG THÁI FORM — :state() của HuiFormElement
+ * ==========================================================
+ * Mọi control kế thừa HuiFormElement (input, select, checkbox, switch...) tự bật custom state:
+ *   :state(invalid)       đang sai luật (required, minlength, pattern...)
+ *   :state(user-invalid)  sai VÀ người dùng đã chạm vào (blur/change) → nên dùng cái này để tô đỏ,
+ *                         tránh báo lỗi ngay khi trang vừa mở (giống :user-invalid của input native)
+ *   :state(filled)        đã có giá trị → dùng cho floating label
+ *
+ * CSS trang ngoài:
+ *   hui-input:state(user-invalid)::part(base) { border-color: var(--hui-danger); }
+ *   .field:has(hui-input:state(user-invalid)) .hint { color: var(--hui-danger); }
+ *        ↑ :has() — chọn CHA theo trạng thái của CON (form-item đổi màu khi ô bên trong lỗi)
+ */
+
+
+/* ==========================================================
+ * PHẦN 11: LỚP NỔI — Popover API, top-layer, ::backdrop
+ * ==========================================================
+ * Dropdown/Tooltip/Select dùng utils/floating.js: popup gắn popover="manual" rồi showPopover()
+ * → nằm trên TOP-LAYER: luôn đè lên mọi z-index, không bị overflow: hidden của thẻ cha cắt.
+ *   [popover]:popover-open   popup đang mở (pseudo-class)
+ *   ::backdrop               lớp nền phía sau phần tử top-layer (<dialog> showModal / popover)
+ *   :modal                   <dialog> đang mở bằng showModal()
+ * Lưu ý: popover mặc định có margin: auto; inset: 0 (căn giữa màn hình) → phải reset
+ *   (xem floatingCss trong utils/floating.js) rồi tự đặt left/top bằng computePosition().
+ *
+ * Modal/Drawer dùng utils/overlay.js: Esc / click ngoài chỉ tác động LỚP TRÊN CÙNG,
+ * focus trap đi xuyên Shadow DOM, khóa cuộn trang, đóng xong trả focus về nút đã mở.
+ */

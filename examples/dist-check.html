@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — kiểm tra import lẻ từ dist</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; background: var(--hui-bg, #fff); color: var(--hui-text, #000); }
+    section { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+    /* Chống nháy khi JS chưa tải xong */
+    :not(:defined) { visibility: hidden; }
+  </style>
+  <script type="module">
+    // Import LẺ từng component (không qua bundle tổng) — đúng cách người dùng tree-shaking
+    import '../dist/hui-button.esm.js';
+    import '../dist/hui-icon.esm.js';
+    import '../dist/hui-input.esm.js';
+    import '../dist/hui-select.esm.js';
+    import '../dist/hui-checkbox.esm.js';
+    import '../dist/hui-switch.esm.js';
+    import '../dist/hui-tag.esm.js';
+    import '../dist/hui-divider.esm.js';
+    import '../dist/hui-modal.esm.js';
+    import '../dist/hui-tooltip.esm.js';
+    import '../dist/hui-alert.esm.js';
+    import '../dist/hui-card.esm.js';
+    import '../dist/hui-badge.esm.js';
+    import '../dist/hui-spinner.esm.js';
+    import '../dist/hui-avatar.esm.js';
+    import '../dist/hui-config-provider.esm.js';
+    import { setLocale } from '../dist/core.esm.js';
+
+    window.__huiCheck = () => {
+      const tags = [...new Set([...document.querySelectorAll('*')].map((e) => e.localName).filter((t) => t.startsWith('hui-')))];
+      return {
+        undefinedTags: tags.filter((t) => !customElements.get(t)),
+        tokenStyles: document.querySelectorAll('style[data-hui-tokens]').length,
+        formData: Object.fromEntries(new FormData(document.querySelector('form'))),
+      };
+    };
+    window.__setLocale = setLocale;
+  </script>
+</head>
+<body>
+  <h1>Import lẻ từ dist/</h1>
+  <form onsubmit="event.preventDefault()">
+    <section>
+      <hui-button icon="plus">Button</hui-button>
+      <hui-button variant="outline" type="submit">Submit</hui-button>
+      <hui-icon name="star" size="20"></hui-icon>
+      <hui-tag>Tag</hui-tag>
+      <hui-badge count="5"><hui-avatar>H</hui-avatar></hui-badge>
+      <hui-spinner></hui-spinner>
+      <hui-tooltip content="Tooltip"><hui-button variant="ghost">Hover</hui-button></hui-tooltip>
+    </section>
+    <section>
+      <hui-input name="username" value="hoang" placeholder="Input"></hui-input>
+      <hui-checkbox name="agree" checked>Đồng ý</hui-checkbox>
+      <hui-switch name="notify" checked></hui-switch>
+    </section>
+  </form>
+  <hui-divider></hui-divider>
+  <hui-alert type="success" title="Alert" description="Import lẻ hoạt động"></hui-alert>
+  <hui-card title="Card">Nội dung</hui-card>
+  <hui-config-provider theme="dark" primary-color="#e11d48">
+    <div style="background: var(--hui-bg); padding: 12px; margin-top: 12px;"><hui-button>Dark vùng con</hui-button></div>
+  </hui-config-provider>
+</body>
+</html>

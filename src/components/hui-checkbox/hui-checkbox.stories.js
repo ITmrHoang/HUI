@@ -40,6 +40,36 @@ Hỗ trợ các tính năng:
 | \`size\` | string | \`'md'\` | Kích thước: \`'sm'\`, \`'md'\`, \`'lg'\` |
 | \`variant\` | string | \`'primary'\` | Màu sắc: \`'primary'\`, \`'success'\`, \`'warning'\`, \`'danger'\` |
 | \`error\` | string | — | Chuỗi thông báo lỗi (viền đỏ) |
+| \`name\` / \`value\` | string | — / \`'on'\` | Tên field và giá trị gửi lên \`<form>\` khi được chọn |
+
+Tham gia \`<form>\` như \`<input type="checkbox">\` (FormData, reset, \`<fieldset disabled>\`, \`required\` = phải chọn).
+
+### Events
+| Event | Detail | Mô tả |
+|-------|--------|-------|
+| \`change\` | \`{ checked, value }\` | Người dùng bật/tắt |
+| \`input\` | \`{ checked, value }\` | Phát cùng lúc với \`change\` |
+| \`hui-change\` | \`{ checked, value }\` | Tên cũ, giữ để tương thích |
+
+### Slot
+| Slot | Mô tả |
+|------|-------|
+| (mặc định) | Nhãn (thay cho attribute \`label\`) |
+
+### Override giao diện từ bên ngoài
+| Biến CSS | Mô tả |
+|----------|-------|
+| \`--hui-checkbox-size\` | Cạnh ô vuông |
+| \`--hui-checkbox-radius\` | Bo góc ô |
+| \`--hui-checkbox-gap\` | Khoảng cách ô ↔ nhãn |
+| \`--hui-checkbox-bg\` / \`--hui-checkbox-border-color\` | Nền / viền ô khi chưa chọn |
+| \`--hui-checkbox-hover-border-color\` | Viền ô khi hover |
+| \`--hui-checkbox-checked-bg\` | Nền + viền khi đã chọn |
+| \`--hui-checkbox-check-color\` | Màu dấu check |
+| \`--hui-checkbox-focus-ring\` | box-shadow khi focus bàn phím |
+| \`--hui-checkbox-label-color\` / \`--hui-checkbox-font-size\` | Màu / cỡ chữ nhãn |
+
+**Parts:** \`base\`, \`control\`, \`box\`, \`icon\`, \`label\`, \`message\`.
               `
       }
     }
@@ -153,4 +183,56 @@ export const Validation = {
       <hui-checkbox label="Bạn chưa đồng ý điều khoản" error="Vui lòng xác nhận để tiếp tục"></hui-checkbox>
     </div>
   `
+};
+
+/**
+ * Override từ bên ngoài — biến CSS đặt trên thẻ cha / class riêng và ::part().
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .demo-round { --hui-checkbox-radius: 50%; --hui-checkbox-size: 20px; }
+      hui-checkbox.brand {
+        --hui-checkbox-checked-bg: var(--hui-success);
+        --hui-checkbox-border-color: var(--hui-success);
+      }
+      hui-checkbox.caps::part(label) { text-transform: uppercase; letter-spacing: 0.06em; }
+      hui-checkbox.caps::part(box) { border-width: 2px; }
+    </style>
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="demo-round" style="display: flex; gap: 24px;">
+        <hui-checkbox label="Biến CSS trên thẻ cha" checked></hui-checkbox>
+        <hui-checkbox label="Áp cho mọi checkbox con"></hui-checkbox>
+      </div>
+      <div style="display: flex; gap: 24px;">
+        <hui-checkbox class="brand" label="Màu riêng" checked></hui-checkbox>
+        <hui-checkbox class="caps" label="::part(label) + ::part(box)" checked></hui-checkbox>
+        <hui-checkbox>Nhãn qua <b>slot</b></hui-checkbox>
+      </div>
+    </div>
+  `,
+};
+
+/**
+ * Tham gia form — name/value/required. Submit để xem dữ liệu, Đặt lại trả về trạng thái ban đầu.
+ */
+export const InForm = {
+  render: () => html`
+    <form
+      style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start;"
+      @submit=${(e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        e.target.querySelector('output').textContent = JSON.stringify(data);
+      }}
+    >
+      <hui-checkbox name="newsletter" value="yes" label="Nhận bản tin" checked></hui-checkbox>
+      <hui-checkbox name="terms" label="Tôi đồng ý điều khoản" required></hui-checkbox>
+      <div style="display: flex; gap: 8px;">
+        <button type="submit">Gửi</button>
+        <button type="reset">Đặt lại</button>
+      </div>
+      <output>{}</output>
+    </form>
+  `,
 };

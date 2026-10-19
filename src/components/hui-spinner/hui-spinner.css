@@ -1,45 +1,59 @@
 /*
- * ==========================================================
- * HUI Spinner CSS - File style độc lập cho Component Spinner
- * ==========================================================
- * Biến nội bộ (đặt bằng JS qua inline style):
- *   --_spinner-size  : kích thước icon (px)
- *   --_spinner-color : màu của vòng xoay / chấm
+ * HUI Spinner CSS
+ * Biến công khai — KHÔNG khai báo trong file này, đặt ở spinner / thẻ cha / :root đều được:
+ *   --hui-spinner-size              Kích thước icon (ghi đè attribute size)
+ *   --hui-spinner-color             Màu vòng xoay / chấm (ghi đè attribute color)
+ *   --hui-spinner-track-color       Vòng nền ở chế độ determinate
+ *   --hui-spinner-duration          Thời gian một vòng xoay (1.4s)
+ *   --hui-spinner-gap               Khoảng cách icon ↔ label
+ *   --hui-spinner-label-color       Màu label (mặc định = màu spinner)
+ *   --hui-spinner-label-font-size   Cỡ chữ label
+ *   --hui-spinner-overlay-bg        Nền lớp phủ (wrapper mode)
+ *   --hui-spinner-content-opacity   Độ mờ nội dung khi đang tải (0.5)
+ * Biến nội bộ (JS đặt inline): --_spinner-size (px), --_spinner-color
  */
 
-/* Mặc định spinner nằm inline giữa dòng chữ như một icon */
 :host {
   display: inline-block;
   vertical-align: middle;
   font-family: var(--hui-font-family);
 }
 
-/* Wrapper mode (có children): chiếm trọn chiều ngang như một khối nội dung */
+/* Wrapper mode (có nội dung): chiếm trọn chiều ngang như khối nội dung */
 :host([data-nested]) {
   display: block;
 }
 
-.hui-spinner-root {
+[hidden] {
+  display: none !important;
+}
+
+/* ================== KHUNG ================== */
+/* Standalone: chỉ hiện spinner inline */
+.hui-spin-container {
   display: inline-flex;
 }
 
-/* Slot rỗng ở chế độ standalone — chỉ tồn tại để bắt 'slotchange' */
-.hui-spinner__hidden-slot {
-  display: none;
+.hui-spin-container--nested {
+  position: relative;
+  display: block;
 }
 
 /* ================== KHỐI SPINNER (ICON + LABEL) ================== */
 .hui-spinner {
+  --_spinner-size: 24px;
+  --_spinner-color: var(--hui-primary);
+  --_spinner-dim: var(--hui-spinner-size, var(--_spinner-size));
+
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--hui-space-sm);
-  color: var(--_spinner-color, var(--hui-primary));
+  gap: var(--hui-spinner-gap, var(--hui-space-sm));
+  color: var(--hui-spinner-color, var(--_spinner-color));
   line-height: 1;
 }
 
-/* Label nằm bên phải icon */
 .hui-spinner--label-right {
   flex-direction: row;
 }
@@ -48,19 +62,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--_spinner-size, 24px);
-  height: var(--_spinner-size, 24px);
+  width: var(--_spinner-dim);
+  height: var(--_spinner-dim);
   flex-shrink: 0;
 }
 
 .hui-spinner__label {
-  font-size: var(--hui-font-sm);
-  color: var(--_spinner-color, var(--hui-primary));
+  font-size: var(--hui-spinner-label-font-size, var(--hui-font-sm));
+  color: var(--hui-spinner-label-color, currentColor);
   line-height: var(--hui-line-height);
   white-space: nowrap;
 }
 
-/* ================== KIỂU CIRCULAR (SVG giống MUI) ================== */
+/* ================== CIRCULAR (SVG giống MUI) ================== */
 .hui-spinner__svg {
   display: block;
   width: 100%;
@@ -72,24 +86,22 @@
   stroke-linecap: round;
 }
 
-/* Vòng nền mờ (chỉ xuất hiện ở chế độ determinate) */
 .hui-spinner__track {
-  stroke: currentColor;
-  opacity: 0.15;
+  stroke: var(--hui-spinner-track-color, color-mix(in srgb, currentColor 15%, transparent));
 }
 
-/* Indeterminate: SVG xoay liên tục + nét vẽ co giãn → hiệu ứng "đuổi đuôi" */
+/* Indeterminate: SVG xoay + nét co giãn → hiệu ứng "đuổi đuôi" */
 .hui-spinner--indeterminate .hui-spinner__svg {
-  animation: hui-spinner-rotate 1.4s linear infinite;
+  animation: hui-spinner-rotate var(--hui-spinner-duration, 1.4s) linear infinite;
 }
 
 .hui-spinner--indeterminate .hui-spinner__circle {
   stroke-dasharray: 80px, 200px;
   stroke-dashoffset: 0;
-  animation: hui-spinner-dash 1.4s ease-in-out infinite;
+  animation: hui-spinner-dash var(--hui-spinner-duration, 1.4s) ease-in-out infinite;
 }
 
-/* Determinate: xoay -90deg để cung tròn bắt đầu từ vị trí 12 giờ */
+/* Determinate: xoay -90deg để cung bắt đầu từ 12 giờ */
 .hui-spinner--determinate .hui-spinner__svg {
   transform: rotate(-90deg);
 }
@@ -102,23 +114,13 @@
   to { transform: rotate(360deg); }
 }
 
-/* Nét vẽ dài ra rồi co lại trong khi trượt dọc chu vi */
 @keyframes hui-spinner-dash {
-  0% {
-    stroke-dasharray: 1px, 200px;
-    stroke-dashoffset: 0;
-  }
-  50% {
-    stroke-dasharray: 100px, 200px;
-    stroke-dashoffset: -15px;
-  }
-  100% {
-    stroke-dasharray: 100px, 200px;
-    stroke-dashoffset: -125px;
-  }
+  0% { stroke-dasharray: 1px, 200px; stroke-dashoffset: 0; }
+  50% { stroke-dasharray: 100px, 200px; stroke-dashoffset: -15px; }
+  100% { stroke-dasharray: 100px, 200px; stroke-dashoffset: -125px; }
 }
 
-/* ================== KIỂU DOTS (3 chấm nhảy) ================== */
+/* ================== DOTS (3 chấm nhảy) ================== */
 .hui-spinner__dots {
   display: inline-flex;
   align-items: center;
@@ -128,57 +130,48 @@
 }
 
 .hui-spinner__dot {
-  /* Mỗi chấm rộng ~1/4 kích thước tổng → 3 chấm + 2 khoảng trống vừa khít */
-  width: calc(var(--_spinner-size, 24px) / 4);
-  height: calc(var(--_spinner-size, 24px) / 4);
+  /* ~1/4 kích thước → 3 chấm + 2 khoảng trống vừa khít */
+  width: calc(var(--_spinner-dim) / 4);
+  height: calc(var(--_spinner-dim) / 4);
   border-radius: var(--hui-radius-full);
   background: currentColor;
   animation: hui-spinner-bounce 1.2s ease-in-out infinite both;
 }
 
-/* Lệch pha giữa các chấm để tạo hiệu ứng "sóng" */
 .hui-spinner__dot:nth-child(1) { animation-delay: -0.32s; }
 .hui-spinner__dot:nth-child(2) { animation-delay: -0.16s; }
 
 @keyframes hui-spinner-bounce {
-  0%, 80%, 100% {
-    transform: scale(0.4);
-    opacity: 0.4;
-  }
-  40% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0%, 80%, 100% { transform: scale(0.4); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
 }
 
-/* ================== WRAPPER MODE (giống Ant Spin bọc nội dung) ================== */
-.hui-spin-container {
-  position: relative;
-}
-
+/* ================== WRAPPER MODE (Ant Spin bọc nội dung) ================== */
 .hui-spin-content {
   transition: opacity var(--hui-transition), filter var(--hui-transition);
 }
 
-/* Làm mờ + nhòe nội dung bên dưới khi đang tải */
 .hui-spin-content--blur {
-  opacity: 0.5;
+  opacity: var(--hui-spinner-content-opacity, 0.5);
   filter: blur(0.5px);
   user-select: none;
   pointer-events: none;
 }
 
-/* Lớp phủ trong suốt nhẹ, spinner nằm chính giữa */
-.hui-spin-overlay {
+.hui-spin-container--nested .hui-spin-overlay {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in srgb, var(--hui-bg) 40%, transparent);
+  background: var(--hui-spinner-overlay-bg, color-mix(in srgb, var(--hui-bg) 40%, transparent));
   border-radius: inherit;
   z-index: 1;
   animation: hui-spin-fade-in var(--hui-transition) both;
+}
+
+.hui-spin-overlay {
+  display: inline-flex;
 }
 
 @keyframes hui-spin-fade-in {
@@ -186,12 +179,7 @@
   to { opacity: 1; }
 }
 
-/* ================== ACCESSIBILITY (TRỢ NĂNG) ================== */
-/*
- * Người dùng bật "giảm chuyển động" trong hệ điều hành:
- * Không tắt hẳn animation (vì spinner cần thể hiện "đang chạy"),
- * chỉ làm chậm lại và bỏ hiệu ứng co giãn gây chóng mặt.
- */
+/* Giảm chuyển động: vẫn xoay (để biết "đang chạy") nhưng chậm, bỏ co giãn */
 @media (prefers-reduced-motion: reduce) {
   .hui-spinner--indeterminate .hui-spinner__svg {
     animation-duration: 3s;

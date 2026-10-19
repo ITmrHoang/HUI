@@ -27,3 +27,8 @@ test-results/
 
 # Misc
 result.md
+
+# Ảnh chụp khi test lỗi (vitest browser)
+test/__screenshots__/
+__screenshots__/
+.vitest-attachments/

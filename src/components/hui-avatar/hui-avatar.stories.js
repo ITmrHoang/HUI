@@ -4,6 +4,7 @@
  */
 
 import { html } from 'lit';
+import { expect } from 'storybook/test';
 import './index.js';
 import '../hui-badge/index.js';
 
@@ -70,6 +71,35 @@ Thứ tự ưu tiên hiển thị: **ảnh (\`src\`)** → **nội dung slot** �
 |-----------|------|-------|
 | \`hui-avatar\` | (default) | Icon hoặc chữ tùy ý, hiển thị khi không có ảnh (ưu tiên hơn \`name\`) |
 | \`hui-avatar-group\` | (default) | Danh sách các \`<hui-avatar>\` |
+
+### Mọi attribute đều có property tương ứng
+\`\`\`js
+avatar.src = '/new.jpg';   // đổi ảnh, lỗi → tự về fallback
+group.max = 2;             // gộp phần còn lại thành "+N"
+\`\`\`
+
+### Override giao diện từ bên ngoài
+Biến CSS đặt trên avatar, group, thẻ cha hoặc \`:root\` đều có hiệu lực. Cần chỉnh sâu hơn → \`::part(...)\`.
+Thứ tự ưu tiên kích thước / bo góc: attribute của avatar → attribute của group → biến CSS → mặc định.
+
+| Biến CSS | Mặc định | Mô tả |
+|----------|----------|-------|
+| \`--hui-avatar-size\` | \`--hui-size-md\` | Kích thước mặc định |
+| \`--hui-avatar-radius\` | \`50%\` | Bo góc mặc định |
+| \`--hui-avatar-bg\` | theo \`color\` / \`name\` | Nền (ghi đè mọi màu) |
+| \`--hui-avatar-color\` | \`--hui-text-inverse\` | Màu chữ / icon |
+| \`--hui-avatar-font-size\` | 40% kích thước | Cỡ chữ |
+| \`--hui-avatar-ring\` | \`0\` (bordered / trong group: 2px) | Độ dày vòng viền |
+| \`--hui-avatar-ring-color\` | \`--hui-bg\` | Màu vòng viền |
+| \`--hui-avatar-group-spacing\` | sm 4px / md 8px / lg 12px | Độ chồng lấn trong group |
+| \`--hui-avatar-group-hover-lift\` | \`2px\` | Độ nhấc avatar khi hover trong group |
+
+| Component | Part | Phần tử |
+|-----------|------|---------|
+| \`hui-avatar\` | \`base\` | Khung avatar |
+| \`hui-avatar\` | \`image\`, \`fallback\`, \`initials\`, \`icon\` | Ảnh / lớp fallback |
+| \`hui-avatar-group\` | \`base\` | Khung xếp chồng |
+| \`hui-avatar-group\` | \`surplus\`, \`surplus-base\` | Avatar "+N" và part \`base\` của nó |
         `,
       },
     },
@@ -358,6 +388,29 @@ export const GroupMax = {
       </hui-avatar-group>
     </div>
   `,
+  play: async ({ canvasElement }) => {
+    const [group, lgGroup] = canvasElement.querySelectorAll('hui-avatar-group');
+    const surplus = group.shadowRoot.querySelector('[part="surplus"]');
+    const visibleCount = () => [...group.children].filter((c) => !c.hidden).length;
+    await expect(surplus.textContent).toBe('+2');
+    await expect(visibleCount()).toBe(2);
+
+    group.max = 3;
+    await group.updateComplete;
+    await expect(surplus.textContent).toBe('+1');
+    await expect(visibleCount()).toBe(3);
+
+    group.max = null; // Bỏ giới hạn → hiện tất cả
+    await group.updateComplete;
+    await expect(surplus.hidden).toBe(true);
+    await expect(visibleCount()).toBe(4);
+    group.max = 2;
+    await group.updateComplete;
+
+    // size="lg" của group truyền xuống avatar con (38px)
+    const child = lgGroup.querySelector('hui-avatar');
+    await expect(child.shadowRoot.querySelector('[part="base"]').getBoundingClientRect().width).toBeCloseTo(38, 0);
+  },
 };
 
 /**
@@ -379,6 +432,37 @@ export const GroupSpacing = {
         <hui-avatar name="Bình Trần"></hui-avatar>
         <!-- Avatar tự đặt size/shape riêng sẽ không bị group ghi đè -->
         <hui-avatar name="Chi Lê" size="lg" shape="circle"></hui-avatar>
+      </hui-avatar-group>
+    </div>
+  `,
+};
+
+/**
+ * Override từ bên ngoài — biến CSS đặt trên thẻ cha / group / avatar, và ::part().
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .demo-avatars { --hui-avatar-size: 48px; --hui-avatar-radius: 12px; }
+      hui-avatar.brand { --hui-avatar-bg: var(--hui-primary-2); --hui-avatar-color: var(--hui-primary-7); }
+      hui-avatar.ring { --hui-avatar-ring: 3px; --hui-avatar-ring-color: var(--hui-success); }
+      hui-avatar.mono::part(initials) { font-family: var(--hui-font-mono); letter-spacing: 0.1em; }
+      hui-avatar-group.tight { --hui-avatar-group-spacing: 14px; --hui-avatar-ring-color: var(--hui-primary-3); }
+      hui-avatar-group.tight::part(surplus-base) { background: var(--hui-primary); }
+    </style>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="demo-avatars" style="display: flex; gap: 12px; align-items: center;">
+        <hui-avatar name="Biến Cha"></hui-avatar>
+        <hui-avatar class="brand" name="Màu Riêng"></hui-avatar>
+        <hui-avatar class="ring" src=${photo(20)} alt="Ring"></hui-avatar>
+        <hui-avatar class="mono" name="Part Initials"></hui-avatar>
+      </div>
+      <hui-avatar-group class="tight" max="3" size="lg">
+        <hui-avatar name="An Nguyễn"></hui-avatar>
+        <hui-avatar name="Bình Trần"></hui-avatar>
+        <hui-avatar name="Chi Lê"></hui-avatar>
+        <hui-avatar name="Dũng Phạm"></hui-avatar>
+        <hui-avatar name="Em Võ"></hui-avatar>
       </hui-avatar-group>
     </div>
   `,

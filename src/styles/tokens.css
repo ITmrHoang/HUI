@@ -40,6 +40,7 @@
   --hui-text-secondary: #475569;
   --hui-text-muted: #94a3b8;
   --hui-text-inverse: #ffffff;
+  --hui-text-light-solid: #ffffff; /* Chữ trắng ở MỌI theme — dùng trên nền tối cố định (tooltip, mask) */
 
   /* === Border === */
   --hui-border: #e2e8f0;

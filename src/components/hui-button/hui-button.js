@@ -10,13 +10,36 @@ import { HuiElement, defineElement } from '../../core/hui-element.js';
 import { createElement } from '../../utils/dom.js';
 import '../hui-icon/hui-icon.js';
 
+/**
+ * @fires hui-click - Click khi không disabled/loading. detail: { originalEvent }
+ * @slot - Nội dung chữ của nút
+ * @slot icon - Icon tùy chỉnh (thay cho attribute icon)
+ * @slot suffix - Nội dung sau chữ
+ * @csspart base - Thẻ <button> bên trong
+ * @csspart label - Vùng chữ
+ * @csspart icon - Icon mặc định
+ * @csspart spinner - Vòng xoay loading
+ * @cssprop --hui-button-height - Chiều cao tối thiểu
+ * @cssprop --hui-button-padding-x - Khoảng đệm ngang
+ * @cssprop --hui-button-font-size - Cỡ chữ
+ * @cssprop --hui-button-font-weight - Độ đậm chữ
+ * @cssprop --hui-button-radius - Bo góc
+ * @cssprop --hui-button-gap - Khoảng cách icon và chữ
+ * @cssprop --hui-button-bg - Màu nền
+ * @cssprop --hui-button-color - Màu chữ
+ * @cssprop --hui-button-border-color - Màu viền
+ * @cssprop --hui-button-hover-bg - Màu nền khi hover
+ * @cssprop --hui-button-hover-color - Màu chữ khi hover
+ * @cssprop --hui-button-shadow - Đổ bóng khi hover
+ * @cssprop --hui-button-focus-color - Màu viền focus
+ */
 class HuiButton extends HuiElement {
   static properties = {
     /** primary | secondary | outline | dashed | ghost | text | link | danger */
     variant: { type: String, default: 'primary' },
     /** sm | md | lg */
     size: { type: String, default: 'md' },
-    /** default | round (bo tròn 2 đầu) | circle (nút tròn chỉ có icon) */
+    /** default | round | circle — round: bo tròn 2 đầu, circle: nút tròn chỉ có icon */
     shape: { type: String, default: 'default' },
     disabled: { type: Boolean },
     /** Hiện spinner, chặn click nhưng VẪN giữ focus (không dùng disabled native) */

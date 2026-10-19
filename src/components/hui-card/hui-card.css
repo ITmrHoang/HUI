@@ -1,38 +1,56 @@
 /*
- * ==========================================================
- * HUI Card CSS - File style độc lập cho Component Thẻ nội dung
- * ==========================================================
+ * HUI Card CSS
+ * Biến công khai — KHÔNG khai báo trong file này, đặt ở card / thẻ cha / :root đều được:
+ *   --hui-card-bg               Nền card
+ *   --hui-card-color            Màu chữ body
+ *   --hui-card-radius           Bo góc
+ *   --hui-card-padding          Khoảng đệm (mặc định theo size: 12 / 16 / 24px)
+ *   --hui-card-border-color     Màu viền
+ *   --hui-card-shadow           Bóng đổ (mặc định theo elevation)
+ *   --hui-card-hover-shadow     Bóng đổ khi hover
+ *   --hui-card-title-color      Màu tiêu đề
+ *   --hui-card-title-font-size  Cỡ chữ tiêu đề
+ *   --hui-card-divider-color    Đường kẻ trên actions / footer
+ *   --hui-card-cover-height     Chiều cao cover (attribute cover-height ưu tiên hơn)
+ *   --hui-card-cover-width      Chiều rộng cover ở layout horizontal
+ *   --hui-card-focus-color      Viền focus khi clickable
+ * Biến nội bộ có tiền tố --_card- (tránh "rò" sang component lồng trong slot).
  */
 
 :host {
-  display: block; /* Card là khối nội dung → chiếm trọn chiều ngang cha */
+  display: block;
   font-family: var(--hui-font-family);
   color: var(--hui-text);
 }
 
-/* Thuộc tính hidden phải thắng mọi rule display bên dưới */
 [hidden] {
   display: none !important;
 }
 
 /* ================== KHUNG CARD ================== */
 .hui-card {
-  /* Biến padding nội bộ — được đổi theo size */
-  --_pad: 16px;
+  --_card-pad: var(--hui-card-padding, 16px);
+  --_card-bg: var(--hui-bg-container);
+  --_card-border: transparent;
+  --_card-shadow: none;
+  --_card-title-size: var(--hui-font-base);
+  --_card-subtitle-size: var(--hui-font-sm);
+  --_card-body-size: var(--hui-font-sm);
+
   position: relative;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   height: 100%;
-  background: var(--hui-surface);
-  border: 1px solid transparent;
-  border-radius: var(--hui-radius-lg);
-  overflow: hidden; /* Bo góc cả ảnh cover bên trong */
+  background: var(--hui-card-bg, var(--_card-bg));
+  border: 1px solid var(--hui-card-border-color, var(--_card-border));
+  border-radius: var(--hui-card-radius, var(--hui-radius-lg));
+  box-shadow: var(--hui-card-shadow, var(--_card-shadow));
+  overflow: hidden; /* Bo góc cả ảnh cover */
   transition: box-shadow var(--hui-transition), transform var(--hui-transition),
     border-color var(--hui-transition);
 }
 
-/* Layout ngang: cover bên trái, nội dung bên phải */
 .hui-card--horizontal {
   flex-direction: row;
 }
@@ -41,44 +59,41 @@
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  min-width: 0; /* Cho phép text bị cắt (ellipsis) trong flex item */
+  min-width: 0; /* Cho phép ellipsis trong flex item */
 }
 
-/* ================== SIZES (PADDING) ================== */
-.hui-card--sm { --_pad: 12px; }
-.hui-card--md { --_pad: 16px; }
-.hui-card--lg { --_pad: 24px; }
+/* ================== SIZES ================== */
+.hui-card--sm {
+  --_card-pad: var(--hui-card-padding, 12px);
+  --_card-title-size: var(--hui-font-sm);
+  --_card-subtitle-size: var(--hui-font-xs);
+}
+
+.hui-card--lg {
+  --_card-pad: var(--hui-card-padding, 24px);
+  --_card-title-size: var(--hui-font-lg);
+  --_card-body-size: var(--hui-font-base);
+}
 
 /* ================== VARIANTS ================== */
-/* elevated (mặc định, MUI): nổi lên bằng bóng đổ */
-.hui-card--elevated { border-color: transparent; }
-.hui-card--elevation-0 { box-shadow: none; border-color: var(--hui-border); }
-.hui-card--elevation-1 { box-shadow: var(--hui-shadow); }
-.hui-card--elevation-2 { box-shadow: var(--hui-shadow-md); }
-.hui-card--elevation-3 { box-shadow: var(--hui-shadow-lg); }
-.hui-card--elevation-4 { box-shadow: var(--hui-shadow-xl); }
+.hui-card--elevation-0 { --_card-border: var(--hui-border); }
+.hui-card--elevation-1 { --_card-shadow: var(--hui-shadow); }
+.hui-card--elevation-2 { --_card-shadow: var(--hui-shadow-md); }
+.hui-card--elevation-3 { --_card-shadow: var(--hui-shadow-lg); }
+.hui-card--elevation-4 { --_card-shadow: var(--hui-shadow-xl); }
 
-/* outlined (Ant bordered): viền mảnh, không bóng */
-.hui-card--outlined {
-  border-color: var(--hui-border);
-  box-shadow: none;
-}
+.hui-card--outlined { --_card-border: var(--hui-border); }
 
-/* filled: nền xám nhạt, không viền */
-.hui-card--filled {
-  background: var(--hui-bg-secondary);
-  border-color: transparent;
-  box-shadow: none;
-}
+.hui-card--filled { --_card-bg: var(--hui-bg-secondary); }
 
 /* ================== HOVERABLE / CLICKABLE ================== */
 .hui-card--hoverable:hover {
-  box-shadow: var(--hui-shadow-lg);
-  transform: translateY(-2px); /* Nhấc card lên một chút */
+  box-shadow: var(--hui-card-hover-shadow, var(--hui-shadow-lg));
+  transform: translateY(-2px);
 }
 
 .hui-card--outlined.hui-card--hoverable:hover {
-  border-color: var(--hui-border-hover);
+  --_card-border: var(--hui-border-hover);
 }
 
 .hui-card--clickable {
@@ -87,30 +102,31 @@
 }
 
 .hui-card--clickable:active {
-  transform: translateY(0); /* Nhấn xuống thì hạ card về chỗ cũ */
+  transform: translateY(0);
   box-shadow: var(--hui-shadow-md);
 }
 
 .hui-card--clickable:focus-visible {
-  outline: 2px solid var(--hui-primary);
+  outline: 2px solid var(--hui-card-focus-color, var(--hui-primary));
   outline-offset: 2px;
 }
 
-/* ================== COVER (MEDIA) ================== */
+/* ================== COVER ================== */
 .hui-card__cover {
+  /* JS ghi đè inline khi có attribute cover-height */
+  --_card-cover-height: var(--hui-card-cover-height, 180px);
   position: relative;
   flex-shrink: 0;
-  height: var(--hui-card-cover-height, 180px);
+  height: var(--_card-cover-height);
   background: var(--hui-bg-tertiary);
   overflow: hidden;
 }
 
-/* Layout ngang: cover cao theo card, rộng cố định */
 .hui-card--horizontal .hui-card__cover {
   width: var(--hui-card-cover-width, 40%);
   max-width: 280px;
   height: auto;
-  min-height: var(--hui-card-cover-height, 180px);
+  min-height: var(--_card-cover-height);
 }
 
 .hui-card__cover-img,
@@ -119,12 +135,12 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Ảnh lấp đầy khung, cắt phần thừa */
+  object-fit: cover;
 }
 
 /* ================== HEADER ================== */
 .hui-card__header {
-  padding: var(--_pad) var(--_pad) 0;
+  padding: var(--_card-pad) var(--_card-pad) 0;
 }
 
 .hui-card__header-default {
@@ -144,16 +160,19 @@
 }
 
 .hui-card__title {
+  color: var(--hui-card-title-color, var(--hui-text));
+  font-size: var(--hui-card-title-font-size, var(--_card-title-size));
   font-weight: var(--hui-font-weight-semibold);
   line-height: var(--hui-line-height);
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Tiêu đề dài → hiện dấu ... */
+  text-overflow: ellipsis;
 }
 
 .hui-card__subtitle {
   margin-top: 2px;
   color: var(--hui-text-secondary);
+  font-size: var(--_card-subtitle-size);
   line-height: var(--hui-line-height);
 }
 
@@ -162,27 +181,17 @@
   align-items: center;
   gap: var(--hui-space-xs);
   flex-shrink: 0;
-  margin-left: auto; /* Đẩy vùng extra sát mép phải */
+  margin-left: auto;
 }
-
-/* Cỡ chữ theo size */
-.hui-card--sm .hui-card__title { font-size: var(--hui-font-sm); }
-.hui-card--sm .hui-card__subtitle { font-size: var(--hui-font-xs); }
-.hui-card--md .hui-card__title { font-size: var(--hui-font-base); }
-.hui-card--md .hui-card__subtitle { font-size: var(--hui-font-sm); }
-.hui-card--lg .hui-card__title { font-size: var(--hui-font-lg); }
-.hui-card--lg .hui-card__subtitle { font-size: var(--hui-font-sm); }
 
 /* ================== BODY ================== */
 .hui-card__body {
   flex: 1 1 auto;
-  padding: var(--_pad);
-  color: var(--hui-text-secondary);
-  font-size: var(--hui-font-sm);
+  padding: var(--_card-pad);
+  color: var(--hui-card-color, var(--hui-text-secondary));
+  font-size: var(--_card-body-size);
   line-height: var(--hui-line-height);
 }
-
-.hui-card--lg .hui-card__body { font-size: var(--hui-font-base); }
 
 /* ================== LOADING SKELETON ================== */
 .hui-card__skeleton {
@@ -195,13 +204,8 @@
   display: block;
   height: 12px;
   border-radius: var(--hui-radius-sm);
-  /* Dải gradient chạy ngang tạo hiệu ứng ánh sáng lướt qua (shimmer) */
-  background: linear-gradient(
-    90deg,
-    var(--hui-bg-tertiary) 25%,
-    var(--hui-border) 37%,
-    var(--hui-bg-tertiary) 63%
-  );
+  /* Dải gradient chạy ngang = hiệu ứng shimmer */
+  background: linear-gradient(90deg, var(--hui-bg-tertiary) 25%, var(--hui-border) 37%, var(--hui-bg-tertiary) 63%);
   background-size: 400% 100%;
   animation: hui-card-shimmer 1.4s ease infinite;
 }
@@ -220,23 +224,22 @@
   display: flex;
   align-items: center;
   gap: var(--hui-space-sm);
-  padding: calc(var(--_pad) * 0.75) var(--_pad);
-  border-top: 1px solid var(--hui-border);
+  padding: calc(var(--_card-pad) * 0.75) var(--_card-pad);
+  border-top: 1px solid var(--hui-card-divider-color, var(--hui-border));
 }
 
 .hui-card__footer {
-  padding: 0 var(--_pad) var(--_pad);
+  padding: 0 var(--_card-pad) var(--_card-pad);
   color: var(--hui-text-muted);
   font-size: var(--hui-font-xs);
 }
 
-/* Nếu có actions thì footer nằm dưới actions → cần padding trên */
+/* Footer nằm dưới actions → thêm padding + đường kẻ trên */
 .hui-card__actions:not([hidden]) + .hui-card__footer {
-  padding-top: calc(var(--_pad) * 0.75);
-  border-top: 1px solid var(--hui-border);
+  padding-top: calc(var(--_card-pad) * 0.75);
+  border-top: 1px solid var(--hui-card-divider-color, var(--hui-border));
 }
 
-/* Người dùng giảm chuyển động → tắt animation */
 @media (prefers-reduced-motion: reduce) {
   .hui-card,
   .hui-card__skeleton-line {

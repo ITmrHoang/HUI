@@ -1,21 +1,15 @@
 /**
- * HUI Badge — Huy hiệu số đếm / chấm trạng thái (Web Component Vanilla JS)
- *
- * Kết hợp ý tưởng từ Ant Design <Badge> và MUI <Badge>:
- * - Bọc nội dung (icon, avatar, nút...) và gắn chỉ báo ở góc (placement)
- * - Không có nội dung → hiển thị như một badge inline độc lập
- * - count + max (99+), dot, show-zero, invisible (ẩn có animation)
- * - overlap="circular" (MUI): kéo chỉ báo vào trong cho phần tử tròn như avatar
- * - status (Ant): chấm trạng thái + text, "processing" có vòng sóng lan tỏa
- * - Slot "count": tự truyền nội dung chỉ báo (ví dụ một icon)
+ * HUI Badge — Huy hiệu số đếm / chấm trạng thái (Ant Badge + MUI Badge). Parts/slots/biến CSS: xem JSDoc của class.
  */
 
 import styles from './hui-badge.css?raw';
-import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
+import { HuiElement, defineElement } from '../../core/hui-element.js';
+import { createElement } from '../../utils/dom.js';
+import { prefersReducedMotion } from '../../utils/motion.js';
 
 const COLOR_VARIANTS = ['primary', 'secondary', 'success', 'warning', 'danger', 'info'];
 
-// Map trạng thái kiểu Ant Design → token màu của HUI
+/** Trạng thái kiểu Ant → token màu */
 const STATUS_COLORS = {
   success: 'var(--hui-success)',
   processing: 'var(--hui-info)',
@@ -26,246 +20,232 @@ const STATUS_COLORS = {
 
 const PLACEMENTS = ['top-right', 'top-left', 'bottom-right', 'bottom-left'];
 
-class HuiBadge extends HTMLElement {
-  static get observedAttributes() {
-    return [
-      'count', 'max', 'dot', 'show-zero', 'color', 'variant', 'placement',
-      'overlap', 'offset', 'status', 'text', 'invisible', 'size',
-    ];
-  }
+const hasContent = (slot) => slot.assignedNodes().some((n) =>
+  n.nodeType === Node.ELEMENT_NODE || (n.nodeType === Node.TEXT_NODE && n.textContent.trim() !== '')
+);
 
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    this._wrapper = null;
-    this._initialized = false;
+/**
+ * Bọc nội dung và gắn chỉ báo ở góc; không có nội dung → badge inline độc lập;
+ * `status` không có nội dung → chấm trạng thái + text.
+ *
+ * @slot - Nội dung được gắn badge. Bỏ trống → badge hiển thị inline độc lập
+ * @slot count - Nội dung tùy biến cho chỉ báo (vd: icon) thay cho số đếm
+ * @csspart base - Khung bọc nội dung + chỉ báo
+ * @csspart indicator - Chỉ báo (số đếm / chấm)
+ * @csspart status - Khối status mode (chấm + text)
+ * @csspart status-dot - Chấm trạng thái
+ * @csspart status-text - Text trạng thái
+ * @cssprop --hui-badge-bg - Nền chỉ báo (ghi đè màu theo color/status)
+ * @cssprop --hui-badge-color - Màu chữ chỉ báo
+ * @cssprop --hui-badge-height - Chiều cao (và min-width) chỉ báo số
+ * @cssprop --hui-badge-padding-x - Khoảng đệm ngang chỉ báo số
+ * @cssprop --hui-badge-font-size - Cỡ chữ số đếm
+ * @cssprop --hui-badge-radius - Bo góc chỉ báo
+ * @cssprop --hui-badge-dot-size - Kích thước chấm (dot)
+ * @cssprop --hui-badge-ring-color - Màu vòng viền tách chỉ báo khỏi nội dung
+ * @cssprop --hui-badge-status-size - Kích thước chấm ở status mode
+ */
+class HuiBadge extends HuiElement {
+  static properties = {
+    /** Số đếm hoặc chữ (vd: "NEW"). Rỗng/0 → ẩn chỉ báo */
+    count: { type: String },
+    /** Vượt quá max → hiển thị "max+" */
+    max: { type: Number, default: 99 },
+    /** Chấm nhỏ thay cho số */
+    dot: { type: Boolean },
+    /** Vẫn hiển thị khi count = 0 */
+    showZero: { type: Boolean },
+    /** primary | secondary | success | warning | danger | info hoặc màu CSS bất kỳ */
+    color: { type: String, default: 'danger' },
+    /** standard | soft */
+    variant: { type: String, default: 'standard' },
+    /** top-right | top-left | bottom-right | bottom-left */
+    placement: { type: String, default: 'top-right' },
+    /** rectangular | circular (kéo chỉ báo vào trong cho phần tử tròn) */
+    overlap: { type: String, default: 'rectangular' },
+    /** Dịch chuyển chỉ báo, dạng "x,y" (px) */
+    offset: { type: String },
+    /** success | processing | default | error | warning — chấm trạng thái */
+    status: { type: String },
+    /** Text cạnh chấm ở status mode; chế độ khác dùng làm aria-label của chỉ báo */
+    text: { type: String },
+    /** Ẩn chỉ báo (có animation) */
+    invisible: { type: Boolean },
+    /** sm | md */
+    size: { type: String, default: 'md' },
+  };
 
-    // Trạng thái của lần render trước — dùng để quyết định chạy animation nào
-    // (vì mỗi lần render là tạo DOM mới nên không thể dùng CSS transition thông thường)
+  static styles = styles;
+
+  render() {
+    this._hasContent = false;
+    this._hasCustomCount = false;
+    // Trạng thái lần trước → chọn animation enter / leave / bump
     this._prevVisible = null;
     this._prevDisplay = null;
 
-    // Lưu kết quả kiểm tra slot để chỉ render lại khi thực sự thay đổi
-    this._hasContent = false;
-    this._hasCustomCount = false;
+    this._slot = createElement('slot');
+    this._countSlot = createElement('slot', { name: 'count' });
+    this._countText = createElement('span', { className: 'hui-badge__count' });
+    this._indicator = createElement('sup', { className: 'hui-badge__indicator', part: 'indicator' },
+      this._countText, this._countSlot);
+    this._base = createElement('span', { className: 'hui-badge', part: 'base' }, this._slot, this._indicator);
 
-    this.shadowRoot.addEventListener('slotchange', () => {
-      if (
-        this._detectContent() !== this._hasContent ||
-        this._detectContent('count') !== this._hasCustomCount
-      ) {
-        this._render();
+    this._statusDot = createElement('span', { className: 'hui-badge-status__dot', part: 'status-dot', 'aria-hidden': 'true' });
+    this._statusText = createElement('span', { className: 'hui-badge-status__text', part: 'status-text' });
+    this._status = createElement('span', { className: 'hui-badge-status', part: 'status' }, this._statusDot, this._statusText);
+
+    // Thêm/bớt nội dung → đổi chế độ (bọc / standalone / status) mà không dựng lại DOM
+    const onSlotChange = () => {
+      const content = hasContent(this._slot);
+      const custom = hasContent(this._countSlot);
+      if (content !== this._hasContent || custom !== this._hasCustomCount) {
+        this._hasContent = content;
+        this._hasCustomCount = custom;
+        this._sync();
       }
-    });
+    };
+    this._slot.addEventListener('slotchange', onSlotChange);
+    this._countSlot.addEventListener('slotchange', onSlotChange);
+
+    return [this._base, this._status];
   }
 
-  connectedCallback() {
-    // Chỉ tiêm style 1 lần — tránh nhân đôi <style> khi phần tử được gắn lại vào DOM
-    if (!this._initialized) {
-      ensureTokens();
-      this.shadowRoot.appendChild(createStyle(styles));
-      this._initialized = true;
+  updated() {
+    if (!this._ready) {
+      this._ready = true;
+      this._hasContent = hasContent(this._slot);
+      this._hasCustomCount = hasContent(this._countSlot);
     }
-    this._render();
+    // Mọi property đều ảnh hưởng chung tới chỉ báo → đồng bộ toàn bộ (chỉ sửa class/text/style)
+    this._sync();
   }
 
-  attributeChangedCallback(name, oldVal, newVal) {
-    if (oldVal === newVal) return;
-    if (this._wrapper) this._render();
-  }
-
-  // =====================================================
-  // HELPERS
-  // =====================================================
-
-  /**
-   * Kiểm tra Light DOM có nội dung cho slot không.
-   * @param {string} [slotName] - bỏ trống = slot mặc định
-   */
-  _detectContent(slotName) {
-    return Array.from(this.childNodes).some((node) => {
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        return slotName ? node.getAttribute('slot') === slotName : !node.hasAttribute('slot');
-      }
-      // Text node chỉ thuộc về slot mặc định, bỏ qua khoảng trắng
-      if (!slotName && node.nodeType === Node.TEXT_NODE) return node.textContent.trim() !== '';
-      return false;
-    });
-  }
-
-  /** Biến thể → token màu; còn lại coi là màu CSS tự do (#hex, rgb(), tên màu...). */
+  /** Biến thể → token; còn lại coi là màu CSS tự do */
   _getColor() {
-    const status = this.getAttribute('status');
-    if (status && STATUS_COLORS[status]) return STATUS_COLORS[status];
-    const color = this.getAttribute('color') || 'danger';
+    if (STATUS_COLORS[this.status]) return STATUS_COLORS[this.status];
+    const color = this.color || 'danger';
     return COLOR_VARIANTS.includes(color) ? `var(--hui-${color})` : color;
   }
 
-  /**
-   * Tính nội dung hiển thị của chỉ báo.
-   * - Số: vượt quá `max` → "max+" (ví dụ 99+)
-   * - Chuỗi không phải số: giữ nguyên (ví dụ "NEW", "HOT")
-   */
+  /** Số > max → "max+"; chuỗi không phải số giữ nguyên ("NEW") */
   _getCountInfo() {
-    const raw = this.getAttribute('count');
-    const isEmpty = raw === null || raw.trim() === '';
-    const num = isEmpty ? NaN : Number(raw);
+    const raw = this.count == null ? '' : String(this.count).trim();
+    const num = raw === '' ? NaN : Number(raw);
     const isNumeric = Number.isFinite(num);
-    const max = parseInt(this.getAttribute('max'), 10);
-    const safeMax = Number.isFinite(max) && max > 0 ? max : 99;
+    const max = Number.isFinite(this.max) && this.max > 0 ? this.max : 99;
 
-    let display = '';
-    if (isNumeric) display = num > safeMax ? `${safeMax}+` : String(num);
-    else if (!isEmpty) display = raw.trim();
-
-    return { isEmpty, isZero: isNumeric && num === 0, display };
+    let display = raw;
+    if (isNumeric) display = num > max ? `${max}+` : String(num);
+    return { isEmpty: raw === '', isZero: isNumeric && num === 0, display };
   }
 
-  /** Đọc offset dạng "x,y" (px) → dịch chuyển chỉ báo khỏi vị trí góc. */
   _getOffset() {
-    const raw = this.getAttribute('offset');
-    if (!raw) return [0, 0];
-    const [x, y] = raw.split(',').map((v) => parseFloat(v));
+    const [x, y] = String(this.offset || '').split(',').map((v) => parseFloat(v));
     return [Number.isFinite(x) ? x : 0, Number.isFinite(y) ? y : 0];
   }
 
-  // =====================================================
-  // RENDER UI
-  // =====================================================
+  _sync() {
+    const status = STATUS_COLORS[this.status] ? this.status : null;
+    const color = this._getColor();
 
-  /** Chế độ status (Ant): chấm màu + text, không bọc nội dung. */
-  _renderStatus(status, text) {
-    const dot = createElement('span', {
-      className: `hui-badge-status__dot${status === 'processing' ? ' hui-badge-status__dot--processing' : ''}`,
-      'aria-hidden': 'true',
-    });
-    const textEl = text ? createElement('span', { className: 'hui-badge-status__text' }, text) : null;
-
-    // Không có text thì chấm màu vẫn cần nhãn cho trình đọc màn hình
-    const attrs = text
-      ? { className: 'hui-badge-status' }
-      : { className: 'hui-badge-status', role: 'img', 'aria-label': status };
-
-    // Slot rỗng (ẩn) để vẫn bắt được slotchange nếu người dùng chèn children sau này
-    const hiddenSlots = createElement('span', { className: 'hui-badge__hidden-slot' },
-      createElement('slot'),
-      createElement('slot', { name: 'count' }),
-    );
-
-    const wrapper = createElement('span', attrs, dot, ...[textEl].filter(Boolean), hiddenSlots);
-    wrapper.style.setProperty('--_badge-bg', this._getColor());
-    return wrapper;
-  }
-
-  _render() {
-    if (this._wrapper) this._wrapper.remove();
-
-    this._hasContent = this._detectContent();
-    this._hasCustomCount = this._detectContent('count');
-
-    const status = this.getAttribute('status');
-    const text = this.getAttribute('text');
-
-    // ===== STATUS MODE KHÔNG CÓ CHILDREN → chấm + text inline =====
-    if (status && STATUS_COLORS[status] && !this._hasContent) {
-      this._wrapper = this._renderStatus(status, text);
-      this.shadowRoot.appendChild(this._wrapper);
+    // ===== STATUS MODE: không bọc nội dung → chấm + text =====
+    const statusMode = Boolean(status) && !this._hasContent;
+    this._status.hidden = !statusMode;
+    this._base.hidden = statusMode;
+    if (statusMode) {
+      this._status.style.setProperty('--_badge-bg', color);
+      this._statusDot.classList.toggle('hui-badge-status__dot--processing', status === 'processing');
+      this._statusText.textContent = this.text || '';
+      this._statusText.hidden = !this.text;
+      // Không có text → chấm vẫn cần nhãn cho trình đọc màn hình
+      if (this.text) {
+        this._status.removeAttribute('role');
+        this._status.removeAttribute('aria-label');
+      } else {
+        this._status.setAttribute('role', 'img');
+        this._status.setAttribute('aria-label', status);
+      }
       return;
     }
 
-    const size = this.getAttribute('size') === 'sm' ? 'sm' : 'md';
-    const variant = this.getAttribute('variant') === 'soft' ? 'soft' : 'standard';
-    const placementAttr = this.getAttribute('placement');
-    const placement = PLACEMENTS.includes(placementAttr) ? placementAttr : 'top-right';
-    const overlap = this.getAttribute('overlap') === 'circular' ? 'circular' : 'rectangular';
-    const showZero = this.hasAttribute('show-zero');
-    const invisible = this.hasAttribute('invisible');
+    const size = this.size === 'sm' ? 'sm' : 'md';
+    const variant = this.variant === 'soft' ? 'soft' : 'standard';
+    const placement = PLACEMENTS.includes(this.placement) ? this.placement : 'top-right';
+    const overlap = this.overlap === 'circular' ? 'circular' : 'rectangular';
 
     const { isEmpty, isZero, display } = this._getCountInfo();
-    // Status + children: hiển thị chấm màu theo trạng thái ở góc
-    const isStatusDot = Boolean(status && STATUS_COLORS[status]);
-    // Logic giống Ant Design: dot chỉ bị ẩn khi count = 0 (trừ khi show-zero)
-    const isDot = (this.hasAttribute('dot') || isStatusDot) && !(isZero && !showZero);
+    // Giống Ant: dot chỉ bị ẩn khi count = 0 (trừ khi show-zero)
+    const isDot = (this.dot || Boolean(status)) && !(isZero && !this.showZero);
+    const isCustom = this._hasCustomCount && !isDot;
+    const hiddenByCount = !isDot && !this._hasCustomCount && (isEmpty || (isZero && !this.showZero));
+    const visible = !this.invisible && !hiddenByCount;
 
-    // Quyết định có hiển thị chỉ báo hay không
-    const hiddenByCount = !isDot && !this._hasCustomCount && (isEmpty || (isZero && !showZero));
-    const visible = !invisible && !hiddenByCount;
-
-    // ===== CHỌN ANIMATION DỰA TRÊN TRẠNG THÁI LẦN TRƯỚC =====
-    // - Lần render đầu: không animation
-    // - Ẩn → hiện: phóng to từ 0 (enter)
-    // - Hiện → ẩn: thu nhỏ về 0 (leave)
-    // - Đang hiện mà số thay đổi: "nảy" nhẹ (bump)
-    let animClass = '';
-    if (this._prevVisible !== null) {
-      if (visible && !this._prevVisible) animClass = 'hui-badge__indicator--enter';
-      else if (!visible && this._prevVisible) animClass = 'hui-badge__indicator--leave';
-      else if (visible && display !== this._prevDisplay) animClass = 'hui-badge__indicator--bump';
-    }
-    if (!visible && !animClass) animClass = 'hui-badge__indicator--hidden';
-    this._prevVisible = visible;
-    this._prevDisplay = display;
-
-    const indicatorClasses = [
-      'hui-badge__indicator',
-      `hui-badge__indicator--${variant}`,
-      `hui-badge__indicator--${size}`,
-      isDot ? 'hui-badge__indicator--dot' : '',
-      this._hasCustomCount && !isDot ? 'hui-badge__indicator--custom' : '',
-      status === 'processing' && isDot ? 'hui-badge__indicator--processing' : '',
-      animClass,
-    ].filter(Boolean).join(' ');
-
-    // Nội dung chỉ báo: dot → rỗng; custom → slot "count"; còn lại → text số đếm
-    const countSlot = createElement('slot', { name: 'count' });
-    const indicatorChildren = [];
-    if (!isDot) {
-      if (this._hasCustomCount) indicatorChildren.push(countSlot);
-      else indicatorChildren.push(display);
-    }
-
-    const indicator = createElement('sup', { className: indicatorClasses }, ...indicatorChildren);
-
-    // Slot "count" phải luôn nằm trong DOM để bắt slotchange (kể cả ở chế độ dot)
-    if (!indicatorChildren.includes(countSlot)) {
-      indicator.appendChild(createElement('span', { className: 'hui-badge__hidden-slot' }, countSlot));
-    }
-
-    // ===== ACCESSIBILITY =====
-    if (!visible) {
-      indicator.setAttribute('aria-hidden', 'true');
-    } else if (isDot) {
-      // Chấm không có chữ → cần nhãn mô tả (ưu tiên `text`, sau đó status)
-      indicator.setAttribute('role', 'img');
-      indicator.setAttribute('aria-label', text || status || 'Có thông báo mới');
-    } else if (text) {
-      // `text` ghi đè nội dung đọc của số đếm, ví dụ "5 thông báo chưa đọc"
-      indicator.setAttribute('aria-label', text);
-    }
-
-    // Truyền màu + offset qua CSS custom property
-    const [ox, oy] = this._getOffset();
-    indicator.style.setProperty('--_badge-bg', this._getColor());
-    indicator.style.setProperty('--_ox', `${ox}px`);
-    indicator.style.setProperty('--_oy', `${oy}px`);
-
-    const wrapperClasses = [
+    this._base.className = [
       'hui-badge',
       this._hasContent ? `hui-badge--${placement}` : 'hui-badge--standalone',
       this._hasContent ? `hui-badge--overlap-${overlap}` : '',
     ].filter(Boolean).join(' ');
 
-    this._wrapper = createElement('span', { className: wrapperClasses },
-      createElement('slot'),
-      indicator,
-    );
+    const ind = this._indicator;
+    ind.className = [
+      'hui-badge__indicator',
+      `hui-badge__indicator--${variant}`,
+      `hui-badge__indicator--${size}`,
+      isDot ? 'hui-badge__indicator--dot' : '',
+      isCustom ? 'hui-badge__indicator--custom' : '',
+      status === 'processing' && isDot ? 'hui-badge__indicator--processing' : '',
+      visible ? '' : 'hui-badge__indicator--hidden',
+    ].filter(Boolean).join(' ');
 
-    this.shadowRoot.appendChild(this._wrapper);
+    // Nội dung: dot → rỗng; custom → slot "count"; còn lại → số đếm
+    this._countText.textContent = isDot || isCustom ? '' : display;
+    this._countText.hidden = isDot || isCustom;
+    this._countSlot.hidden = !isCustom;
+
+    const [ox, oy] = this._getOffset();
+    ind.style.setProperty('--_badge-bg', color);
+    ind.style.setProperty('--_badge-ox', `${ox}px`);
+    ind.style.setProperty('--_badge-oy', `${oy}px`);
+
+    // ===== ACCESSIBILITY =====
+    ind.removeAttribute('role');
+    ind.removeAttribute('aria-label');
+    ind.removeAttribute('aria-hidden');
+    if (!visible) {
+      ind.setAttribute('aria-hidden', 'true');
+    } else if (isDot) {
+      ind.setAttribute('role', 'img');
+      ind.setAttribute('aria-label', this.text || status || 'Có thông báo mới');
+    } else if (this.text) {
+      ind.setAttribute('aria-label', this.text);
+    }
+
+    // ===== ANIMATION: ẩn → hiện (zoom in), hiện → ẩn (zoom out), đổi số (bump) =====
+    if (this._prevVisible !== null) {
+      if (visible && !this._prevVisible) {
+        this._animate([{ scale: 0, opacity: 0 }, { scale: 1, opacity: 1 }],
+          { duration: 300, easing: 'cubic-bezier(0.12, 0.4, 0.29, 1.46)' });
+      } else if (!visible && this._prevVisible) {
+        // Giữ visibility trong lúc thu nhỏ; xong thì class --hidden có hiệu lực
+        this._animate([{ scale: 1, opacity: 1, visibility: 'visible' }, { scale: 0, opacity: 0, visibility: 'visible' }],
+          { duration: 200, easing: 'ease-in' });
+      } else if (visible && display !== this._prevDisplay) {
+        this._animate([{ scale: 0.6 }, { scale: 1.15, offset: 0.6 }, { scale: 1 }], { duration: 300, easing: 'ease-out' });
+      }
+    }
+    this._prevVisible = visible;
+    this._prevDisplay = display;
+  }
+
+  /** Animate thuộc tính `scale` (không đụng `transform` đang dùng để định vị) */
+  _animate(keyframes, options) {
+    this._anim?.cancel();
+    if (prefersReducedMotion() || typeof this._indicator.animate !== 'function') return;
+    this._anim = this._indicator.animate(keyframes, options);
   }
 }
 
-if (!customElements.get('hui-badge')) {
-  customElements.define('hui-badge', HuiBadge);
-}
+defineElement('hui-badge', HuiBadge);
 
 export default HuiBadge;

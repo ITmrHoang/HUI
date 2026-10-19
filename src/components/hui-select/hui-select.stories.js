@@ -71,12 +71,19 @@ export default {
 | \`field-label\` | string | \`'label'\` | Tên field hiển thị khi option là object |
 | \`field-value\` | string | \`'value'\` | Tên field giá trị khi option là object |
 | \`value\` | string | — | Giá trị khởi tạo |
-| \`name\` | string | \`''\` | Thuộc tính name cho form |
+| \`name\` | string | \`''\` | Tên field khi gửi form |
+| \`label-position\` | string | \`top\` | Vị trí label: top, inline, inside (floating) |
+| \`status\` | string | — | Viền theo trạng thái: error, warning (không cần thông báo) |
+
+### Form
+\`<hui-select>\` tham gia \`<form>\`: \`FormData\` (value primitive → chuỗi, object → JSON), \`form.reset()\`,
+\`<fieldset disabled>\`, \`required\` + \`checkValidity()\`. CSS bắt lỗi sau tương tác: \`hui-select:state(user-invalid)\`.
+Dropdown nằm ở top-layer nên không bị \`overflow: hidden\` của thẻ cha cắt; tự lật lên trên khi thiếu chỗ.
 
 ### JS Properties
 | Property | Type | Mô tả |
 |----------|------|-------|
-| \`options\` | Array | Mảng string[] hoặc object[] |
+| \`options\` | Array | Mảng string[] hoặc object[] (object có \`disabled: true\` thì không chọn được) |
 | \`fetchFn\` | Function | Hàm async (query) => Promise<Array> |
 | \`compareFn\` | Function | Hàm (optionValue, selectedValue) => boolean |
 | \`value\` | any | Getter/Setter giá trị hiện tại |
@@ -90,9 +97,29 @@ export default {
 ### Keyboard
 | Phím | Hành động |
 |------|-----------|
-| \`↑ ↓\` | Di chuyển highlight |
-| \`Enter\` | Chọn option đang highlight |
+| \`↑ ↓\` | Mở dropdown / di chuyển highlight |
+| \`Home\` / \`End\` | Về option đầu / cuối |
+| \`Enter\` / \`Space\` | Mở dropdown / chọn option đang highlight |
 | \`Escape\` | Đóng dropdown |
+
+### Override giao diện từ bên ngoài
+Biến CSS đặt được trên chính thẻ, thẻ cha hoặc \`:root\` (popup cũng nhận); \`::part()\` để chỉnh sâu hơn.
+
+| Biến CSS | Mô tả |
+|----------|-------|
+| \`--hui-select-height\` / \`--hui-select-padding-x\` | Chiều cao / đệm ngang của ô |
+| \`--hui-select-font-size\` / \`--hui-select-radius\` | Cỡ chữ / bo góc ô |
+| \`--hui-select-bg\` / \`--hui-select-color\` / \`--hui-select-placeholder-color\` | Nền / chữ / placeholder |
+| \`--hui-select-border-color\` / \`--hui-select-hover-border-color\` | Viền / viền khi hover |
+| \`--hui-select-focus-border-color\` / \`--hui-select-focus-shadow\` | Viền / vòng sáng khi mở |
+| \`--hui-select-label-color\` / \`--hui-select-label-font-size\` | Màu / cỡ chữ nhãn |
+| \`--hui-select-dropdown-bg\` / \`--hui-select-dropdown-radius\` / \`--hui-select-dropdown-shadow\` | Nền / bo góc / bóng popup |
+| \`--hui-select-dropdown-max-height\` | Chiều cao tối đa danh sách |
+| \`--hui-select-option-padding\` / \`--hui-select-option-hover-bg\` | Đệm / nền hover option |
+| \`--hui-select-option-selected-bg\` / \`--hui-select-option-selected-color\` | Nền / chữ option đang chọn |
+
+**Parts:** \`base\`, \`label\`, \`trigger\`, \`value\`, \`clear\`, \`arrow\`, \`dropdown\`, \`search\`, \`listbox\`,
+\`option\` (+ \`option-selected\`, \`option-active\`, \`option-disabled\`), \`check\`, \`empty\` (+ \`loading\`), \`message\`.
         `,
       },
     },
@@ -560,6 +587,56 @@ export const AllSizes = {
         <hui-select label="Small" size="sm" placeholder="Size sm..." clearable></hui-select>
         <hui-select label="Medium" size="md" placeholder="Size md..." clearable></hui-select>
         <hui-select label="Large" size="lg" placeholder="Size lg..." clearable></hui-select>
+      </div>
+    `;
+  },
+};
+
+/**
+ * Override từ bên ngoài — biến CSS (cả popup cũng nhận) và ::part() cho chỉnh sâu.
+ * Khung cha có overflow: hidden nhưng dropdown vẫn hiện đầy đủ (top-layer).
+ */
+export const CustomizeFromOutside = {
+  render: () => {
+    setTimeout(() => {
+      document.querySelectorAll('.customize-demo hui-select').forEach((el) => {
+        el.options = COUNTRY_OPTIONS;
+      });
+    }, 50);
+
+    return html`
+      <style>
+        .customize-demo .pill {
+          --hui-select-radius: 999px;
+          --hui-select-padding-x: 18px;
+          --hui-select-dropdown-radius: 16px;
+          --hui-select-option-padding: 8px 16px;
+          --hui-select-option-selected-bg: var(--hui-success-light);
+          --hui-select-option-selected-color: var(--hui-success);
+          --hui-select-focus-border-color: var(--hui-success);
+          --hui-select-focus-shadow: 0 0 0 3px var(--hui-success-light);
+        }
+        hui-select.brand {
+          --hui-select-height: 44px;
+          --hui-select-bg: var(--hui-primary-1);
+          --hui-select-border-color: var(--hui-primary-3);
+          --hui-select-dropdown-bg: var(--hui-primary-1);
+          --hui-select-option-hover-bg: var(--hui-primary-2);
+          --hui-select-dropdown-max-height: 160px;
+        }
+        hui-select.parts::part(trigger) { border-style: dashed; }
+        hui-select.parts::part(arrow) { color: var(--hui-primary); }
+        hui-select.parts::part(option-active) { font-weight: var(--hui-font-weight-semibold); }
+        hui-select.parts::part(check) { color: var(--hui-warning); }
+      </style>
+      <div class="customize-demo" style="display: flex; flex-direction: column; gap: 16px; max-width: 360px; padding: 20px;">
+        <div class="pill">
+          <hui-select label="Biến CSS trên thẻ cha" placeholder="Bo tròn, option màu success" searchable></hui-select>
+        </div>
+        <hui-select class="brand" label="Biến CSS trên chính thẻ" placeholder="Nền theo palette primary"></hui-select>
+        <div style="overflow: hidden; height: 90px; border: 1px dashed var(--hui-border); padding: 8px; border-radius: 8px;">
+          <hui-select class="parts" label="::part() + cha overflow: hidden" placeholder="Dropdown không bị cắt" clearable></hui-select>
+        </div>
       </div>
     `;
   },

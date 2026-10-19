@@ -1,7 +1,18 @@
 /*
- * ==========================================================
- * HUI Checkbox CSS - File style độc lập cho Component Checkbox
- * ==========================================================
+ * HUI Checkbox CSS
+ * Biến CSS override từ ngoài (đặt trên hui-checkbox, thẻ cha hoặc :root — không khai báo trong file này):
+ *   --hui-checkbox-size                Cạnh ô vuông (sm 14px / md 18px / lg 22px)
+ *   --hui-checkbox-radius              Bo góc ô
+ *   --hui-checkbox-gap                 Khoảng cách ô ↔ nhãn
+ *   --hui-checkbox-bg                  Nền ô khi chưa chọn
+ *   --hui-checkbox-border-color        Viền ô khi chưa chọn
+ *   --hui-checkbox-hover-border-color  Viền ô khi hover
+ *   --hui-checkbox-checked-bg          Nền + viền ô khi đã chọn (đè màu của variant)
+ *   --hui-checkbox-check-color         Màu dấu check
+ *   --hui-checkbox-focus-ring          box-shadow khi focus bàn phím
+ *   --hui-checkbox-label-color         Màu chữ nhãn
+ *   --hui-checkbox-font-size           Cỡ chữ nhãn
+ * Parts: base, control, box, icon, label, message
  */
 
 :host {
@@ -15,41 +26,82 @@
   opacity: 0.5;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .hui-checkbox-wrapper {
   display: inline-flex;
   flex-direction: column;
   gap: 4px;
 }
 
-/* ================== CONTAINER CHÍNH ================== */
+/* ================== CONTAINER ================== */
 .hui-checkbox__container {
+  /* Biến nội bộ: màu chính (_c), vòng focus (_ring), kích thước theo size */
+  --_c: var(--hui-primary);
+  --_ring: var(--hui-primary-light);
+  --_size: 18px;
+  --_radius: 4px;
+  --_font-size: var(--hui-font-base);
+
   display: inline-flex;
   align-items: center;
-  gap: var(--hui-space-sm, 8px);
+  gap: var(--hui-checkbox-gap, var(--hui-space-sm, 8px));
   cursor: pointer;
   position: relative;
   user-select: none;
 }
 
-/* Label bên trái */
 .hui-checkbox__container--label-left {
   flex-direction: row-reverse;
 }
 
-/* ================== Ô CHECKBOX TÙY CHỈNH ================== */
+/* <fieldset disabled> cha (không có attribute disabled trên host) */
+.hui-checkbox__container--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+:host([disabled]) .hui-checkbox__container--disabled {
+  opacity: 1; /* host đã mờ sẵn, tránh mờ 2 lần */
+}
+
+/* ================== SIZES ================== */
+.hui-checkbox--sm {
+  --_size: 14px;
+  --_radius: 3px;
+  --_font-size: var(--hui-font-sm);
+}
+
+.hui-checkbox--lg {
+  --_size: 22px;
+  --_radius: var(--hui-radius-sm, 6px);
+  --_font-size: var(--hui-font-lg);
+}
+
+/* ================== VARIANTS ================== */
+.hui-checkbox--success { --_c: var(--hui-success); --_ring: var(--hui-success-light); }
+.hui-checkbox--warning { --_c: var(--hui-warning); --_ring: var(--hui-warning-light); }
+.hui-checkbox--danger { --_c: var(--hui-danger); --_ring: var(--hui-danger-light); }
+
+/* ================== Ô VUÔNG ================== */
 .hui-checkbox__box {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  border: 1px solid var(--hui-border);
-  background-color: var(--hui-surface);
-  transition: all var(--hui-transition-fast);
   flex-shrink: 0;
+  width: var(--hui-checkbox-size, var(--_size));
+  height: var(--hui-checkbox-size, var(--_size));
+  border: 1px solid var(--hui-checkbox-border-color, var(--hui-border));
+  border-radius: var(--hui-checkbox-radius, var(--_radius));
+  background-color: var(--hui-checkbox-bg, var(--hui-surface));
+  transition: all var(--hui-transition-fast);
 }
 
-/* Ẩn input thật */
+/* Input thật ẩn đi nhưng vẫn focus được (bàn phím + trình đọc màn hình) */
 .hui-checkbox__input {
   position: absolute;
   opacity: 0;
@@ -58,101 +110,62 @@
   margin: 0;
 }
 
-/* Các trạng thái khi focus/hover */
-.hui-checkbox__input:focus-visible + .hui-checkbox__box {
-  box-shadow: 0 0 0 2px var(--hui-primary-light);
-  border-color: var(--hui-primary);
-}
-
 .hui-checkbox__container:hover .hui-checkbox__box {
-  border-color: var(--hui-border-hover);
+  border-color: var(--hui-checkbox-hover-border-color, var(--hui-border-hover));
 }
 
-/* ================== SIZES ================== */
-.hui-checkbox--sm .hui-checkbox__box {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-}
-.hui-checkbox--sm .hui-checkbox__label-text {
-  font-size: var(--hui-font-sm);
-}
-
-.hui-checkbox--md .hui-checkbox__box {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-}
-.hui-checkbox--md .hui-checkbox__label-text {
-  font-size: var(--hui-font-base);
-}
-
-.hui-checkbox--lg .hui-checkbox__box {
-  width: 22px;
-  height: 22px;
-  border-radius: var(--hui-radius-sm, 6px);
-}
-.hui-checkbox--lg .hui-checkbox__label-text {
-  font-size: var(--hui-font-lg);
-}
-
-/* ================== THIẾT KẾ DẤU CHECK & INDETERMINATE ================== */
-.hui-checkbox__icon {
-  width: 100%;
-  height: 100%;
-  color: white;
-  transform: scale(0);
-  transition: transform 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+.hui-checkbox__input:focus-visible + .hui-checkbox__box {
+  box-shadow: var(--hui-checkbox-focus-ring, 0 0 0 2px var(--_ring));
+  border-color: var(--hui-checkbox-checked-bg, var(--_c));
 }
 
 .hui-checkbox__container--checked .hui-checkbox__box,
 .hui-checkbox__container--indeterminate .hui-checkbox__box {
-  background-color: var(--hui-primary);
-  border-color: var(--hui-primary);
+  background-color: var(--hui-checkbox-checked-bg, var(--_c));
+  border-color: var(--hui-checkbox-checked-bg, var(--_c));
 }
 
-.hui-checkbox__container--checked .hui-checkbox__icon,
-.hui-checkbox__container--indeterminate .hui-checkbox__icon {
+/* ================== DẤU CHECK / INDETERMINATE ================== */
+.hui-checkbox__icon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--hui-checkbox-check-color, var(--hui-text-inverse));
+  transform: scale(0);
+  transition: transform 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+}
+
+.hui-checkbox__container--checked:not(.hui-checkbox__container--indeterminate) .hui-checkbox__icon--check,
+.hui-checkbox__container--indeterminate .hui-checkbox__icon--indeterminate {
   transform: scale(1);
 }
 
-/* ================== BIẾN THỂ (VARIANTS / MÀU) ================== */
-.hui-checkbox--danger.hui-checkbox__container--checked .hui-checkbox__box,
-.hui-checkbox--danger.hui-checkbox__container--indeterminate .hui-checkbox__box {
-  background-color: var(--hui-danger);
-  border-color: var(--hui-danger);
-}
-.hui-checkbox__input:focus-visible + .hui-checkbox--danger .hui-checkbox__box {
-  box-shadow: 0 0 0 2px var(--hui-danger-light);
-}
-
-.hui-checkbox--success.hui-checkbox__container--checked .hui-checkbox__box,
-.hui-checkbox--success.hui-checkbox__container--indeterminate .hui-checkbox__box {
-  background-color: var(--hui-success);
-  border-color: var(--hui-success);
-}
-
-.hui-checkbox--warning.hui-checkbox__container--checked .hui-checkbox__box,
-.hui-checkbox--warning.hui-checkbox__container--indeterminate .hui-checkbox__box {
-  background-color: var(--hui-warning, #f59e0b);
-  border-color: var(--hui-warning, #f59e0b);
-}
-
-
-/* ================== ERROR STATE ================== */
+/* ================== LỖI ================== */
 .hui-checkbox__container--error .hui-checkbox__box {
   border-color: var(--hui-danger);
 }
 
-/* ================== NHÃN (LABEL TEXT) ================== */
+/* ================== NHÃN ================== */
 .hui-checkbox__label-text {
-  color: var(--hui-text);
+  color: var(--hui-checkbox-label-color, var(--hui-text));
+  font-size: var(--hui-checkbox-font-size, var(--_font-size));
   line-height: 1.4;
 }
 
-/* ================== MESSAGE (Bên dưới) ================== */
+.hui-checkbox__required {
+  color: var(--hui-danger);
+}
+
 .hui-checkbox__message {
   font-size: var(--hui-font-xs);
   color: var(--hui-danger);
   padding-left: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-checkbox__box,
+  .hui-checkbox__icon {
+    transition: none;
+  }
 }

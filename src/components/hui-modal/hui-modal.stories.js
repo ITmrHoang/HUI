@@ -4,6 +4,7 @@
  */
 
 import { html } from 'lit';
+import { expect, waitFor } from 'storybook/test';
 import './index.js';
 // Import button để dùng trong demo mở/đóng modal
 import '../hui-button/index.js';
@@ -18,6 +19,9 @@ export default {
       description: {
         component: `
 **HUI Modal** — Hộp thoại popup đa năng với hiệu ứng mượt mà.
+
+Hiển thị trên top-layer (\`<dialog>.showModal()\`) nên luôn nằm trên mọi z-index. Esc chỉ đóng lớp trên cùng,
+Tab chạy vòng trong modal (xuyên Shadow DOM), khóa cuộn trang, đóng xong trả focus về phần tử cũ.
 
 ### Cách sử dụng cơ bản
 \`\`\`html
@@ -37,24 +41,46 @@ export default {
 | \`size\` | string | \`md\` | Kích thước: sm, md, lg, full |
 | \`closable\` | string | \`'true'\` | Cho phép đóng (nút X, ESC) |
 | \`close-on-overlay\` | string | \`'true'\` | Đóng khi click overlay |
+| \`ok-text\` | string | locale \`modal.ok\` | Chữ nút OK mặc định |
+| \`cancel-text\` | string | locale \`modal.cancel\` | Chữ nút Hủy mặc định |
+| \`no-footer\` | boolean | \`false\` | Ẩn hẳn vùng footer |
 
 ### Events
 | Event | Mô tả |
 |-------|-------|
 | \`hui-open\` | Phát khi modal mở |
 | \`hui-close\` | Phát khi modal đóng |
+| \`hui-ok\` | Bấm nút OK mặc định. Cancelable: \`preventDefault()\` để giữ modal mở |
+| \`hui-cancel\` | Bấm Hủy / ✕ / Esc / click overlay. Cancelable: \`preventDefault()\` để giữ modal mở |
 
 ### Slots
 | Slot | Mô tả |
 |------|-------|
 | _(default)_ | Nội dung body chính |
-| \`footer\` | Khu vực footer (thường chứa các nút hành động) |
+| \`title\` | Tiêu đề tùy biến (thay attribute \`title\`) |
+| \`footer\` | Khu vực footer — thay cụm nút OK / Hủy mặc định |
 
 ### Methods
 | Method | Mô tả |
 |--------|-------|
 | \`open()\` | Mở modal từ JS |
 | \`close()\` | Đóng modal từ JS |
+| \`isOpen\` | (getter) Modal đang mở hay không |
+
+### Override giao diện từ bên ngoài
+| Biến CSS | Mô tả |
+|----------|-------|
+| \`--hui-modal-width\` | Chiều rộng (ghi đè size) |
+| \`--hui-modal-max-height\` | Chiều cao tối đa (90vh) |
+| \`--hui-modal-bg\` / \`--hui-modal-color\` | Nền / màu chữ nội dung |
+| \`--hui-modal-radius\` / \`--hui-modal-shadow\` | Bo góc / đổ bóng |
+| \`--hui-modal-border-color\` | Đường kẻ header, footer |
+| \`--hui-modal-mask-bg\` | Nền lớp phủ |
+| \`--hui-modal-gutter\` | Khoảng cách tới mép màn hình |
+| \`--hui-modal-header-padding\` / \`--hui-modal-body-padding\` / \`--hui-modal-footer-padding\` | Padding từng vùng |
+| \`--hui-modal-title-font-size\` / \`--hui-modal-title-color\` | Tiêu đề |
+
+**Parts:** \`dialog\`, \`mask\`, \`panel\`, \`header\`, \`title\`, \`close\`, \`body\`, \`footer\`, \`ok-button\`, \`cancel-button\`.
         `,
       },
     },
@@ -269,5 +295,74 @@ export const AllSizes = {
     <hui-modal id="sz-full" title="Full Modal" size="full">
       <p>Kích thước: 95vw</p>
     </hui-modal>
+  `,
+};
+
+/**
+ * Nút mặc định — không truyền slot footer → hiện nút Hủy / OK (chữ theo locale, đổi bằng ok-text / cancel-text).
+ * hui-ok bị preventDefault → modal giữ nguyên rồi tự đóng sau 1 giây.
+ */
+export const DefaultFooter = {
+  render: () => html`
+    <hui-button variant="primary" @hui-click=${() => openModal('modal-footer')}>Mở Modal</hui-button>
+    <hui-modal
+      id="modal-footer"
+      title="Nút mặc định"
+      ok-text="Lưu"
+      @hui-ok=${(e) => {
+        e.preventDefault();
+        const modal = e.currentTarget;
+        setTimeout(() => modal.close(), 1000);
+      }}
+    >
+      <p>Bấm <strong>Lưu</strong> (đóng sau 1 giây) hoặc <strong>Hủy</strong>.</p>
+    </hui-modal>
+  `,
+  // Kiểm thử: mở → Esc đóng → mở lại → click mask đóng
+  play: async ({ canvasElement }) => {
+    const modal = canvasElement.querySelector('#modal-footer');
+    const dialog = modal.shadowRoot.querySelector('dialog');
+    const wait = (fn) => waitFor(() => expect(fn()).toBe(true), { timeout: 2000 });
+
+    modal.open();
+    await wait(() => dialog.open);
+    await expect(modal.shadowRoot.querySelector('[part="ok-button"]').textContent).toBe('Lưu');
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await wait(() => !modal.isOpen && !dialog.open);
+
+    modal.open();
+    await wait(() => dialog.open);
+    modal.shadowRoot.querySelector('.wrap').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+    await wait(() => !modal.isOpen && !dialog.open);
+  },
+};
+
+/**
+ * Override từ bên ngoài — biến CSS trên thẻ cha và ::part(), không sửa code thư viện.
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .modal-brand {
+        --hui-modal-width: 480px;
+        --hui-modal-radius: 20px;
+        --hui-modal-mask-bg: color-mix(in srgb, var(--hui-primary) 35%, transparent);
+        --hui-modal-header-padding: 16px 24px;
+        --hui-modal-body-padding: 8px 24px 16px;
+        --hui-modal-footer-padding: 12px 24px 20px;
+        --hui-modal-border-color: transparent;
+        --hui-modal-title-color: var(--hui-primary);
+      }
+      .modal-brand hui-modal::part(header) { background: var(--hui-primary-1); }
+      .modal-brand hui-modal::part(title) { text-transform: uppercase; letter-spacing: 0.06em; }
+      .modal-brand hui-modal::part(close):hover { color: var(--hui-danger); }
+    </style>
+    <div class="modal-brand">
+      <hui-button variant="primary" @hui-click=${() => openModal('modal-custom')}>Mở Modal tùy biến</hui-button>
+      <hui-modal id="modal-custom" title="Giao diện riêng">
+        <p>Bo góc, màu mask, padding và tiêu đề được đổi bằng biến CSS + ::part() từ bên ngoài.</p>
+      </hui-modal>
+    </div>
   `,
 };

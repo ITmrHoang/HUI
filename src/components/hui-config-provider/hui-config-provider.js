@@ -19,6 +19,9 @@ const TOKEN_MAP = {
   fontFamily: '--hui-font-family',
 };
 
+/**
+ * @slot - Vùng nội dung nhận cấu hình
+ */
 class HuiConfigProvider extends HuiElement {
   static properties = {
     /** light | dark | '' (theo trang) */

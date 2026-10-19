@@ -1,237 +1,266 @@
 /**
- * HUI Modal — Hộp thoại popup
- * Hỗ trợ: kích thước (sm/md/lg/full), đóng mở, overlay click, ESC key
+ * HUI Modal — Hộp thoại (Ant Modal + MUI Dialog)
+ * Hiển thị trên top-layer bằng <dialog>.showModal() → luôn nằm trên mọi z-index.
+ * Esc / click mask / focus trap / khóa cuộn / trả focus: utils/overlay.js (chỉ lớp trên cùng nhận Esc).
+ * Parts: dialog, mask, panel, header, title, close, body, footer, ok-button, cancel-button
+ * Slots: (mặc định) nội dung, title, footer (thay cụm nút mặc định)
+ * Events: hui-open, hui-close, hui-ok (cancelable), hui-cancel (cancelable)
+ * Biến CSS: xem đầu hui-modal.css.
  */
 
-import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
-import { emitEvent } from '../../utils/events.js';
+import styles from './hui-modal.css?raw';
+import { HuiElement, defineElement } from '../../core/hui-element.js';
+import { t } from '../../core/locale.js';
+import { createElement } from '../../utils/dom.js';
+import { openOverlay } from '../../utils/overlay.js';
+import { animateIn, animateOut } from '../../utils/motion.js';
+import '../hui-icon/hui-icon.js';
+import '../hui-button/hui-button.js';
 
-const STYLES = `
-  :host {
-    font-family: var(--hui-font-family);
-  }
+const SIZES = ['sm', 'md', 'lg', 'full'];
+let uid = 0;
 
-  .hui-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--hui-overlay);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: var(--hui-z-modal);
-    opacity: 0;
-    visibility: hidden;
-    transition: all var(--hui-transition-slow);
-    padding: 12px;
-  }
+/**
+ * @fires hui-open - Modal vừa mở (không phát khi render lần đầu với sẵn attribute open)
+ * @fires hui-close - Modal vừa đóng
+ * @fires hui-ok - Bấm nút OK mặc định. Cancelable: preventDefault() để giữ modal mở
+ * @fires hui-cancel - Bấm Hủy / nút X / Esc / click mask. Cancelable: preventDefault() để giữ modal mở
+ * @slot - Nội dung body
+ * @slot title - Tiêu đề tùy biến (thay attribute title)
+ * @slot footer - Footer tùy biến (thay cụm nút OK / Hủy mặc định)
+ * @csspart dialog - Thẻ <dialog> phủ toàn màn hình
+ * @csspart mask - Lớp phủ nền tối
+ * @csspart panel - Khung hộp thoại
+ * @csspart header - Vùng tiêu đề
+ * @csspart title - Tiêu đề
+ * @csspart close - Nút đóng X
+ * @csspart body - Vùng nội dung
+ * @csspart footer - Vùng nút hành động
+ * @csspart ok-button - Nút OK mặc định (hui-button)
+ * @csspart cancel-button - Nút Hủy mặc định (hui-button)
+ * @cssprop --hui-modal-width - Chiều rộng (ghi đè size)
+ * @cssprop --hui-modal-max-height - Chiều cao tối đa
+ * @cssprop --hui-modal-bg - Nền hộp thoại
+ * @cssprop --hui-modal-color - Màu chữ nội dung
+ * @cssprop --hui-modal-radius - Bo góc
+ * @cssprop --hui-modal-shadow - Đổ bóng
+ * @cssprop --hui-modal-border-color - Đường kẻ header/footer
+ * @cssprop --hui-modal-mask-bg - Nền lớp phủ
+ * @cssprop --hui-modal-gutter - Khoảng cách tới mép màn hình
+ * @cssprop --hui-modal-header-padding - Padding header
+ * @cssprop --hui-modal-body-padding - Padding body
+ * @cssprop --hui-modal-footer-padding - Padding footer
+ * @cssprop --hui-modal-title-font-size - Cỡ chữ tiêu đề
+ * @cssprop --hui-modal-title-color - Màu tiêu đề
+ */
+class HuiModal extends HuiElement {
+  static properties = {
+    /** Trạng thái mở. Đọc bằng `isOpen` (vì `open()` là method) */
+    open: { type: Boolean },
+    /** Tiêu đề (hoặc dùng slot="title") */
+    title: { type: String },
+    /** sm | md | lg | full */
+    size: { type: String, default: 'md' },
+    /** 'false' = không có nút X, Esc và click mask không đóng */
+    closable: { type: String, default: 'true' },
+    /** 'false' = click mask không đóng */
+    closeOnOverlay: { type: String, default: 'true' },
+    /** Chữ nút OK mặc định (mặc định theo locale: modal.ok) */
+    okText: { type: String },
+    /** Chữ nút Hủy mặc định (mặc định theo locale: modal.cancel) */
+    cancelText: { type: String },
+    /** Ẩn hẳn vùng footer */
+    noFooter: { type: Boolean },
+  };
 
-  .hui-modal-overlay--open {
-    opacity: 1;
-    visibility: visible;
-  }
+  static styles = styles;
 
-  .hui-modal {
-    background: var(--hui-surface);
-    border-radius: var(--hui-radius-lg);
-    box-shadow: var(--hui-shadow-xl);
-    display: flex;
-    flex-direction: column;
-    max-height: 90vh;
-    transform: scale(0.95) translateY(10px);
-    transition: transform var(--hui-transition-slow);
-    overflow: hidden;
-  }
-
-  .hui-modal-overlay--open .hui-modal {
-    transform: scale(1) translateY(0);
-  }
-
-  /* === Sizes === */
-  .hui-modal--sm { width: 400px; max-width: 100%; }
-  .hui-modal--md { width: 560px; max-width: 100%; }
-  .hui-modal--lg { width: 800px; max-width: 100%; }
-  .hui-modal--full { width: 95vw; height: 90vh; }
-
-  .hui-modal__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--hui-border);
-  }
-
-  .hui-modal__title {
-    font-size: var(--hui-font-lg);
-    font-weight: var(--hui-font-weight-semibold, 600);
-    color: var(--hui-text);
-    margin: 0;
-  }
-
-  .hui-modal__close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: var(--hui-radius);
-    background: transparent;
-    border: none;
-    color: var(--hui-text-muted);
-    cursor: pointer;
-    font-size: var(--hui-font-lg);
-    transition: all var(--hui-transition-fast);
-  }
-
-  .hui-modal__close:hover {
-    background: var(--hui-bg-tertiary);
-    color: var(--hui-text);
-  }
-
-  .hui-modal__body {
-    padding: 14px 16px;
-    overflow-y: auto;
-    flex: 1;
-    color: var(--hui-text-secondary);
-    line-height: var(--hui-line-height, 1.6);
-  }
-
-  .hui-modal__footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    padding: 10px 16px;
-    border-top: 1px solid var(--hui-border);
-  }
-`;
-
-class HuiModal extends HTMLElement {
-  static get observedAttributes() {
-    return ['open', 'title', 'size', 'closable', 'close-on-overlay'];
-  }
+  static localized = true;
 
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
-    this._overlay = null;
-    this._handleKeyDown = this._handleKeyDown.bind(this);
+    this._handle = null; // handle của overlay manager khi đang mở
+    this._token = 0;     // tăng mỗi lần mở/đóng → bỏ qua animation cũ khi bấm liên tục
+  }
+
+  // =====================================================
+  // PUBLIC API
+  // =====================================================
+
+  /** Mở modal (giữ API cũ: method, không phải property) */
+  open() {
+    this._setProp('open', true);
+  }
+
+  /** Đóng modal (không phát hui-cancel) */
+  close() {
+    this._setProp('open', false);
+  }
+
+  get isOpen() {
+    return this._props.open;
+  }
+
+  get _closable() {
+    return this.closable !== 'false';
+  }
+
+  // =====================================================
+  // RENDER
+  // =====================================================
+
+  render() {
+    const titleId = `hui-modal-title-${++uid}`;
+
+    this._titleText = document.createTextNode('');
+    this._title = createElement('h2', { className: 'title', part: 'title', id: titleId },
+      createElement('slot', { name: 'title' }, this._titleText));
+
+    this._closeBtn = createElement('button', { type: 'button', className: 'close', part: 'close' },
+      createElement('hui-icon', { name: 'close' }));
+    this._closeBtn.addEventListener('click', () => this._dismiss());
+
+    const header = createElement('div', { className: 'header', part: 'header' }, this._title, this._closeBtn);
+    const body = createElement('div', { className: 'body', part: 'body' }, createElement('slot'));
+
+    // Nút mặc định = nội dung fallback của slot footer (người dùng đặt slot="footer" là thay hết)
+    this._cancelBtn = createElement('hui-button', { variant: 'ghost', part: 'cancel-button' });
+    this._okBtn = createElement('hui-button', { variant: 'primary', part: 'ok-button' });
+    this._cancelBtn.addEventListener('hui-click', () => this._dismiss());
+    this._okBtn.addEventListener('hui-click', () => {
+      if (this.emit('hui-ok', null, { cancelable: true })) this.close();
+    });
+    this._footer = createElement('div', { className: 'footer', part: 'footer' },
+      createElement('slot', { name: 'footer' }, this._cancelBtn, this._okBtn));
+
+    this._panel = createElement('div', { className: 'panel', part: 'panel', tabindex: '-1' }, header, body, this._footer);
+    this._mask = createElement('div', { className: 'mask', part: 'mask' });
+
+    this._dialog = createElement('dialog', { className: 'dialog', part: 'dialog', 'aria-labelledby': titleId },
+      this._mask, createElement('div', { className: 'wrap' }, this._panel));
+
+    // Esc do overlay manager xử lý; 'cancel' native (nút Back trên Android...) đi cùng đường đó
+    this._dialog.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      if (this._handle?.isTop()) this._dismiss();
+    });
+    // Trình duyệt tự đóng dialog (vd: chống lạm dụng chặn Esc) → đồng bộ lại trạng thái
+    this._dialog.addEventListener('close', () => {
+      if (!this._props.open) return;
+      if (this._closable) this.close();
+      else this._showDialog();
+    });
+
+    return this._dialog;
   }
 
   connectedCallback() {
-    ensureTokens();
-    this.shadowRoot.appendChild(createStyle(STYLES));
-    this._render();
+    super.connectedCallback();
+    // Chặn hành vi Esc mặc định của <dialog> (đóng ngay, bỏ qua closable và thứ tự lớp)
+    this.listen(window, 'keydown', (e) => {
+      if (e.key === 'Escape' && this._dialog.open) e.preventDefault();
+    }, { capture: true });
+    // Gắn lại vào trang khi đang mở
+    if (this._props.open && !this._handle) this._show();
   }
 
   disconnectedCallback() {
-    document.removeEventListener('keydown', this._handleKeyDown);
+    super.disconnectedCallback();
+    // Bị tháo khỏi trang: dialog tự rời top-layer → trả lại overlay stack + khóa cuộn
+    this._token++;
+    this._handle?.close();
+    this._handle = null;
   }
 
-  attributeChangedCallback(name) {
-    if (this._overlay) {
-      if (name === 'open') {
-        this._toggleOpen();
-      } else {
-        this._render();
-      }
+  updated(changed) {
+    if (changed.has('title')) this._titleText.data = this.title || '';
+
+    if (changed.has('size')) {
+      const size = SIZES.includes(this.size) ? this.size : 'md';
+      this._panel.className = `panel panel--${size}`;
+    }
+
+    if (changed.has('closable')) this._closeBtn.hidden = !this._closable;
+    if (changed.has('noFooter')) this._footer.hidden = this.noFooter;
+
+    if (changed.has('okText') || changed.has('cancelText') || changed.has('locale')) {
+      this._okBtn.textContent = this.okText || t('modal.ok');
+      this._cancelBtn.textContent = this.cancelText || t('modal.cancel');
+      this._closeBtn.setAttribute('aria-label', t('common.close'));
+    }
+
+    if (changed.has('open')) {
+      const first = !this._mounted;
+      if (this._props.open) this._show();
+      else if (!first) this._hide();
+      // Giữ hành vi cũ: không phát sự kiện ở lần render đầu
+      if (!first) this.emit(this._props.open ? 'hui-open' : 'hui-close');
     }
   }
 
-  /** Mở modal */
-  open() {
-    this.setAttribute('open', '');
+  firstUpdated() {
+    this._mounted = true;
   }
 
-  /** Đóng modal */
-  close() {
-    this.removeAttribute('open');
+  // =====================================================
+  // MỞ / ĐÓNG
+  // =====================================================
+
+  /** Người dùng muốn đóng (X, Hủy, Esc, mask) → hui-cancel có thể bị chặn */
+  _dismiss() {
+    if (!this._props.open) return;
+    if (this.emit('hui-cancel', null, { cancelable: true })) this.close();
   }
 
-  /** Xử lý phím ESC */
-  _handleKeyDown(e) {
-    if (e.key === 'Escape' && this.hasAttribute('open')) {
-      const closable = this.getAttribute('closable') !== 'false';
-      if (closable) this.close();
-    }
+  _showDialog() {
+    const dlg = this._dialog;
+    if (dlg.open) return;
+    if (typeof dlg.showModal === 'function') dlg.showModal();
+    else dlg.setAttribute('open', '');
   }
 
-  /** Toggle hiển thị overlay */
-  _toggleOpen() {
-    const isOpen = this.hasAttribute('open');
-    if (this._overlay) {
-      this._overlay.classList.toggle('hui-modal-overlay--open', isOpen);
+  _show() {
+    if (!this.isConnected) return;
+    this._token++;
+    // Mở overlay TRƯỚC showModal để overlay ghi nhớ đúng phần tử đang focus (trả focus khi đóng)
+    if (!this._handle) {
+      this._handle = openOverlay({
+        element: this._panel,
+        trapFocus: true,
+        lockScroll: true,
+        restoreFocus: true,
+        onEscape: () => { if (this._closable) this._dismiss(); },
+        onClickOutside: () => {
+          if (this._closable && this.closeOnOverlay !== 'false') this._dismiss();
+        },
+      });
     }
-
-    if (isOpen) {
-      document.addEventListener('keydown', this._handleKeyDown);
-      document.body.style.overflow = 'hidden';
-      emitEvent(this, 'hui-open');
-    } else {
-      document.removeEventListener('keydown', this._handleKeyDown);
-      document.body.style.overflow = '';
-      emitEvent(this, 'hui-close');
-    }
+    this._showDialog();
+    this.setState('open', true);
+    animateIn(this._mask, 'fade');
+    animateIn(this._panel, 'zoom');
   }
 
-  _render() {
-    if (this._overlay) this._overlay.remove();
+  async _hide() {
+    const token = ++this._token;
+    this.setState('open', false);
+    const dlg = this._dialog;
 
-    const title = this.getAttribute('title') || '';
-    const size = this.getAttribute('size') || 'md';
-    const closable = this.getAttribute('closable') !== 'false';
-    const closeOnOverlay = this.getAttribute('close-on-overlay') !== 'false';
-    const isOpen = this.hasAttribute('open');
-
-    // Nút đóng
-    const closeBtn = closable
-      ? createElement('button', {
-          className: 'hui-modal__close',
-          'aria-label': 'Close',
-          onClick: () => this.close(),
-        }, '✕')
-      : null;
-
-    // Header
-    const header = createElement('div', { className: 'hui-modal__header' },
-      createElement('h2', { className: 'hui-modal__title' }, title),
-      ...[closeBtn].filter(Boolean)
-    );
-
-    // Body — slot mặc định
-    const body = createElement('div', { className: 'hui-modal__body' },
-      createElement('slot'));
-
-    // Footer — slot tên "footer"
-    const footer = createElement('div', { className: 'hui-modal__footer' },
-      createElement('slot', { name: 'footer' }));
-
-    // Modal container
-    const modal = createElement('div', { className: `hui-modal hui-modal--${size}` },
-      header, body, footer);
-
-    // Ngăn click bên trong modal lan ra overlay
-    modal.addEventListener('click', (e) => e.stopPropagation());
-
-    // Overlay
-    this._overlay = createElement('div', {
-      className: `hui-modal-overlay${isOpen ? ' hui-modal-overlay--open' : ''}`,
-      onClick: () => {
-        if (closeOnOverlay && closable) this.close();
-      },
-    }, modal);
-
-    this.shadowRoot.appendChild(this._overlay);
-
-    // Quản lý body scroll
-    if (isOpen) {
-      document.addEventListener('keydown', this._handleKeyDown);
-      document.body.style.overflow = 'hidden';
+    if (dlg.open) {
+      await Promise.all([animateOut(this._mask, 'fade'), animateOut(this._panel, 'zoom')]);
+      if (token !== this._token) return; // đã mở lại trong lúc đang đóng
+      dlg.close();
+      dlg.removeAttribute('open');
+      // animateOut giữ khung cuối (fill: forwards) → hủy để lần mở sau không bị kẹt ở trạng thái ẩn
+      for (const el of [this._mask, this._panel]) el.getAnimations?.().forEach((a) => a.cancel());
     }
+
+    // Đóng overlay SAU khi dialog đóng: lúc này trang hết inert nên trả focus được
+    this._handle?.close();
+    this._handle = null;
   }
 }
 
-if (!customElements.get('hui-modal')) {
-  customElements.define('hui-modal', HuiModal);
-}
+defineElement('hui-modal', HuiModal);
 
 export default HuiModal;

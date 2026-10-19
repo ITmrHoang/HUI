@@ -42,6 +42,7 @@ export default {
 | \`variant\` | string | \`soft\` | soft (nền nhạt), filled (nền đặc), outlined (chỉ viền) |
 | \`size\` | string | \`md\` | sm (20px), md (24px), lg (32px) — nhỏ hơn form control (26/32/38px) vì tag là phần tử phụ |
 | \`shape\` | string | \`rounded\` | rounded, pill, square |
+| \`icon\` | string | — | Tên icon (xem HuiIcon) trước nhãn — giống \`icon\` của MUI Chip. Slot \`icon\` thắng attribute này |
 | \`closable\` | boolean | \`false\` | Hiển thị nút × để xóa tag. Phím Backspace/Delete khi đang focus cũng xóa tag |
 | \`clickable\` | boolean | \`false\` | Tag hoạt động như nút bấm: hover/active, focus được, \`role="button"\`, Enter/Space phát \`click\` |
 | \`checkable\` | boolean | \`false\` | Tag bật/tắt (Ant CheckableTag): \`role="checkbox"\`, click/Enter/Space để toggle |
@@ -53,7 +54,7 @@ export default {
 |-------|--------|-------|
 | \`click\` | — (MouseEvent native) | Phát khi click, hoặc khi nhấn Enter/Space trên tag \`clickable\`/\`checkable\`. Không phát khi disabled |
 | \`change\` | \`{ checked }\` | Phát khi tag \`checkable\` được bật/tắt |
-| \`close\` | \`{ originalEvent }\` | Phát khi bấm × / Backspace / Delete. **Cancelable**: \`preventDefault()\` để giữ tag lại, nếu không tag tự gắn \`hidden\` |
+| \`close\` | \`{ originalEvent }\` | Phát khi bấm × / Backspace / Delete. **Cancelable**: \`preventDefault()\` để giữ tag lại, nếu không tag chạy hiệu ứng thu nhỏ rồi tự gắn \`hidden\` |
 
 ### Slots
 | Slot | Mô tả |
@@ -67,7 +68,18 @@ export default {
 |-----|-------|
 | \`checked\` | Property get/set, phản chiếu attribute \`checked\` |
 | \`disabled\` | Property get/set, phản chiếu attribute \`disabled\` |
-| \`close()\` | Đóng tag bằng code (vẫn phát event \`close\` có thể hủy). Trả về \`true\` nếu tag đã bị ẩn |
+| \`close()\` | Đóng tag bằng code (vẫn phát event \`close\` có thể hủy). Trả về \`true\` nếu tag sẽ bị ẩn (\`hidden\` được gắn sau hiệu ứng) |
+
+### Override giao diện từ bên ngoài
+| Biến CSS | Mô tả |
+|----------|-------|
+| \`--hui-tag-height\` / \`--hui-tag-padding-x\` | Chiều cao / khoảng đệm ngang |
+| \`--hui-tag-font-size\` / \`--hui-tag-font-weight\` | Cỡ / độ đậm chữ |
+| \`--hui-tag-radius\` | Bo góc (đè \`shape\`) |
+| \`--hui-tag-gap\` | Khoảng cách icon ↔ chữ ↔ nút đóng |
+| \`--hui-tag-bg\` / \`--hui-tag-color\` / \`--hui-tag-border-color\` | Nền / chữ / viền (đè \`variant\`) |
+
+**Parts:** \`base\`, \`avatar\`, \`icon\`, \`label\`, \`close\`.
         `,
       },
     },
@@ -97,6 +109,12 @@ export default {
       options: ['rounded', 'pill', 'square'],
       description: 'Hình dạng bo góc',
       table: { type: { summary: 'string' }, defaultValue: { summary: 'rounded' } },
+    },
+    icon: {
+      control: 'select',
+      options: ['', 'star', 'check', 'user', 'heart', 'info'],
+      description: 'Tên icon (hui-icon) trước nhãn',
+      table: { type: { summary: 'string' } },
     },
     closable: {
       control: 'boolean',
@@ -143,6 +161,7 @@ export const Default = {
       variant=${args.variant}
       size=${args.size}
       shape=${args.shape}
+      icon=${ifDefined(args.icon || undefined)}
       ?closable=${args.closable}
       ?clickable=${args.clickable}
       ?checkable=${args.checkable}
@@ -155,6 +174,7 @@ export const Default = {
     variant: 'soft',
     size: 'md',
     shape: 'rounded',
+    icon: '',
     closable: false,
     clickable: false,
     checkable: false,
@@ -309,6 +329,51 @@ export const WithSlots = {
         <span slot="avatar" style="background: var(--hui-info, #3b82f6); color: #fff; display: inline-flex; align-items: center; justify-content: center;">B</span>
         Trần Thị B
       </hui-tag>
+    </div>
+  `,
+};
+
+/**
+ * Icon theo tên (MUI Chip `icon`) — attribute `icon` render <hui-icon>; slot `icon` vẫn thắng.
+ */
+export const WithIcon = {
+  render: () => html`
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+      <hui-tag icon="star" color="warning">Nổi bật</hui-tag>
+      <hui-tag icon="check" color="success" variant="filled" shape="pill">Đã duyệt</hui-tag>
+      <hui-tag icon="user" variant="outlined" shape="pill" closable>Người dùng</hui-tag>
+      <hui-tag icon="heart" color="danger" size="lg" clickable>Yêu thích</hui-tag>
+      <hui-tag icon="info" color="info" checkable>Lọc theo info</hui-tag>
+    </div>
+  `,
+};
+
+/**
+ * Override từ bên ngoài — biến CSS đặt trên thẻ cha / class riêng và ::part().
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .demo-chips { --hui-tag-height: 28px; --hui-tag-padding-x: 12px; --hui-tag-radius: 999px; }
+      hui-tag.brand {
+        --hui-tag-bg: var(--hui-primary-1);
+        --hui-tag-color: var(--hui-primary-7);
+        --hui-tag-border-color: var(--hui-primary-3);
+      }
+      hui-tag.caps::part(label) { text-transform: uppercase; letter-spacing: 0.06em; }
+      hui-tag.caps::part(close) { opacity: 1; }
+      hui-tag[checked].sel { --hui-tag-bg: var(--hui-success); --hui-tag-border-color: var(--hui-success); }
+    </style>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="demo-chips" style="display: flex; gap: 8px;">
+        <hui-tag color="primary">Biến CSS trên thẻ cha</hui-tag>
+        <hui-tag icon="star" closable>Áp cho mọi tag con</hui-tag>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <hui-tag class="brand" icon="heart">Palette --hui-primary-1/3/7</hui-tag>
+        <hui-tag class="caps" color="danger" closable>::part(label | close)</hui-tag>
+        <hui-tag class="sel" checkable checked>Chọn → nền success</hui-tag>
+      </div>
     </div>
   `,
 };

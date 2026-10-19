@@ -1,121 +1,114 @@
 /*
- * ==========================================================
- * HUI Divider CSS - File style độc lập cho Component Đường phân cách
- * ==========================================================
+ * HUI Divider CSS
+ * Biến CSS override từ ngoài (đặt trên hui-divider, thẻ cha hoặc :root — không khai báo trong file này):
+ *   --hui-divider-color            Màu đường kẻ (attribute color thắng)
+ *   --hui-divider-thickness        Độ dày nét (1px)
+ *   --hui-divider-text-color       Màu chữ
+ *   --hui-divider-font-size        Cỡ chữ
+ *   --hui-divider-font-weight      Độ đậm chữ
+ *   --hui-divider-text-padding     Khoảng đệm hai bên chữ (0 1em)
+ *   --hui-divider-text-offset      Đoạn kẻ ngắn khi text-align left/right (5%)
+ *   --hui-divider-inset            Thụt lề trái khi có inset (72px; attribute inset="40px" thắng)
+ *   --hui-divider-vertical-height  Chiều cao divider dọc (0.9em)
+ * Khoảng cách (margin) đặt trên host → đổi bằng attribute spacing hoặc CSS ngoài `hui-divider { margin }`.
+ * Parts: base, text
  */
 
-/*
- * 1. :host
- * Divider ngang là khối (block) chiếm full chiều ngang.
- * Khoảng cách (margin) đặt trực tiếp trên host → người dùng bên ngoài vẫn ghi đè được bằng style.
- */
 :host {
   display: block;
   margin: var(--hui-space-lg) 0; /* spacing="md" mặc định: 16px */
   font-family: var(--hui-font-family);
 }
 
-/* ================== SPACING (KHOẢNG CÁCH) ================== */
+/* ================== SPACING ================== */
 :host([spacing="none"]) { margin: 0; }
-:host([spacing="sm"])   { margin: var(--hui-space-sm) 0; }  /* 8px */
-:host([spacing="md"])   { margin: var(--hui-space-lg) 0; }  /* 16px */
-:host([spacing="lg"])   { margin: var(--hui-space-xl) 0; }  /* 24px */
+:host([spacing="sm"])   { margin: var(--hui-space-sm) 0; }
+:host([spacing="md"])   { margin: var(--hui-space-lg) 0; }
+:host([spacing="lg"])   { margin: var(--hui-space-xl) 0; }
 
-/*
- * 2. Divider dọc: inline-block, cao 0.9em (theo cỡ chữ xung quanh),
- * dùng chen giữa các phần tử inline như link, text.
- */
+/* Divider dọc: inline-block, cao theo cỡ chữ xung quanh */
 :host([orientation="vertical"]) {
   display: inline-block;
   vertical-align: middle;
-  height: 0.9em;
-  margin: 0 var(--hui-space-sm); /* 8px hai bên */
+  height: var(--hui-divider-vertical-height, 0.9em);
+  margin: 0 var(--hui-space-sm);
 }
 
 :host([orientation="vertical"][spacing="none"]) { margin: 0; }
-:host([orientation="vertical"][spacing="sm"])   { margin: 0 var(--hui-space-xs); }  /* 4px */
-:host([orientation="vertical"][spacing="md"])   { margin: 0 var(--hui-space-sm); }  /* 8px */
-:host([orientation="vertical"][spacing="lg"])   { margin: 0 var(--hui-space-md); }  /* 12px */
+:host([orientation="vertical"][spacing="sm"])   { margin: 0 var(--hui-space-xs); }
+:host([orientation="vertical"][spacing="md"])   { margin: 0 var(--hui-space-sm); }
+:host([orientation="vertical"][spacing="lg"])   { margin: 0 var(--hui-space-md); }
 
 /* ================== KHUNG CHÍNH ================== */
 .hui-divider {
-  /*
-   * Biến nội bộ:
-   * --_line  : màu đường kẻ (ghi đè bằng attribute `color` qua --_divider-color)
-   * --_style : kiểu nét (solid / dashed / dotted)
-   */
-  --_line: var(--_divider-color, var(--hui-border));
+  /* Biến nội bộ: --_line màu kẻ (attribute color qua --_divider-color), --_style kiểu nét, --_w độ dày */
+  --_line: var(--_divider-color, var(--hui-divider-color, var(--hui-border)));
   --_style: solid;
+  --_w: var(--hui-divider-thickness, 1px);
   box-sizing: border-box;
 }
 
 .hui-divider--dashed { --_style: dashed; }
 .hui-divider--dotted { --_style: dotted; }
 
-/* ================== NGANG — KHÔNG CÓ CHỮ ================== */
+/* ================== NGANG — KHÔNG CHỮ ================== */
 .hui-divider--horizontal {
   width: 100%;
-  border-top: 1px var(--_style) var(--_line);
+  border-top: var(--_w) var(--_style) var(--_line);
 }
 
-/* Slot chữ bị ẩn khi không có nội dung (JS bật class --with-text khi có) */
 .hui-divider__text {
   display: none;
 }
 
-/* Inset (MUI): thụt lề trái, mặc định 72px (chỗ của avatar/icon trong list) */
+/* Inset (MUI): thụt lề trái */
 .hui-divider--inset {
-  margin-left: var(--_divider-inset, 72px);
+  margin-left: var(--_divider-inset, var(--hui-divider-inset, 72px));
   width: auto;
 }
 
-/* ================== NGANG — CÓ CHỮ Ở GIỮA ================== */
-/*
- * Kỹ thuật: bỏ border của wrapper, dùng flex với 2 pseudo-element ::before / ::after
- * làm 2 đoạn kẻ hai bên chữ. Điều chỉnh flex của từng đoạn để đổi vị trí chữ.
- */
+/* ================== NGANG — CÓ CHỮ ================== */
+/* Bỏ border, dùng flex + ::before/::after làm 2 đoạn kẻ; đổi flex từng đoạn để dịch chữ */
 .hui-divider--with-text {
   display: flex;
   align-items: center;
   border-top: 0;
   white-space: nowrap;
-  color: var(--hui-text);
-  font-size: var(--hui-font-base);
-  font-weight: var(--hui-font-weight-medium);
+  color: var(--hui-divider-text-color, var(--hui-text));
+  font-size: var(--hui-divider-font-size, var(--hui-font-base));
+  font-weight: var(--hui-divider-font-weight, var(--hui-font-weight-medium));
 }
 
 .hui-divider--with-text::before,
 .hui-divider--with-text::after {
   content: '';
   flex: 1;
-  border-top: 1px var(--_style) var(--_line);
+  border-top: var(--_w) var(--_style) var(--_line);
 }
 
 .hui-divider--with-text .hui-divider__text {
   display: inline-block;
-  padding: 0 1em;
+  padding: var(--hui-divider-text-padding, 0 1em);
 }
 
-/* Chữ lệch trái: đoạn kẻ trái chỉ chiếm 5% (giống Ant orientation="left") */
 .hui-divider--with-text.hui-divider--left::before {
-  flex: 0 0 5%;
+  flex: 0 0 var(--hui-divider-text-offset, 5%);
 }
 
-/* Chữ lệch phải: đoạn kẻ phải chỉ chiếm 5% */
 .hui-divider--with-text.hui-divider--right::after {
-  flex: 0 0 5%;
+  flex: 0 0 var(--hui-divider-text-offset, 5%);
 }
 
-/* Plain: chữ thường, nhỏ hơn và nhạt hơn */
+/* Plain: chữ nhỏ, mảnh, nhạt */
 .hui-divider--with-text.hui-divider--plain {
-  font-size: var(--hui-font-sm);
-  font-weight: var(--hui-font-weight-normal);
-  color: var(--hui-text-secondary);
+  font-size: var(--hui-divider-font-size, var(--hui-font-sm));
+  font-weight: var(--hui-divider-font-weight, var(--hui-font-weight-normal));
+  color: var(--hui-divider-text-color, var(--hui-text-secondary));
 }
 
 /* ================== DỌC ================== */
 .hui-divider--vertical {
   height: 100%;
   width: 0;
-  border-left: 1px var(--_style) var(--_line);
+  border-left: var(--_w) var(--_style) var(--_line);
 }

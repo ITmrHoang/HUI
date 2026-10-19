@@ -61,6 +61,20 @@ Tham gia \`<form>\` như \`<input type="checkbox">\` nhờ ElementInternals.
 | \`checked\` | Property get/set, phản chiếu sang attribute |
 | \`value\`, \`disabled\` | Property get/set |
 | \`checkValidity()\`, \`reportValidity()\` | Kiểm tra hợp lệ (khi \`required\`) |
+
+### Override giao diện từ bên ngoài
+| Biến CSS | Mô tả |
+|----------|-------|
+| \`--hui-switch-height\` / \`--hui-switch-width\` | Chiều cao / độ rộng tối thiểu track |
+| \`--hui-switch-thumb-size\` | Cỡ nút tròn |
+| \`--hui-switch-track-bg\` / \`--hui-switch-track-hover-bg\` | Màu track khi tắt / tắt + hover |
+| \`--hui-switch-checked-bg\` | Màu track khi bật (đè \`color\`) |
+| \`--hui-switch-thumb-bg\` / \`--hui-switch-thumb-shadow\` | Màu / bóng nút tròn |
+| \`--hui-switch-text-color\` | Màu chữ trong track |
+| \`--hui-switch-label-color\` / \`--hui-switch-gap\` | Màu nhãn / khoảng cách track ↔ nhãn |
+| \`--hui-switch-focus-color\` | Màu viền focus |
+
+**Parts:** \`base\`, \`track\`, \`thumb\`, \`text\`, \`label\`.
         `,
       },
     },
@@ -256,6 +270,36 @@ export const Methods = {
         toggle()
       </hui-button>
       <span id="switch-methods-log" style="font-size: 12px; color: #64748b;">Chưa có sự kiện</span>
+    </div>
+  `,
+};
+
+/**
+ * Override từ bên ngoài — biến CSS đặt trên thẻ cha / class riêng và ::part().
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .demo-big { --hui-switch-height: 30px; --hui-switch-width: 60px; --hui-switch-thumb-size: 24px; }
+      hui-switch.brand {
+        --hui-switch-checked-bg: var(--hui-warning);
+        --hui-switch-track-bg: var(--hui-danger-3);
+        --hui-switch-thumb-bg: var(--hui-bg-tertiary);
+      }
+      hui-switch.square::part(track) { border-radius: var(--hui-radius-sm); }
+      hui-switch.square::part(thumb) { border-radius: 3px; }
+      hui-switch.square::part(label) { font-style: italic; }
+    </style>
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="demo-big" style="display: flex; gap: 24px;">
+        <hui-switch label="Biến CSS trên thẻ cha" checked></hui-switch>
+        <hui-switch label="Áp cho mọi switch con" checked-text="ON" unchecked-text="OFF"></hui-switch>
+      </div>
+      <div style="display: flex; gap: 24px;">
+        <hui-switch class="brand" label="Màu riêng" checked></hui-switch>
+        <hui-switch class="brand" label="Màu riêng (tắt)"></hui-switch>
+        <hui-switch class="square" label="::part(track | thumb | label)" checked></hui-switch>
+      </div>
     </div>
   `,
 };

@@ -18,23 +18,36 @@
 import { HuiElement } from './hui-element.js';
 import { t } from './locale.js';
 
+/** Property ảnh hưởng tới giá trị gửi form hoặc kết quả validate */
+const FORM_KEYS = new Set([
+  'value', 'checked', 'required', 'minlength', 'maxlength', 'pattern', 'min', 'max', 'disabled', 'locale',
+]);
+
 export class HuiFormElement extends HuiElement {
   static formAssociated = true;
   static localized = true;
 
   static properties = {
+    /** Tên trường khi gửi form (FormData) */
     name: { type: String },
     // Không reflect: attribute value = giá trị BAN ĐẦU (dùng khi reset form), giống <input> native
+    /** Giá trị hiện tại (attribute value = giá trị ban đầu khi reset form) */
     value: { type: String, default: '', reflect: false },
+    /** Vô hiệu hóa (không gửi form, không validate) */
     disabled: { type: Boolean },
+    /** Chỉ đọc — vẫn gửi form nhưng không sửa được */
     readonly: { type: Boolean },
+    /** Bắt buộc có giá trị */
     required: { type: Boolean },
     /** '' | error | warning — trạng thái hiển thị (viền đỏ/vàng), độc lập với validate */
     status: { type: String, default: '' },
     /** sm | md | lg — bỏ trống thì lấy theo <hui-form size> chứa nó, mặc định md */
     size: { type: String, default: '' },
+    /** Độ dài tối thiểu */
     minlength: { type: Number },
+    /** Độ dài tối đa */
     maxlength: { type: Number },
+    /** Biểu thức chính quy giá trị phải khớp (toàn chuỗi) */
     pattern: { type: String },
   };
 
@@ -56,15 +69,25 @@ export class HuiFormElement extends HuiElement {
     return this.size || this.closest('hui-form[size], hui-config-provider[size]')?.getAttribute('size') || 'md';
   }
 
-  /** Lớp con gọi super.updated(changed) để đồng bộ form value + validity */
+  /**
+   * Đồng bộ giá trị form + validity NGAY khi property đổi (không chờ microtask như updated()),
+   * vì code ngoài thường đọc liền: `el.value = 'x'; new FormData(form)` / `el.checkValidity()`
+   * — giống hành vi của <input> native.
+   */
+  requestUpdate(name, oldValue) {
+    super.requestUpdate(name, oldValue);
+    if (this._hasRendered && FORM_KEYS.has(name)) this._syncForm();
+  }
+
+  /** Lớp con gọi super.updated(changed) — lần render đầu cần đồng bộ form */
   updated(changed) {
-    if (changed.has('value')) {
-      this.setFormValue(this.formValue(), this.value);
-      this.setState('filled', !this._isEmpty());
-    }
-    if (['value', 'required', 'minlength', 'maxlength', 'pattern', 'disabled', 'locale'].some((k) => changed.has(k))) {
-      this._syncValidity();
-    }
+    if (changed.has('value')) this._syncForm();
+  }
+
+  _syncForm() {
+    this.setFormValue(this.formValue(), this._isEmpty() ? null : this.value);
+    this.setState('filled', !this._isEmpty());
+    this._syncValidity();
   }
 
   // =====================================================

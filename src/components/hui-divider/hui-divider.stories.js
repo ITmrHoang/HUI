@@ -53,6 +53,21 @@ export default {
 
 ### Accessibility
 - \`role="separator"\` kèm \`aria-orientation\` tương ứng.
+
+### Override giao diện từ bên ngoài
+| Biến CSS | Mô tả |
+|----------|-------|
+| \`--hui-divider-color\` | Màu đường kẻ (attribute \`color\` thắng) |
+| \`--hui-divider-thickness\` | Độ dày nét (mặc định 1px) |
+| \`--hui-divider-text-color\` / \`--hui-divider-font-size\` / \`--hui-divider-font-weight\` | Chữ trên đường kẻ |
+| \`--hui-divider-text-padding\` | Khoảng đệm hai bên chữ (mặc định \`0 1em\`) |
+| \`--hui-divider-text-offset\` | Đoạn kẻ ngắn khi \`text-align\` left/right (mặc định 5%) |
+| \`--hui-divider-inset\` | Thụt lề khi có \`inset\` (mặc định 72px) |
+| \`--hui-divider-vertical-height\` | Chiều cao divider dọc (mặc định 0.9em) |
+
+Khoảng cách: attribute \`spacing\` hoặc CSS ngoài \`hui-divider { margin: … }\` (CSS ngoài thắng \`:host\`).
+
+**Parts:** \`base\` (2 đoạn kẻ khi có chữ là \`::part(base)::before\` / \`::after\`), \`text\`.
         `,
       },
     },
@@ -254,5 +269,30 @@ export const WithSlot = {
     <hui-divider text-align="right" plain>
       <a href="#">Xem thêm →</a>
     </hui-divider>
+  `,
+};
+
+/**
+ * Override từ bên ngoài — biến CSS đặt trên thẻ cha / class riêng và ::part().
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .demo-thick { --hui-divider-thickness: 2px; --hui-divider-color: var(--hui-primary-3); }
+      hui-divider.brand {
+        --hui-divider-text-color: var(--hui-primary);
+        --hui-divider-font-size: var(--hui-font-sm);
+        --hui-divider-text-offset: 24px;
+      }
+      hui-divider.caps::part(text) { text-transform: uppercase; letter-spacing: 0.1em; }
+      hui-divider.fade::part(base)::before,
+      hui-divider.fade::part(base)::after { border-top-color: var(--hui-warning); }
+    </style>
+    <div class="demo-thick">
+      <hui-divider>Biến CSS trên thẻ cha</hui-divider>
+      <hui-divider variant="dashed"></hui-divider>
+    </div>
+    <hui-divider class="brand" text-align="left">Chữ màu primary, đoạn kẻ trái 24px</hui-divider>
+    <hui-divider class="caps fade">::part(text) + ::part(base)::before</hui-divider>
   `,
 };

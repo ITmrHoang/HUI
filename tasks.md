@@ -67,36 +67,36 @@ Một component chỉ được đánh `[x]` khi đạt đủ:
 - [x] **F2. Quy ước override + tài liệu sống `hui-demo`** — biến CSS, `::part`/`exportparts`, slot/`::slotted`,
   `:host()`, `:state()`, bảng tra pseudo-class/element. Story: `Guide/HuiDemo`.
 - [x] **F3. `hui-icon` + 30 icon SVG** — `registerIcon()` thêm icon dự án; `size`, `spin`, `rotate`, `label`.
-- [~] **F4. Theme toàn cục + dark mode** — bỏ chép token vào `:host` từng component, token gắn 1 lần ở document,
-  `[data-theme="dark"]` + `prefers-color-scheme`. *(Đang làm ở phiên riêng — cần merge.)*
-- [ ] **F5. Hệ màu & token mở rộng**
+- [x] **F4. Theme toàn cục + dark mode** — bỏ chép token vào `:host` từng component, token gắn 1 lần ở document,
+  `[data-theme="dark"]` + `prefers-color-scheme`. (Đã merge.)
+- [x] **F5. Hệ màu & token mở rộng**
   - Bảng 10 sắc độ cho primary/success/warning/danger/info (`--hui-primary-1` … `-10`, giống Ant)
   - Token ngữ nghĩa: `--hui-bg-container`, `--hui-bg-elevated`, `--hui-bg-spotlight`, `--hui-text-tertiary`,
     `--hui-border-secondary`, `--hui-fill-*`, `--hui-control-height-*`, `--hui-motion-*`
   - `hui-config-provider`: đặt theme / size / locale cho cả vùng con (biến CSS + context)
-- [ ] **F6. Đa ngôn ngữ (locale)** — `HUI.setLocale('vi' | 'en')`, gói chuỗi mặc định (Empty, Pagination,
+- [x] **F6. Đa ngôn ngữ (locale)** — `HUI.setLocale('vi' | 'en')`, gói chuỗi mặc định (Empty, Pagination,
   Modal OK/Cancel, DatePicker, Upload, Table…); component đọc chuỗi qua `getLocale()`.
-- [ ] **F7. Engine định vị popup** — `src/utils/floating.js`
+- [x] **F7. Engine định vị popup** — `src/utils/floating.js`
   - 12 placement (top/topStart/topEnd/…), `offset`, `flip` khi tràn màn hình, `shift`, mũi tên (arrow)
   - Tự cập nhật khi scroll/resize; dùng Popover API (top-layer) nếu có, fallback `position: fixed`
   - Tách logic từ `hui-tooltip` hiện tại → Tooltip/Popover/Dropdown/Select/DatePicker dùng chung
-- [ ] **F8. Overlay manager** — `src/utils/overlay.js`
+- [x] **F8. Overlay manager** — `src/utils/overlay.js`
   - Ngăn xếp overlay: phím Esc chỉ đóng lớp trên cùng · click ngoài để đóng
   - Focus trap + trả focus về phần tử cũ khi đóng · khóa scroll `body` (bù thanh cuộn)
   - Dùng cho Modal, Drawer, Dropdown, Popover, Popconfirm, Image preview, Tour
-- [ ] **F9. Motion** — `src/utils/motion.js`: fade, zoom, slide-up/down/left/right, collapse (height auto),
+- [x] **F9. Motion** — `src/utils/motion.js`: fade, zoom, slide-up/down/left/right, collapse (height auto),
   dùng Web Animations API; tôn trọng `prefers-reduced-motion`.
-- [ ] **F10. `HuiFormElement`** (lớp con của HuiElement cho mọi control nhập liệu)
+- [x] **F10. `HuiFormElement`** (lớp con của HuiElement cho mọi control nhập liệu)
   - `value`, `name`, `required`, `disabled`, `readonly`, `status` (error/warning), `size` kế thừa từ `hui-form`
   - Validate: `required`, `minlength/maxlength`, `min/max`, `pattern`, `setCustomValidity()`
   - `formResetCallback`, `formStateRestoreCallback`, `<fieldset disabled>`
-- [ ] **F11. Chuyển component cũ sang `HuiElement`/`HuiFormElement`** (giữ nguyên API, chỉ đổi lõi)
-  - [x] button · [ ] input · [ ] select · [ ] checkbox · [ ] switch · [ ] modal · [ ] card · [ ] badge
-  - [ ] alert · [ ] tooltip (dùng F7) · [ ] spinner · [ ] tag · [ ] divider · [ ] avatar/avatar-group
-- [ ] **F12. Hạ tầng test & typing**
+- [x] **F11. Chuyển component cũ sang `HuiElement`/`HuiFormElement`** (giữ nguyên API, chỉ đổi lõi)
+  - [x] button · [x] input · [x] select · [x] checkbox · [x] switch · [x] modal · [x] card · [x] badge
+  - [x] alert · [x] tooltip (dùng F7) · [x] spinner · [x] tag · [x] divider · [x] avatar/avatar-group
+- [x] **F12. Hạ tầng test & typing**
   - Vitest browser test mẫu cho button → nhân rộng; a11y addon chuyển `test: 'error'`
   - Sinh `custom-elements.json` (CEM analyzer) → tự sinh `.d.ts` cho Vue (`GlobalComponents`) và React (JSX)
-- [ ] **F13. Sửa build/package**
+- [x] **F13. Sửa build/package**
   - `package.json` exports khai báo `require` (`*.js`) nhưng Vite chỉ build ES → bỏ `require` hoặc build thêm CJS
   - Tự sinh danh sách exports theo thư mục `src/components/*`
   - Verify `dist/` + import lẻ từng component trong một trang HTML sạch
@@ -266,10 +266,10 @@ và cả 13 component cũ — trùng phạm vi F5/F11).
 ## Build & Export
 - [x] Tạo `src/index.js` tổng hợp
 - [x] Config Vite build (per-component + bundle)
-- [x] Build thành công (`vite build` OK sau khi thêm HuiElement/hui-icon)
-- [ ] Verify dist/ + import lẻ trong trang HTML sạch (xem F13)
+- [x] Build đầy đủ: `npm run build` = vite build + custom-elements.json + types (.d.ts)
+- [x] Verify dist/ + import lẻ trong trang HTML sạch (`examples/dist-check.html`)
 
 ## Demo & Verification
 - [x] `hui-demo` — tài liệu sống về override & selector (story `Guide/HuiDemo`)
 - [ ] Trang mẫu `examples/` (mốc sau G1)
-- [ ] Verify import riêng lẻ và tổng hợp
+- [x] Verify import riêng lẻ và tổng hợp

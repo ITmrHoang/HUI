@@ -1,61 +1,66 @@
 /*
- * ==========================================================
- * HUI Avatar CSS - File style độc lập cho Component Ảnh đại diện
- * ==========================================================
+ * HUI Avatar CSS
+ * Biến công khai — KHÔNG khai báo trong file này, đặt ở avatar / thẻ cha / :root đều được:
+ *   --hui-avatar-size        Kích thước mặc định (attribute size của avatar / group ưu tiên hơn)
+ *   --hui-avatar-radius      Bo góc mặc định (attribute shape của avatar / group ưu tiên hơn)
+ *   --hui-avatar-bg          Nền (ghi đè color và màu tự sinh theo tên)
+ *   --hui-avatar-color       Màu chữ / icon
+ *   --hui-avatar-font-size   Cỡ chữ (mặc định 40% kích thước)
+ *   --hui-avatar-ring        Độ dày vòng viền (bordered / trong group: 2px)
+ *   --hui-avatar-ring-color  Màu vòng viền
+ * Thứ tự ưu tiên kích thước / bo góc: attribute của avatar > attribute của group > biến công khai > mặc định.
  * Biến nội bộ:
- *   --_size      : kích thước (JS đặt khi có attribute `size`)
- *   --_radius    : bo góc theo `shape`
- *   --_avatar-bg : màu nền (theo `color` hoặc tự sinh từ `name`)
- *
- * Biến công khai (kế thừa từ phần tử cha, ví dụ hui-avatar-group):
- *   --hui-avatar-size, --hui-avatar-radius, --hui-avatar-ring
+ *   --_avatar-size / --_avatar-radius / --_avatar-bg : JS đặt inline theo attribute
+ *   --_avatar-group-size / -radius / -ring           : do hui-avatar-group truyền xuống (kế thừa qua slot)
  */
 
 :host {
-  /* Giá trị mặc định: ưu tiên biến do cha (group) truyền xuống, không có thì dùng md / tròn */
-  --_size: var(--hui-avatar-size, var(--hui-size-md));
-  --_radius: var(--hui-avatar-radius, 50%);
-  --_ring: var(--hui-avatar-ring, 0px);
-
   display: inline-block;
   vertical-align: middle;
   font-family: var(--hui-font-family);
   line-height: 1;
 }
 
-/* :host có display riêng nên phải tự xử lý thuộc tính `hidden` (dùng bởi hui-avatar-group) */
+/* :host có display riêng nên tự xử lý `hidden` (hui-avatar-group dùng để ẩn avatar tràn) */
 :host([hidden]) {
   display: none;
 }
 
-/* Khi đặt `bordered` trực tiếp trên avatar */
-:host([bordered]) {
-  --_ring: 2px;
+[hidden] {
+  display: none !important;
 }
 
 .hui-avatar {
+  --_avatar-size: var(--_avatar-group-size, var(--hui-avatar-size, var(--hui-size-md)));
+  --_avatar-radius: var(--_avatar-group-radius, var(--hui-avatar-radius, 50%));
+  --_avatar-ring: var(--hui-avatar-ring, var(--_avatar-group-ring, 0px));
+  --_avatar-bg: var(--hui-border-hover);
+
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: var(--_size);
-  height: var(--_size);
-  border-radius: var(--_radius);
+  width: var(--_avatar-size);
+  height: var(--_avatar-size);
+  border-radius: var(--_avatar-radius);
   overflow: hidden;
   flex-shrink: 0;
-  background: var(--_avatar-bg, var(--hui-border-hover));
-  color: var(--hui-text-inverse);
-  /* Chữ cái / icon co giãn theo kích thước avatar */
-  font-size: calc(var(--_size) * 0.4);
+  background: var(--hui-avatar-bg, var(--_avatar-bg));
+  color: var(--hui-avatar-color, var(--hui-text-inverse));
+  font-size: var(--hui-avatar-font-size, calc(var(--_avatar-size) * 0.4));
   font-weight: var(--hui-font-weight-semibold);
   user-select: none;
-  /* Vòng viền tách các avatar khi xếp chồng (dùng box-shadow để không làm đổi kích thước) */
-  box-shadow: 0 0 0 var(--_ring) var(--hui-bg);
+  /* Vòng viền tách các avatar xếp chồng (box-shadow không làm đổi kích thước) */
+  box-shadow: 0 0 0 var(--_avatar-ring) var(--hui-avatar-ring-color, var(--hui-bg));
   transition: box-shadow var(--hui-transition);
 }
 
-/* ================== LỚP FALLBACK (slot / chữ cái / icon) ================== */
+.hui-avatar--bordered {
+  --_avatar-ring: var(--hui-avatar-ring, 2px);
+}
+
+/* ================== FALLBACK (slot / chữ cái / icon) ================== */
 .hui-avatar__fallback {
   display: inline-flex;
   align-items: center;
@@ -64,7 +69,6 @@
   height: 100%;
 }
 
-/* Ảnh đã tải xong → ẩn fallback phía sau */
 .hui-avatar--loaded .hui-avatar__fallback {
   visibility: hidden;
 }
@@ -83,11 +87,10 @@
 .hui-avatar__icon {
   width: 100%;
   height: 100%;
-  /* Icon dịch xuống một chút để phần vai sát mép dưới như Ant/MUI */
+  /* Dịch xuống một chút để phần vai sát mép dưới như Ant/MUI */
   transform: translateY(8%);
 }
 
-/* Nội dung slot (icon SVG người dùng truyền vào) co theo kích thước avatar */
 ::slotted(svg) {
   width: 55%;
   height: 55%;
@@ -97,8 +100,8 @@
 .hui-avatar__img {
   position: absolute;
   inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Cắt ảnh cho vừa khung, không bị méo */
-  display: block;
+  object-fit: cover;
 }

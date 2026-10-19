@@ -78,6 +78,19 @@ export default defineConfig({
   },
   test: {
     projects: [{
+      // Test đơn vị cho core/utils/component (chạy trong Chromium thật vì cần Shadow DOM, ElementInternals)
+      extends: true,
+      test: {
+        name: 'unit',
+        include: ['test/**/*.test.js'],
+        browser: {
+          enabled: true,
+          headless: true,
+          provider: playwright({}),
+          instances: [{ browser: 'chromium' }],
+        },
+      },
+    }, {
       extends: true,
       plugins: [
       // The plugin will run tests for the stories defined in your Storybook config

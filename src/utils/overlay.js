@@ -13,6 +13,8 @@
  *   handle.close();
  *
  * Nhiều lớp chồng nhau (Modal mở Dropdown): chỉ lớp TRÊN CÙNG nhận Esc / click ngoài / focus trap.
+ * Lưu ý: khi có lớp đang mở, phím Esc bị chặn (stopPropagation, capture ở document) để không đóng nhầm
+ * lớp bên dưới → component KHÔNG đăng ký overlay mà muốn nghe Esc thì lắng nghe ở window (capture).
  * Mọi xử lý đi theo composedPath() nên hoạt động đúng xuyên Shadow DOM.
  */
 

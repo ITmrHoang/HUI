@@ -42,13 +42,22 @@ function defaultDuration(el) {
   return Number.isFinite(ms) ? (raw.endsWith('s') && !raw.endsWith('ms') ? ms * 1000 : ms) : 200;
 }
 
-function run(el, keyframes, options) {
+/**
+ * Chạy animation, hủy animation cũ của cùng phần tử.
+ * `keepEnd` = true (dùng cho animateOut): giữ trạng thái cuối tới khi caller ẩn phần tử xong,
+ * rồi caller gọi `release()` để gỡ — nếu không, phần tử hiện lại sau này vẫn bị "đóng băng" ở trạng thái ẩn.
+ */
+function run(el, keyframes, options, keepEnd = false) {
   running.get(el)?.cancel();
   if (prefersReducedMotion() || typeof el.animate !== 'function') return Promise.resolve();
-  const anim = el.animate(keyframes, { duration: defaultDuration(el), fill: 'none', ...options });
+  const anim = el.animate(keyframes, { duration: defaultDuration(el), fill: keepEnd ? 'forwards' : 'none', ...options });
   running.set(el, anim);
   return anim.finished.then(
-    () => { if (running.get(el) === anim) running.delete(el); },
+    () => {
+      if (running.get(el) === anim) running.delete(el);
+      // Nhường 1 frame cho caller đặt hidden/display:none trước khi gỡ trạng thái cuối (tránh nháy)
+      if (keepEnd) requestAnimationFrame(() => anim.cancel());
+    },
     () => {} // Bị cancel do mở/đóng tiếp → bỏ qua
   );
 }
@@ -69,9 +78,7 @@ export function animateOut(el, preset = 'fade', { duration, origin } = {}) {
   const to = PRESETS[preset] || PRESETS.fade;
   if (origin) el.style.transformOrigin = origin;
   const from = Object.fromEntries(Object.keys(to).map((k) => [k, VISIBLE[k]]));
-  return run(el, [from, to], { duration, easing: EASE_IN, fill: 'forwards' }).then(() => {
-    running.get(el)?.cancel?.();
-  });
+  return run(el, [from, to], { duration, easing: EASE_IN }, true);
 }
 
 /**

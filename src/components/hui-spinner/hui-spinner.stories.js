@@ -5,6 +5,7 @@
  */
 
 import { html } from 'lit';
+import { expect } from 'storybook/test';
 import './index.js';
 import '../hui-button/index.js';
 
@@ -53,6 +54,35 @@ Dùng độc lập như một icon, hoặc bọc quanh nội dung để phủ l�
 | Slot | Mô tả |
 |------|-------|
 | (default) | Nội dung được bọc. Có nội dung → tự chuyển sang wrapper mode (overlay + làm mờ + \`aria-busy\`) |
+
+### Mọi attribute đều có property tương ứng
+\`\`\`js
+spinner.value = 40;        // vòng tiến độ chạy mượt tới 40%
+spinner.spinning = false;  // attribute spinning="false" → tắt overlay
+\`\`\`
+
+### Override giao diện từ bên ngoài
+Biến CSS đặt trên spinner, thẻ cha hoặc \`:root\` đều có hiệu lực. Cần chỉnh sâu hơn → \`hui-spinner::part(...)\`.
+
+| Biến CSS | Mặc định | Mô tả |
+|----------|----------|-------|
+| \`--hui-spinner-size\` | theo \`size\` | Kích thước icon (ghi đè attribute) |
+| \`--hui-spinner-color\` | theo \`color\` | Màu vòng xoay / chấm (ghi đè attribute) |
+| \`--hui-spinner-track-color\` | màu spinner 15% | Vòng nền (determinate) |
+| \`--hui-spinner-duration\` | \`1.4s\` | Thời gian một vòng xoay |
+| \`--hui-spinner-gap\` | \`--hui-space-sm\` | Khoảng cách icon ↔ label |
+| \`--hui-spinner-label-color\` | màu spinner | Màu label |
+| \`--hui-spinner-label-font-size\` | \`--hui-font-sm\` | Cỡ chữ label |
+| \`--hui-spinner-overlay-bg\` | \`--hui-bg\` 40% | Nền lớp phủ (wrapper mode) |
+| \`--hui-spinner-content-opacity\` | \`0.5\` | Độ mờ nội dung khi đang tải |
+
+| Part | Phần tử |
+|------|---------|
+| \`container\` | Khung ngoài cùng |
+| \`content\`, \`overlay\` | Vùng nội dung bọc / lớp phủ (wrapper mode) |
+| \`spinner\` | Khối icon + label (\`role="progressbar"\`) |
+| \`icon\`, \`circle\`, \`track\`, \`dot\` | Thành phần icon |
+| \`label\` | Dòng chữ mô tả |
         `,
       },
     },
@@ -272,4 +302,55 @@ export const ToggleSpinning = {
       </div>
     `;
   },
+  play: async ({ canvasElement }) => {
+    const spinner = canvasElement.querySelector('hui-spinner');
+    const overlay = spinner.shadowRoot.querySelector('[part="overlay"]');
+    const content = spinner.shadowRoot.querySelector('[part="content"]');
+    await expect(spinner.hasAttribute('data-nested')).toBe(true);
+    await expect(overlay.hidden).toBe(true);
+
+    spinner.spinning = true;
+    await spinner.updateComplete;
+    await expect(spinner.getAttribute('spinning')).toBe('true');
+    await expect(overlay.hidden).toBe(false);
+    await expect(content.inert).toBe(true);
+    await expect(spinner.shadowRoot.querySelector('[part="overlay"]')).toBe(overlay);
+
+    spinner.spinning = false;
+    await spinner.updateComplete;
+    await expect(spinner.getAttribute('spinning')).toBe('false');
+    await expect(overlay.hidden).toBe(true);
+  },
+};
+
+/**
+ * Override từ bên ngoài — biến CSS đặt trên thẻ cha / chính spinner, và ::part().
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .demo-spinners { --hui-spinner-size: 40px; --hui-spinner-duration: 0.8s; }
+      hui-spinner.brand {
+        --hui-spinner-color: var(--hui-success);
+        --hui-spinner-track-color: var(--hui-success-2);
+        --hui-spinner-label-color: var(--hui-text-secondary);
+      }
+      hui-spinner.caps::part(label) { text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+      hui-spinner.square::part(dot) { border-radius: 2px; }
+      hui-spinner.frost { --hui-spinner-overlay-bg: var(--hui-primary-light); --hui-spinner-content-opacity: 0.3; }
+    </style>
+    <div style="display: flex; flex-direction: column; gap: 24px; max-width: 420px;">
+      <div class="demo-spinners" style="display: flex; gap: 24px; align-items: center;">
+        <hui-spinner></hui-spinner>
+        <hui-spinner type="dots" class="square"></hui-spinner>
+      </div>
+      <div style="display: flex; gap: 24px; align-items: center;">
+        <hui-spinner class="brand" size="lg" value="70" label="70%"></hui-spinner>
+        <hui-spinner class="caps" label="Đang tải" label-position="right"></hui-spinner>
+      </div>
+      <hui-spinner class="frost" label="Đang đồng bộ">
+        <div style="padding: 16px; border: 1px solid var(--hui-border); border-radius: 8px;">Nội dung được phủ overlay tùy biến.</div>
+      </hui-spinner>
+    </div>
+  `,
 };

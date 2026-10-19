@@ -1,223 +1,220 @@
 /**
- * HUI Checkbox — Component hộp kiểm đa năng (Web Component Vanilla JS)
- *
- * Hỗ trợ:
- * - Checked, Indeterminate states
- * - Label: Trái, Phải hoặc không có label
- * - Variants (Màu sắc): primary, success, danger, warning
- * - Sizes: sm, md, lg
- * - Disabled, required, error
+ * HUI Checkbox — Hộp kiểm (Ant Checkbox + MUI Checkbox), tham gia <form> như <input type="checkbox">
+ * Parts: base, control, box, icon, label, message · Slot: (mặc định) = nhãn
+ * Events: change, input (detail { checked, value }), hui-change (giữ cho code cũ)
+ * Biến CSS: xem đầu hui-checkbox.css
  */
 
 import styles from './hui-checkbox.css?raw';
-import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
-import { emitEvent } from '../../utils/events.js';
 
-class HuiCheckbox extends HTMLElement {
-  static get observedAttributes() {
-    return [
-      'checked', 'indeterminate', 'disabled', 'required', 'label', 
-      'label-position', 'size', 'variant', 'error', 'name', 'value'
-    ];
-  }
+import { HuiFormElement } from '../../core/hui-form-element.js';
+import { defineElement } from '../../core/hui-element.js';
+import { t } from '../../core/locale.js';
+import { createElement } from '../../utils/dom.js';
+
+// Dấu check + gạch ngang (indeterminate) — CSS chọn hiện cái nào
+const ICONS = `
+  <svg class="hui-checkbox__icon hui-checkbox__icon--check" part="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+  <svg class="hui-checkbox__icon hui-checkbox__icon--indeterminate" part="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true">
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>`;
+
+let uid = 0;
+
+/**
+ * @fires change - Người dùng bật/tắt. detail: { checked, value }
+ * @fires input - Phát cùng lúc với change. detail: { checked, value }
+ * @fires hui-change - Tên sự kiện cũ (giữ tương thích). detail: { checked, value }
+ * @slot - Nhãn (thay cho attribute label)
+ * @csspart base - Khung ngoài cùng (control + message)
+ * @csspart control - Thẻ <label> chứa ô và nhãn
+ * @csspart box - Ô vuông
+ * @csspart icon - Dấu check / gạch ngang
+ * @csspart label - Vùng chữ nhãn
+ * @csspart message - Dòng thông báo lỗi
+ * @cssprop --hui-checkbox-size - Cạnh ô vuông
+ * @cssprop --hui-checkbox-radius - Bo góc ô
+ * @cssprop --hui-checkbox-gap - Khoảng cách ô và nhãn
+ * @cssprop --hui-checkbox-bg - Nền ô khi chưa chọn
+ * @cssprop --hui-checkbox-border-color - Viền ô khi chưa chọn
+ * @cssprop --hui-checkbox-hover-border-color - Viền ô khi hover
+ * @cssprop --hui-checkbox-checked-bg - Nền + viền ô khi đã chọn
+ * @cssprop --hui-checkbox-check-color - Màu dấu check
+ * @cssprop --hui-checkbox-focus-ring - box-shadow khi focus bằng bàn phím
+ * @cssprop --hui-checkbox-label-color - Màu chữ nhãn
+ * @cssprop --hui-checkbox-font-size - Cỡ chữ nhãn
+ */
+class HuiCheckbox extends HuiFormElement {
+  static properties = {
+    /** Đang được chọn (phản chiếu attribute checked) */
+    checked: { type: Boolean },
+    /** Trạng thái "chọn một phần" — hiện dấu gạch ngang, tự tắt khi người dùng click */
+    indeterminate: { type: Boolean },
+    /** Nhãn chữ (hoặc dùng slot mặc định) */
+    label: { type: String },
+    /** right | left — vị trí nhãn so với ô */
+    labelPosition: { type: String, default: 'right' },
+    /** primary | success | warning | danger — màu khi được chọn */
+    variant: { type: String, default: 'primary' },
+    /** Thông báo lỗi hiển thị dưới checkbox (viền ô chuyển đỏ) */
+    error: { type: String },
+  };
+
+  static styles = styles;
 
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
-    this._wrapper = null;
-    this._input = null;
-
-    // Giữ state nội bộ cho checked và indeterminate để xử lý
-    this._checked = false;
-    this._indeterminate = false;
+    this._defaultChecked = null;
+    this._messageId = `hui-checkbox-msg-${++uid}`;
   }
 
-  // =====================================================
-  // KẾT NỐI PROPERTIES THÔNG THƯỜNG (GET/SET)
-  // =====================================================
-
-  get checked() {
-    return this._checked;
-  }
-  set checked(val) {
-    const isChecked = Boolean(val);
-    if (this._checked !== isChecked) {
-      this._checked = isChecked;
-      if (isChecked) {
-        this.setAttribute('checked', '');
-      } else {
-        this.removeAttribute('checked');
-      }
-      this._render();
-    }
-  }
-
-  get indeterminate() {
-    return this._indeterminate;
-  }
-  set indeterminate(val) {
-    const isIndet = Boolean(val);
-    if (this._indeterminate !== isIndet) {
-      this._indeterminate = isIndet;
-      if (isIndet) {
-        this.setAttribute('indeterminate', '');
-      } else {
-        this.removeAttribute('indeterminate');
-      }
-      this._render();
-    }
-  }
-
+  /** Giá trị gửi lên form khi được chọn — mặc định 'on' như <input type="checkbox"> */
   get value() {
-    return this.getAttribute('value') || 'on';
+    return this._getProp('value') || 'on';
   }
-  set value(val) {
-    this.setAttribute('value', val);
+  set value(v) {
+    this._setProp('value', v);
   }
-
-  // =====================================================
-  // LIFECYCLE CALLBACKS
-  // =====================================================
 
   connectedCallback() {
-    ensureTokens();
-    this.shadowRoot.appendChild(createStyle(styles));
-
-    // Đọc khởi tạo state từ attribute
-    this._checked = this.hasAttribute('checked');
-    this._indeterminate = this.hasAttribute('indeterminate');
-
-    this._render();
+    // Trạng thái ban đầu cho form.reset()
+    if (this._defaultChecked === null) this._defaultChecked = this.hasAttribute('checked');
+    super.connectedCallback();
   }
 
-  attributeChangedCallback(name, oldVal, newVal) {
-    if (oldVal === newVal) return;
-    
-    if (name === 'checked') {
-      this._checked = newVal !== null;
-    } else if (name === 'indeterminate') {
-      this._indeterminate = newVal !== null;
-    }
-
-    if (this._wrapper) this._render();
-  }
-
-  // =====================================================
-  // EVENT HANDLERS
-  // =====================================================
-
-  _handleChange(e) {
-    // Ngăn event tự nhiên rò rỉ ra nếu không muốn
-    e.stopPropagation();
-
-    if (this.hasAttribute('disabled')) return;
-
-    // Khi người dùng click, indeterminate sẽ biến mất và chuyển sang checked state mới
-    this._checked = e.target.checked;
-    this._indeterminate = false;
-    
-    if (this._checked) {
-      this.setAttribute('checked', '');
-    } else {
-      this.removeAttribute('checked');
-    }
-    this.removeAttribute('indeterminate');
-
-    this._render();
-
-    // Bắn event ra ngoài
-    emitEvent(this, 'hui-change', { checked: this._checked, value: this.value });
-  }
-
-  // =====================================================
-  // RENDER UI
-  // =====================================================
-
-  _render() {
-    if (this._wrapper) this._wrapper.remove();
-
-    const label = this.getAttribute('label');
-    const labelPos = this.getAttribute('label-position') || 'right'; // 'left' hoặc 'right'
-    const size = this.getAttribute('size') || 'md';
-    const variant = this.getAttribute('variant') || 'primary';
-    const disabled = this.hasAttribute('disabled');
-    const error = this.getAttribute('error');
-    const required = this.hasAttribute('required');
-    const name = this.getAttribute('name') || '';
-    const valueAttr = this.getAttribute('value') || 'on';
-
-    // SVG icon: Có thể là dấu check hoặc đường gạch ngang (indeterminate)
-    let iconSvg = '';
-    if (this._indeterminate) {
-      iconSvg = `
-        <svg class="hui-checkbox__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-      `;
-    } else if (this._checked) {
-      iconSvg = `
-        <svg class="hui-checkbox__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-      `;
-    }
-
-    // Input ẩn thực sự (giữ accessibility và event)
-    this._input = createElement('input', {
-      type: 'checkbox',
-      className: 'hui-checkbox__input',
-      checked: this._checked,
-      disabled,
-      name,
-      value: valueAttr,
-      onChange: (e) => this._handleChange(e)
+  render() {
+    this._input = createElement('input', { type: 'checkbox', className: 'hui-checkbox__input' });
+    this._input.addEventListener('click', (e) => {
+      if (this.readonly) e.preventDefault();
     });
-    // Set property thẳng vào element vì attribute không ăn chuẩn cho indeterminate
-    this._input.indeterminate = this._indeterminate;
+    // input native là composed → chặn bản gốc, phát lại 1 lần kèm detail
+    this._input.addEventListener('input', (e) => e.stopPropagation());
+    this._input.addEventListener('change', () => this._handleChange());
+    this._input.addEventListener('blur', () => this.markInteracted());
 
-    // Box checkbox tự vẽ
-    const boxEl = createElement('div', { className: 'hui-checkbox__box' });
-    boxEl.innerHTML = iconSvg; // Chèn thẳng SVG vào
+    this._box = createElement('span', { className: 'hui-checkbox__box', part: 'box' });
+    this._box.innerHTML = ICONS;
 
-    // Text Label (nếu có)
-    let textEl = null;
-    if (label) {
-      const mark = required ? ' *' : '';
-      textEl = createElement('span', { className: 'hui-checkbox__label-text' });
-      textEl.innerHTML = label + (required ? `<span style="color:var(--hui-danger)">${mark}</span>` : '');
+    this._labelFallback = document.createTextNode('');
+    this._slot = createElement('slot', {}, this._labelFallback);
+    this._slot.addEventListener('slotchange', () => this._syncLabelVisibility());
+    this._required = createElement('span', { className: 'hui-checkbox__required', 'aria-hidden': 'true' }, ' *');
+    this._labelText = createElement('span', { className: 'hui-checkbox__label-text', part: 'label' },
+      this._slot, this._required);
+
+    this._container = createElement('label', { part: 'control' }, this._input, this._box, this._labelText);
+    this._message = createElement('div', { className: 'hui-checkbox__message', part: 'message', id: this._messageId });
+
+    return createElement('div', { className: 'hui-checkbox-wrapper', part: 'base' }, this._container, this._message);
+  }
+
+  updated(changed) {
+    super.updated(changed);
+    const input = this._input;
+
+    if (changed.has('checked')) input.checked = this.checked;
+    if (changed.has('indeterminate')) input.indeterminate = this.indeterminate;
+    if (changed.has('disabled')) input.disabled = this.isDisabled;
+    if (changed.has('name')) input.name = this.name || '';
+    if (changed.has('value')) input.value = this.value;
+
+    if (changed.has('required')) {
+      this._required.hidden = !this.required;
+      input.required = this.required;
     }
 
-    // Class tổng hợp cho Container (label chứa input)
-    const containerClasses = [
+    if (changed.has('label')) {
+      this._labelFallback.textContent = this.label || '';
+      this._syncLabelVisibility();
+    }
+
+    if (changed.has('error') || changed.has('status')) {
+      this._message.textContent = this.error || '';
+      this._message.hidden = !this.error;
+      const invalid = Boolean(this.error) || this.status === 'error';
+      input.setAttribute('aria-invalid', String(invalid));
+      if (this.error) input.setAttribute('aria-describedby', this._messageId);
+      else input.removeAttribute('aria-describedby');
+    }
+
+    this._container.className = [
       'hui-checkbox__container',
-      `hui-checkbox--${size}`,
-      variant !== 'primary' ? `hui-checkbox--${variant}` : '',
-      this._checked ? 'hui-checkbox__container--checked' : '',
-      this._indeterminate ? 'hui-checkbox__container--indeterminate' : '',
-      error ? 'hui-checkbox__container--error' : '',
-      labelPos === 'left' ? 'hui-checkbox__container--label-left' : ''
+      `hui-checkbox--${this.effectiveSize}`,
+      this.variant !== 'primary' ? `hui-checkbox--${this.variant}` : '',
+      this.checked ? 'hui-checkbox__container--checked' : '',
+      this.indeterminate ? 'hui-checkbox__container--indeterminate' : '',
+      this.error || this.status === 'error' ? 'hui-checkbox__container--error' : '',
+      this.labelPosition === 'left' ? 'hui-checkbox__container--label-left' : '',
+      this.isDisabled ? 'hui-checkbox__container--disabled' : '',
     ].filter(Boolean).join(' ');
 
-    const containerEl = createElement('label', { className: containerClasses },
-      this._input, boxEl, ...[textEl].filter(Boolean)
+    // Không có nhãn hiển thị → chuyển aria-label của host vào input
+    if (this.hasAttribute('aria-label')) input.setAttribute('aria-label', this.getAttribute('aria-label'));
+  }
+
+  _handleChange() {
+    if (this.isDisabled) return;
+    // Người dùng click → bỏ indeterminate, lấy trạng thái mới từ input native
+    this.indeterminate = false;
+    this.checked = this._input.checked;
+    this.markInteracted();
+
+    const detail = { checked: this.checked, value: this.value };
+    this.emit('input', detail);
+    this.emit('change', detail);
+    this.emit('hui-change', detail);
+  }
+
+  _syncLabelVisibility() {
+    const hasSlotted = this._slot.assignedNodes().some(
+      (n) => n.nodeType === Node.ELEMENT_NODE || n.textContent.trim()
     );
+    this._labelText.hidden = !hasSlotted && !this.label;
+  }
 
-    // Message Lỗi/Gợi ý dưới cùng nếu có
-    const messageEl = error 
-      ? createElement('div', { className: 'hui-checkbox__message' }, error)
-      : null;
+  // =====================================================
+  // FORM
+  // =====================================================
 
-    // Wrapper bao lấy tất cả
-    this._wrapper = createElement('div', { className: 'hui-checkbox-wrapper' },
-      containerEl, ...[messageEl].filter(Boolean)
-    );
+  _isEmpty() {
+    return !this.checked;
+  }
 
-    this.shadowRoot.appendChild(this._wrapper);
+  formValue() {
+    return this.checked ? this.value || 'on' : null;
+  }
+
+  validationAnchor() {
+    return this._input;
+  }
+
+  /** required = phải được chọn */
+  checkConstraints() {
+    if (this.isDisabled || !this.required || this.checked) return null;
+    const msg = t('form.requiredChecked');
+    return { flags: { valueMissing: true }, message: msg === 'form.requiredChecked' ? t('form.required') : msg };
+  }
+
+  formResetCallback() {
+    this.checked = this._defaultChecked;
+    super.formResetCallback();
+  }
+
+  formStateRestoreCallback(state) {
+    this.checked = state != null;
+  }
+
+  focus(options) {
+    this._input ? this._input.focus(options) : super.focus(options);
+  }
+
+  blur() {
+    this._input?.blur();
   }
 }
 
-if (!customElements.get('hui-checkbox')) {
-  customElements.define('hui-checkbox', HuiCheckbox);
-}
+defineElement('hui-checkbox', HuiCheckbox);
 
 export default HuiCheckbox;

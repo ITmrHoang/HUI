@@ -4,6 +4,7 @@
  */
 
 import { html } from 'lit';
+import { expect, waitFor } from 'storybook/test';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import './index.js';
 import '../hui-button/index.js'; // Component phụ trợ cho demo slot action
@@ -65,7 +66,23 @@ export default {
 
 ### Accessibility
 - \`role="alert"\` cho error/warning (đọc ngay), \`role="status"\` cho info/success.
-- Nút đóng là \`<button>\` thật, có \`aria-label="Đóng"\`, dùng được bằng bàn phím.
+- Nút đóng là \`<button>\` thật, có \`aria-label\` theo locale (\`common.close\`) hoặc \`close-text\`, dùng được bằng bàn phím.
+
+### Override giao diện từ bên ngoài
+| Biến CSS | Mô tả |
+|----------|-------|
+| \`--hui-alert-padding\` | Padding (ghi đè size) |
+| \`--hui-alert-font-size\` | Cỡ chữ (ghi đè size) |
+| \`--hui-alert-gap\` | Khoảng cách icon ↔ nội dung ↔ action |
+| \`--hui-alert-radius\` | Bo góc |
+| \`--hui-alert-bg\` | Màu nền (ghi đè severity/variant) |
+| \`--hui-alert-color\` | Màu chữ |
+| \`--hui-alert-border-color\` | Màu viền |
+| \`--hui-alert-icon-color\` | Màu icon |
+| \`--hui-alert-icon-size\` | Kích thước icon |
+| \`--hui-alert-title-font-weight\` | Độ đậm tiêu đề |
+
+**Parts:** \`base\`, \`icon\`, \`content\`, \`title\`, \`description\`, \`action\`, \`close\`.
         `,
       },
     },
@@ -339,4 +356,43 @@ export const WithSlots = {
       </hui-alert>
     </div>
   `,
+};
+
+/**
+ * Override từ bên ngoài — biến CSS trên thẻ cha / chính thẻ và ::part().
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .alert-soft {
+        --hui-alert-radius: 14px;
+        --hui-alert-padding: 14px 18px;
+        --hui-alert-border-color: transparent;
+        --hui-alert-icon-size: 1.5em;
+      }
+      hui-alert.alert-brand {
+        --hui-alert-bg: var(--hui-primary-1);
+        --hui-alert-color: var(--hui-primary-9);
+        --hui-alert-icon-color: var(--hui-primary);
+        --hui-alert-border-color: var(--hui-primary-3);
+      }
+      hui-alert.alert-brand::part(base) { border-left: 4px solid var(--hui-primary); }
+      hui-alert.alert-brand::part(title) { text-transform: uppercase; letter-spacing: 0.06em; }
+      hui-alert.alert-brand::part(close):hover { color: var(--hui-danger); }
+    </style>
+    <div class="alert-soft" style="display: flex; flex-direction: column; gap: 12px;">
+      <hui-alert severity="success" title="Biến CSS trên thẻ cha" description="Bo góc, padding, icon lớn hơn, bỏ viền."></hui-alert>
+      <hui-alert class="alert-brand" title="Màu thương hiệu" description="Biến CSS + ::part(base | title | close)." closable></hui-alert>
+    </div>
+  `,
+  // Kiểm thử: bấm × → close → hidden → after-close
+  play: async ({ canvasElement }) => {
+    const alert = canvasElement.querySelector('hui-alert.alert-brand');
+    let afterClose = false;
+    alert.addEventListener('after-close', () => { afterClose = true; });
+    alert.shadowRoot.querySelector('[part="close"]').click();
+    await waitFor(() => expect(alert.hidden).toBe(true), { timeout: 2000 });
+    await expect(afterClose).toBe(true);
+    alert.hidden = false;
+  },
 };

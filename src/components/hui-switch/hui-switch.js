@@ -1,282 +1,207 @@
 /**
- * HUI Switch — Công tắc bật/tắt (Web Component Vanilla JS)
- * Kết hợp API của Ant Design Switch + MUI Switch.
- *
- * Hỗ trợ:
- * - checked, disabled, loading (spinner trong nút tròn)
- * - Sizes: sm, md, lg — Colors: primary, secondary, success, warning, danger, info
- * - Label trái/phải, chữ bên trong track (checked-text / unchecked-text)
- * - Tham gia <form> qua ElementInternals (name, value, required)
+ * HUI Switch — Công tắc bật/tắt (Ant Switch + MUI Switch), tham gia <form> như checkbox
+ * Render <button role="switch">: Tab để focus, Space/Enter để bật/tắt.
+ * Parts: base, track, thumb, text, label · Event: change { checked, value }
+ * Biến CSS: xem đầu hui-switch.css
  */
 
 import styles from './hui-switch.css?raw';
-import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
-import { emitEvent } from '../../utils/events.js';
 
-// Bộ đếm để sinh id duy nhất cho label (dùng với aria-labelledby)
-let switchUid = 0;
+import { HuiFormElement } from '../../core/hui-form-element.js';
+import { defineElement } from '../../core/hui-element.js';
+import { t } from '../../core/locale.js';
+import { createElement } from '../../utils/dom.js';
 
-class HuiSwitch extends HTMLElement {
-  static get observedAttributes() {
-    return [
-      'checked', 'disabled', 'loading', 'size', 'color', 'label', 'label-position',
-      'checked-text', 'unchecked-text', 'name', 'value', 'required',
-    ];
-  }
+let uid = 0;
 
-  /**
-   * formAssociated: báo cho trình duyệt biết element này là một form control
-   * (giống <input>) → giá trị sẽ được gửi kèm khi submit <form>.
-   * Chỉ bật khi trình duyệt hỗ trợ ElementInternals.
-   */
-  static get formAssociated() {
-    return 'attachInternals' in HTMLElement.prototype;
-  }
+/**
+ * @fires change - Người dùng bật/tắt (không phát khi đổi bằng JS). detail: { checked, value }
+ * @csspart base - Thẻ <label> bao ngoài
+ * @csspart track - Nút <button role="switch"> (đường ray)
+ * @csspart thumb - Nút tròn trượt
+ * @csspart text - Chữ bên trong track
+ * @csspart label - Nhãn chữ cạnh công tắc
+ * @cssprop --hui-switch-height - Chiều cao track
+ * @cssprop --hui-switch-width - Độ rộng tối thiểu track
+ * @cssprop --hui-switch-thumb-size - Cỡ nút tròn
+ * @cssprop --hui-switch-track-bg - Màu track khi tắt
+ * @cssprop --hui-switch-track-hover-bg - Màu track khi tắt + hover
+ * @cssprop --hui-switch-checked-bg - Màu track khi bật (đè màu của color)
+ * @cssprop --hui-switch-thumb-bg - Màu nút tròn
+ * @cssprop --hui-switch-thumb-shadow - Đổ bóng nút tròn
+ * @cssprop --hui-switch-text-color - Màu chữ trong track
+ * @cssprop --hui-switch-label-color - Màu chữ nhãn
+ * @cssprop --hui-switch-gap - Khoảng cách track và nhãn
+ * @cssprop --hui-switch-focus-color - Màu viền focus
+ */
+class HuiSwitch extends HuiFormElement {
+  static properties = {
+    /** Trạng thái bật (phản chiếu attribute checked) */
+    checked: { type: Boolean },
+    /** Hiện spinner trong nút tròn, không bật/tắt được nhưng vẫn giữ focus */
+    loading: { type: Boolean },
+    /** primary | secondary | success | warning | danger | info — màu khi bật */
+    color: { type: String, default: 'primary' },
+    /** Nhãn chữ cạnh công tắc */
+    label: { type: String },
+    /** right | left — vị trí nhãn */
+    labelPosition: { type: String, default: 'right' },
+    /** Chữ trong track khi bật (Ant checkedChildren) */
+    checkedText: { type: String },
+    /** Chữ trong track khi tắt (Ant unCheckedChildren) */
+    uncheckedText: { type: String },
+  };
+
+  static styles = styles;
 
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
-    this._wrapper = null;  // <label> bao ngoài cùng
-    this._button = null;   // <button role="switch"> thật bên trong
-    this._styled = false;  // Đã chèn CSS hay chưa
-    this._labelId = `hui-switch-label-${++switchUid}`;
-    this._defaultChecked = false; // Giá trị ban đầu — dùng khi form reset
-    this._formDisabled = false;   // Bị disable bởi <fieldset disabled> cha
-
-    // ElementInternals: cầu nối giữa custom element và <form> cha
-    this._internals = typeof this.attachInternals === 'function' ? this.attachInternals() : null;
+    this._defaultChecked = null;
+    this._labelId = `hui-switch-label-${++uid}`;
   }
 
-  // =====================================================
-  // PROPERTIES (GET/SET)
-  // =====================================================
-
-  /** Trạng thái bật/tắt — phản chiếu (reflect) sang attribute "checked" */
-  get checked() {
-    return this.hasAttribute('checked');
-  }
-  set checked(val) {
-    // Đặt attribute → attributeChangedCallback sẽ tự đồng bộ giao diện
-    this.toggleAttribute('checked', Boolean(val));
-  }
-
+  /** Giá trị gửi lên form khi bật — mặc định 'on' */
   get value() {
-    return this.getAttribute('value') || 'on';
+    return this._getProp('value') || 'on';
   }
-  set value(val) {
-    this.setAttribute('value', val);
+  set value(v) {
+    this._setProp('value', v);
   }
-
-  get disabled() {
-    return this.hasAttribute('disabled');
-  }
-  set disabled(val) {
-    this.toggleAttribute('disabled', Boolean(val));
-  }
-
-  /** Các API chuẩn của form control (giống <input>) */
-  get form() { return this._internals?.form ?? null; }
-  get name() { return this.getAttribute('name'); }
-  get validity() { return this._internals?.validity; }
-  get validationMessage() { return this._internals?.validationMessage ?? ''; }
-  checkValidity() { return this._internals ? this._internals.checkValidity() : true; }
-  reportValidity() { return this._internals ? this._internals.reportValidity() : true; }
-
-  // =====================================================
-  // LIFECYCLE CALLBACKS
-  // =====================================================
 
   connectedCallback() {
-    if (!this._styled) {
-      ensureTokens();
-      this.shadowRoot.appendChild(createStyle(styles));
-      this._styled = true;
-      // Ghi nhớ trạng thái ban đầu để reset form đưa về đúng giá trị này
-      this._defaultChecked = this.hasAttribute('checked');
-    }
-    if (!this._wrapper) this._render();
+    if (this._defaultChecked === null) this._defaultChecked = this.hasAttribute('checked');
+    super.connectedCallback();
   }
 
-  attributeChangedCallback(name, oldVal, newVal) {
-    if (oldVal === newVal) return;
-    if (!this._wrapper) return;
+  render() {
+    this._spinner = createElement('span', { className: 'hui-switch__spinner' });
+    this._thumb = createElement('span', { className: 'hui-switch__thumb', part: 'thumb', 'aria-hidden': 'true' }, this._spinner);
+    this._text = createElement('span', { className: 'hui-switch__text', part: 'text', 'aria-hidden': 'true' });
 
-    // Thay đổi checked chỉ cập nhật tại chỗ (không vẽ lại) để KHÔNG làm mất focus
-    // của nút khi người dùng bật/tắt bằng bàn phím.
-    if (name === 'checked') {
-      this._syncState();
+    this._button = createElement('button', { type: 'button', role: 'switch', className: 'hui-switch__track', part: 'track' },
+      this._text, this._thumb);
+    this._button.addEventListener('click', () => this._handleClick());
+    this._button.addEventListener('blur', () => this.markInteracted());
+
+    this._labelText = createElement('span', {});
+    this._required = createElement('span', { className: 'hui-switch__required', 'aria-hidden': 'true' }, ' *');
+    this._label = createElement('span', { className: 'hui-switch__label', id: this._labelId, part: 'label' },
+      this._labelText, this._required);
+
+    // <label> bao ngoài: click vào chữ cũng thành click lên <button>
+    this._wrapper = createElement('label', { part: 'base' }, this._button, this._label);
+    return this._wrapper;
+  }
+
+  updated(changed) {
+    super.updated(changed);
+    const btn = this._button;
+
+    if (changed.has('checked')) {
+      btn.setAttribute('aria-checked', String(this.checked));
+    }
+    if (changed.has('checked') || changed.has('checkedText') || changed.has('uncheckedText')) {
+      this._text.textContent = (this.checked ? this.checkedText : this.uncheckedText) || '';
+    }
+    if (changed.has('disabled')) btn.disabled = this.isDisabled;
+
+    if (changed.has('loading')) {
+      // aria-disabled thay vì disabled: vẫn giữ focus khi đang loading
+      this._spinner.hidden = !this.loading;
+      if (this.loading) {
+        btn.setAttribute('aria-busy', 'true');
+        btn.setAttribute('aria-disabled', 'true');
+      } else {
+        btn.removeAttribute('aria-busy');
+        btn.removeAttribute('aria-disabled');
+      }
+    }
+
+    if (changed.has('required')) {
+      this._required.hidden = !this.required;
+      if (this.required) btn.setAttribute('aria-required', 'true');
+      else btn.removeAttribute('aria-required');
+    }
+
+    if (changed.has('label')) {
+      this._labelText.textContent = this.label || '';
+      this._label.hidden = !this.label;
+    }
+
+    // Có nhãn → aria-labelledby; không có → chuyển aria-label của host vào nút
+    if (this.label) {
+      btn.setAttribute('aria-labelledby', this._labelId);
+      btn.removeAttribute('aria-label');
     } else {
-      this._render();
+      btn.removeAttribute('aria-labelledby');
+      if (this.hasAttribute('aria-label')) btn.setAttribute('aria-label', this.getAttribute('aria-label'));
     }
+
+    this._wrapper.className = [
+      'hui-switch',
+      `hui-switch--${this.effectiveSize}`,
+      `hui-switch--${this.color}`,
+      this.checked ? 'hui-switch--checked' : '',
+      this.labelPosition === 'left' ? 'hui-switch--label-left' : '',
+      this.isDisabled ? 'hui-switch--disabled' : '',
+      this.loading ? 'hui-switch--loading' : '',
+      this.checkedText || this.uncheckedText ? 'hui-switch--has-text' : '',
+    ].filter(Boolean).join(' ');
   }
 
-  // =====================================================
-  // FORM CALLBACKS (ElementInternals)
-  // =====================================================
-
-  /** Form cha bị reset → trả về trạng thái ban đầu */
-  formResetCallback() {
-    this.checked = this._defaultChecked;
-  }
-
-  /** Trình duyệt khôi phục state (back/forward cache, autofill) */
-  formStateRestoreCallback(state) {
-    this.checked = state != null;
-  }
-
-  /** <fieldset disabled> bao ngoài → switch cũng bị vô hiệu hóa theo */
-  formDisabledCallback(disabled) {
-    this._formDisabled = disabled;
-    if (this._wrapper) this._render();
-  }
-
-  /** Bị vô hiệu hóa bởi chính attribute hoặc bởi <fieldset disabled> cha */
-  _isDisabled() {
-    return this.hasAttribute('disabled') || this._formDisabled;
-  }
-
-  // =====================================================
-  // PUBLIC METHODS
-  // =====================================================
-
-  /** Đảo trạng thái bằng JS (không phát event change — chỉ user thao tác mới phát) */
+  /** Đảo trạng thái bằng JS (không phát change — chỉ người dùng thao tác mới phát) */
   toggle() {
     this.checked = !this.checked;
   }
 
-  // =====================================================
-  // EVENT HANDLERS
-  // =====================================================
-
-  /**
-   * Click vào nút (chuột, hoặc Space/Enter — vì <button> native tự biến phím thành click).
-   * Click vào label cũng được trình duyệt chuyển thành click lên <button> bên trong.
-   */
-  _handleClick(e) {
-    if (this._isDisabled() || this.hasAttribute('loading')) return;
-
+  _handleClick() {
+    if (this.isDisabled || this.loading || this.readonly) return;
     this.checked = !this.checked;
-    emitEvent(this, 'change', { checked: this.checked, value: this.value });
+    this.markInteracted();
+    this.emit('change', { checked: this.checked, value: this.value });
   }
 
   // =====================================================
-  // RENDER UI
+  // FORM
   // =====================================================
 
-  /**
-   * Đồng bộ những phần phụ thuộc vào "checked" mà không dựng lại DOM:
-   * class, aria-checked, chữ trong track, giá trị form và validity.
-   */
-  _syncState() {
-    if (!this._wrapper) return;
-    const checked = this.checked;
-
-    this._wrapper.classList.toggle('hui-switch--checked', checked);
-    this._button.setAttribute('aria-checked', String(checked));
-
-    // Chữ bên trong track đổi theo trạng thái (Ant checkedChildren / unCheckedChildren)
-    const textEl = this._wrapper.querySelector('.hui-switch__text');
-    if (textEl) {
-      textEl.textContent = checked
-        ? this.getAttribute('checked-text') || ''
-        : this.getAttribute('unchecked-text') || '';
-    }
-
-    // Cập nhật giá trị gửi lên form: bật → value (mặc định "on"), tắt → null (không gửi)
-    if (this._internals) {
-      this._internals.setFormValue(checked ? this.value : null, checked ? 'on' : null);
-      if (this.hasAttribute('required') && !checked) {
-        this._internals.setValidity(
-          { valueMissing: true },
-          'Vui lòng bật công tắc này để tiếp tục.',
-          this._button // Trình duyệt hiển thị bong bóng lỗi tại nút này
-        );
-      } else {
-        this._internals.setValidity({});
-      }
-    }
+  _isEmpty() {
+    return !this.checked;
   }
 
-  _render() {
-    // Ghi nhớ focus để trả lại sau khi vẽ lại (tránh mất focus khi đổi attribute)
-    const hadFocus = this._button && this.shadowRoot.activeElement === this._button;
-    if (this._wrapper) this._wrapper.remove();
+  formValue() {
+    return this.checked ? this.value || 'on' : null;
+  }
 
-    const size = this.getAttribute('size') || 'md';
-    const color = this.getAttribute('color') || 'primary';
-    const label = this.getAttribute('label');
-    const labelPos = this.getAttribute('label-position') || 'right';
-    const disabled = this._isDisabled();
-    const loading = this.hasAttribute('loading');
-    const required = this.hasAttribute('required');
-    const hasInnerText = !!(this.getAttribute('checked-text') || this.getAttribute('unchecked-text'));
+  validationAnchor() {
+    return this._button;
+  }
 
-    const classes = [
-      'hui-switch',
-      `hui-switch--${size}`,
-      `hui-switch--${color}`,
-      labelPos === 'left' ? 'hui-switch--label-left' : '',
-      disabled ? 'hui-switch--disabled' : '',
-      loading ? 'hui-switch--loading' : '',
-      hasInnerText ? 'hui-switch--has-text' : '',
-    ].filter(Boolean).join(' ');
+  /** required = phải bật */
+  checkConstraints() {
+    if (this.isDisabled || !this.required || this.checked) return null;
+    const msg = t('form.requiredChecked');
+    return { flags: { valueMissing: true }, message: msg === 'form.requiredChecked' ? t('form.required') : msg };
+  }
 
-    // Nút tròn (thumb) trượt qua lại; khi loading thì có spinner xoay bên trong
-    const thumb = createElement('span', { className: 'hui-switch__thumb', 'aria-hidden': 'true' },
-      ...[loading ? createElement('span', { className: 'hui-switch__spinner' }) : null].filter(Boolean)
-    );
+  formResetCallback() {
+    this.checked = this._defaultChecked;
+    super.formResetCallback();
+  }
 
-    // Chữ hiển thị bên trong track (nội dung thực được gán trong _syncState)
-    const textEl = hasInnerText
-      ? createElement('span', { className: 'hui-switch__text', 'aria-hidden': 'true' })
-      : null;
+  formStateRestoreCallback(state) {
+    this.checked = state != null;
+  }
 
-    // <button role="switch">: chuẩn WAI-ARIA cho công tắc.
-    // Dùng <button> native nên Space/Enter tự kích hoạt click, Tab tự focus được.
-    const buttonAttrs = {
-      type: 'button',
-      role: 'switch',
-      className: 'hui-switch__track',
-      part: 'track',
-      'aria-checked': String(this.checked),
-      disabled,
-    };
-    if (label) {
-      buttonAttrs['aria-labelledby'] = this._labelId;
-    } else if (this.getAttribute('aria-label')) {
-      // Không có label hiển thị → chuyển aria-label của host vào nút để trình đọc màn hình đọc được
-      buttonAttrs['aria-label'] = this.getAttribute('aria-label');
-    }
-    if (loading) {
-      // Không dùng disabled khi loading để vẫn giữ focus, chỉ báo cho trình đọc màn hình
-      buttonAttrs['aria-busy'] = 'true';
-      buttonAttrs['aria-disabled'] = 'true';
-    }
-    if (required) buttonAttrs['aria-required'] = 'true';
+  focus(options) {
+    this._button ? this._button.focus(options) : super.focus(options);
+  }
 
-    this._button = createElement('button', buttonAttrs, ...[textEl, thumb].filter(Boolean));
-    this._button.addEventListener('click', (e) => this._handleClick(e));
-
-    // Nhãn chữ bên cạnh (kèm dấu * đỏ nếu required)
-    const labelEl = label
-      ? createElement('span', { className: 'hui-switch__label', id: this._labelId, part: 'label' },
-          label,
-          ...[required ? createElement('span', { className: 'hui-switch__required', 'aria-hidden': 'true' }, ' *') : null].filter(Boolean)
-        )
-      : null;
-
-    // Dùng <label> bao ngoài: click vào chữ cũng được trình duyệt chuyển thành click lên <button>
-    this._wrapper = createElement('label', { className: classes }, this._button, ...[labelEl].filter(Boolean));
-
-    this.shadowRoot.appendChild(this._wrapper);
-    this._syncState();
-
-    if (hadFocus) this._button.focus();
+  blur() {
+    this._button?.blur();
   }
 }
 
-if (!customElements.get('hui-switch')) {
-  customElements.define('hui-switch', HuiSwitch);
-}
+defineElement('hui-switch', HuiSwitch);
 
 export default HuiSwitch;

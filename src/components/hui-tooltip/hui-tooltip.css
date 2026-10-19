@@ -1,117 +1,83 @@
 /*
- * ==========================================================
- * HUI Tooltip CSS - File style độc lập cho Component Chú thích nổi
- * ==========================================================
+ * HUI Tooltip CSS
+ * Biến CSS (đặt ở :root, thẻ cha hoặc chính <hui-tooltip>):
+ *   --hui-tooltip-bg         Nền (attribute color luôn được ưu tiên hơn)
+ *   --hui-tooltip-color      Màu chữ
+ *   --hui-tooltip-max-width  Chiều rộng tối đa (attribute max-width ưu tiên hơn), mặc định 250px
+ *   --hui-tooltip-radius     Bo góc
+ *   --hui-tooltip-shadow     Đổ bóng
+ *   --hui-tooltip-font-size  Cỡ chữ
+ *   --hui-tooltip-padding    Padding nội dung
+ * Parts: trigger, popup, content, arrow
  */
 
 :host {
-  display: inline-block; /* Ôm sát phần tử trigger để đo vị trí chính xác */
+  display: inline-block; /* Ôm sát trigger để đo vị trí chính xác */
   font-family: var(--hui-font-family);
 }
 
-.hui-tooltip {
-  display: contents; /* Wrapper không tạo hộp riêng, không ảnh hưởng layout */
+[hidden] {
+  display: none !important;
 }
 
-.hui-tooltip__trigger {
+.trigger {
   display: inline-block;
 }
 
-/* ================== POPUP ================== */
-.hui-tooltip__popup {
-  /* Màu nền mặc định: xám đậm (giống Ant/MUI). Biến này bị ghi đè bởi variant hoặc màu tùy biến */
-  --_bg: #1f2937;
-  position: fixed; /* Định vị theo viewport, tọa độ được JS tính toán */
-  top: 0;
-  left: 0;
-  z-index: var(--hui-z-tooltip);
+/* Popup: vị trí do utils/floating.js tính (top-layer qua Popover API) */
+.popup {
+  /* --_bg / --_color: do attribute color đặt (variant hoặc màu tùy biến) */
+  --_fill: var(--_bg, var(--hui-tooltip-bg, var(--hui-bg-spotlight)));
+
   box-sizing: border-box;
-  width: max-content; /* Co theo nội dung, nhưng không vượt quá max-width */
-  background: var(--_bg);
-  color: var(--hui-text-inverse);
-  border-radius: var(--hui-radius-sm);
-  box-shadow: var(--hui-shadow-lg);
-  font-size: var(--hui-font-sm);
+  max-width: var(--_max-width, var(--hui-tooltip-max-width, 250px));
+  background: var(--_fill);
+  /* Nền spotlight luôn tối ở cả 2 theme → chữ sáng (chưa có token riêng, xem --hui-text-light-solid) */
+  color: var(--_color, var(--hui-tooltip-color, var(--hui-text-light-solid, #fff)));
+  border-radius: var(--hui-tooltip-radius, var(--hui-radius-sm));
+  box-shadow: var(--hui-tooltip-shadow, var(--hui-shadow-lg));
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-tooltip-font-size, var(--hui-font-sm));
   line-height: var(--hui-line-height);
   overflow-wrap: break-word;
-
-  /* Trạng thái ẩn: vẫn giữ layout (visibility thay vì display:none) để JS đo được kích thước */
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: scale(0.9);
-  transform-origin: center bottom;
-  transition: opacity var(--hui-transition-fast), transform var(--hui-transition-fast),
-    visibility 0s linear 150ms; /* Ẩn visibility SAU khi mờ xong */
 }
 
-/* Trạng thái mở: hiện dần + phóng to về kích thước thật */
-.hui-tooltip__popup--open {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto; /* Cho phép rê chuột vào tooltip (interactive) */
-  transform: scale(1);
-  transition: opacity var(--hui-transition-fast), transform var(--hui-transition-fast),
-    visibility 0s;
-}
-
-/* Gốc phóng to nằm ở phía gần trigger nhất → hiệu ứng "bung ra" từ trigger */
-.hui-tooltip__popup[data-side='top'] { transform-origin: var(--_arrow-x, 50%) 100%; }
-.hui-tooltip__popup[data-side='bottom'] { transform-origin: var(--_arrow-x, 50%) 0; }
-.hui-tooltip__popup[data-side='left'] { transform-origin: 100% var(--_arrow-y, 50%); }
-.hui-tooltip__popup[data-side='right'] { transform-origin: 0 var(--_arrow-y, 50%); }
-
-.hui-tooltip__inner {
-  position: relative;
-  z-index: 1; /* Nằm trên mũi tên */
-  padding: 6px 10px;
+.inner {
+  padding: var(--hui-tooltip-padding, 6px 10px);
 }
 
 /* ================== COLOR VARIANTS ================== */
-.hui-tooltip__popup--primary { --_bg: var(--hui-primary); }
-.hui-tooltip__popup--secondary { --_bg: var(--hui-secondary); }
-.hui-tooltip__popup--success { --_bg: var(--hui-success); }
-.hui-tooltip__popup--warning { --_bg: var(--hui-warning); }
-.hui-tooltip__popup--danger { --_bg: var(--hui-danger); }
-.hui-tooltip__popup--info { --_bg: var(--hui-info); }
+:host([color='primary']) .popup { --_bg: var(--hui-primary); --_color: var(--hui-text-inverse); }
+:host([color='secondary']) .popup { --_bg: var(--hui-secondary); --_color: var(--hui-text-inverse); }
+:host([color='success']) .popup { --_bg: var(--hui-success); --_color: var(--hui-text-inverse); }
+:host([color='warning']) .popup { --_bg: var(--hui-warning); --_color: var(--hui-text-inverse); }
+:host([color='danger']) .popup { --_bg: var(--hui-danger); --_color: var(--hui-text-inverse); }
+:host([color='info']) .popup { --_bg: var(--hui-info); --_color: var(--hui-text-inverse); }
 
-/* ================== ARROW (MŨI TÊN) ================== */
-/* Một hình vuông xoay 45 độ, một nửa thò ra ngoài popup tạo thành mũi tên */
-.hui-tooltip__arrow {
+/* ================== ARROW ==================
+ * Hộp vuông 12px không xoay (để floating.js đo đúng), tâm nằm trên mép popup;
+ * ::before cắt thành tam giác chỉ phần thò ra ngoài → không chồng màu khi nền trong suốt.
+ * --_arrow-x / --_arrow-y: toạ độ mép trái/trên của hộp, do JS tính. */
+.arrow {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  background: var(--_bg);
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
 }
 
-.hui-tooltip__popup[data-side='top'] .hui-tooltip__arrow {
-  bottom: -4px;
-  left: var(--_arrow-x, 50%);
-  transform: translateX(-50%) rotate(45deg);
+.arrow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--_fill);
 }
 
-.hui-tooltip__popup[data-side='bottom'] .hui-tooltip__arrow {
-  top: -4px;
-  left: var(--_arrow-x, 50%);
-  transform: translateX(-50%) rotate(45deg);
-}
+.popup[data-side='top'] .arrow { bottom: -6px; left: var(--_arrow-x, calc(50% - 6px)); }
+.popup[data-side='bottom'] .arrow { top: -6px; left: var(--_arrow-x, calc(50% - 6px)); }
+.popup[data-side='left'] .arrow { right: -6px; top: var(--_arrow-y, calc(50% - 6px)); }
+.popup[data-side='right'] .arrow { left: -6px; top: var(--_arrow-y, calc(50% - 6px)); }
 
-.hui-tooltip__popup[data-side='left'] .hui-tooltip__arrow {
-  right: -4px;
-  top: var(--_arrow-y, 50%);
-  transform: translateY(-50%) rotate(45deg);
-}
-
-.hui-tooltip__popup[data-side='right'] .hui-tooltip__arrow {
-  left: -4px;
-  top: var(--_arrow-y, 50%);
-  transform: translateY(-50%) rotate(45deg);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hui-tooltip__popup,
-  .hui-tooltip__popup--open {
-    transform: none;
-    transition: none;
-  }
-}
+.popup[data-side='top'] .arrow::before { clip-path: polygon(0 50%, 100% 50%, 50% 100%); }
+.popup[data-side='bottom'] .arrow::before { clip-path: polygon(0 50%, 50% 0, 100% 50%); }
+.popup[data-side='left'] .arrow::before { clip-path: polygon(50% 0, 100% 50%, 50% 100%); }
+.popup[data-side='right'] .arrow::before { clip-path: polygon(50% 0, 50% 100%, 0 50%); }

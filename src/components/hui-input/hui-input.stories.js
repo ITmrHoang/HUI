@@ -56,14 +56,23 @@ export default {
 | \`clearable\` | boolean | \`false\` | Hiện nút xóa (✕) — tự ẩn khi input trống |
 | \`icon-left\` | string | — | Icon/emoji hiển thị bên trái input |
 | \`icon-right\` | string | — | Icon/emoji hiển thị bên phải input |
-| \`name\` | string | \`''\` | Thuộc tính name cho form |
+| \`name\` | string | \`''\` | Tên field khi gửi form |
+| \`label-position\` | string | \`top\` | Vị trí label: top, inline, inside (floating) |
+| \`status\` | string | — | Viền theo trạng thái: error, warning (không cần thông báo) |
+| \`readonly\` | boolean | \`false\` | Chỉ đọc |
+| \`minlength\` / \`maxlength\` / \`pattern\` | — | — | Ràng buộc validate (giống \`<input>\` native) |
+
+### Form
+\`<hui-input>\` tham gia \`<form>\` như \`<input>\` native: \`FormData\`, \`form.reset()\`, \`<fieldset disabled>\`,
+\`checkValidity()\` / \`reportValidity()\` (required, minlength, maxlength, pattern, type email/url).
+CSS bắt lỗi sau khi người dùng đã tương tác: \`hui-input:state(user-invalid)\`.
 
 ### Events
 | Event | Detail | Mô tả |
 |-------|--------|-------|
 | \`input\` | \`{ value }\` | Phát khi gõ chữ |
 | \`change\` | \`{ value }\` | Phát khi blur ra ngoài |
-| \`search\` | \`{ value }\` | Phát debounced khi type="search" |
+| \`hui-search\` | \`{ value }\` | Phát debounced (300ms) khi type="search" |
 | \`clear\` | — | Phát khi nhấn nút xóa |
 
 ### Slots
@@ -71,6 +80,24 @@ export default {
 |------|-------|
 | \`prefix\` | Nội dung HTML tùy ý phía trước input (bị ghi đè nếu có icon-left) |
 | \`suffix\` | Nội dung HTML tùy ý phía sau input (bị ghi đè nếu có icon-right) |
+
+### Override giao diện từ bên ngoài
+Biến CSS đặt được trên chính thẻ, thẻ cha hoặc \`:root\`; \`::part()\` để chỉnh sâu hơn.
+
+| Biến CSS | Mô tả |
+|----------|-------|
+| \`--hui-input-height\` | Chiều cao khung |
+| \`--hui-input-padding-x\` | Khoảng đệm ngang |
+| \`--hui-input-font-size\` | Cỡ chữ |
+| \`--hui-input-radius\` | Bo góc |
+| \`--hui-input-bg\` / \`--hui-input-color\` | Nền / màu chữ |
+| \`--hui-input-placeholder-color\` | Màu placeholder |
+| \`--hui-input-border-color\` / \`--hui-input-hover-border-color\` | Viền / viền khi hover |
+| \`--hui-input-focus-border-color\` / \`--hui-input-focus-shadow\` | Viền / vòng sáng khi focus |
+| \`--hui-input-label-color\` / \`--hui-input-label-font-size\` | Màu / cỡ chữ nhãn |
+| \`--hui-input-icon-color\` | Màu icon, prefix, suffix |
+
+**Parts:** \`base\`, \`label\`, \`container\`, \`input\`, \`prefix\`, \`suffix\`, \`icon\` (\`icon-left\`, \`icon-right\`), \`clear\`, \`message\`.
         `,
       },
     },
@@ -347,6 +374,45 @@ export const WithSlots = {
       <hui-input label="Giá tiền" placeholder="0" type="number" clearable>
         <span slot="suffix">VNĐ</span>
       </hui-input>
+    </div>
+  `,
+};
+
+/**
+ * Override từ bên ngoài — biến CSS đặt trên thẻ cha / chính thẻ, và ::part() cho chỉnh sâu.
+ */
+export const CustomizeFromOutside = {
+  render: () => html`
+    <style>
+      .demo-pill-inputs {
+        --hui-input-radius: 999px;
+        --hui-input-padding-x: 18px;
+        --hui-input-focus-border-color: var(--hui-success);
+        --hui-input-focus-shadow: 0 0 0 3px var(--hui-success-light);
+      }
+      hui-input.brand {
+        --hui-input-height: 44px;
+        --hui-input-bg: var(--hui-primary-1);
+        --hui-input-border-color: var(--hui-primary-3);
+        --hui-input-icon-color: var(--hui-primary);
+        --hui-input-label-color: var(--hui-primary-7);
+      }
+      hui-input.underline::part(container) {
+        border-width: 0 0 2px;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+      hui-input.underline::part(label) { text-transform: uppercase; letter-spacing: 0.06em; }
+      hui-input.underline::part(input)::placeholder { font-style: italic; }
+    </style>
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 400px;">
+      <div class="demo-pill-inputs" style="display: flex; flex-direction: column; gap: 12px;">
+        <hui-input label="Biến CSS trên thẻ cha" placeholder="Bo tròn, focus màu success" clearable></hui-input>
+        <hui-input icon-left="🔍" placeholder="Áp cho mọi hui-input con"></hui-input>
+      </div>
+      <hui-input class="brand" label="Biến CSS trên chính thẻ" icon-left="✉️" placeholder="Nền + viền theo palette primary"></hui-input>
+      <hui-input class="underline" label="::part(container)" placeholder="Kiểu gạch chân"></hui-input>
     </div>
   `,
 };

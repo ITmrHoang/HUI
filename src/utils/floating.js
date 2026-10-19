@@ -80,7 +80,8 @@ export function computePosition(reference, floating, opts = {}) {
   if (matchWidth) {
     floating.style[matchWidth === 'width' ? 'width' : 'minWidth'] = `${ref.width}px`;
   }
-  const float = floating.getBoundingClientRect();
+  // offsetWidth/Height = kích thước layout, không bị ảnh hưởng bởi transform (vd: đang zoom-in)
+  const float = { width: floating.offsetWidth, height: floating.offsetHeight };
 
   let { side, align } = parsePlacement(opts.placement);
 
@@ -93,16 +94,18 @@ export function computePosition(reference, floating, opts = {}) {
 
   let { x, y } = place(ref, float, side, align, offset);
 
-  // SHIFT: trượt trên trục phụ để nằm trọn trong viewport (nhưng vẫn chạm được trigger)
+  // SHIFT: trượt trên trục phụ để nằm trọn trong viewport, rồi giới hạn lần 2 để popup
+  // vẫn chạm trigger (khi chính trigger đã trôi ra ngoài màn hình thì popup đi theo nó)
   if (shift) {
+    const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), Math.max(lo, hi));
     if (side === 'top' || side === 'bottom') {
-      const min = Math.min(padding, ref.right - float.width);
-      const max = Math.max(vw - float.width - padding, ref.left);
-      x = Math.min(Math.max(x, min), max);
+      const touch = Math.min(12, ref.width / 2);
+      x = clamp(x, padding, vw - float.width - padding);
+      x = clamp(x, ref.left - float.width + touch, ref.right - touch);
     } else {
-      const min = Math.min(padding, ref.bottom - float.height);
-      const max = Math.max(vh - float.height - padding, ref.top);
-      y = Math.min(Math.max(y, min), max);
+      const touch = Math.min(12, ref.height / 2);
+      y = clamp(y, padding, vh - float.height - padding);
+      y = clamp(y, ref.top - float.height + touch, ref.bottom - touch);
     }
   }
 
@@ -110,7 +113,7 @@ export function computePosition(reference, floating, opts = {}) {
 
   // ARROW: mũi tên nằm giữa phần giao nhau của trigger và popup, không lọt ra ngoài góc bo
   if (arrow) {
-    const a = arrow.getBoundingClientRect();
+    const a = { width: arrow.offsetWidth, height: arrow.offsetHeight };
     const edge = 6; // chừa góc bo của popup
     if (side === 'top' || side === 'bottom') {
       const center = ref.left + ref.width / 2 - x - a.width / 2;
