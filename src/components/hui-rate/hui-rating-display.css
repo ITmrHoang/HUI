@@ -1,0 +1,64 @@
+/*
+ * HUI Rating Display CSS
+ * Override: var(--hui-rating-display-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-rating-display-size            Cạnh mỗi sao
+ *   --hui-rating-display-gap             Khoảng cách giữa các sao
+ *   --hui-rating-display-color           Màu sao (attribute color ưu tiên hơn)
+ *   --hui-rating-display-inactive-color  Màu phần chưa tô
+ *   --hui-rating-display-value-color     Màu chữ điểm số
+ *   --hui-rating-display-reviews-color   Màu chữ số đánh giá
+ *   --hui-rating-display-font-size       Cỡ chữ điểm / số đánh giá
+ *
+ * Parts: base, stars, star (+ star-full | star-half | star-zero), value, reviews
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+  line-height: 1;
+}
+
+.hui-rating-display {
+  --_rate-size: var(--hui-rating-display-size, var(--_rd-size-default));
+  --_rate-color: var(--_rate-custom-color, var(--hui-rating-display-color, var(--hui-warning)));
+  --_rate-inactive: var(--hui-rating-display-inactive-color, var(--hui-fill));
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  font-size: var(--hui-rating-display-font-size, var(--_rd-font-default));
+  white-space: nowrap;
+}
+
+.hui-rating-display--sm {
+  --_rd-size-default: 0.875rem;
+  --_rd-font-default: var(--hui-font-xs);
+}
+
+.hui-rating-display--md {
+  --_rd-size-default: 1.125rem;
+  --_rd-font-default: var(--hui-font-sm);
+}
+
+.hui-rating-display--lg {
+  --_rd-size-default: 1.5rem;
+  --_rd-font-default: var(--hui-font-base);
+}
+
+.hui-rate__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-rating-display-gap, 0.125em);
+}
+
+.hui-rating-display__value {
+  margin-inline-start: var(--hui-space-xs);
+  color: var(--hui-rating-display-value-color, var(--hui-text));
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.hui-rating-display__reviews {
+  color: var(--hui-rating-display-reviews-color, var(--hui-text-secondary));
+}

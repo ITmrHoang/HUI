@@ -1,0 +1,60 @@
+/*
+ * HUI Float Group CSS (giao diện nút chính dùng chung float-button-skin.css)
+ * Biến công khai:
+ *   --hui-float-group-gap        Khoảng cách giữa các nút (mặc định 16px)
+ *   --hui-float-group-offset-x   Khoảng cách tới mép trái/phải (attribute offset ưu tiên hơn), mặc định 24px
+ *   --hui-float-group-offset-y   Khoảng cách tới mép trên/dưới, mặc định 24px
+ *   + toàn bộ --hui-float-button-* cho nút chính (type mặc định primary)
+ * Parts: base, list, toggle, toggle-icon
+ */
+
+:host {
+  position: fixed;
+  z-index: var(--hui-z-sticky);
+  right: var(--_fg-x, var(--hui-float-group-offset-x, 24px));
+  bottom: var(--_fg-y, var(--hui-float-group-offset-y, 24px));
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([position='bottom-left']) {
+  right: auto;
+  left: var(--_fg-x, var(--hui-float-group-offset-x, 24px));
+}
+
+:host([position='top-right']) {
+  bottom: auto;
+  top: var(--_fg-y, var(--hui-float-group-offset-y, 24px));
+}
+
+:host([position='top-left']) {
+  right: auto;
+  bottom: auto;
+  left: var(--_fg-x, var(--hui-float-group-offset-x, 24px));
+  top: var(--_fg-y, var(--hui-float-group-offset-y, 24px));
+}
+
+:host([inline]) {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+  display: inline-block;
+}
+
+.group,
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hui-float-group-gap, 16px);
+}
+
+/* Nhóm ở mép trên: nút chính nằm trên, danh sách xòe xuống */
+:host([position^='top']) .group {
+  flex-direction: column-reverse;
+}
+
+/* Nút chính: dấu + xoay 45° thành dấu × khi mở */
+.toggle--open .toggle__icon--rotate {
+  transform: rotate(45deg);
+}

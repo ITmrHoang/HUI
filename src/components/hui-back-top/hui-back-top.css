@@ -1,0 +1,154 @@
+/*
+ * HUI Back Top CSS
+ * Biến công khai (KHÔNG khai báo trong file này — đặt ở thẻ / thẻ cha / :root đều được):
+ *   --hui-back-top-size              Đường kính (sm 32px, md 40px, lg 48px)
+ *   --hui-back-top-radius            Bo góc khi shape="square"
+ *   --hui-back-top-bg / -color       Nền / màu icon
+ *   --hui-back-top-hover-bg          Nền khi hover
+ *   --hui-back-top-shadow            Đổ bóng
+ *   --hui-back-top-icon-size         Cỡ icon
+ *   --hui-back-top-focus-color       Viền focus
+ *   --hui-back-top-progress-color    Màu vòng tiến độ (mặc định --hui-primary)
+ *   --hui-back-top-track-color       Màu nền vòng tiến độ
+ *   --hui-back-top-offset-x / -y     Khoảng cách tới mép (attribute offset ưu tiên hơn), mặc định 24px
+ * Parts: base, icon, progress, progress-track, progress-bar
+ * Biến nội bộ (JS đặt inline): --_backtop-x / --_backtop-y (offset)
+ */
+
+:host {
+  position: fixed;
+  z-index: var(--hui-z-sticky);
+  right: var(--_backtop-x, var(--hui-back-top-offset-x, 24px));
+  bottom: var(--_backtop-y, var(--hui-back-top-offset-y, 24px));
+  display: block;
+  line-height: 0;
+  font-family: var(--hui-font-family);
+}
+
+/* Chưa cuộn tới visibility-height → không chiếm chỗ (quan trọng khi nằm trong hui-float-group) */
+:host(:not([visible])) {
+  display: none;
+}
+
+:host([position='bottom-left']) {
+  right: auto;
+  left: var(--_backtop-x, var(--hui-back-top-offset-x, 24px));
+}
+
+:host([inline]) {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.bt {
+  --_backtop-size: 40px;
+  --_backtop-icon: 18px;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--hui-back-top-size, var(--_backtop-size));
+  height: var(--hui-back-top-size, var(--_backtop-size));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-back-top-bg, var(--hui-bg-elevated));
+  color: var(--hui-back-top-color, var(--hui-text));
+  box-shadow: var(--hui-back-top-shadow, var(--hui-shadow-lg));
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--hui-transition-fast),
+    transform var(--hui-transition-fast);
+}
+
+.bt:hover {
+  background: var(--hui-back-top-hover-bg, color-mix(in oklab, var(--hui-bg-elevated) 92%, var(--hui-text)));
+}
+
+.bt:active {
+  transform: scale(0.94);
+}
+
+.bt:focus-visible {
+  outline: 2px solid var(--hui-back-top-focus-color, var(--hui-border-focus));
+  outline-offset: 2px;
+}
+
+.bt--sm { --_backtop-size: 32px; --_backtop-icon: 16px; }
+.bt--lg { --_backtop-size: 48px; --_backtop-icon: 22px; }
+
+.bt--square {
+  border-radius: var(--hui-back-top-radius, var(--hui-radius-lg));
+}
+
+.bt__icon {
+  display: inline-flex;
+  font-size: var(--hui-back-top-icon-size, var(--_backtop-icon));
+}
+
+.bt ::slotted([slot='icon']) {
+  font-size: var(--hui-back-top-icon-size, var(--_backtop-icon));
+}
+
+/* ================== VÒNG TIẾN ĐỘ ==================
+ * SVG phủ đúng mép nút; pathLength=100 → stroke-dashoffset = 100 - % đã cuộn. */
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ring__track,
+.ring__bar {
+  fill: none;
+  stroke-width: 3;
+}
+
+.ring__track {
+  stroke: var(--hui-back-top-track-color, var(--hui-fill-secondary));
+}
+
+.ring__bar {
+  stroke: var(--hui-back-top-progress-color, var(--hui-primary));
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 100ms linear;
+}
+
+/* Chỉ hiện hình hợp với shape */
+.bt--square .ring__circle,
+.bt:not(.bt--square) .ring__rect {
+  display: none;
+}
+
+.bt--no-animation,
+.bt--no-animation .ring__bar {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bt,
+  .ring__bar {
+    transition: none;
+  }
+}
+
+@media print {
+  :host {
+    display: none !important;
+  }
+}

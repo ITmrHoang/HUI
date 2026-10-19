@@ -1,0 +1,89 @@
+/*
+ * HUI Loading Bar CSS
+ * Biến công khai (đặt ở :root hoặc thẻ cha):
+ *   --hui-loading-bar-color        Màu thanh (loadingBar.config({ color }) / attribute color ưu tiên hơn)
+ *   --hui-loading-bar-error-color  Màu khi lỗi (mặc định --hui-danger)
+ *   --hui-loading-bar-height       Độ dày (mặc định 3px)
+ *   --hui-loading-bar-shadow       Vệt sáng ở đầu thanh
+ * Parts: bar, peg
+ * Biến nội bộ (JS đặt inline): --_lb-color, --_lb-height
+ */
+
+/* Host = popover="manual" khi tạo bằng loadingBar → nằm trên top-layer. Reset style mặc định của [popover] */
+:host {
+  position: fixed;
+  inset: 0 0 auto 0;
+  display: block;
+  width: auto;
+  height: var(--_lb-height, var(--hui-loading-bar-height, 3px));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  /* Chỉ có tác dụng khi trình duyệt không hỗ trợ Popover API */
+  z-index: var(--hui-z-notification);
+  pointer-events: none;
+}
+
+/* Dạng khai báo nằm trong luồng trang (vd: mép trên của card) */
+:host([inline]) {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+}
+
+.bar {
+  --_lb-bg: var(--_lb-color, var(--hui-loading-bar-color, var(--hui-primary)));
+
+  position: relative;
+  width: 0;
+  height: 100%;
+  background: var(--_lb-bg);
+  border-radius: 0 var(--hui-radius-full) var(--hui-radius-full) 0;
+  opacity: 1;
+  transition:
+    width var(--hui-motion-duration, 200ms) var(--hui-motion-ease-out),
+    opacity var(--hui-motion-duration-slow, 300ms) linear,
+    background-color var(--hui-motion-duration-fast, 150ms) linear;
+}
+
+.bar--error {
+  --_lb-bg: var(--hui-loading-bar-error-color, var(--hui-danger));
+}
+
+.bar--fading {
+  opacity: 0;
+}
+
+.bar[hidden] {
+  display: none;
+}
+
+/* Vệt sáng ở đầu thanh (kiểu NProgress) */
+.peg {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100px;
+  max-width: 100%;
+  height: 100%;
+  box-shadow: var(--hui-loading-bar-shadow, 0 0 10px var(--_lb-bg), 0 0 5px var(--_lb-bg));
+  opacity: 0.9;
+  transform: rotate(3deg) translate(0, -4px);
+}
+
+/* Trong luồng trang: không nghiêng/đẩy lên (ở mép cửa sổ phần lệch bị che, ở giữa trang thì lộ ra) */
+:host([inline]) .peg {
+  transform: none;
+}
+
+.bar--no-animation {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}

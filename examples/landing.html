@@ -14,8 +14,22 @@
     footer { padding: 32px 16px; text-align: center; color: var(--hui-text-secondary); border-top: 1px solid var(--hui-border); }
   </style>
   <script type="module" src="../src/index.js"></script>
+  <script type="module">
+    customElements.whenDefined('hui-faq').then(() => {
+      document.querySelector('#faq-list').data = [
+        { question: 'HUI có cần framework không?', answer: 'Không. HUI là Web Components chuẩn, chạy trên mọi trình duyệt hiện đại.' },
+        { question: 'Dùng với Vue thế nào?', answer: 'Khai báo isCustomElement cho thẻ bắt đầu bằng hui- trong cấu hình Vue.' },
+        { question: 'Đổi màu thương hiệu?', answer: 'Đặt --hui-primary trên :root hoặc dùng hui-config-provider.' },
+        { question: 'Chính sách trả hàng?', answer: 'Thư viện miễn phí — không có gì để trả hàng 😄' },
+      ];
+    });
+  </script>
 </head>
 <body>
+  <hui-announcement-bar type="primary" closable dismiss-key="landing-v02">
+    🎉 HUI v0.2 đã có Atomic Design: dữ liệu, hiệu ứng, đánh giá sao, FAQ…
+    <hui-button slot="action" size="sm" variant="text">Xem ngay</hui-button>
+  </hui-announcement-bar>
   <hui-navbar sticky transparent-on-top>
     <a slot="logo" class="logo" href="#">HUI</a>
     <hui-menu mode="horizontal" selected-keys="home">
@@ -25,6 +39,7 @@
       <hui-menu-item key="faq" href="#faq">Hỏi đáp</hui-menu-item>
     </hui-menu>
     <hui-space slot="actions">
+      <hui-theme-toggle></hui-theme-toggle>
       <hui-button variant="text">Đăng nhập</hui-button>
       <hui-button>Dùng thử</hui-button>
     </hui-space>
@@ -41,7 +56,7 @@
   </hui-section>
 
   <hui-section id="features" heading="Tính năng nổi bật" description="Những gì bạn có sẵn ngay khi cài đặt" align="center">
-    <hui-row gutter="24,24">
+    <hui-row gutter="24,24" data-hui-animate="fade-up" data-hui-stagger="120">
       <hui-col span-xs="24" span-md="8">
         <hui-card hoverable>
           <hui-icon class="feature-icon" name="settings"></hui-icon>
@@ -96,13 +111,16 @@
     </hui-row>
   </hui-section>
 
-  <hui-section id="faq" heading="Hỏi đáp" max-width="md">
-    <hui-collapse accordion>
-      <hui-collapse-panel header="HUI có cần framework không?">Không. HUI là Web Components chuẩn, chạy trên mọi trình duyệt hiện đại.</hui-collapse-panel>
-      <hui-collapse-panel header="Dùng với Vue thế nào?">Khai báo isCustomElement cho thẻ bắt đầu bằng hui- trong cấu hình Vue.</hui-collapse-panel>
-      <hui-collapse-panel header="Đổi màu thương hiệu?">Đặt --hui-primary trên :root hoặc dùng hui-config-provider.</hui-collapse-panel>
-    </hui-collapse>
+  <hui-section id="reviews" heading="Người dùng nói gì" align="center" max-width="md">
+    <hui-rating-summary average="4.6" distribution='{"5":128,"4":34,"3":9,"2":3,"1":2}' data-hui-animate="fade-up"></hui-rating-summary>
+    <p style="margin-top: 16px">Bạn chấm mấy sao? <hui-rate allow-half></hui-rate></p>
   </hui-section>
+
+  <hui-section id="faq" heading="Hỏi đáp" max-width="md">
+    <hui-faq id="faq-list" search expand-all seo variant="separated"></hui-faq>
+  </hui-section>
+
+  <hui-contact-float phone="0909123456" zalo="0909123456" email="hello@vidu.com" pulse include-back-top></hui-contact-float>
 
   <footer>© 2026 HUI · <hui-link href="https://github.com/ITmrHoang/HUI" external>GitHub</hui-link></footer>
 </body>

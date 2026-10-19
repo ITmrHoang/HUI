@@ -136,7 +136,7 @@ describe('DataController', () => {
     await tick(100);
     expect(calls).toEqual(['slow', 'fast']);
     expect(el.data).toEqual([{ q: 'fast' }]);
-    expect(el.total).toBe(42);
+    expect(el.dataTotal).toBe(42);
     expect(el.dataState).toBe('ready');
   });
 

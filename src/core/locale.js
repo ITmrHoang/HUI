@@ -10,6 +10,13 @@
 const vi = {
   common: { ok: 'Đồng ý', cancel: 'Hủy', close: 'Đóng', clear: 'Xóa', loading: 'Đang tải...', search: 'Tìm kiếm', copy: 'Sao chép', copied: 'Đã sao chép', expand: 'Mở rộng', collapse: 'Thu gọn', more: 'Xem thêm' },
   empty: { description: 'Không có dữ liệu' },
+  theme: { label: 'Giao diện', light: 'Sáng', dark: 'Tối', system: 'Theo hệ thống', darkMode: 'Chế độ tối' },
+  announcement: { label: 'Thông báo', close: 'Đóng thông báo' },
+  faq: { searchPlaceholder: 'Tìm câu hỏi...', expandAll: 'Mở tất cả', collapseAll: 'Thu gọn tất cả', noResults: 'Không tìm thấy câu hỏi phù hợp', resultCount: '{count} câu hỏi phù hợp', all: 'Tất cả', other: 'Khác' },
+  contactFloat: { phone: 'Gọi {value}', zalo: 'Chat Zalo', messenger: 'Nhắn tin Messenger', email: 'Gửi email', toggle: 'Liên hệ' },
+  floatGroup: { toggle: 'Mở nhóm nút' },
+  backTop: { label: 'Lên đầu trang' },
+  rate: { label: 'Đánh giá', valueText: '{value} trên {count} sao', required: 'Vui lòng chọn số sao', displayLabel: 'Đánh giá {value} trên {count}', reviews: '({count} đánh giá)', total: '{count} đánh giá', bar: '{stars} sao: {count} đánh giá ({percent})', summary: 'Phân bố đánh giá' },
   data: { errorTitle: 'Không tải được dữ liệu', retry: 'Thử lại' },
   form: {
     required: 'Vui lòng nhập trường này',
@@ -48,6 +55,13 @@ const vi = {
 const en = {
   common: { ok: 'OK', cancel: 'Cancel', close: 'Close', clear: 'Clear', loading: 'Loading...', search: 'Search', copy: 'Copy', copied: 'Copied', expand: 'Expand', collapse: 'Collapse', more: 'More' },
   empty: { description: 'No data' },
+  theme: { label: 'Theme', light: 'Light', dark: 'Dark', system: 'System', darkMode: 'Dark mode' },
+  announcement: { label: 'Announcement', close: 'Dismiss announcement' },
+  faq: { searchPlaceholder: 'Search questions...', expandAll: 'Expand all', collapseAll: 'Collapse all', noResults: 'No matching questions', resultCount: '{count} matching questions', all: 'All', other: 'Other' },
+  contactFloat: { phone: 'Call {value}', zalo: 'Chat on Zalo', messenger: 'Chat on Messenger', email: 'Send email', toggle: 'Contact us' },
+  floatGroup: { toggle: 'Open actions' },
+  backTop: { label: 'Back to top' },
+  rate: { label: 'Rating', valueText: '{value} out of {count} stars', required: 'Please select a rating', displayLabel: 'Rated {value} out of {count}', reviews: '({count} reviews)', total: '{count} reviews', bar: '{stars} stars: {count} reviews ({percent})', summary: 'Rating distribution' },
   data: { errorTitle: 'Could not load data', retry: 'Retry' },
   form: {
     required: 'Please fill out this field',

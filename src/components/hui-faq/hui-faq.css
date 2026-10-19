@@ -1,0 +1,109 @@
+/*
+ * HUI FAQ CSS
+ * Biến công khai (KHÔNG khai báo ở đây — đặt ở hui-faq / thẻ cha / :root): xem JSDoc của class.
+ * Biến của hui-collapse (--hui-collapse-*) vẫn dùng được để chỉnh khung câu hỏi.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.faq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-faq-gap, var(--hui-space-lg));
+}
+
+/* ================== TOOLBAR ================== */
+.faq__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-space-sm) var(--hui-space-md);
+}
+
+.faq__search {
+  flex: 1 1 15rem;
+  min-width: 0;
+  max-width: var(--hui-faq-search-max-width, none);
+}
+
+.faq__expand {
+  flex: none;
+  margin-inline-start: auto;
+}
+
+/* ================== DANH SÁCH ================== */
+.faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-faq-group-gap, var(--hui-space-xl));
+}
+
+/* Chờ cuộn tới rồi mới hiện lần lượt (chỉ khi bật hiệu ứng) */
+.faq__list--pending {
+  opacity: 0;
+}
+
+.faq__list--no-result {
+  display: none;
+}
+
+.faq__category {
+  margin: 0 0 var(--hui-space-md);
+  color: var(--hui-faq-category-color, var(--hui-text));
+  font-size: var(--hui-faq-category-font-size, var(--hui-font-lg));
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading, 1.25);
+}
+
+.faq__question {
+  font-weight: var(--hui-faq-question-font-weight, var(--hui-font-weight-medium));
+}
+
+.faq__answer {
+  color: var(--hui-faq-answer-color, inherit);
+  /* answer là văn bản thuần → giữ xuống dòng của dữ liệu */
+  white-space: pre-line;
+}
+
+/* ================== VARIANT ================== */
+.faq--card .faq__collapse,
+.faq--card ::slotted(hui-collapse) {
+  --hui-collapse-bg: var(--hui-faq-card-bg, var(--hui-bg-container));
+  border-radius: var(--hui-collapse-radius, var(--hui-radius-lg));
+  box-shadow: var(--hui-faq-card-shadow, var(--hui-shadow-md));
+}
+
+/* ================== TRỢ NĂNG ================== */
+.faq__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.faq__body {
+  position: relative;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq__list--pending {
+    opacity: 1;
+  }
+}

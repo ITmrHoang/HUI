@@ -51,7 +51,7 @@ export const DataController = (Base) => class extends Base {
     /** 'idle' | 'loading' | 'error' | 'empty' | 'ready' */
     this.dataState = 'idle';
     this.dataError = null;
-    this.total = null;
+    this.dataTotal = null;
     this._dataAbort = null;
     this._dataTimer = 0;
     this._dataSeq = 0;
@@ -112,13 +112,13 @@ export const DataController = (Base) => class extends Base {
       // Hỗ trợ cả kiểu trả về { data, total } của fetchFn
       const isEnvelope = raw && !Array.isArray(raw) && !this.dataPath && Array.isArray(raw.data);
       let list = isEnvelope ? raw.data : pick(raw, this.dataPath);
-      this.total = isEnvelope ? raw.total ?? null : this.totalPath ? pick(raw, this.totalPath) : null;
+      this.dataTotal = isEnvelope ? raw.total ?? null : this.totalPath ? pick(raw, this.totalPath) : null;
       if (this.transform) list = this.transform(list, raw);
       this.dataError = null;
       this._hasLoadedOnce = true;
       this.data = Array.isArray(list) ? list : list == null ? [] : [list];
       this._syncDataState();
-      this.emit('hui-load', { data: this.data, total: this.total });
+      this.emit('hui-load', { data: this.data, total: this.dataTotal });
     } catch (error) {
       if (abort.signal.aborted || seq !== this._dataSeq) return;
       this.dataError = error;

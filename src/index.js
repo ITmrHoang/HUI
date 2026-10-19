@@ -47,6 +47,17 @@ export {
 export { default as HuiPopover } from './components/hui-popover/index.js';
 export { default as HuiPopconfirm } from './components/hui-popconfirm/index.js';
 export { default as HuiResult } from './components/hui-result/index.js';
+export { default as HuiRate, HuiRatingDisplay, HuiRatingSummary } from './components/hui-rate/index.js';
+export { default as HuiBackTop } from './components/hui-back-top/index.js';
+export { default as HuiFloatButton, HuiFloatGroup } from './components/hui-float-button/index.js';
+export { default as HuiContactFloat } from './components/hui-contact-float/index.js';
+export { default as HuiLoadingBar, loadingBar } from './components/hui-loading-bar/index.js';
+export { default as HuiFaq, foldText } from './components/hui-faq/index.js';
+export { default as HuiAnnouncementBar } from './components/hui-announcement-bar/index.js';
+export {
+  default as HuiThemeToggle, applyTheme, getStoredTheme, storeTheme, resolveTheme, getCurrentTheme,
+  THEME_MODES, THEME_STORAGE_KEY,
+} from './components/hui-theme-toggle/index.js';
 export { default as HuiTabs, HuiTabPanel } from './components/hui-tabs/index.js';
 export {
   default as HuiMenu, HuiMenuItem, HuiSubMenu, HuiMenuGroup, HuiMenuDivider,

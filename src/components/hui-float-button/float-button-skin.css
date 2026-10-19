@@ -1,0 +1,149 @@
+/*
+ * Giao diện nút nổi dùng chung cho <hui-float-button> và nút chính của <hui-float-group>.
+ * Biến công khai (KHÔNG khai báo trong file này — đặt ở nút / thẻ cha / :root đều được):
+ *   --hui-float-button-size              Đường kính (sm 32px, md 40px, lg 48px)
+ *   --hui-float-button-radius            Bo góc khi shape="square"
+ *   --hui-float-button-bg / -color       Nền / màu chữ (type="default")
+ *   --hui-float-button-hover-bg          Nền khi hover (type="default")
+ *   --hui-float-button-primary-bg / -primary-color / -primary-hover-bg   (type="primary")
+ *   --hui-float-button-shadow            Đổ bóng
+ *   --hui-float-button-icon-size         Cỡ icon
+ *   --hui-float-button-focus-color       Viền focus
+ *   --hui-float-button-pulse-color       Màu vòng lan (attribute pulse)
+ */
+
+[hidden] {
+  display: none !important;
+}
+
+.fb {
+  /* Biến nội bộ: đổi theo type / size */
+  --_fb-size: 40px;
+  --_fb-icon: 18px;
+  --_fb-bg: var(--hui-float-button-bg, var(--hui-bg-elevated));
+  --_fb-color: var(--hui-float-button-color, var(--hui-text));
+  --_fb-hover-bg: var(--hui-float-button-hover-bg, color-mix(in oklab, var(--hui-bg-elevated) 92%, var(--hui-text)));
+
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  box-sizing: border-box;
+  width: var(--hui-float-button-size, var(--_fb-size));
+  min-height: var(--hui-float-button-size, var(--_fb-size));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: var(--_fb-bg);
+  color: var(--_fb-color);
+  box-shadow: var(--hui-float-button-shadow, var(--hui-shadow-lg));
+  font: inherit;
+  font-size: var(--hui-font-xs);
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--hui-transition-fast),
+    box-shadow var(--hui-transition-fast),
+    transform var(--hui-transition-fast);
+}
+
+.fb:hover {
+  background: var(--_fb-hover-bg);
+}
+
+.fb:active {
+  transform: scale(0.94);
+}
+
+.fb:focus-visible {
+  outline: 2px solid var(--hui-float-button-focus-color, var(--hui-border-focus));
+  outline-offset: 2px;
+}
+
+.fb--primary {
+  --_fb-bg: var(--hui-float-button-primary-bg, var(--hui-primary));
+  --_fb-color: var(--hui-float-button-primary-color, var(--hui-text-inverse));
+  --_fb-hover-bg: var(--hui-float-button-primary-hover-bg, var(--hui-primary-hover));
+}
+
+.fb--sm { --_fb-size: 32px; --_fb-icon: 16px; }
+.fb--lg { --_fb-size: 48px; --_fb-icon: 22px; }
+
+.fb--square {
+  border-radius: var(--hui-float-button-radius, var(--hui-radius-lg));
+}
+
+/* Có mô tả: thêm đệm dọc để chữ không chạm mép */
+.fb--has-desc {
+  padding: var(--hui-space-xs) 0;
+}
+
+.fb__icon,
+.fb ::slotted([slot='icon']) {
+  font-size: var(--hui-float-button-icon-size, var(--_fb-icon));
+}
+
+.fb__icon {
+  display: inline-flex;
+  transition: transform var(--hui-transition);
+}
+
+.fb__desc {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ================== PULSE: vòng lan nhẹ thu hút sự chú ý ==================
+ * 2 vòng lệch pha nằm SAU nền nút (z-index -1 trong stacking context của host). */
+.fb--pulse::before,
+.fb--pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--hui-float-button-pulse-color, var(--_fb-bg));
+  pointer-events: none;
+  animation: hui-fb-pulse 2s var(--hui-motion-ease-out) infinite;
+}
+
+.fb--pulse::after {
+  animation-delay: 1s;
+}
+
+@keyframes hui-fb-pulse {
+  from { opacity: 0.55; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.7); }
+}
+
+.fb--no-animation,
+.fb--no-animation .fb__icon {
+  transition: none;
+}
+
+.fb--no-animation::before,
+.fb--no-animation::after {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fb,
+  .fb__icon {
+    transition: none;
+  }
+
+  .fb--pulse::before,
+  .fb--pulse::after {
+    display: none;
+  }
+}

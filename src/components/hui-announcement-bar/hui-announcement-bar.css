@@ -1,0 +1,204 @@
+/*
+ * HUI Announcement Bar CSS
+ * Biến công khai (KHÔNG khai báo ở đây — đặt ở thẻ / thẻ cha / :root): xem JSDoc của class.
+ * Biến nội bộ --_announce-* đổi theo type / variant.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+/* :host { display: block } đè style [hidden] mặc định → khai báo lại */
+:host([hidden]) {
+  display: none;
+}
+
+:host([sticky]) {
+  position: sticky;
+  top: 0;
+  z-index: var(--hui-announcement-bar-z-index, var(--hui-z-sticky));
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ================== KHUNG ================== */
+.ab {
+  /* --_announce-c: màu chủ đạo theo type */
+  --_announce-c: var(--hui-info);
+  --_announce-c-1: var(--hui-info-1);
+  --_announce-c-3: var(--hui-info-3);
+  --_announce-c-7: var(--hui-info-7);
+
+  box-sizing: border-box;
+  background: var(--hui-announcement-bar-bg, var(--_announce-bg));
+  color: var(--hui-announcement-bar-color, var(--_announce-color));
+  border-block-end: 1px solid var(--hui-announcement-bar-border-color, var(--_announce-border));
+  font-size: var(--hui-announcement-bar-font-size, var(--hui-font-sm));
+  line-height: var(--hui-line-height);
+}
+
+.ab--success { --_announce-c: var(--hui-success); --_announce-c-1: var(--hui-success-1); --_announce-c-3: var(--hui-success-3); --_announce-c-7: var(--hui-success-7); }
+.ab--warning { --_announce-c: var(--hui-warning); --_announce-c-1: var(--hui-warning-1); --_announce-c-3: var(--hui-warning-3); --_announce-c-7: var(--hui-warning-7); }
+.ab--danger { --_announce-c: var(--hui-danger); --_announce-c-1: var(--hui-danger-1); --_announce-c-3: var(--hui-danger-3); --_announce-c-7: var(--hui-danger-7); }
+.ab--primary { --_announce-c: var(--hui-primary); --_announce-c-1: var(--hui-primary-1); --_announce-c-3: var(--hui-primary-3); --_announce-c-7: var(--hui-primary-7); }
+
+/* soft: nền nhạt, chữ trộn đậm từ màu chủ đạo để dễ đọc */
+.ab--soft {
+  --_announce-bg: var(--_announce-c-1);
+  --_announce-border: var(--_announce-c-3);
+  --_announce-color: color-mix(in srgb, var(--_announce-c) 45%, var(--hui-text));
+}
+
+/* filled: sắc độ 7 (sáng: đậm hơn, tối: nhạt hơn) + chữ đảo màu → tương phản ở cả 2 theme */
+.ab--filled {
+  --_announce-bg: var(--_announce-c-7);
+  --_announce-border: var(--_announce-c-7);
+  --_announce-color: var(--hui-text-inverse);
+}
+
+/* Nền vàng luôn sáng → chữ tối ở mọi theme */
+.ab--filled.ab--warning {
+  --_announce-bg: var(--hui-warning);
+  --_announce-border: var(--hui-warning);
+  --_announce-color: color-mix(in oklab, var(--hui-warning) 25%, black);
+}
+
+.ab__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hui-announcement-bar-gap, var(--hui-space-md));
+  box-sizing: border-box;
+  max-width: var(--hui-announcement-bar-max-width, none);
+  margin-inline: auto;
+  padding: var(--hui-announcement-bar-padding, var(--hui-space-sm) var(--hui-space-lg));
+}
+
+/* Chừa chỗ 2 bên cho nút đóng (đối xứng để nội dung vẫn ở giữa) */
+.ab--closable .ab__inner {
+  padding-inline: calc(1.75em + var(--hui-space-md));
+}
+
+.ab__prefix,
+.ab__action {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--hui-space-xs);
+}
+
+/* ================== NỘI DUNG ================== */
+.ab__content {
+  flex: 0 1 auto;
+  min-width: 0;
+  text-align: center;
+}
+
+/* Xoay vòng: xếp chồng các thông báo vào cùng 1 ô lưới → chiều cao = thông báo cao nhất, không giật */
+.ab__messages {
+  display: grid;
+  overflow: hidden;
+}
+
+.ab__message {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.ab__message--current,
+.ab__message--leaving {
+  visibility: visible;
+}
+
+/* ================== MARQUEE ================== */
+.ab--marquee .ab__content {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-align: start;
+}
+
+.ab--marquee .ab__track {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.ab--marquee .ab__messages {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-announcement-bar-marquee-gap, var(--hui-space-xl));
+  overflow: visible;
+}
+
+.ab--marquee .ab__message {
+  visibility: visible;
+}
+
+/* Giảm chuyển động / no-animation: hiện tĩnh, cho xuống dòng */
+.ab--marquee-static .ab__content {
+  text-align: center;
+}
+
+.ab--marquee-static .ab__track {
+  display: block;
+  width: auto;
+  white-space: normal;
+  will-change: auto;
+}
+
+.ab--marquee-static .ab__messages {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--hui-space-xs) var(--hui-announcement-bar-marquee-gap, var(--hui-space-xl));
+}
+
+.ab__sep {
+  opacity: 0.6;
+}
+
+/* ================== NÚT ĐÓNG ================== */
+.ab__close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  /* Nằm tuyệt đối ở mép phải → nội dung vẫn căn giữa đúng tâm */
+  position: absolute;
+  inset-inline-end: var(--hui-space-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.75em;
+  height: 1.75em;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  opacity: 0.75;
+  cursor: pointer;
+  transition: opacity var(--hui-transition-fast), background var(--hui-transition-fast);
+}
+
+.ab__close:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.ab__close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ab__close {
+    transition: none;
+  }
+}

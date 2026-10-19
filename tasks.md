@@ -277,13 +277,13 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
 
 ## A0 — HẠ TẦNG CHO COMPONENT NHẬN DATA (làm trước A3/A4)
 
-- [ ] **A0.1 `DataController`** — `src/core/data-controller.js` (mixin cho HuiElement)
+- [x] **A0.1 `DataController`** — `src/core/data-controller.js` (mixin cho HuiElement)
   - Property chung: `data` (Array/Object), `src` (URL → fetch JSON), `fetchFn` (hàm async tự viết),
     `params` (query), `loading`, `error`, `empty-text`
   - Tự quản lý 4 trạng thái hiển thị: **loading** (skeleton) → **empty** (`hui-empty`) → **error** (`hui-result` + nút Thử lại) → **data**
   - Huỷ request cũ khi `params` đổi (AbortController), debounce khi tìm kiếm
   - Sự kiện: `hui-load` {data}, `hui-error` {error}
-- [ ] **A0.2 Template binding** — `src/core/template.js`
+- [x] **A0.2 Template binding** — `src/core/template.js`
   - Người dùng viết `<template>` ngay trong thẻ, component nhân bản theo từng item:
     ```html
     <hui-card-grid .data=${products}>
@@ -301,14 +301,14 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
   - `data-format`: currency / number / percent / date / relative-time (dùng `Intl`, theo locale)
   - `data-action="buy"` → component phát `hui-action` {action, item, index} (event delegation, 1 listener cho cả danh sách)
   - Hoặc dùng hàm: `el.renderItem = (item, i) => Node`
-- [ ] **A0.3 Keyed reconcile** — `src/core/repeat.js`: cập nhật danh sách theo `row-key`
+- [x] **A0.3 Keyed reconcile** — `src/core/repeat.js`: cập nhật danh sách theo `row-key`
   (thêm/xóa/đổi thứ tự chỉ đụng node thay đổi → 1000 item cập nhật vẫn mượt, giữ focus/trạng thái)
-- [ ] **A0.4 Virtual window** — `src/utils/virtual.js`: chỉ render phần đang nhìn thấy (dọc & ngang), dùng chung cho list/scroller/table/select
-- [ ] **A0.5 Scroll utils** — `src/utils/scroll.js`
+- [x] **A0.4 Virtual window** — `src/utils/virtual.js`: chỉ render phần đang nhìn thấy (dọc & ngang), dùng chung cho list/scroller/table/select
+- [x] **A0.5 Scroll utils** — `src/utils/scroll.js`
   - `dragToScroll(el)` (kéo chuột như mobile, chặn click khi đang kéo), `wheelToHorizontal(el)`
   - `inView(el, cb, opts)` (IntersectionObserver), `scrollProgress(el)`, `snapTo(el, index)`
   - Đo cạnh tràn để hiện bóng mờ 2 mép / ẩn hiện nút mũi tên
-- [ ] **A0.6 Formatters** — `src/core/format.js`: `formatNumber`, `formatCurrency` (VND mặc định), `formatPercent`,
+- [x] **A0.6 Formatters** — `src/core/format.js`: `formatNumber`, `formatCurrency` (VND mặc định), `formatPercent`,
   `formatDate`, `relativeTime` ("3 phút trước") — dùng chung cho template, statistic, table
 
 ---
@@ -442,21 +442,21 @@ Phân tích các khối gần như website nào cũng có (landing, bán hàng, 
 Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**, không làm trùng.
 
 ### A6.1 Khung trang & điều hướng nổi
-- [ ] **`hui-back-top`** (kéo từ G2) — nút cuộn lên đầu trang
+- [x] **`hui-back-top`** (kéo từ G2) — nút cuộn lên đầu trang
   - Hiện khi cuộn quá `visibility-height` (mặc định 400px), ẩn/hiện có hiệu ứng zoom + fade
   - **Vòng tiến độ** quanh nút thể hiện % trang đã đọc (`progress` attribute), cuộn mượt về đầu (`duration`, easing)
   - `target` window | selector (cuộn trong một vùng), `position` bottom-right | bottom-left, `offset`, `shape` circle | square, slot icon
   - Bàn phím + `aria-label` theo locale, tôn trọng `prefers-reduced-motion` (nhảy thẳng, không cuộn mượt)
-- [ ] **`hui-float-button` + `hui-float-group`** (kéo từ G2) — cụm nút nổi góc màn hình
+- [x] **`hui-float-button` + `hui-float-group`** (kéo từ G2) — cụm nút nổi góc màn hình
   - Kiểu mở `trigger` click | hover, xòe lên (SpeedDial) có stagger animation, badge số trên nút
   - **Preset liên hệ cho web Việt Nam:** `hui-contact-float` — Gọi hotline, Zalo, Messenger, email; hiệu ứng rung/nhấp nháy thu hút
     (tắt được), tự ẩn trên trang in; gộp chung cụm với back-top
-- [ ] 🆕 **`hui-announcement-bar`** — dải thông báo đầu trang (khuyến mãi, sự kiện), đóng được + nhớ trạng thái
+- [x] 🆕 **`hui-announcement-bar`** — dải thông báo đầu trang (khuyến mãi, sự kiện), đóng được + nhớ trạng thái
   (localStorage theo `id`), chữ chạy (`marquee`) hoặc xoay nhiều thông báo, countdown kèm theo
 - [ ] 🆕 **`hui-cookie-consent`** — banner đồng ý cookie (Chấp nhận / Từ chối / Tùy chỉnh theo nhóm), phát `hui-consent` {categories}, lưu lựa chọn
-- [ ] 🆕 **`hui-theme-toggle`** — nút sáng / tối / theo hệ thống, nhớ lựa chọn, hiệu ứng **lan vòng tròn** khi đổi theme (View Transitions API, fallback fade)
+- [x] 🆕 **`hui-theme-toggle`** — nút sáng / tối / theo hệ thống, nhớ lựa chọn, hiệu ứng **lan vòng tròn** khi đổi theme (View Transitions API, fallback fade)
 - [ ] 🆕 **`hui-language-switch`** — chọn ngôn ngữ (cờ + tên), gọi `setLocale`, phát `hui-language-change`
-- [ ] 🆕 **`hui-loading-bar`** — thanh tải mảnh ở mép trên khi chuyển trang / gọi API (kiểu NProgress): `start()`, `done()`, `error()`
+- [x] 🆕 **`hui-loading-bar`** — thanh tải mảnh ở mép trên khi chuyển trang / gọi API (kiểu NProgress): `start()`, `done()`, `error()`
 - [ ] 🆕 **`hui-page-loader`** — màn chờ lần đầu tải trang (logo + spinner), tự ẩn khi `load`
 - [ ] 🆕 **`hui-mega-menu`** — menu xổ lớn nhiều cột (ảnh + nhóm link) cho navbar, mở theo hover có trễ, mobile chuyển thành accordion
 - [ ] 🆕 **`hui-bottom-nav`** (kéo từ G2) — thanh điều hướng đáy cho mobile, icon nhún khi chọn, badge
@@ -465,7 +465,7 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
   highlight mục đang đọc (scroll-spy), thanh chỉ báo trượt theo, sticky
 
 ### A6.2 Nội dung & marketing
-- [ ] **`hui-collapse`** (🔄 G1) — bổ sung cho web:
+- [x] **`hui-collapse`** (🔄 G1) — bổ sung cho web:
   - Mũi tên xoay + mở/đóng mượt (đã có qua `collapse()`), `variant` default | ghost | card | separated (mỗi mục là một thẻ rời có khoảng cách)
   - **`hui-faq`** (organism): nhận `data=[{question, answer}]`, ô tìm trong FAQ, nút "Mở tất cả", nhóm theo chủ đề (tabs),
     tùy chọn `seo` → chèn dữ liệu có cấu trúc **FAQPage (JSON-LD)** để Google hiện FAQ trong kết quả tìm kiếm
@@ -490,13 +490,13 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
 - [ ] 🆕 **`hui-comparison-table`** — bảng so sánh gói/sản phẩm (✓/✗, cột nổi bật, header dính)
 
 ### A6.3 Đánh giá (star rating)
-- [ ] **`hui-rate`** (kéo từ G2, nâng thành ưu tiên) — chấm sao nhập liệu
+- [x] **`hui-rate`** (kéo từ G2, nâng thành ưu tiên) — chấm sao nhập liệu
   - `count`, `value`, `allow-half` (nửa sao), `allow-clear` (bấm lại để xóa), `readonly`, `disabled`, `size`, `color`
   - Ký tự tùy chỉnh (slot `character` hoặc `icon="heart"`), `tooltips` (["Tệ","Tạm","Ổn","Tốt","Tuyệt vời"]) hiện khi hover
   - **Hiệu ứng:** sao phóng to khi hover, "nảy" khi chọn, các sao sáng lần lượt (stagger) khi giá trị đổi
   - Kế thừa `HuiFormElement` (gửi form, `required`), bàn phím ←/→ (APG slider), `aria-valuetext` "4 trên 5 sao"
-- [ ] **`hui-rating-display`** (A1) — hiển thị chỉ đọc, hỗ trợ số lẻ chính xác (4,3 sao = tô 30% sao thứ 5), kèm "(128 đánh giá)"
-- [ ] 🆕 **`hui-rating-summary`** — khối tổng hợp đánh giá trang sản phẩm: điểm trung bình lớn + số sao + **thanh phân bố 5★…1★**
+- [x] **`hui-rating-display`** (A1) — hiển thị chỉ đọc, hỗ trợ số lẻ chính xác (4,3 sao = tô 30% sao thứ 5), kèm "(128 đánh giá)"
+- [x] 🆕 **`hui-rating-summary`** — khối tổng hợp đánh giá trang sản phẩm: điểm trung bình lớn + số sao + **thanh phân bố 5★…1★**
   (bấm vào thanh để lọc), nhận `data` {average, total, distribution}
 - [ ] 🆕 **`hui-review-list`** — danh sách đánh giá (avatar, sao, ngày, nội dung, ảnh đính kèm, "Hữu ích (12)"), lọc theo số sao, phân trang
 - [ ] 🆕 **`hui-reaction`** — nút cảm xúc (👍❤️😂…) kiểu mạng xã hội, giữ để chọn, đếm số
@@ -541,7 +541,7 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
 Nguyên tắc: hiệu ứng dùng **Web Animations API + CSS**, không thư viện ngoài; mọi hiệu ứng tự tắt/giảm khi người dùng
 bật `prefers-reduced-motion`; thời lượng/easing lấy từ token `--hui-motion-*` để đổi toàn hệ thống một chỗ.
 
-- [ ] **A7.1 Directive `data-hui-animate`** — gắn lên **bất kỳ thẻ HTML nào**, không cần bọc component:
+- [x] **A7.1 Directive `data-hui-animate`** — gắn lên **bất kỳ thẻ HTML nào**, không cần bọc component:
   ```html
   <section data-hui-animate="fade-up" data-hui-delay="100" data-hui-stagger="80">…</section>
   ```
@@ -567,8 +567,8 @@ bật `prefers-reduced-motion`; thời lượng/easing lấy từ token `--hui-m
 ---
 
 ## Thứ tự thực thi đề xuất
-1. **A0** hạ tầng data/template/scroll + **A7.1 directive `data-hui-animate`** (nền cho mọi thứ phía sau)
-2. **Khối "web nào cũng có" (đợt nhanh, nhiều giá trị):** `hui-back-top` + `hui-float-group`/`hui-contact-float`,
+1. ✅ **A0** hạ tầng data/template/scroll + **A7.1 directive `data-hui-animate`** (nền cho mọi thứ phía sau)
+2. ✅ **Khối "web nào cũng có" (đợt nhanh — xong 2026-10-19):** `hui-back-top` + `hui-float-group`/`hui-contact-float`,
    `hui-rate` + `hui-rating-display` + `hui-rating-summary`, `hui-faq` (trên collapse G1), `hui-announcement-bar`,
    `hui-theme-toggle`, `hui-loading-bar`
 3. **A3.1 `hui-scroller` + A3.2 `hui-scroll-steps` + A3.4 `hui-reveal`** → rồi `hui-carousel` (trên scroller)

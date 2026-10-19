@@ -1,0 +1,161 @@
+/*
+ * HUI Rating Summary CSS
+ * Override: var(--hui-rating-summary-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-rating-summary-gap               Khoảng cách cột điểm ↔ các thanh
+ *   --hui-rating-summary-average-size      Cỡ chữ điểm trung bình
+ *   --hui-rating-summary-average-color     Màu chữ điểm trung bình
+ *   --hui-rating-summary-color             Màu sao + phần tô của thanh (attribute color ưu tiên hơn)
+ *   --hui-rating-summary-track-bg          Nền rãnh thanh
+ *   --hui-rating-summary-bar-height        Độ dày thanh
+ *   --hui-rating-summary-row-hover-bg      Nền dòng khi hover
+ *   --hui-rating-summary-row-active-bg     Nền dòng đang lọc
+ *
+ * Parts: base, overview, average, display (+ display-stars, display-star), total,
+ *        bars, row (+ row-active), row-label, track, fill, row-count
+ * Biến nội bộ: --_rsum-color, --_rsum-custom-color (attribute color), --_rsum-delay (trễ từng thanh).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host(:state(loading)) .hui-rating-summary {
+  opacity: 0.6;
+}
+
+.hui-rating-summary {
+  --_rsum-color: var(--_rsum-custom-color, var(--hui-rating-summary-color, var(--hui-warning)));
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-rating-summary-gap, var(--hui-space-xl));
+  transition: opacity var(--hui-transition);
+}
+
+/* ================== CỘT ĐIỂM TRUNG BÌNH ================== */
+.hui-rating-summary__overview {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  min-width: 8rem;
+}
+
+.hui-rating-summary__average {
+  color: var(--hui-rating-summary-average-color, var(--hui-text));
+  font-size: var(--hui-rating-summary-average-size, 3rem);
+  font-weight: var(--hui-font-weight-bold);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.hui-rating-summary__overview hui-rating-display {
+  --hui-rating-display-color: var(--_rsum-color);
+}
+
+.hui-rating-summary__total {
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+}
+
+/* ================== THANH PHÂN BỐ ================== */
+.hui-rating-summary__bars {
+  display: flex;
+  flex: 1 1 16rem;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hui-rating-summary__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(2.5rem, auto);
+  align-items: center;
+  gap: var(--hui-space-sm);
+  width: 100%;
+  margin: 0;
+  padding: var(--hui-space-xs) var(--hui-space-sm);
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-text-secondary);
+  font: inherit;
+  font-size: var(--hui-font-sm);
+  text-align: start;
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), opacity var(--hui-transition-fast);
+}
+
+.hui-rating-summary__row:hover {
+  background: var(--hui-rating-summary-row-hover-bg, var(--hui-fill-tertiary));
+}
+
+.hui-rating-summary__row:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 1px;
+}
+
+.hui-rating-summary__row[aria-pressed='true'] {
+  background: var(--hui-rating-summary-row-active-bg, var(--hui-fill-secondary));
+  color: var(--hui-text);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+/* Đang lọc → các dòng khác mờ đi */
+.hui-rating-summary--filtered .hui-rating-summary__row[aria-pressed='false'] {
+  opacity: 0.55;
+}
+
+.hui-rating-summary__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 2em;
+  font-variant-numeric: tabular-nums;
+}
+
+.hui-rating-summary__mini-star {
+  width: 0.9em;
+  height: 0.9em;
+  color: var(--_rsum-color);
+}
+
+.hui-rating-summary__track {
+  position: relative;
+  height: var(--hui-rating-summary-bar-height, 8px);
+  overflow: hidden;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-rating-summary-track-bg, var(--hui-fill-secondary));
+}
+
+.hui-rating-summary__fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: inherit;
+  background: var(--_rsum-color);
+  transition: width var(--hui-motion-duration-slow, 300ms) var(--hui-motion-ease-out, ease-out);
+  transition-delay: var(--_rsum-delay, 0ms);
+}
+
+.hui-rating-summary__count {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ================== TẮT HIỆU ỨNG ================== */
+.hui-rating-summary--static .hui-rating-summary__fill {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-rating-summary__fill,
+  .hui-rating-summary__row {
+    transition: none;
+  }
+}

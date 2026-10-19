@@ -1,0 +1,50 @@
+/*
+ * HUI Contact Float CSS
+ * Biến công khai — màu từng kênh (KHÔNG khai báo trong file này):
+ *   --hui-contact-float-phone-bg / -phone-color          Gọi điện (mặc định --hui-success)
+ *   --hui-contact-float-zalo-bg / -zalo-color            Zalo (mặc định --hui-info)
+ *   --hui-contact-float-messenger-bg / -messenger-color  Messenger (mặc định --hui-primary)
+ *   --hui-contact-float-email-bg / -email-color          Email (mặc định --hui-warning)
+ * Khoảng cách, offset, cỡ nút: dùng biến của hui-float-group / hui-float-button.
+ * Parts: group, group-base, group-list, group-toggle, button, button-phone | button-zalo | button-messenger | button-email, back-top
+ */
+
+/* Host không chiếm chỗ — cụm nút tự cố định ở góc */
+:host {
+  display: contents;
+}
+
+/* Nút kênh: nền màu theo kênh, chữ/icon tương phản; hover đậm hơn một chút */
+.btn {
+  --hui-float-button-bg: var(--_cf-bg);
+  --hui-float-button-color: var(--_cf-color);
+  --hui-float-button-hover-bg: color-mix(in oklab, var(--_cf-bg) 85%, var(--hui-shade-mix));
+}
+
+.btn--phone {
+  --_cf-bg: var(--hui-contact-float-phone-bg, var(--hui-success));
+  --_cf-color: var(--hui-contact-float-phone-color, var(--hui-text-inverse));
+}
+
+.btn--zalo {
+  --_cf-bg: var(--hui-contact-float-zalo-bg, var(--hui-info));
+  --_cf-color: var(--hui-contact-float-zalo-color, var(--hui-text-inverse));
+}
+
+.btn--messenger {
+  --_cf-bg: var(--hui-contact-float-messenger-bg, var(--hui-primary));
+  --_cf-color: var(--hui-contact-float-messenger-color, var(--hui-text-inverse));
+}
+
+.btn--email {
+  --_cf-bg: var(--hui-contact-float-email-bg, var(--hui-warning));
+  --_cf-color: var(--hui-contact-float-email-color, var(--hui-text-inverse));
+}
+
+/* Không in nút liên hệ ra giấy */
+@media print {
+  :host,
+  hui-float-group {
+    display: none !important;
+  }
+}

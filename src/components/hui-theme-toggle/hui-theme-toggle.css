@@ -1,0 +1,206 @@
+/*
+ * HUI Theme Toggle CSS
+ * Biến công khai (KHÔNG khai báo ở đây — đặt ở thẻ / thẻ cha / :root): xem JSDoc của class.
+ * Biến nội bộ --_theme-toggle-* đổi theo size.
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.tt {
+  --_theme-toggle-h: var(--hui-theme-toggle-size, var(--hui-size-md));
+
+  display: inline-flex;
+  font-size: var(--hui-font-sm);
+  line-height: 1;
+}
+
+.tt--sm { --_theme-toggle-h: var(--hui-theme-toggle-size, var(--hui-size-sm)); font-size: var(--hui-font-xs); }
+.tt--lg { --_theme-toggle-h: var(--hui-theme-toggle-size, var(--hui-size-lg)); font-size: var(--hui-font-base); }
+
+button {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+}
+
+hui-icon {
+  font-size: 1.15em;
+}
+
+/* ================== VARIANT: ICON ================== */
+.tt__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hui-space-xs);
+  box-sizing: border-box;
+  min-width: var(--_theme-toggle-h);
+  height: var(--_theme-toggle-h);
+  padding: 0;
+  border: 1px solid var(--hui-theme-toggle-border-color, var(--hui-border));
+  border-radius: var(--hui-theme-toggle-radius, var(--hui-radius));
+  background: var(--hui-theme-toggle-bg, var(--hui-bg-container));
+  color: var(--hui-theme-toggle-color, var(--hui-text));
+  transition: color var(--hui-transition-fast), border-color var(--hui-transition-fast), background var(--hui-transition-fast);
+}
+
+.tt--labels .tt__button {
+  padding-inline: var(--hui-space-md);
+}
+
+.tt__button:hover {
+  border-color: var(--hui-theme-toggle-hover-color, var(--hui-primary));
+  color: var(--hui-theme-toggle-hover-color, var(--hui-primary));
+}
+
+.tt__icon {
+  display: inline-flex;
+}
+
+/* ================== VARIANT: SWITCH ================== */
+.tt__switch {
+  display: inline-flex;
+  box-sizing: border-box;
+  width: calc(var(--_theme-toggle-h) * 1.875);
+  height: var(--_theme-toggle-h);
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: transparent;
+}
+
+.tt__track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--hui-theme-toggle-track-bg, var(--hui-fill));
+  transition: background var(--hui-transition);
+}
+
+.tt__switch[aria-checked='true'] .tt__track {
+  background: var(--hui-theme-toggle-track-active-bg, var(--hui-primary));
+}
+
+.tt__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--_theme-toggle-h) - 6px);
+  height: calc(var(--_theme-toggle-h) - 6px);
+  border-radius: 50%;
+  background: var(--hui-theme-toggle-thumb-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-shadow);
+  color: var(--hui-warning);
+  transition: transform var(--hui-motion-duration-slow) var(--hui-motion-ease-in-out);
+}
+
+.tt__thumb[data-theme='dark'] {
+  color: var(--hui-primary);
+}
+
+.tt__switch[aria-checked='true'] .tt__thumb {
+  transform: translateX(calc(var(--_theme-toggle-h) * 0.875));
+}
+
+.tt__switch:hover .tt__thumb {
+  box-shadow: var(--hui-shadow-md);
+}
+
+/* ================== VARIANT: SEGMENTED ================== */
+.tt__segmented {
+  position: relative;
+  display: inline-grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  box-sizing: border-box;
+  height: var(--_theme-toggle-h);
+  padding: 2px;
+  border: 1px solid var(--hui-theme-toggle-border-color, var(--hui-border));
+  border-radius: var(--hui-theme-toggle-radius, var(--hui-radius));
+  background: var(--hui-theme-toggle-bg, var(--hui-fill-tertiary));
+}
+
+.tt__option {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hui-space-xs);
+  box-sizing: border-box;
+  min-width: calc(var(--_theme-toggle-h) - 6px);
+  height: 100%;
+  padding: 0 var(--hui-space-sm);
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-theme-toggle-color, var(--hui-text-secondary));
+  transition: color var(--hui-transition-fast);
+}
+
+.tt__option:hover {
+  color: var(--hui-theme-toggle-hover-color, var(--hui-text));
+}
+
+.tt__option[aria-checked='true'] {
+  color: var(--hui-theme-toggle-active-color, var(--hui-text));
+}
+
+.tt__option:focus-visible {
+  outline-offset: 0;
+}
+
+/* Nền trượt theo lựa chọn — vị trí từ --_theme-toggle-index (0 | 1 | 2) do JS đặt */
+.tt__indicator {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc((100% - 4px) / 3);
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-theme-toggle-indicator-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-shadow-sm);
+  transform: translateX(calc(var(--_theme-toggle-index, 0) * 100%));
+  transition: transform var(--hui-motion-duration-slow) var(--hui-motion-ease-in-out);
+}
+
+/* ================== TẮT HIỆU ỨNG ================== */
+:host([no-animation]) .tt__thumb,
+:host([no-animation]) .tt__indicator,
+:host([no-animation]) .tt__track {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tt__thumb,
+  .tt__indicator,
+  .tt__track,
+  .tt__button,
+  .tt__option {
+    transition: none;
+  }
+}

@@ -1,0 +1,56 @@
+/*
+ * HUI Float Button CSS (phần host — giao diện nút nằm ở float-button-skin.css)
+ * Biến công khai thêm cho nút đứng riêng (cố định ở góc màn hình):
+ *   --hui-float-button-offset-x   Khoảng cách tới mép trái/phải (attribute offset ưu tiên hơn), mặc định 24px
+ *   --hui-float-button-offset-y   Khoảng cách tới mép trên/dưới, mặc định 24px
+ * Parts: base, icon, description, badge, badge-indicator
+ */
+
+:host {
+  position: fixed;
+  z-index: var(--hui-z-sticky);
+  right: var(--_fb-x, var(--hui-float-button-offset-x, 24px));
+  bottom: var(--_fb-y, var(--hui-float-button-offset-y, 24px));
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([position='bottom-left']) {
+  right: auto;
+  left: var(--_fb-x, var(--hui-float-button-offset-x, 24px));
+}
+
+:host([position='top-right']) {
+  bottom: auto;
+  top: var(--_fb-y, var(--hui-float-button-offset-y, 24px));
+}
+
+:host([position='top-left']) {
+  right: auto;
+  bottom: auto;
+  left: var(--_fb-x, var(--hui-float-button-offset-x, 24px));
+  top: var(--_fb-y, var(--hui-float-button-offset-y, 24px));
+}
+
+/* Nằm trong hui-float-group (tự đặt) hoặc trong luồng trang */
+:host([inline]) {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+/* Tooltip / badge bọc ngoài: chuyển thành khối để không sinh khoảng trống dòng chữ */
+hui-tooltip,
+hui-badge {
+  display: block;
+  line-height: 1.2;
+}
+
+hui-tooltip::part(trigger),
+hui-badge::part(base) {
+  display: flex;
+}
