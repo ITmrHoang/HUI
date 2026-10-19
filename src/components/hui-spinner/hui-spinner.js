@@ -12,7 +12,7 @@
  */
 
 import styles from './hui-spinner.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 
 // Các màu có sẵn trong design tokens
 const COLOR_VARIANTS = ['primary', 'secondary', 'success', 'warning', 'danger', 'info'];
@@ -52,7 +52,7 @@ class HuiSpinner extends HTMLElement {
   connectedCallback() {
     // Chỉ tiêm style 1 lần duy nhất — nếu phần tử bị gỡ ra rồi gắn lại thì không bị nhân đôi <style>
     if (!this._initialized) {
-      injectTokens(this.shadowRoot);
+      ensureTokens();
       this.shadowRoot.appendChild(createStyle(styles));
       this._initialized = true;
     }

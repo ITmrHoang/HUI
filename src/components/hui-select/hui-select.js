@@ -13,7 +13,7 @@
  */
 
 import styles from './hui-select.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import { emitEvent, debounce } from '../../utils/events.js';
 
 class HuiSelect extends HTMLElement {
@@ -113,7 +113,7 @@ class HuiSelect extends HTMLElement {
   // =====================================================
 
   connectedCallback() {
-    injectTokens(this.shadowRoot);
+    ensureTokens();
     this.shadowRoot.appendChild(createStyle(styles));
 
     // Đọc value từ attribute nếu có

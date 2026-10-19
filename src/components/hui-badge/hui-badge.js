@@ -11,7 +11,7 @@
  */
 
 import styles from './hui-badge.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 
 const COLOR_VARIANTS = ['primary', 'secondary', 'success', 'warning', 'danger', 'info'];
 
@@ -62,7 +62,7 @@ class HuiBadge extends HTMLElement {
   connectedCallback() {
     // Chỉ tiêm style 1 lần — tránh nhân đôi <style> khi phần tử được gắn lại vào DOM
     if (!this._initialized) {
-      injectTokens(this.shadowRoot);
+      ensureTokens();
       this.shadowRoot.appendChild(createStyle(styles));
       this._initialized = true;
     }

@@ -11,7 +11,7 @@
  */
 
 import styles from './hui-card.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import { emitEvent } from '../../utils/events.js';
 
 class HuiCard extends HTMLElement {
@@ -37,7 +37,7 @@ class HuiCard extends HTMLElement {
     // Chỉ chèn tokens + CSS đúng 1 lần. Khi element bị tháo ra rồi gắn lại
     // (ví dụ: kéo thả, di chuyển DOM) thì connectedCallback chạy lại → không được chèn trùng.
     if (!this._styled) {
-      injectTokens(this.shadowRoot);
+      ensureTokens();
       this.shadowRoot.appendChild(createStyle(styles));
       this._styled = true;
     }

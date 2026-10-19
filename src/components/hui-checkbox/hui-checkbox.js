@@ -10,7 +10,7 @@
  */
 
 import styles from './hui-checkbox.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import { emitEvent } from '../../utils/events.js';
 
 class HuiCheckbox extends HTMLElement {
@@ -80,7 +80,7 @@ class HuiCheckbox extends HTMLElement {
   // =====================================================
 
   connectedCallback() {
-    injectTokens(this.shadowRoot);
+    ensureTokens();
     this.shadowRoot.appendChild(createStyle(styles));
 
     // Đọc khởi tạo state từ attribute

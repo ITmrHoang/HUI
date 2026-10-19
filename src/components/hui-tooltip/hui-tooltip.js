@@ -11,7 +11,7 @@
  */
 
 import styles from './hui-tooltip.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import { emitEvent } from '../../utils/events.js';
 
 // Bộ đếm sinh id duy nhất cho popup (dùng với aria-describedby)
@@ -59,7 +59,7 @@ class HuiTooltip extends HTMLElement {
 
   connectedCallback() {
     if (!this._styled) {
-      injectTokens(this.shadowRoot);
+      ensureTokens();
       this.shadowRoot.appendChild(createStyle(styles));
       this._styled = true;
     }

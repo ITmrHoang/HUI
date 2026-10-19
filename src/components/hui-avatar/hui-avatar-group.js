@@ -9,7 +9,7 @@
  */
 
 import styles from './hui-avatar-group.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import './hui-avatar.js'; // Cần để render avatar "+N" bên trong Shadow DOM
 
 class HuiAvatarGroup extends HTMLElement {
@@ -41,7 +41,7 @@ class HuiAvatarGroup extends HTMLElement {
   connectedCallback() {
     // Chỉ tiêm style 1 lần — tránh nhân đôi <style> khi phần tử được gắn lại vào DOM
     if (!this._initialized) {
-      injectTokens(this.shadowRoot);
+      ensureTokens();
       this.shadowRoot.appendChild(createStyle(styles));
       this._initialized = true;
     }

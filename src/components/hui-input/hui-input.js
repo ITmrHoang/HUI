@@ -11,7 +11,7 @@
 // Import file CSS dưới dạng chuỗi thô nhờ Vite flag '?raw'
 import styles from './hui-input.css?raw';
 
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import { emitEvent, debounce } from '../../utils/events.js';
 
 class HuiInput extends HTMLElement {
@@ -45,8 +45,8 @@ class HuiInput extends HTMLElement {
    * Tự động chạy khi custom element thả vào cây DOM. Phục vụ khởi tạo màn hình.
    */
   connectedCallback() {
-    // Ép (Inject) các biến số màu sắc / layout vào Root Node
-    injectTokens(this.shadowRoot);
+    // Đảm bảo design tokens (màu sắc / layout) đã được gắn 1 lần vào document
+    ensureTokens();
     // Ghim mã CSS đọc từ file trên cùng thả vào trong hệ quản lý đổ bóng Shadow DOM
     this.shadowRoot.appendChild(createStyle(styles));
     

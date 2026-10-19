@@ -7,7 +7,7 @@
  * Giải thích chi tiết + ví dụ: src/components/hui-demo/
  */
 
-import { createStyle, injectTokens } from '../utils/dom.js';
+import { createStyle, ensureTokens } from '../utils/dom.js';
 import { emitEvent } from '../utils/events.js';
 
 // =====================================================
@@ -288,8 +288,8 @@ export class HuiElement extends HTMLElement {
   }
 
   _applyStyles() {
-    // Token màu/kích thước dùng chung (khi component được import lẻ, không qua bundle tổng)
-    injectTokens(this.shadowRoot);
+    // Tokens gắn 1 lần vào <head> (biến CSS tự kế thừa xuyên Shadow DOM) — xem ensureTokens()
+    ensureTokens();
 
     const list = [].concat(this.constructor.styles || []).filter(Boolean);
     if (!list.length) return;

@@ -3,8 +3,9 @@
  * File này dùng làm cổng chính (Entry point) để Vite build ra cục bundle bự.
  */
 
-// Import 1: Nhúng Design Tokens và CSS Reset (Global Variables)
-import './styles/tokens.css';
+// Import 1: Nhúng CSS Reset
+// Design Tokens KHÔNG import ở đây nữa: mỗi component tự gọi ensureTokens() (src/utils/dom.js)
+// để gắn tokens 1 lần vào <head> — tránh trùng 2 bản khi dùng bundle tổng.
 import './styles/reset.css';
 
 // Import 2: Lớp nền để tự viết component mới theo chuẩn HUI

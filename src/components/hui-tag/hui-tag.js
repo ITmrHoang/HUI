@@ -12,7 +12,7 @@
  */
 
 import styles from './hui-tag.css?raw';
-import { createElement, createStyle, injectTokens } from '../../utils/dom.js';
+import { createElement, createStyle, ensureTokens } from '../../utils/dom.js';
 import { emitEvent } from '../../utils/events.js';
 
 // Các màu có sẵn trong design tokens. Giá trị khác sẽ được coi là mã màu CSS tùy ý.
@@ -74,7 +74,7 @@ class HuiTag extends HTMLElement {
   connectedCallback() {
     // Chỉ chèn style một lần, tránh nhân bản khi element bị gỡ ra rồi gắn lại
     if (!this._stylesInjected) {
-      injectTokens(this.shadowRoot);
+      ensureTokens();
       this.shadowRoot.appendChild(createStyle(styles));
       this._stylesInjected = true;
     }
