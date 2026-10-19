@@ -1,0 +1,137 @@
+/*
+ * HUI Flip Card CSS
+ *   --hui-flip-card-height       Chiều cao (mặc định 260px; bỏ qua khi auto-height)
+ *   --hui-flip-card-radius       Bo góc
+ *   --hui-flip-card-duration     Thời gian lật (mặc định 600ms)
+ *   --hui-flip-card-perspective  Độ sâu phối cảnh (mặc định 1000px)
+ *   --hui-flip-card-front-bg / --hui-flip-card-back-bg  Nền hai mặt
+ *   --hui-flip-card-shadow       Bóng đổ
+ *   --hui-flip-card-padding      Khoảng đệm mỗi mặt
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+.flip {
+  --_flip-axis: rotateY(180deg);
+  height: var(--hui-flip-card-height, 260px);
+  perspective: var(--hui-flip-card-perspective, 1000px);
+  border-radius: var(--hui-flip-card-radius, var(--hui-radius-lg));
+  outline: none;
+}
+
+.flip--vertical {
+  --_flip-axis: rotateX(180deg);
+}
+
+.flip:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 3px;
+}
+
+.flip[role='button'] {
+  cursor: pointer;
+}
+
+.flip__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform var(--hui-flip-card-duration, 600ms) cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.flip--flipped .flip__inner {
+  transform: var(--_flip-axis);
+}
+
+.flip__face {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  overflow: auto;
+  padding: var(--hui-flip-card-padding, var(--hui-space-lg));
+  border-radius: inherit;
+  border-radius: var(--hui-flip-card-radius, var(--hui-radius-lg));
+  box-shadow: var(--hui-flip-card-shadow, var(--hui-shadow-md));
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip__front {
+  background: var(--hui-flip-card-front-bg, var(--hui-bg-container));
+}
+
+.flip__back {
+  background: var(--hui-flip-card-back-bg, var(--hui-primary));
+  color: var(--hui-text-light-solid);
+  transform: var(--_flip-axis);
+}
+
+/* Nội dung slot lấp đầy mặt thẻ (ảnh nền, khối căn giữa…) */
+::slotted([slot='front']),
+::slotted([slot='back']) {
+  height: 100%;
+}
+
+/* auto-height: hai mặt xếp chồng trong cùng ô lưới → cao bằng mặt cao hơn */
+.flip--auto {
+  height: auto;
+}
+
+.flip--auto .flip__inner {
+  display: grid;
+}
+
+.flip--auto .flip__face {
+  position: relative;
+  inset: auto;
+  grid-area: 1 / 1;
+}
+
+/* Không xoay 3D: đổi mặt bằng mờ dần */
+.flip--static .flip__inner,
+.flip--static.flip--flipped .flip__inner {
+  transform: none;
+  transition: none;
+}
+
+.flip--static .flip__face {
+  backface-visibility: visible;
+  transform: none;
+  transition: opacity 200ms ease;
+}
+
+.flip--static .flip__back,
+.flip--static.flip--flipped .flip__front {
+  opacity: 0;
+}
+
+.flip--static.flip--flipped .flip__back {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip__inner,
+  .flip--flipped .flip__inner {
+    transform: none;
+    transition: none;
+  }
+
+  .flip__face {
+    backface-visibility: visible;
+    transform: none;
+  }
+
+  .flip__back,
+  .flip--flipped .flip__front {
+    opacity: 0;
+  }
+
+  .flip--flipped .flip__back {
+    opacity: 1;
+  }
+}

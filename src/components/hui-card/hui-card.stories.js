@@ -526,3 +526,126 @@ export const CustomizeFromOutside = {
     </div>
   `,
 };
+
+// ── Hiệu ứng, link, chọn nhiều (A2.1 + A6.5) ────────────────────────────
+
+/** Ảnh minh họa tự tạo (SVG) — không phụ thuộc mạng */
+const art = (seed) => {
+  const hue = (seed * 53) % 360;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="hsl(${hue} 75% 62%)"/><stop offset="1" stop-color="hsl(${(hue + 70) % 360} 70% 42%)"/></linearGradient></defs><rect width="400" height="240" fill="url(#g)"/><circle cx="320" cy="60" r="70" fill="white" opacity=".15"/></svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+};
+
+const fxGrid = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 8px;';
+
+/**
+ * effect="lift | tilt | glow | zoom-media | reveal | border-gradient" — kết hợp nhiều giá trị bằng khoảng trắng.
+ * tilt / glow tải module hui-lib/effects khi cần (chỉ chạy trên thiết bị có chuột).
+ */
+export const Effects = {
+  render: () => html`
+    <div style=${fxGrid}>
+      ${['lift', 'tilt', 'glow', 'zoom-media', 'reveal', 'border-gradient', 'lift zoom-media reveal', 'tilt glow'].map((fx, i) => html`
+        <hui-card effect=${fx} cover=${art(i)} cover-height="130" title=${fx}>
+          ${fx.includes('reveal') ? html`<hui-button slot="overlay" size="sm" variant="secondary">Xem nhanh</hui-button>` : ''}
+          Rê chuột lên card để thấy hiệu ứng.
+        </hui-card>`)}
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const cards = canvasElement.querySelectorAll('hui-card');
+    const inner = (c) => c.shadowRoot.querySelector('[part="card"]');
+    await expect(inner(cards[0]).classList.contains('hui-card--fx-lift')).toBe(true);
+    await expect(inner(cards[0]).classList.contains('hui-card--hoverable')).toBe(true);
+    await expect(inner(cards[5]).classList.contains('hui-card--fx-border-gradient')).toBe(true);
+    await expect(getComputedStyle(inner(cards[5]), '::before').animationName).toMatch(/hui-card-spin|none/);
+    // reveal: lớp phủ ẩn cho tới khi hover
+    const overlay = cards[4].shadowRoot.querySelector('[part="overlay"]');
+    await expect(overlay.hidden).toBe(false);
+    await expect(getComputedStyle(overlay).opacity).toBe('0');
+  },
+};
+
+/** Cả card là link: Tab tới tiêu đề, Ctrl/chuột giữa mở tab mới; nút bên trong vẫn hoạt động riêng */
+export const AsLink = {
+  render: () => html`
+    <div style=${fxGrid}>
+      <hui-card href="#bai-viet" title="Bấm vào chỗ trống của card" cover=${art(3)} cover-height="120" effect="lift zoom-media">
+        Card dẫn tới <code>#bai-viet</code>.
+        <hui-button slot="actions" size="sm" variant="text" id="inner-btn">Nút riêng (không mở link)</hui-button>
+      </hui-card>
+      <hui-card href="#khong-tieu-de" cover=${art(8)} cover-height="120">Không có tiêu đề → link ẩn "Xem chi tiết" cho bàn phím</hui-card>
+      <hui-card href="#san-pham" cover=${art(9)} cover-height="120">
+        <a href="#san-pham" id="own-link">Nội dung đã có link riêng</a> → không thêm link ẩn (1 điểm dừng Tab)
+      </hui-card>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const [card, noTitle] = canvasElement.querySelectorAll('hui-card');
+    const link = card.shadowRoot.querySelector('[part="link"]');
+    await expect(link.getAttribute('href')).toBe('#bai-viet');
+    await expect(link.textContent).toBe('Bấm vào chỗ trống của card');
+    // Click vào nút bên trong không kích hoạt link
+    let navigated = 0;
+    link.addEventListener('click', (e) => { navigated++; e.preventDefault(); });
+    canvasElement.querySelector('#inner-btn').click();
+    await expect(navigated).toBe(0);
+    card.shadowRoot.querySelector('[part="body"]').click();
+    await expect(navigated).toBe(1);
+    const hidden = noTitle.shadowRoot.querySelector('[part="link"]');
+    await expect(hidden.getAttribute('aria-label')).toBe('Xem chi tiết');
+    // Có <a href> trong nội dung → không chèn link ẩn; click chỗ trống dùng chính link đó
+    const ownCard = canvasElement.querySelectorAll('hui-card')[2];
+    await expect(ownCard.shadowRoot.querySelector('[part="link"]')).toBe(null);
+    let ownClicks = 0;
+    canvasElement.querySelector('#own-link').addEventListener('click', (e) => { ownClicks++; e.preventDefault(); });
+    ownCard.shadowRoot.querySelector('[part="cover"]').click();
+    await expect(ownClicks).toBe(1);
+  },
+};
+
+/** Chọn nhiều card (bấm / Space / Enter), phát change {selected} */
+export const Selectable = {
+  render: () => html`
+    <div style=${fxGrid} id="sel-grid">
+      ${['Gói cơ bản', 'Gói tiêu chuẩn', 'Gói nâng cao'].map((name, i) => html`
+        <hui-card selectable ?selected=${i === 1} title=${name} variant="outlined">Bấm để chọn</hui-card>`)}
+    </div>
+    <p id="sel-log" style="font: 13px var(--hui-font-mono)">Đang chọn: Gói tiêu chuẩn</p>
+  `,
+  play: async ({ canvasElement }) => {
+    const cards = [...canvasElement.querySelectorAll('hui-card')];
+    const log = canvasElement.querySelector('#sel-log');
+    const sync = () => { log.textContent = `Đang chọn: ${cards.filter((c) => c.selected).map((c) => c.title).join(', ')}`; };
+    cards.forEach((c) => c.addEventListener('change', sync));
+    const inner = (c) => c.shadowRoot.querySelector('[part="card"]');
+    await expect(inner(cards[1]).getAttribute('aria-checked')).toBe('true');
+    inner(cards[0]).click();
+    await expect(cards[0].selected).toBe(true);
+    inner(cards[2]).dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, composed: true }));
+    await expect(cards[2].selected).toBe(true);
+    await expect(log.textContent).toBe('Đang chọn: Gói cơ bản, Gói tiêu chuẩn, Gói nâng cao');
+  },
+};
+
+/** variant="ghost" + slot overlay luôn hiện (không có effect reveal) */
+export const GhostAndOverlay = {
+  render: () => html`
+    <div style=${fxGrid}>
+      <hui-card variant="ghost" cover=${art(5)} cover-height="160">
+        <span slot="overlay" style="font-weight: 600">Chú thích trên ảnh</span>
+        Card ghost: không nền, không viền, không bóng.
+      </hui-card>
+      <hui-card cover=${art(6)} cover-height="160" title="Nút block trong actions">
+        <hui-button slot="actions" block>Mua ngay</hui-button>
+      </hui-card>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelectorAll('hui-card')[1];
+    const btn = card.querySelector('hui-button');
+    const actions = card.shadowRoot.querySelector('[part="actions"]');
+    // Nút block giãn gần hết chiều ngang thanh actions
+    await expect(btn.getBoundingClientRect().width).toBeGreaterThan(actions.getBoundingClientRect().width * 0.7);
+  },
+};

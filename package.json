@@ -16,6 +16,11 @@
       "import": "./dist/core.esm.js",
       "default": "./dist/core.esm.js"
     },
+    "./effects": {
+      "types": "./dist/types/effects.d.ts",
+      "import": "./dist/effects.esm.js",
+      "default": "./dist/effects.esm.js"
+    },
     "./hui-alert": {
       "types": "./dist/types/hui-alert.d.ts",
       "import": "./dist/hui-alert.esm.js",
@@ -40,6 +45,11 @@
       "types": "./dist/types/hui-badge.d.ts",
       "import": "./dist/hui-badge.esm.js",
       "default": "./dist/hui-badge.esm.js"
+    },
+    "./hui-blog-card": {
+      "types": "./dist/types/hui-blog-card.d.ts",
+      "import": "./dist/hui-blog-card.esm.js",
+      "default": "./dist/hui-blog-card.esm.js"
     },
     "./hui-breadcrumb": {
       "types": "./dist/types/hui-breadcrumb.d.ts",
@@ -120,6 +130,11 @@
       "types": "./dist/types/hui-flex.d.ts",
       "import": "./dist/hui-flex.esm.js",
       "default": "./dist/hui-flex.esm.js"
+    },
+    "./hui-flip-card": {
+      "types": "./dist/types/hui-flip-card.d.ts",
+      "import": "./dist/hui-flip-card.esm.js",
+      "default": "./dist/hui-flip-card.esm.js"
     },
     "./hui-float-button": {
       "types": "./dist/types/hui-float-button.d.ts",
@@ -206,10 +221,30 @@
       "import": "./dist/hui-popover.esm.js",
       "default": "./dist/hui-popover.esm.js"
     },
+    "./hui-price": {
+      "types": "./dist/types/hui-price.d.ts",
+      "import": "./dist/hui-price.esm.js",
+      "default": "./dist/hui-price.esm.js"
+    },
+    "./hui-pricing-card": {
+      "types": "./dist/types/hui-pricing-card.d.ts",
+      "import": "./dist/hui-pricing-card.esm.js",
+      "default": "./dist/hui-pricing-card.esm.js"
+    },
+    "./hui-product-card": {
+      "types": "./dist/types/hui-product-card.d.ts",
+      "import": "./dist/hui-product-card.esm.js",
+      "default": "./dist/hui-product-card.esm.js"
+    },
     "./hui-progress": {
       "types": "./dist/types/hui-progress.d.ts",
       "import": "./dist/hui-progress.esm.js",
       "default": "./dist/hui-progress.esm.js"
+    },
+    "./hui-progress-card": {
+      "types": "./dist/types/hui-progress-card.d.ts",
+      "import": "./dist/hui-progress-card.esm.js",
+      "default": "./dist/hui-progress-card.esm.js"
     },
     "./hui-radio": {
       "types": "./dist/types/hui-radio.d.ts",
@@ -230,6 +265,11 @@
       "types": "./dist/types/hui-reveal.d.ts",
       "import": "./dist/hui-reveal.esm.js",
       "default": "./dist/hui-reveal.esm.js"
+    },
+    "./hui-scroll-progress": {
+      "types": "./dist/types/hui-scroll-progress.d.ts",
+      "import": "./dist/hui-scroll-progress.esm.js",
+      "default": "./dist/hui-scroll-progress.esm.js"
     },
     "./hui-scroll-steps": {
       "types": "./dist/types/hui-scroll-steps.d.ts",
@@ -271,10 +311,25 @@
       "import": "./dist/hui-spinner.esm.js",
       "default": "./dist/hui-spinner.esm.js"
     },
+    "./hui-stat-card": {
+      "types": "./dist/types/hui-stat-card.d.ts",
+      "import": "./dist/hui-stat-card.esm.js",
+      "default": "./dist/hui-stat-card.esm.js"
+    },
     "./hui-statistic": {
       "types": "./dist/types/hui-statistic.d.ts",
       "import": "./dist/hui-statistic.esm.js",
       "default": "./dist/hui-statistic.esm.js"
+    },
+    "./hui-step-progress": {
+      "types": "./dist/types/hui-step-progress.d.ts",
+      "import": "./dist/hui-step-progress.esm.js",
+      "default": "./dist/hui-step-progress.esm.js"
+    },
+    "./hui-steps": {
+      "types": "./dist/types/hui-steps.d.ts",
+      "import": "./dist/hui-steps.esm.js",
+      "default": "./dist/hui-steps.esm.js"
     },
     "./hui-switch": {
       "types": "./dist/types/hui-switch.d.ts",

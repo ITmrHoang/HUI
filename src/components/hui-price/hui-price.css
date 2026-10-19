@@ -1,0 +1,98 @@
+/*
+ * HUI Price CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiPrice.
+ * Biến nội bộ có tiền tố --_price-.
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+  line-height: var(--hui-line-height);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.price {
+  --_price-size: var(--hui-font-lg);
+  --_price-original-size: var(--hui-font-sm);
+  --_price-discount-size: var(--hui-font-xs);
+  --_price-color: var(--hui-text);
+}
+
+.price__visual {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--hui-price-gap, var(--hui-space-sm));
+}
+
+/* ================== SIZES ================== */
+.price--sm {
+  --_price-size: var(--hui-font-sm);
+  --_price-original-size: var(--hui-font-xs);
+  --_price-discount-size: 0.6875rem;
+}
+
+.price--lg {
+  --_price-size: var(--hui-font-2xl);
+  --_price-original-size: var(--hui-font-base);
+  --_price-discount-size: var(--hui-font-sm);
+}
+
+/* Đang giảm giá → giá bán màu danger (quy ước TMĐT) */
+.price--sale {
+  --_price-color: var(--hui-danger);
+}
+
+.price__main {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.price__value {
+  color: var(--hui-price-color, var(--_price-color));
+  font-size: var(--hui-price-font-size, var(--_price-size));
+  font-weight: var(--hui-price-font-weight, var(--hui-font-weight-bold));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.price--free .price__value {
+  color: var(--hui-price-free-color, var(--hui-success));
+}
+
+.price__suffix {
+  color: var(--hui-text-secondary);
+  font-size: var(--_price-original-size);
+}
+
+.price__original {
+  color: var(--hui-price-original-color, var(--hui-text-muted));
+  font-size: var(--hui-price-original-font-size, var(--_price-original-size));
+  white-space: nowrap;
+}
+
+.price__discount {
+  align-self: center;
+  padding: 1px 6px;
+  border-radius: var(--hui-price-discount-radius, var(--hui-radius-sm));
+  background: var(--hui-price-discount-bg, var(--hui-danger-light));
+  color: var(--hui-price-discount-color, var(--hui-danger));
+  font-size: var(--_price-discount-size);
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: 1.5;
+  white-space: nowrap;
+}

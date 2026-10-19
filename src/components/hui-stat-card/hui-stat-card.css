@@ -1,0 +1,151 @@
+/*
+ * HUI Stat Card CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiStatCard.
+ * Biến nội bộ có tiền tố --_sc- (--_sc-spark do JS đặt theo dấu chênh lệch).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sc__card {
+  height: 100%;
+}
+
+.sc__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-sm);
+  color: var(--hui-text);
+}
+
+.sc__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--hui-space-md);
+}
+
+.sc__title {
+  min-width: 0;
+  padding-top: 2px;
+  color: var(--hui-stat-card-title-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium);
+  line-height: var(--hui-line-height);
+}
+
+/* ================== ICON ================== */
+.sc__icon {
+  --_sc-color: var(--hui-primary);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--hui-stat-card-icon-size, 2.75rem);
+  height: var(--hui-stat-card-icon-size, 2.75rem);
+  margin-inline-start: auto;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-stat-card-icon-bg, color-mix(in srgb, var(--hui-stat-card-icon-color, var(--_sc-color)) 14%, transparent));
+  color: var(--hui-stat-card-icon-color, var(--_sc-color));
+  font-size: calc(var(--hui-stat-card-icon-size, 2.75rem) * 0.48);
+}
+
+.sc__icon--success { --_sc-color: var(--hui-success); }
+.sc__icon--warning { --_sc-color: var(--hui-warning); }
+.sc__icon--danger { --_sc-color: var(--hui-danger); }
+.sc__icon--info { --_sc-color: var(--hui-info); }
+
+/* ================== GIÁ TRỊ ================== */
+.sc__statistic {
+  --hui-statistic-value-font-size: var(--hui-stat-card-value-font-size, var(--hui-font-h3));
+}
+
+.sc__statistic::part(value) {
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+:host([size='sm']) .sc__statistic {
+  --hui-statistic-value-font-size: var(--hui-stat-card-value-font-size, var(--hui-font-xl));
+}
+
+:host([size='lg']) .sc__statistic {
+  --hui-statistic-value-font-size: var(--hui-stat-card-value-font-size, var(--hui-font-h2));
+}
+
+/* ================== CHÊNH LỆCH ================== */
+.sc__delta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-space-xs) var(--hui-space-sm);
+  font-size: var(--hui-font-xs);
+  line-height: var(--hui-line-height);
+}
+
+.sc__delta {
+  --_sc-delta: var(--hui-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: var(--hui-radius-full);
+  background: color-mix(in srgb, var(--_sc-delta) 12%, transparent);
+  color: var(--_sc-delta);
+  font-weight: var(--hui-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.sc__delta--good { --_sc-delta: var(--hui-stat-card-up-color, var(--hui-success)); }
+.sc__delta--bad { --_sc-delta: var(--hui-stat-card-down-color, var(--hui-danger)); }
+
+.sc__delta-arrow {
+  font-size: 0.75em;
+}
+
+.sc__delta-label {
+  color: var(--hui-text-muted);
+}
+
+.sc__extra {
+  font-size: var(--hui-font-sm);
+  color: var(--hui-text-secondary);
+}
+
+/* ================== SPARKLINE ================== */
+.sc__sparkline {
+  display: block;
+  width: 100%;
+  height: var(--hui-stat-card-sparkline-height, 40px);
+  margin-top: var(--hui-space-xs);
+  overflow: visible;
+  color: var(--hui-stat-card-sparkline-color, var(--_sc-spark, var(--hui-primary)));
+}
+
+.sc__line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--hui-stat-card-sparkline-width, 2);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sc__area {
+  fill: currentColor;
+  stroke: none;
+  opacity: 0.14;
+}

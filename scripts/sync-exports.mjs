@@ -27,6 +27,7 @@ const components = readdirSync(resolve(root, 'src/components'), { withFileTypes:
 const exportsField = {
   '.': entry('index'),
   './core': entry('core'),
+  './effects': entry('effects'),
 };
 for (const name of components) exportsField[`./${name}`] = entry(name);
 exportsField['./style.css'] = './dist/style.css';

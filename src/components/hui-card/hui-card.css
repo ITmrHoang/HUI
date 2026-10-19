@@ -87,6 +87,12 @@
 
 .hui-card--filled { --_card-bg: var(--hui-bg-secondary); }
 
+.hui-card--ghost {
+  --_card-bg: transparent;
+  --_card-border: transparent;
+  --_card-shadow: none;
+}
+
 /* type="inner": card lồng trong card — đặt sau elevation để bỏ bóng */
 .hui-card--inner {
   --_card-shadow: none;
@@ -243,6 +249,11 @@
   border-top: 1px solid var(--hui-card-divider-color, var(--hui-border));
 }
 
+/* Nút block trong thanh actions chiếm hết phần còn lại (actions là flex row nên block thường không giãn) */
+.hui-card__actions ::slotted([block]) {
+  flex: 1 1 auto;
+}
+
 .hui-card__footer {
   padding: 0 var(--_card-pad) var(--_card-pad);
   color: var(--hui-text-muted);
@@ -255,10 +266,195 @@
   border-top: 1px solid var(--hui-card-divider-color, var(--hui-border));
 }
 
+/* ================== LINK (href) ================== */
+.hui-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hui-card--link:hover .hui-card__link {
+  color: var(--hui-primary);
+}
+
+.hui-card__link:focus-visible {
+  outline: none;
+}
+
+/* Focus vào link tiêu đề → viền focus bao cả card (người dùng bàn phím thấy rõ card nào đang chọn) */
+.hui-card--link:has(.hui-card__link:focus-visible) {
+  outline: 2px solid var(--hui-card-focus-color, var(--hui-primary));
+  outline-offset: 2px;
+}
+
+/* Không có tiêu đề: link ẩn (chỉ cho bàn phím / trình đọc màn hình) */
+.hui-card__link--hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ================== SELECTABLE ================== */
+.hui-card__check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--hui-border-hover);
+  background: var(--hui-bg-container);
+  color: transparent;
+  font-size: 13px;
+  transition: background var(--hui-transition-fast), border-color var(--hui-transition-fast), transform var(--hui-transition-fast);
+}
+
+.hui-card--selected {
+  --_card-border: var(--hui-card-selected-color, var(--hui-primary));
+  box-shadow: 0 0 0 1px var(--hui-card-selected-color, var(--hui-primary)), var(--hui-card-shadow, var(--_card-shadow));
+}
+
+.hui-card--selected .hui-card__check {
+  background: var(--hui-card-selected-color, var(--hui-primary));
+  border-color: var(--hui-card-selected-color, var(--hui-primary));
+  color: var(--hui-text-inverse);
+  transform: scale(1.08);
+}
+
+.hui-card--selectable:focus-visible {
+  outline: 2px solid var(--hui-card-focus-color, var(--hui-primary));
+  outline-offset: 2px;
+}
+
+/* ================== OVERLAY (slot overlay trên cover) ================== */
+.hui-card__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--hui-space-sm);
+  padding: var(--_card-pad);
+  color: var(--hui-text-light-solid);
+  background: var(--hui-card-overlay-bg, linear-gradient(to top, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0) 65%));
+}
+
+/* ================== EFFECTS ================== */
+/* zoom-media: ảnh cover phóng nhẹ khi hover */
+.hui-card--fx-zoom-media .hui-card__cover-img,
+.hui-card--fx-zoom-media .hui-card__cover ::slotted(img),
+.hui-card--fx-zoom-media .hui-card__cover ::slotted(video) {
+  transition: transform 600ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.hui-card--fx-zoom-media:hover .hui-card__cover-img,
+.hui-card--fx-zoom-media:hover .hui-card__cover ::slotted(img),
+.hui-card--fx-zoom-media:hover .hui-card__cover ::slotted(video) {
+  transform: scale(var(--hui-card-media-zoom, 1.06));
+}
+
+/* reveal: lớp phủ chỉ hiện khi hover hoặc khi focus vào bên trong card */
+.hui-card--fx-reveal .hui-card__overlay {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--hui-transition), transform var(--hui-transition);
+}
+
+.hui-card--fx-reveal:hover .hui-card__overlay,
+.hui-card--fx-reveal:focus-within .hui-card__overlay {
+  opacity: 1;
+  transform: none;
+}
+
+/* glow: đốm sáng theo chuột (JS ghi --hui-glow-x/y, xem hui-lib/effects) */
+.hui-card__glow {
+  display: none;
+}
+
+.hui-card--fx-glow .hui-card__glow {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(var(--hui-card-glow-size, 280px) circle at var(--hui-glow-x, 50%) var(--hui-glow-y, 50%),
+    var(--hui-card-glow-color, color-mix(in srgb, var(--hui-primary) 20%, transparent)), transparent 70%);
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+.hui-card--fx-glow[data-hui-glowing] .hui-card__glow {
+  opacity: 1;
+}
+
+/* tilt: JS đặt transform theo chuột (hui-lib/effects); giữ nổi 3D cho phần tử con */
+.hui-card--fx-tilt {
+  transform-style: preserve-3d;
+}
+
+/*
+ * border-gradient: viền chạy màu.
+ * ::before = dải conic-gradient xoay vòng (to hơn card, bị overflow cắt) — @property không dùng được trong
+ * Shadow DOM nên xoay cả phần tử thay vì animate góc gradient.
+ * ::after = nền card phủ lên, chừa lại đúng độ dày viền.
+ */
+.hui-card--fx-border-gradient {
+  --_card-border: transparent;
+  isolation: isolate;
+}
+
+.hui-card--fx-border-gradient::before,
+.hui-card--fx-border-gradient::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hui-card--fx-border-gradient::before {
+  inset: -50%;
+  background: var(--hui-card-gradient,
+    conic-gradient(var(--hui-primary), var(--hui-info), var(--hui-success), var(--hui-warning), var(--hui-danger), var(--hui-primary)));
+  animation: hui-card-spin var(--hui-card-gradient-duration, 4s) linear infinite;
+}
+
+.hui-card--fx-border-gradient::after {
+  inset: var(--hui-card-gradient-width, 2px);
+  border-radius: calc(var(--hui-card-radius, var(--hui-radius-lg)) - var(--hui-card-gradient-width, 2px));
+  background: var(--hui-card-bg, var(--_card-bg));
+}
+
+.hui-card--fx-border-gradient.hui-card--ghost::after {
+  background: var(--hui-bg);
+}
+
+@keyframes hui-card-spin {
+  to { transform: rotate(1turn); }
+}
+
+/* no-animation: tắt mọi chuyển động của card */
+.hui-card--static,
+.hui-card--static * {
+  transition: none !important;
+  animation: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hui-card,
-  .hui-card__skeleton-line {
+  .hui-card__skeleton-line,
+  .hui-card--fx-border-gradient::before {
     transition: none;
     animation: none;
+  }
+
+  .hui-card--fx-zoom-media:hover .hui-card__cover-img {
+    transform: none;
   }
 }

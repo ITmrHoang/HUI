@@ -192,7 +192,7 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
 **Backlog chỉnh sửa phát hiện khi dựng trang mẫu:**
 - [ ] `hui-input` `icon-left`/`icon-right`: nhận tên `hui-icon` (hiện đang in chữ ra, vd "user") — tạm dùng `<hui-icon slot="prefix">`
 - [ ] `hui-checkbox` / `hui-radio`: cỡ chữ nhãn theo `effectiveSize` (đang to hơn input cùng size)
-- [ ] `hui-card` slot `actions`: `hui-button block` chưa giãn hết chiều ngang
+- [x] `hui-card` slot `actions`: `hui-button block` chưa giãn hết chiều ngang
 - [ ] `hui-statistic`: thuộc tính `align` (start | center) để căn giữa trong dải số liệu
 - [ ] Modal mặc định không còn căn giữa dọc (cách đỉnh `min(100px, 10vh)` như Ant) — cân nhắc giữ hay đổi mặc định `centered`
 - [ ] Nút trên toast (message/notification) chưa bấm được khi đang mở modal (giới hạn của top-layer + inert)
@@ -334,23 +334,23 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
 ## A2 — MOLECULES
 
 ### A2.1 Card & khối nội dung
-- [ ] 🆕 **Biến thể `hui-card`** (nâng cấp, không tạo thẻ mới): `variant` elevated | outlined | filled | ghost,
+- [x] 🆕 **Biến thể `hui-card`** (nâng cấp, không tạo thẻ mới): `variant` elevated | outlined | filled | ghost,
   `orientation` vertical | horizontal (ảnh trái – nội dung phải), `clickable` (cả thẻ là link: `href`), `selectable` + `selected` (chọn nhiều thẻ),
   `media` slot tràn viền, `badge`/ribbon góc
 - [ ] 🆕 **`hui-media-card`** — ảnh/video + tiêu đề + mô tả + meta (tác giả, thời gian) + actions; dùng cho bài viết, sản phẩm
-- [ ] 🆕 **`hui-product-card`** — ảnh, tên, giá (giá gốc gạch ngang + % giảm), rating, nút thêm giỏ, nhãn "Mới"/"Hết hàng"
+- [x] 🆕 **`hui-product-card`** — ảnh, tên, giá (giá gốc gạch ngang + % giảm), rating, nút thêm giỏ, nhãn "Mới"/"Hết hàng"
 - [ ] 🆕 **`hui-profile-card`** — avatar, tên, chức danh, chỉ số (followers…), nút liên hệ
-- [ ] 🆕 **`hui-stat-card`** (KPI tile) — tiêu đề, `hui-number`, chênh lệch ▲/▼ % (màu theo dấu), sparkline nhỏ, icon
+- [x] 🆕 **`hui-stat-card`** (KPI tile) — tiêu đề, `hui-number`, chênh lệch ▲/▼ % (màu theo dấu), sparkline nhỏ, icon
 - [ ] 🆕 **`hui-feature-card`** — icon lớn + tiêu đề + mô tả (landing page)
-- [ ] 🆕 **`hui-pricing-card`** — tên gói, giá/kỳ, danh sách tính năng (✓/✗), nút CTA, `highlighted` (gói đề xuất)
+- [x] 🆕 **`hui-pricing-card`** — tên gói, giá/kỳ, danh sách tính năng (✓/✗), nút CTA, `highlighted` (gói đề xuất)
 - [ ] 🆕 **`hui-testimonial`** — trích dẫn, avatar, tên, công ty, rating
 
 ### A2.2 Tiến trình & các bước
 - [ ] 🔄 `hui-progress` (G1) — line / circle / dashboard / steps
-- [ ] 🆕 **`hui-progress-card`** — tiêu đề + progress + "12/20 việc" + hạn chót
-- [ ] 🆕 **`hui-scroll-progress`** — thanh tiến độ đọc trang ở mép trên (theo cuộn của window hoặc một vùng cuộn)
-- [ ] (G2) `hui-steps` → kéo lên **A2** vì dùng chung với `hui-scroll-steps`: `current`, `direction`, `status`, `type` default | dot | navigation, `clickable`, **`data`** (mảng bước)
-- [ ] 🆕 **`hui-step-progress`** — thanh bước dạng "Bước 2/5" + tên bước + nút Trước/Sau (wizard nhỏ)
+- [x] 🆕 **`hui-progress-card`** — tiêu đề + progress + "12/20 việc" + hạn chót
+- [x] 🆕 **`hui-scroll-progress`** — thanh tiến độ đọc trang ở mép trên (theo cuộn của window hoặc một vùng cuộn)
+- [x] (G2) `hui-steps` → kéo lên **A2** vì dùng chung với `hui-scroll-steps`: `current`, `direction`, `status`, `type` default | dot | navigation, `clickable`, **`data`** (mảng bước)
+- [x] 🆕 **`hui-step-progress`** — thanh bước dạng "Bước 2/5" + tên bước + nút Trước/Sau (wizard nhỏ)
 
 ### A2.3 Nhập liệu ghép
 - [ ] 🔄 `hui-form-item` (G1)
@@ -482,7 +482,7 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
   (dùng lõi `hui-statistic-countdown` G1)
 - [ ] 🆕 **`hui-stats-counter`** — dải số liệu ("10.000+ khách hàng") **đếm chạy khi cuộn tới**, nhận `data`
 - [ ] 🆕 **`hui-team-grid`** — lưới thành viên (ảnh, tên, chức vụ, mạng xã hội hiện khi hover), nhận `data`
-- [ ] 🆕 **`hui-blog-card`** + **`hui-post-list`** — ảnh bìa, chuyên mục, tiêu đề, trích đoạn, tác giả, `hui-time`, thời gian đọc ước tính
+- [x] 🆕 **`hui-blog-card`** + **`hui-post-list`** — ảnh bìa, chuyên mục, tiêu đề, trích đoạn, tác giả, `hui-time`, thời gian đọc ước tính
 - [ ] 🆕 **`hui-prose`** — bọc nội dung HTML từ CMS/Markdown để có typography đẹp sẵn (heading, list, bảng, trích dẫn, ảnh, code)
 - [ ] 🆕 **`hui-code-block`** — khối code có nút copy, tên file, đánh số dòng, highlight dòng (tô màu cú pháp đơn giản, không thư viện)
 - [ ] 🆕 **`hui-share`** — nút chia sẻ Facebook / Zalo / X / LinkedIn / copy link; dùng Web Share API trên mobile
@@ -512,13 +512,13 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
 - [ ] 🆕 **`hui-description-card`** — thẻ chi tiết 1 bản ghi từ `data` + `fields` (label, type format) — trang xem chi tiết nhanh
 
 ### A6.5 Card (bổ sung hiệu ứng cho A2.1)
-- [ ] Thuộc tính `effect` dùng chung cho mọi card: `lift` (nổi lên + bóng), `tilt` (nghiêng 3D theo chuột), `glow` (viền sáng theo con trỏ),
+- [x] Thuộc tính `effect` dùng chung cho mọi card: `lift` (nổi lên + bóng), `tilt` (nghiêng 3D theo chuột), `glow` (viền sáng theo con trỏ),
   `zoom-media` (ảnh phóng nhẹ khi hover), `reveal` (lớp phủ + nút hiện khi hover), `border-gradient` (viền chuyển màu chạy)
-- [ ] 🆕 **`hui-flip-card`** — lật mặt trước/sau (hover hoặc click), slot `front` / `back`
+- [x] 🆕 **`hui-flip-card`** — lật mặt trước/sau (hover hoặc click), slot `front` / `back`
 - [ ] 🆕 **`hui-hover-card`** — rê vào tên/avatar hiện thẻ thông tin chi tiết (kiểu GitHub/Twitter), có trễ mở/đóng
 
 ### A6.6 Thương mại điện tử
-- [ ] 🆕 **`hui-price`** — giá bán, giá gốc gạch ngang, % giảm, đơn vị (₫ mặc định), cỡ `sm | md | lg`
+- [x] 🆕 **`hui-price`** — giá bán, giá gốc gạch ngang, % giảm, đơn vị (₫ mặc định), cỡ `sm | md | lg`
 - [ ] 🆕 **`hui-variant-picker`** — chọn màu (swatch) / kích cỡ (nút), mục hết hàng gạch chéo, gửi form
 - [ ] 🆕 **`hui-image-zoom`** — rê chuột phóng to ảnh sản phẩm (kính lúp hoặc khung bên cạnh)
 - [ ] 🆕 **`hui-add-to-cart`** — nút có trạng thái loading → ✓ đã thêm, hiệu ứng **ảnh bay vào giỏ** (fly-to-cart), badge giỏ "nảy"
@@ -580,7 +580,7 @@ bật `prefers-reduced-motion`; thời lượng/easing lấy từ token `--hui-m
    `hui-rate` + `hui-rating-display` + `hui-rating-summary`, `hui-faq` (trên collapse G1), `hui-announcement-bar`,
    `hui-theme-toggle`, `hui-loading-bar`
 3. ✅ **A3.1 `hui-scroller` + A3.2 `hui-scroll-steps` + A3.4 `hui-reveal`** (xong 2026-10-19) → tiếp theo `hui-carousel` (trên scroller)
-4. **A2.1 + A6.5 card** (variants + `effect` lift/tilt/glow/zoom-media/reveal) + product/pricing/stat/blog card, **A2.2 progress/steps**
+4. ✅ **A2.1 + A6.5 card** (variants + `effect` lift/tilt/glow/zoom-media/reveal) + product/pricing/stat/blog card, **A2.2 progress/steps** (xong 2026-10-19; còn profile/feature/testimonial/media card, hover-card, post-list)
 5. **A6.4 `hui-data-view`** (list ↔ grid ↔ table, URL sync) + **A4** card-grid, kpi-row, mini chart, tương tác nhanh (editable, sortable, hotkey)
 6. **A7.2–A7.8 hiệu ứng** (hover, chữ, nền, confetti, view transition) + trang `Foundations/Motion`
 7. **A6.2 nội dung** (lightbox/gallery, video facade, countdown, stats-counter, prose, code-block, share, toc)

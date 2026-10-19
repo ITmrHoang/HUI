@@ -1,0 +1,60 @@
+/*
+ * HUI Scroll Progress CSS
+ * Biến công khai (đặt ở :root, thẻ cha hoặc chính <hui-scroll-progress>):
+ *   --hui-scroll-progress-color        Màu thanh (attribute color ưu tiên hơn)
+ *   --hui-scroll-progress-track-color  Màu rãnh (mặc định trong suốt)
+ *   --hui-scroll-progress-height       Độ dày (attribute height ưu tiên hơn; 3px)
+ *   --hui-scroll-progress-z-index      Lớp xếp chồng khi fixed
+ *   --hui-scroll-progress-radius       Bo góc đầu thanh
+ * Parts: base, bar
+ * Biến nội bộ (JS đặt inline): --_sp-color, --_sp-height
+ */
+
+:host {
+  display: block;
+}
+
+.track {
+  box-sizing: border-box;
+  height: var(--_sp-height, var(--hui-scroll-progress-height, 3px));
+  overflow: hidden;
+  background: var(--hui-scroll-progress-track-color, transparent);
+  pointer-events: none;
+}
+
+/* Cố định ở mép cửa sổ */
+.track--fixed {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: var(--hui-scroll-progress-z-index, var(--hui-z-sticky));
+}
+
+.track--bottom {
+  inset: auto 0 0 0;
+}
+
+/* Nằm trong luồng trang (vd: đầu một khung đọc) */
+.track--inline {
+  position: relative;
+  width: 100%;
+  background: var(--hui-scroll-progress-track-color, var(--hui-fill-secondary));
+  border-radius: var(--hui-scroll-progress-radius, var(--hui-radius-full));
+}
+
+.bar {
+  width: 0;
+  height: 100%;
+  background: var(--_sp-color, var(--hui-scroll-progress-color, var(--hui-primary)));
+  border-radius: 0 var(--hui-scroll-progress-radius, var(--hui-radius-full)) var(--hui-scroll-progress-radius, var(--hui-radius-full)) 0;
+  transition: width var(--hui-motion-duration-fast, 150ms) linear;
+}
+
+.track--no-animation .bar {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}

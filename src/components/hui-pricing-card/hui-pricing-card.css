@@ -1,0 +1,188 @@
+/*
+ * HUI Pricing Card CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiPricingCard.
+ * Biến nội bộ có tiền tố --_pr-.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host([highlighted]) {
+  position: relative;
+  z-index: 1;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Ruy-băng bọc cả card; chỉ hiện dải ruy-băng khi highlighted */
+.pr__ribbon {
+  height: 100%;
+  transition: transform var(--hui-transition-slow);
+}
+
+.pr__ribbon::part(base) {
+  height: 100%;
+}
+
+.pr__ribbon:not([data-active])::part(ribbon) {
+  display: none;
+}
+
+:host([highlighted]) .pr__ribbon {
+  transform: scale(var(--hui-pricing-card-highlight-scale, 1.04));
+}
+
+.pr__card {
+  --_pr-accent: var(--hui-pricing-card-accent, var(--hui-primary));
+  height: 100%;
+}
+
+/* CTA nằm sát nội dung, không kẻ ngăn */
+.pr__card::part(actions) {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.pr__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-lg);
+  color: var(--hui-text);
+}
+
+/* ================== ICON + TÊN GÓI ================== */
+.pr__icon {
+  display: inline-grid;
+  place-items: center;
+  align-self: flex-start;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--hui-radius-lg);
+  background: color-mix(in srgb, var(--_pr-accent) 14%, transparent);
+  color: var(--_pr-accent);
+  font-size: 1.5rem;
+}
+
+.pr__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+}
+
+.pr__plan {
+  color: var(--hui-pricing-card-plan-color, var(--hui-text));
+  font-size: var(--hui-pricing-card-plan-font-size, var(--hui-font-lg));
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading);
+}
+
+.pr__desc {
+  margin: 0;
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+/* ================== GIÁ ================== */
+.pr__pricing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-space-sm);
+}
+
+.pr__price {
+  --hui-price-font-size: var(--hui-pricing-card-price-font-size, var(--hui-font-h2));
+  --hui-price-original-font-size: var(--hui-font-sm);
+}
+
+.pr__save {
+  padding: 2px var(--hui-space-sm);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-success-light);
+  color: var(--hui-success);
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+/* ================== TÍNH NĂNG ================== */
+.pr__features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-pricing-card-feature-gap, var(--hui-space-sm));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+.pr__feature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hui-space-sm);
+}
+
+.pr__feature-icon {
+  flex-shrink: 0;
+  margin-top: 0.2em;
+  color: var(--hui-pricing-card-check-color, var(--hui-success));
+  --hui-icon-stroke-width: 2.5;
+}
+
+.pr__feature--excluded {
+  color: var(--hui-pricing-card-excluded-color, var(--hui-text-muted));
+}
+
+.pr__feature--excluded .pr__feature-icon {
+  color: inherit;
+}
+
+/* <li> người dùng truyền vào: dấu ✓ vẽ bằng mask (data-excluded → ✗ nhạt) */
+::slotted(li) {
+  position: relative;
+  padding-inline-start: 1.5em;
+}
+
+::slotted(li)::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.25em;
+  width: 1em;
+  height: 1em;
+  background: var(--hui-pricing-card-check-color, var(--hui-success));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+::slotted(li[data-excluded]) {
+  color: var(--hui-pricing-card-excluded-color, var(--hui-text-muted));
+}
+
+::slotted(li[data-excluded])::before {
+  background: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");
+}
+
+/* ================== CTA ================== */
+.pr__actions {
+  width: 100%;
+}
+
+/* ================== GIẢM CHUYỂN ĐỘNG ================== */
+:host([no-animation]) .pr__ribbon {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pr__ribbon {
+    transition: none;
+  }
+}

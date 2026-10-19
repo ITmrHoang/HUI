@@ -1,0 +1,471 @@
+/*
+ * HUI Steps CSS
+ * Biến công khai (đặt ở :root, thẻ cha hoặc chính <hui-steps>):
+ *   --hui-steps-icon-size              Kích thước ô icon (32px; sm 24px)
+ *   --hui-steps-dot-size               Đường kính chấm (type="dot")
+ *   --hui-steps-color                  Màu bước đang làm / đã xong
+ *   --hui-steps-wait-color             Màu bước đang chờ
+ *   --hui-steps-error-color            Màu bước lỗi
+ *   --hui-steps-connector-color        Màu đường nối chưa tô
+ *   --hui-steps-connector-fill-color   Màu đường nối đã tô
+ *   --hui-steps-connector-thickness    Độ dày đường nối
+ *   --hui-steps-title-color            Màu tiêu đề
+ *   --hui-steps-description-color      Màu mô tả
+ *   --hui-steps-gap                    Khoảng cách icon ↔ chữ / đường nối
+ *   --hui-steps-focus-color            Viền focus của bước bấm được
+ * Parts: base, item (+ item-wait/process/finish/error, item-active), step, icon, ring, content,
+ *        title, subtitle, description, connector, connector-fill
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.steps {
+  /* Biến nội bộ: đổi theo size / type */
+  --_steps-icon: var(--hui-steps-icon-size, 32px);
+  --_steps-dot: var(--hui-steps-dot-size, 8px);
+  --_steps-gap: var(--hui-steps-gap, var(--hui-space-sm));
+  --_steps-line: var(--hui-steps-connector-thickness, 1px);
+  --_steps-title-size: var(--hui-font-base);
+  --_steps-desc-size: var(--hui-font-sm);
+  --_steps-primary: var(--hui-steps-color, var(--hui-primary));
+  --_steps-wait: var(--hui-steps-wait-color, var(--hui-text-tertiary));
+  --_steps-error: var(--hui-steps-error-color, var(--hui-danger));
+  --_steps-track: var(--hui-steps-connector-color, var(--hui-border));
+  --_steps-fill: var(--hui-steps-connector-fill-color, var(--_steps-primary));
+  --_steps-speed: var(--hui-motion-duration-slow, 300ms);
+
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--_steps-title-size);
+  line-height: var(--hui-line-height, 1.5);
+}
+
+.steps--sm {
+  --_steps-icon: var(--hui-steps-icon-size, 24px);
+  --_steps-title-size: var(--hui-font-sm);
+  --_steps-desc-size: var(--hui-font-xs);
+}
+
+/* Bước "dot": icon chính là chấm nhỏ */
+.steps--dot {
+  --_steps-icon: var(--_steps-dot);
+}
+
+/* ================== MỘT BƯỚC ================== */
+.step {
+  /* --_step-c: màu theo trạng thái */
+  --_step-c: var(--_steps-wait);
+
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+
+.step--process { --_step-c: var(--_steps-primary); }
+.step--finish { --_step-c: var(--_steps-primary); }
+.step--error { --_step-c: var(--_steps-error); }
+
+.step__body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--_steps-gap);
+  min-width: 0;
+  /* reset <button> */
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  appearance: none;
+}
+
+button.step__body {
+  cursor: pointer;
+  border-radius: var(--hui-radius-sm);
+  outline: none;
+}
+
+button.step__body:focus-visible {
+  box-shadow: 0 0 0 2px var(--hui-steps-focus-color, var(--hui-primary-light));
+}
+
+button.step__body:disabled {
+  cursor: not-allowed;
+}
+
+.step--disabled .step__body {
+  opacity: 0.5;
+}
+
+/* Ô icon: số thứ tự / icon / chấm */
+.step__icon {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--_steps-icon);
+  height: var(--_steps-icon);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius-full);
+  background: transparent;
+  color: var(--hui-text-secondary);
+  font-size: calc(var(--_steps-icon) * 0.45);
+  font-weight: var(--hui-font-weight-medium);
+  line-height: 1;
+  transition:
+    background-color var(--hui-transition),
+    border-color var(--hui-transition),
+    color var(--hui-transition);
+}
+
+.step--process .step__icon {
+  border-color: var(--_step-c);
+  background: var(--_step-c);
+  color: var(--hui-text-inverse);
+}
+
+.step--finish .step__icon {
+  border-color: var(--hui-primary-light);
+  background: var(--hui-primary-light);
+  color: var(--_step-c);
+}
+
+.step--error .step__icon {
+  border-color: var(--hui-danger-light);
+  background: var(--hui-danger-light);
+  color: var(--_step-c);
+}
+
+/* Icon riêng: không khung tròn, icon to hơn */
+.step--custom-icon .step__icon {
+  border-color: transparent;
+  background: transparent;
+  color: var(--_step-c);
+  font-size: calc(var(--_steps-icon) * 0.75);
+}
+
+.step--custom-icon.step--wait .step__icon {
+  color: var(--_steps-wait);
+}
+
+/* Chấm */
+.steps--dot .step__icon {
+  border: 0;
+  background: var(--_step-c);
+  font-size: 0;
+}
+
+.steps--dot .step--active .step__icon {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--_step-c) 20%, transparent);
+}
+
+/* Vòng tiến độ (percent) */
+.ring {
+  position: absolute;
+  inset: -5px;
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  pointer-events: none;
+}
+
+.ring__trail,
+.ring__path {
+  stroke-width: 4;
+}
+
+.ring__trail {
+  stroke: var(--hui-fill-secondary);
+}
+
+.ring__path {
+  stroke: var(--_steps-primary);
+  stroke-linecap: round;
+  transition: stroke-dasharray var(--_steps-speed) var(--hui-motion-ease-out);
+}
+
+/* Chữ */
+.step__content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.step__title {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--hui-space-xs) var(--hui-space-sm);
+  color: var(--hui-steps-title-color, var(--hui-text-secondary));
+  line-height: var(--_steps-icon);
+  transition: color var(--hui-transition);
+}
+
+.steps--dot .step__title,
+.steps--sm .step__title {
+  line-height: var(--hui-line-height, 1.5);
+}
+
+.step--process .step__title,
+.step--finish .step__title {
+  color: var(--hui-steps-title-color, var(--hui-text));
+}
+
+.step--process .step__title {
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.step--error .step__title,
+.step--error .step__desc {
+  color: var(--_steps-error);
+}
+
+.step__subtitle {
+  color: var(--hui-text-tertiary);
+  font-size: var(--_steps-desc-size);
+  font-weight: var(--hui-font-weight-normal);
+}
+
+.step__desc {
+  color: var(--hui-steps-description-color, var(--hui-text-tertiary));
+  font-size: var(--_steps-desc-size);
+}
+
+.step--process .step__desc {
+  color: var(--hui-steps-description-color, var(--hui-text-secondary));
+}
+
+.steps--clickable .step:not(.step--disabled):not(.step--active) button.step__body:hover .step__title,
+.steps--clickable .step:not(.step--disabled):not(.step--active) button.step__body:hover .step__desc {
+  color: var(--_steps-primary);
+}
+
+.steps--clickable .step--wait:not(.step--disabled) button.step__body:hover .step__icon {
+  border-color: var(--_steps-primary);
+  color: var(--_steps-primary);
+}
+
+/* ================== ĐƯỜNG NỐI ================== */
+.step__connector {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--_steps-track);
+  border-radius: var(--hui-radius-full);
+}
+
+.step__connector-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--_steps-fill);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--_steps-speed) var(--hui-motion-ease-out);
+}
+
+/* Bước đã xong → đường nối phía sau nó được tô */
+.step--finish .step__connector-fill {
+  transform: scaleX(1);
+}
+
+/* Ngang, chữ cạnh icon: [icon][chữ][— đường nối —] */
+.steps--horizontal:not(.steps--label-vertical):not(.steps--navigation) .step {
+  flex: 1 1 0;
+  align-items: flex-start;
+}
+
+.steps--horizontal:not(.steps--label-vertical):not(.steps--navigation) .step--last {
+  flex: none;
+}
+
+.steps--horizontal:not(.steps--label-vertical):not(.steps--navigation) .step__body {
+  flex: none;
+}
+
+.steps--horizontal:not(.steps--label-vertical):not(.steps--navigation) .step__connector {
+  flex: 1 1 auto;
+  min-width: 16px;
+  height: var(--_steps-line);
+  margin: calc(var(--_steps-icon) / 2 - var(--_steps-line) / 2) var(--hui-space-lg) 0;
+}
+
+.steps--horizontal:not(.steps--label-vertical) .step__desc {
+  max-width: 160px;
+}
+
+/* Ngang, chữ dưới icon (label-placement vertical / dot) */
+.steps--label-vertical .step {
+  flex: 1 1 0;
+}
+
+.steps--label-vertical .step__body {
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.steps--label-vertical .step__content {
+  align-items: center;
+  padding: 0 var(--hui-space-sm);
+}
+
+.steps--label-vertical .step__connector {
+  position: absolute;
+  top: calc(var(--_steps-icon) / 2 - var(--_steps-line) / 2);
+  left: calc(50% + var(--_steps-icon) / 2 + var(--_steps-gap));
+  width: calc(100% - var(--_steps-icon) - 2 * var(--_steps-gap));
+  height: var(--_steps-line);
+}
+
+.steps--dot.steps--label-vertical .step__connector {
+  --_steps-line: var(--hui-steps-connector-thickness, 3px);
+}
+
+.steps--dot.steps--label-vertical .step__icon {
+  margin-bottom: var(--_steps-gap);
+}
+
+/* Dọc: [icon + đường nối dọc][chữ] */
+.steps--vertical {
+  flex-direction: column;
+}
+
+.steps--vertical .step__body {
+  flex: 1;
+}
+
+.steps--vertical .step__content {
+  padding-bottom: var(--hui-space-xl);
+}
+
+.steps--vertical .step--last .step__content {
+  padding-bottom: 0;
+}
+
+.steps--vertical .step__connector {
+  position: absolute;
+  top: calc(var(--_steps-icon) + var(--hui-space-xs));
+  bottom: var(--hui-space-xs);
+  left: calc(var(--_steps-icon) / 2 - var(--_steps-line) / 2);
+  width: var(--_steps-line);
+}
+
+.steps--vertical .step__connector-fill {
+  transform: scaleY(0);
+  transform-origin: center top;
+}
+
+.steps--vertical .step--finish .step__connector-fill {
+  transform: scaleY(1);
+}
+
+/* Chấm dọc: canh chấm giữa dòng tiêu đề */
+.steps--dot.steps--vertical .step__icon {
+  margin-top: calc((var(--hui-line-height, 1.5) * var(--_steps-title-size) - var(--_steps-icon)) / 2);
+}
+
+.steps--dot.steps--vertical .step__connector {
+  top: calc(var(--hui-line-height, 1.5) * var(--_steps-title-size) / 2 + var(--_steps-icon) / 2 + var(--hui-space-xs));
+  left: calc(var(--_steps-icon) / 2 - var(--_steps-line) / 2);
+}
+
+/* ================== NAVIGATION ================== */
+.steps--navigation.steps--horizontal .step {
+  flex: 1 1 0;
+  padding: var(--hui-space-md) var(--hui-space-lg);
+}
+
+.steps--navigation .step__connector {
+  display: none;
+}
+
+/* Mũi tên ngăn cách */
+.steps--navigation.steps--horizontal .step:not(.step--last)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  border-top: 1px solid var(--hui-border);
+  border-right: 1px solid var(--hui-border);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+/* Gạch chân bước hiện tại */
+.steps--navigation .step::before {
+  content: '';
+  position: absolute;
+  background: var(--_steps-primary);
+  transition: transform var(--_steps-speed) var(--hui-motion-ease-out);
+}
+
+.steps--navigation.steps--horizontal .step::before {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  transform: scaleX(0);
+}
+
+.steps--navigation.steps--vertical .step::before {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  transform: scaleY(0);
+}
+
+.steps--navigation .step--active::before {
+  transform: none;
+}
+
+.steps--navigation.steps--vertical .step {
+  padding: var(--hui-space-sm) var(--hui-space-lg);
+}
+
+.steps--navigation.steps--vertical .step__content {
+  padding-bottom: 0;
+}
+
+/* ================== TẮT HIỆU ỨNG ================== */
+.steps--no-animation *,
+.steps--no-animation .step::before {
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step__connector-fill,
+  .ring__path,
+  .step::before,
+  .step__icon,
+  .step__title {
+    transition: none !important;
+  }
+}

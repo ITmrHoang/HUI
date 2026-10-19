@@ -61,6 +61,16 @@ export {
 export { default as HuiReveal } from './components/hui-reveal/index.js';
 export { default as HuiScrollSteps, HuiStepSection } from './components/hui-scroll-steps/index.js';
 export { default as HuiScroller } from './components/hui-scroller/index.js';
+export { default as HuiFlipCard } from './components/hui-flip-card/index.js';
+export { default as HuiSteps, HuiStep } from './components/hui-steps/index.js';
+export { default as HuiStepProgress } from './components/hui-step-progress/index.js';
+export { default as HuiProgressCard } from './components/hui-progress-card/index.js';
+export { default as HuiScrollProgress } from './components/hui-scroll-progress/index.js';
+export { default as HuiPrice, discountPercent } from './components/hui-price/index.js';
+export { default as HuiProductCard } from './components/hui-product-card/index.js';
+export { default as HuiPricingCard } from './components/hui-pricing-card/index.js';
+export { default as HuiStatCard, sparklinePoints } from './components/hui-stat-card/index.js';
+export { default as HuiBlogCard, readingMinutes, WORDS_PER_MINUTE } from './components/hui-blog-card/index.js';
 export { default as HuiTabs, HuiTabPanel } from './components/hui-tabs/index.js';
 export {
   default as HuiMenu, HuiMenuItem, HuiSubMenu, HuiMenuGroup, HuiMenuDivider,

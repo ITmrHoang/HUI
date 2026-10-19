@@ -1,0 +1,201 @@
+/*
+ * HUI Product Card CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiProductCard.
+ * Biến nội bộ có tiền tố --_pc- (--_pc-ratio do JS đặt inline theo attribute ratio).
+ * Ảnh và lớp .pc__media cùng nằm trong slot cover của hui-card → hiệu ứng zoom-media của card áp vào ảnh.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.pc__card {
+  height: 100%;
+}
+
+/* ================== ẢNH ================== */
+.pc__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--_pc-ratio, 1 / 1);
+  object-fit: var(--hui-product-card-image-fit, cover);
+  background: var(--hui-product-card-image-bg, var(--hui-bg-tertiary));
+  /* Giữ transition transform cho zoom-media của hui-card (CSS ở đây thắng ::slotted bên trong card) */
+  transition: transform 600ms var(--hui-motion-ease-out), filter var(--hui-transition), opacity var(--hui-transition);
+}
+
+/* Ngang: ảnh lấp đầy chiều cao card */
+:host([orientation='horizontal']) .pc__img {
+  height: 100%;
+}
+
+:host([sold-out]) .pc__img {
+  filter: grayscale(1);
+  opacity: 0.75;
+}
+
+/* Lớp phủ trên ảnh: nhãn, tim, "Hết hàng" — không chặn click trừ phần tử tương tác */
+.pc__media {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Không có ảnh → lớp media tự giữ chỗ theo tỉ lệ */
+.pc__media--empty {
+  position: relative;
+  inset: auto;
+  aspect-ratio: var(--_pc-ratio, 1 / 1);
+  background: var(--hui-product-card-image-bg, var(--hui-bg-tertiary));
+}
+
+.pc__badges {
+  position: absolute;
+  top: var(--hui-space-sm);
+  inset-inline-start: var(--hui-space-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hui-space-xs);
+  pointer-events: auto;
+}
+
+.pc__badge {
+  padding: 2px var(--hui-space-sm);
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-product-card-badge-bg, var(--hui-primary));
+  color: var(--hui-product-card-badge-color, var(--hui-text-inverse));
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: 1.5;
+  box-shadow: var(--hui-shadow-sm);
+}
+
+/* ================== YÊU THÍCH ================== */
+.pc__wishlist {
+  position: absolute;
+  top: var(--hui-space-sm);
+  inset-inline-end: var(--hui-space-sm);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-product-card-wishlist-bg, var(--hui-bg-elevated));
+  color: var(--hui-text-secondary);
+  font-size: 1.05rem;
+  box-shadow: var(--hui-shadow-md);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color var(--hui-transition-fast), transform var(--hui-transition-fast);
+}
+
+.pc__wishlist:hover {
+  color: var(--hui-product-card-wishlist-active-color, var(--hui-danger));
+  transform: scale(1.06);
+}
+
+.pc__wishlist:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+}
+
+.pc__wishlist[aria-pressed='true'] {
+  color: var(--hui-product-card-wishlist-active-color, var(--hui-danger));
+}
+
+/* Tim tô đặc khi bật (icon heart mặc định chỉ có nét) */
+.pc__wishlist[aria-pressed='true'] hui-icon::part(svg) {
+  fill: currentColor;
+}
+
+/* ================== HẾT HÀNG ================== */
+.pc__sold-out {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--hui-product-card-sold-out-bg, color-mix(in srgb, var(--hui-bg) 40%, transparent));
+}
+
+.pc__sold-out-label {
+  padding: var(--hui-space-xs) var(--hui-space-md);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-bg-spotlight);
+  color: var(--hui-text-light-solid);
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-semibold);
+  letter-spacing: 0.02em;
+}
+
+/* ================== NỘI DUNG ================== */
+.pc__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hui-space-xs);
+}
+
+.pc__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--hui-product-card-name-lines, 2);
+  overflow: hidden;
+  color: var(--hui-product-card-name-color, var(--hui-text));
+  font-size: var(--hui-product-card-name-font-size, 1em);
+  font-weight: var(--hui-font-weight-medium);
+  line-height: var(--hui-line-height);
+}
+
+.pc__name-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--hui-transition-fast);
+}
+
+.pc__name-link[href]:hover {
+  color: var(--hui-primary);
+}
+
+.pc__name-link:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--hui-radius-sm);
+}
+
+/* ================== ACTIONS ================== */
+.pc__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  width: 100%;
+}
+
+.pc__add {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ================== GIẢM CHUYỂN ĐỘNG ================== */
+:host([no-animation]) .pc__img,
+:host([no-animation]) .pc__wishlist,
+:host([no-animation]) .pc__name-link {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc__img,
+  .pc__wishlist,
+  .pc__name-link {
+    transition: none;
+  }
+}

@@ -1,0 +1,109 @@
+/*
+ * HUI Step Progress CSS
+ * Biến công khai (đặt ở :root, thẻ cha hoặc chính <hui-step-progress>):
+ *   --hui-step-progress-color          Màu thanh tiến độ + chữ "Bước 2/5"
+ *   --hui-step-progress-track-color    Màu rãnh
+ *   --hui-step-progress-height         Độ dày thanh (4px)
+ *   --hui-step-progress-radius         Bo góc thanh
+ *   --hui-step-progress-gap            Khoảng cách hàng chữ ↔ thanh
+ *   --hui-step-progress-title-color    Màu tên bước
+ *   --hui-step-progress-counter-color  Màu chữ "Bước 2/5"
+ * Parts: base, header, info, counter, title, actions, prev, next, track, bar
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sp {
+  --_sp-color: var(--hui-step-progress-color, var(--hui-primary));
+  --_sp-title-size: var(--hui-font-base);
+  --_sp-counter-size: var(--hui-font-sm);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-step-progress-gap, var(--hui-space-md));
+}
+
+.sp--sm {
+  --_sp-title-size: var(--hui-font-sm);
+  --_sp-counter-size: var(--hui-font-xs);
+}
+
+.sp--lg {
+  --_sp-title-size: var(--hui-font-lg);
+}
+
+.sp__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-sm) var(--hui-space-lg);
+}
+
+.sp__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sp__counter {
+  color: var(--hui-step-progress-counter-color, var(--_sp-color));
+  font-size: var(--_sp-counter-size);
+  font-weight: var(--hui-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.sp__title {
+  overflow: hidden;
+  color: var(--hui-step-progress-title-color, var(--hui-text));
+  font-size: var(--_sp-title-size);
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading, 1.25);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  margin-left: auto;
+}
+
+/* Thanh tiến độ mảnh */
+.sp__track {
+  position: relative;
+  height: var(--hui-step-progress-height, 4px);
+  overflow: hidden;
+  border-radius: var(--hui-step-progress-radius, var(--hui-radius-full));
+  background: var(--hui-step-progress-track-color, var(--hui-fill-secondary));
+}
+
+.sp__bar {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: var(--_sp-color);
+  transition: width var(--hui-motion-duration-slow, 300ms) var(--hui-motion-ease-out);
+}
+
+.sp--no-animation .sp__bar {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp__bar {
+    transition: none;
+  }
+}

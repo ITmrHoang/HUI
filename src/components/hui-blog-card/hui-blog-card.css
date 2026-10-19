@@ -1,0 +1,143 @@
+/*
+ * HUI Blog Card CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiBlogCard.
+ * Biến nội bộ có tiền tố --_bc- (--_bc-ratio, --_bc-lines do JS đặt inline theo attribute).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.bc__card {
+  height: 100%;
+}
+
+/* ================== ẢNH ================== */
+.bc__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--_bc-ratio, 16 / 9);
+  object-fit: cover;
+  background: var(--hui-blog-card-image-bg, var(--hui-bg-tertiary));
+  /* Giữ transition transform cho zoom-media của hui-card (CSS ở đây thắng ::slotted bên trong card) */
+  transition: transform 600ms var(--hui-motion-ease-out);
+}
+
+:host([orientation='horizontal']) .bc__img {
+  height: 100%;
+}
+
+/* ================== NỘI DUNG ================== */
+.bc__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hui-space-sm);
+}
+
+.bc__heading {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--hui-blog-card-title-lines, 2);
+  overflow: hidden;
+  color: var(--hui-blog-card-title-color, var(--hui-text));
+  font-size: var(--hui-blog-card-title-font-size, var(--hui-font-lg));
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading);
+}
+
+:host([size='sm']) .bc__heading {
+  font-size: var(--hui-blog-card-title-font-size, var(--hui-font-base));
+}
+
+:host([size='lg']) .bc__heading,
+:host([orientation='horizontal']) .bc__heading {
+  font-size: var(--hui-blog-card-title-font-size, var(--hui-font-xl));
+}
+
+.bc__title-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--hui-transition-fast);
+}
+
+.bc__title-link[href]:hover {
+  color: var(--hui-primary);
+}
+
+.bc__title-link:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--hui-radius-sm);
+}
+
+/* Tóm tắt cắt theo số dòng excerpt-lines */
+.bc__excerpt {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--_bc-lines, 3);
+  overflow: hidden;
+  margin: 0;
+  color: var(--hui-blog-card-excerpt-color, var(--hui-text-secondary));
+  line-height: var(--hui-line-height);
+}
+
+.bc__extra {
+  width: 100%;
+}
+
+/* ================== META ================== */
+.bc__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  padding-top: var(--hui-space-xs);
+  color: var(--hui-blog-card-meta-color, var(--hui-text-muted));
+  font-size: var(--hui-font-xs);
+  line-height: var(--hui-line-height);
+}
+
+.bc__meta-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bc__author {
+  color: var(--hui-text);
+  font-weight: var(--hui-font-weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bc__meta-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Dấu chấm ngăn cách ngày · thời gian đọc */
+.bc__date:not([hidden]) + .bc__reading:not([hidden])::before {
+  content: '·';
+  margin: 0 var(--hui-space-xs);
+}
+
+/* ================== GIẢM CHUYỂN ĐỘNG ================== */
+:host([no-animation]) .bc__img,
+:host([no-animation]) .bc__title-link {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bc__img,
+  .bc__title-link {
+    transition: none;
+  }
+}
