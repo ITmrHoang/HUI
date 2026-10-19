@@ -43,7 +43,7 @@
   --_ring: var(--hui-primary-light);
   --_size: 18px;
   --_radius: 4px;
-  --_font-size: var(--hui-font-base);
+  --_cb-font-size: var(--hui-font-sm);
 
   display: inline-flex;
   align-items: center;
@@ -71,13 +71,13 @@
 .hui-checkbox--sm {
   --_size: 14px;
   --_radius: 3px;
-  --_font-size: var(--hui-font-sm);
+  --_cb-font-size: var(--hui-font-xs);
 }
 
 .hui-checkbox--lg {
   --_size: 22px;
   --_radius: var(--hui-radius-sm, 6px);
-  --_font-size: var(--hui-font-lg);
+  --_cb-font-size: var(--hui-font-base);
 }
 
 /* ================== VARIANTS ================== */
@@ -149,7 +149,7 @@
 /* ================== NHÃN ================== */
 .hui-checkbox__label-text {
   color: var(--hui-checkbox-label-color, var(--hui-text));
-  font-size: var(--hui-checkbox-font-size, var(--_font-size));
+  font-size: var(--hui-checkbox-font-size, var(--_cb-font-size));
   line-height: 1.4;
 }
 

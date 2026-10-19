@@ -1,0 +1,287 @@
+/*
+ * HUI Prose — CSS cho nội dung LIGHT DOM (HTML từ CMS / Markdown) bên trong <hui-prose>.
+ * ::slotted() chỉ chạm được con trực tiếp → stylesheet này gắn 1 lần vào document (hoặc shadow root chứa thẻ).
+ * Mọi selector bọc :where() (độ ưu tiên 0) → CSS bạn viết luôn thắng, không cần !important.
+ *
+ * Biến override (đặt trên hui-prose, thẻ cha hoặc :root):
+ *   --hui-prose-font-size, --hui-prose-line-height, --hui-prose-color, --hui-prose-heading-color,
+ *   --hui-prose-heading-font, --hui-prose-link-color, --hui-prose-link-hover-color, --hui-prose-muted-color,
+ *   --hui-prose-quote-border, --hui-prose-quote-bg, --hui-prose-code-bg, --hui-prose-code-color,
+ *   --hui-prose-pre-bg, --hui-prose-pre-color, --hui-prose-border-color, --hui-prose-marker-color,
+ *   --hui-prose-radius, --hui-prose-space (khoảng cách đoạn, em)
+ * Biến nội bộ --_prose-* do size đặt.
+ */
+
+:where(hui-prose) {
+  --_prose-fs: var(--hui-font-base, 1rem);
+  --_prose-lh: 1.75;
+  --_prose-space: 1.25em;
+  display: block;
+  font-size: var(--hui-prose-font-size, var(--_prose-fs));
+  line-height: var(--hui-prose-line-height, var(--_prose-lh));
+  color: var(--hui-prose-color, var(--hui-text));
+  overflow-wrap: break-word;
+}
+
+:where(hui-prose[size='sm']) {
+  --_prose-fs: var(--hui-font-sm, 0.875rem);
+  --_prose-lh: 1.7;
+  --_prose-space: 1.1em;
+}
+
+:where(hui-prose[size='lg']) {
+  --_prose-fs: var(--hui-font-lg, 1.125rem);
+  --_prose-lh: 1.8;
+  --_prose-space: 1.35em;
+}
+
+/* Khoảng cách dọc chung + bỏ lề thừa ở đầu / cuối */
+:where(hui-prose) :where(p, ul, ol, dl, blockquote, pre, table, figure, img, video, hr, details) {
+  margin-block: var(--hui-prose-space, var(--_prose-space));
+  margin-inline: 0;
+}
+
+:where(hui-prose) > :where(:first-child) {
+  margin-block-start: 0;
+}
+
+:where(hui-prose) > :where(:last-child) {
+  margin-block-end: 0;
+}
+
+/* ================== HEADING ================== */
+:where(hui-prose) :where(h1, h2, h3, h4, h5, h6) {
+  margin-block: 1.8em 0.6em;
+  font-family: var(--hui-prose-heading-font, inherit);
+  font-weight: var(--hui-font-weight-bold, 700);
+  line-height: var(--hui-line-height-heading, 1.3);
+  color: var(--hui-prose-heading-color, var(--hui-text));
+  scroll-margin-top: var(--hui-prose-scroll-margin, 80px);
+  text-wrap: balance;
+}
+
+:where(hui-prose) :where(h1) { font-size: 2.25em; margin-block: 0 0.8em; letter-spacing: -0.02em; }
+:where(hui-prose) :where(h2) { font-size: 1.6em; letter-spacing: -0.01em; }
+:where(hui-prose) :where(h3) { font-size: 1.3em; }
+:where(hui-prose) :where(h4) { font-size: 1.1em; }
+:where(hui-prose) :where(h5) { font-size: 1em; }
+:where(hui-prose) :where(h6) { font-size: 0.9em; color: var(--hui-prose-muted-color, var(--hui-text-secondary)); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Heading ngay sau heading → gần nhau hơn */
+:where(hui-prose) :where(h1, h2, h3, h4, h5, h6) + :where(h1, h2, h3, h4, h5, h6) {
+  margin-block-start: 0.4em;
+}
+
+/* ================== CHỮ ================== */
+:where(hui-prose) :where(a) {
+  color: var(--hui-prose-link-color, var(--hui-primary-7));
+  font-weight: var(--hui-font-weight-medium, 500);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color var(--hui-transition-fast, 0.15s);
+}
+
+:where(hui-prose) :where(a:hover) {
+  color: var(--hui-prose-link-hover-color, var(--hui-primary-8));
+  text-decoration-thickness: 2px;
+}
+
+:where(hui-prose) :where(a:focus-visible) {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+:where(hui-prose) :where(strong, b) {
+  font-weight: var(--hui-font-weight-semibold, 600);
+  color: var(--hui-prose-heading-color, var(--hui-text));
+}
+
+:where(hui-prose) :where(mark) {
+  padding: 0 0.2em;
+  border-radius: 3px;
+  background: var(--hui-warning-light, rgba(245, 158, 11, 0.2));
+  color: inherit;
+}
+
+:where(hui-prose) :where(small) {
+  color: var(--hui-prose-muted-color, var(--hui-text-secondary));
+}
+
+:where(hui-prose) :where(abbr[title]) {
+  text-decoration: underline dotted;
+  cursor: help;
+}
+
+/* ================== DANH SÁCH ================== */
+:where(hui-prose) :where(ul, ol) {
+  padding-inline-start: 1.6em;
+}
+
+:where(hui-prose) :where(ul) { list-style-type: disc; }
+:where(hui-prose) :where(ol) { list-style-type: decimal; }
+
+:where(hui-prose) :where(li) {
+  margin-block: 0.4em;
+  padding-inline-start: 0.25em;
+}
+
+:where(hui-prose) :where(li)::marker {
+  color: var(--hui-prose-marker-color, var(--hui-text-tertiary));
+}
+
+:where(hui-prose) :where(ol > li)::marker {
+  font-weight: var(--hui-font-weight-semibold, 600);
+}
+
+/* Danh sách lồng: sát hơn */
+:where(hui-prose) :where(li) > :where(ul, ol) {
+  margin-block: 0.4em;
+}
+
+:where(hui-prose) :where(dt) {
+  margin-block-start: 1em;
+  font-weight: var(--hui-font-weight-semibold, 600);
+}
+
+:where(hui-prose) :where(dd) {
+  margin-block-start: 0.25em;
+  margin-inline-start: 0;
+  padding-inline-start: 1.25em;
+}
+
+/* ================== TRÍCH DẪN ================== */
+:where(hui-prose) :where(blockquote) {
+  padding: 0.6em 1.1em;
+  border-inline-start: 4px solid var(--hui-prose-quote-border, var(--hui-primary));
+  border-radius: 0 var(--hui-prose-radius, var(--hui-radius-md, 8px)) var(--hui-prose-radius, var(--hui-radius-md, 8px)) 0;
+  background: var(--hui-prose-quote-bg, var(--hui-fill-tertiary));
+  color: var(--hui-prose-muted-color, var(--hui-text-secondary));
+  font-style: italic;
+}
+
+:where(hui-prose) :where(blockquote) > :where(:first-child) { margin-block-start: 0; }
+:where(hui-prose) :where(blockquote) > :where(:last-child) { margin-block-end: 0; }
+
+:where(hui-prose) :where(blockquote cite, blockquote footer) {
+  display: block;
+  margin-block-start: 0.5em;
+  font-size: 0.9em;
+  font-style: normal;
+}
+
+/* ================== CODE ================== */
+:where(hui-prose) :where(code, kbd, samp) {
+  font-family: var(--hui-font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  font-size: 0.875em;
+}
+
+:where(hui-prose) :where(:not(pre) > code) {
+  padding: 0.15em 0.4em;
+  border-radius: var(--hui-radius-sm, 4px);
+  background: var(--hui-prose-code-bg, var(--hui-fill-secondary));
+  color: var(--hui-prose-code-color, var(--hui-danger-7));
+  overflow-wrap: anywhere;
+}
+
+:where(hui-prose) :where(kbd) {
+  padding: 0.1em 0.4em;
+  border: 1px solid var(--hui-prose-border-color, var(--hui-border));
+  border-radius: var(--hui-radius-sm, 4px);
+  background: var(--hui-bg-container);
+  box-shadow: inset 0 -2px 0 var(--hui-border-hover);
+}
+
+:where(hui-prose) :where(pre) {
+  overflow-x: auto;
+  padding: 1em 1.2em;
+  border-radius: var(--hui-prose-radius, var(--hui-radius-lg, 10px));
+  background: var(--hui-prose-pre-bg, var(--hui-bg-secondary));
+  color: var(--hui-prose-pre-color, var(--hui-text));
+  border: 1px solid var(--hui-prose-border-color, var(--hui-border));
+  font-size: 0.875em;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+:where(hui-prose) :where(pre code) {
+  padding: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* ================== BẢNG ================== */
+:where(hui-prose) :where(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.925em;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+}
+
+:where(hui-prose) :where(caption) {
+  margin-block-end: 0.5em;
+  color: var(--hui-prose-muted-color, var(--hui-text-secondary));
+  font-size: 0.9em;
+  text-align: start;
+}
+
+:where(hui-prose) :where(th, td) {
+  padding: 0.6em 0.8em;
+  border-bottom: 1px solid var(--hui-prose-border-color, var(--hui-border));
+  text-align: start;
+  vertical-align: top;
+}
+
+:where(hui-prose) :where(thead th) {
+  border-bottom-width: 2px;
+  font-weight: var(--hui-font-weight-semibold, 600);
+  color: var(--hui-prose-heading-color, var(--hui-text));
+  background: var(--hui-fill-tertiary);
+}
+
+:where(hui-prose) :where(tbody tr:hover) {
+  background: var(--hui-fill-tertiary);
+}
+
+/* ================== ẢNH & MEDIA ================== */
+:where(hui-prose) :where(img, video, svg, canvas, iframe) {
+  max-width: 100%;
+  height: auto;
+}
+
+:where(hui-prose) :where(img, video) {
+  display: block;
+  border-radius: var(--hui-prose-radius, var(--hui-radius-lg, 10px));
+}
+
+:where(hui-prose) :where(figure) > :where(img, video) {
+  margin: 0;
+}
+
+:where(hui-prose) :where(figcaption) {
+  margin-block-start: 0.6em;
+  font-size: 0.875em;
+  color: var(--hui-prose-muted-color, var(--hui-text-secondary));
+  text-align: center;
+}
+
+:where(hui-prose) :where(hr) {
+  height: 0;
+  margin-block: 2.5em;
+  border: 0;
+  border-top: 1px solid var(--hui-prose-border-color, var(--hui-border));
+}
+
+:where(hui-prose) :where(details) {
+  padding: 0.6em 1em;
+  border: 1px solid var(--hui-prose-border-color, var(--hui-border));
+  border-radius: var(--hui-prose-radius, var(--hui-radius-md, 8px));
+}
+
+:where(hui-prose) :where(summary) {
+  font-weight: var(--hui-font-weight-semibold, 600);
+  cursor: pointer;
+}

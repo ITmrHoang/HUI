@@ -11,6 +11,13 @@ import { t, getLocaleName } from '../../core/locale.js';
 import { createElement } from '../../utils/dom.js';
 import { debounce } from '../../utils/events.js';
 import '../hui-icon/index.js';
+import { getIcon } from '../hui-icon/icons.js';
+
+/** icon-left / icon-right: tên icon đã đăng ký → <hui-icon>; còn lại (chữ, emoji) giữ dạng chữ như cũ */
+function fillIcon(el, value) {
+  if (value && getIcon(value)) el.replaceChildren(createElement('hui-icon', { name: value }));
+  else el.textContent = value || '';
+}
 
 /** Tên cũ của label-position vẫn được chấp nhận */
 const LABEL_ALIAS = { above: 'top', left: 'inline' };
@@ -100,9 +107,9 @@ class HuiInput extends HuiFormElement {
     variant: { type: String, default: 'outlined' },
     /** type="password": đang hiện mật khẩu dạng chữ thường */
     passwordVisible: { type: Boolean },
-    /** Icon chữ/emoji bên trái, thay cho slot prefix */
+    /** Icon bên trái, thay cho slot prefix: tên hui-icon (vd "user", "search") hoặc chữ/emoji */
     iconLeft: { type: String, default: '' },
-    /** Icon chữ/emoji bên phải, thay cho slot suffix */
+    /** Icon bên phải, thay cho slot suffix: tên hui-icon hoặc chữ/emoji */
     iconRight: { type: String, default: '' },
   };
 
@@ -207,8 +214,8 @@ class HuiInput extends HuiFormElement {
     }
     if (changed.has('labelPosition')) this._placeLabel();
     if (changed.has('iconLeft') || changed.has('iconRight')) {
-      this._iconLeft.textContent = this.iconLeft || '';
-      this._iconRight.textContent = this.iconRight || '';
+      fillIcon(this._iconLeft, this.iconLeft);
+      fillIcon(this._iconRight, this.iconRight);
       this._syncAffixes();
     }
     if (['error', 'success', 'hint', 'status'].some((k) => changed.has(k))) this._syncMessage();

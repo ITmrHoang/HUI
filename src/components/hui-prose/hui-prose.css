@@ -1,0 +1,15 @@
+/*
+ * HUI Prose — CSS trong Shadow DOM (chỉ khung). Typography của nội dung nằm ở hui-prose-light.css.
+ * Biến: --hui-prose-max-width (attribute max-width ưu tiên hơn)
+ */
+
+:host {
+  display: block;
+  box-sizing: border-box;
+  max-width: var(--_prose-max-width, var(--hui-prose-max-width, 65ch));
+  font-family: var(--hui-font-family);
+}
+
+.prose {
+  display: block;
+}

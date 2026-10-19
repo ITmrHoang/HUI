@@ -1,0 +1,55 @@
+/*
+ * HUI Infinite Scroll CSS
+ * Biến công khai: --hui-infinite-scroll-padding, --hui-infinite-scroll-color,
+ *   --hui-infinite-scroll-font-size, --hui-infinite-scroll-error-color
+ */
+
+:host {
+  display: block;
+  /* Mốc luôn có kích thước để IntersectionObserver bắt được */
+  min-height: 1px;
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]),
+[hidden] {
+  display: none !important;
+}
+
+.infinite {
+  display: flex;
+  justify-content: center;
+  color: var(--hui-infinite-scroll-color, var(--hui-text-tertiary));
+  font-size: var(--hui-infinite-scroll-font-size, var(--hui-font-sm));
+  line-height: var(--hui-line-height);
+}
+
+.infinite__loading,
+.infinite__end,
+.infinite__error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--hui-space-sm);
+  padding: var(--hui-infinite-scroll-padding, var(--hui-space-lg));
+  text-align: center;
+}
+
+.infinite__error {
+  color: var(--hui-infinite-scroll-error-color, var(--hui-danger));
+}
+
+.infinite__end::before,
+.infinite__end::after {
+  content: '';
+  flex: 0 1 48px;
+  height: 1px;
+  background: var(--hui-border-secondary);
+}
+
+slot[name='loading'] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+}

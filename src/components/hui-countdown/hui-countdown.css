@@ -1,0 +1,194 @@
+/*
+ * HUI Countdown — biến override (đặt ở đâu cũng được):
+ *   --hui-countdown-gap, --hui-countdown-font-size, --hui-countdown-font-weight, --hui-countdown-color,
+ *   --hui-countdown-bg, --hui-countdown-radius, --hui-countdown-min-width, --hui-countdown-shadow,
+ *   --hui-countdown-label-color, --hui-countdown-label-size, --hui-countdown-separator-color,
+ *   --hui-countdown-flip-duration
+ * Parts: base, unit (+ unit-days|hours|minutes|seconds), value, label, separator, finished
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.cd {
+  --_cd-size: var(--hui-font-2xl, 1.875rem);
+  display: inline-flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--hui-countdown-gap, var(--hui-space-sm, 8px));
+  color: var(--hui-text);
+}
+
+.cd--sm { --_cd-size: var(--hui-font-lg, 1.125rem); }
+.cd--lg { --_cd-size: 3rem; }
+
+.cd__units {
+  display: contents;
+}
+
+.cd__unit {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.cd__value {
+  display: inline-flex;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: var(--hui-countdown-min-width, 1.8em);
+  padding: 0.15em 0.3em;
+  font-size: var(--hui-countdown-font-size, var(--_cd-size));
+  font-weight: var(--hui-countdown-font-weight, var(--hui-font-weight-bold, 700));
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  color: var(--hui-countdown-color, var(--hui-text));
+  background: var(--hui-countdown-bg, var(--hui-fill-secondary));
+  border-radius: var(--hui-countdown-radius, var(--hui-radius-md, 8px));
+  box-shadow: var(--hui-countdown-shadow, none);
+}
+
+.cd__label {
+  font-size: var(--hui-countdown-label-size, var(--hui-font-xs, 12px));
+  color: var(--hui-countdown-label-color, var(--hui-text-secondary));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Dấu ":" thẳng hàng với chữ số (cùng cỡ chữ + cùng padding dọc với ô số) */
+.cd__sep {
+  font-size: var(--hui-countdown-font-size, var(--_cd-size));
+  font-weight: var(--hui-countdown-font-weight, var(--hui-font-weight-bold, 700));
+  line-height: 1.2;
+  padding-block: 0.15em;
+  color: var(--hui-countdown-separator-color, var(--hui-text-tertiary));
+}
+
+/* ================== INLINE: một dòng chữ "02 ngày 05 giờ…" ================== */
+.cd--inline {
+  display: inline;
+}
+
+.cd--inline .cd__unit {
+  display: inline;
+}
+
+.cd--inline .cd__unit + .cd__unit::before {
+  content: ' ';
+}
+
+.cd--inline .cd__value {
+  display: inline;
+  min-width: 0;
+  padding: 0;
+  font-size: var(--hui-countdown-font-size, inherit);
+  background: var(--hui-countdown-bg, transparent);
+  box-shadow: none;
+  font-weight: var(--hui-countdown-font-weight, var(--hui-font-weight-semibold, 600));
+  line-height: inherit;
+}
+
+.cd--inline .cd__label {
+  margin-inline-start: 0.25em;
+  font-size: var(--hui-countdown-label-size, inherit);
+  text-transform: lowercase;
+  letter-spacing: 0;
+}
+
+/* ================== FLIP: đồng hồ lật ================== */
+.cd--flip .cd__value {
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  min-width: 0;
+}
+
+.cd__card {
+  --_cd-h: 1.5em;
+  position: relative;
+  display: inline-block;
+  width: max(var(--hui-countdown-min-width, 1.8em), calc(var(--_cd-chars, 2) * 0.62em + 0.5em));
+  height: var(--_cd-h);
+  perspective: 6em;
+  border-radius: var(--hui-countdown-radius, var(--hui-radius-md, 8px));
+  box-shadow: var(--hui-countdown-shadow, var(--hui-shadow-md));
+}
+
+.cd__half {
+  position: absolute;
+  inset-inline: 0;
+  height: 50%;
+  overflow: hidden;
+  background: var(--hui-countdown-bg, var(--hui-bg-spotlight));
+  color: var(--hui-countdown-color, var(--hui-text-light-solid));
+  backface-visibility: hidden;
+}
+
+.cd__half > span {
+  display: block;
+  height: var(--_cd-h);
+  line-height: var(--_cd-h);
+  text-align: center;
+}
+
+.cd__half--top,
+.cd__leaf--top {
+  top: 0;
+  border-radius: var(--hui-countdown-radius, var(--hui-radius-md, 8px)) var(--hui-countdown-radius, var(--hui-radius-md, 8px)) 0 0;
+  transform-origin: 50% 100%;
+}
+
+.cd__half--bottom,
+.cd__leaf--bottom {
+  bottom: 0;
+  border-radius: 0 0 var(--hui-countdown-radius, var(--hui-radius-md, 8px)) var(--hui-countdown-radius, var(--hui-radius-md, 8px));
+  transform-origin: 50% 0;
+  /* Khe giữa 2 nửa */
+  border-top: 1px solid color-mix(in srgb, var(--hui-countdown-color, var(--hui-text-light-solid)) 18%, transparent);
+  box-sizing: border-box;
+}
+
+.cd__half--bottom > span,
+.cd__leaf--bottom > span {
+  transform: translateY(-50%);
+  margin-top: -1px;
+}
+
+.cd__leaf {
+  z-index: 1;
+}
+
+/* Lá trên tối dần khi lật xuống → cảm giác có chiều sâu */
+.cd__leaf--top {
+  background: linear-gradient(to bottom, var(--hui-countdown-bg, var(--hui-bg-spotlight)), color-mix(in srgb, var(--hui-countdown-bg, var(--hui-bg-spotlight)) 85%, black));
+}
+
+/* ================== Hết giờ & trình đọc màn hình ================== */
+.cd__finished {
+  display: inline-block;
+}
+
+.cd__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Dấu ":" thẳng giữa thẻ lật (thẻ cao 1.5em, không padding) */
+.cd--flip .cd__sep {
+  line-height: 1.5;
+  padding-block: 0;
+}

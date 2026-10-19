@@ -1,0 +1,178 @@
+/*
+ * HUI Coupon Input CSS — ô nhập + nút áp dụng; đã áp dụng → chip mã nét đứt + mức giảm.
+ * Override: var(--hui-coupon-input-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ * Parts: base, field, input, apply, applied, tag, code, remove, discount, message
+ * States: :state(idle) | :state(loading) | :state(applied) | :state(error)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.cp {
+  --_cp-height: var(--hui-size-md);
+  --_cp-font: var(--hui-font-sm);
+  --_cp-border: var(--hui-coupon-input-border-color, var(--hui-border));
+  --_cp-error: var(--hui-coupon-input-error-color, var(--hui-danger));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+  font-size: var(--_cp-font);
+}
+
+.cp--sm {
+  --_cp-height: var(--hui-size-sm);
+  --_cp-font: var(--hui-font-xs);
+}
+
+.cp--lg {
+  --_cp-height: var(--hui-size-lg);
+  --_cp-font: var(--hui-font-base);
+}
+
+.cp--disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.cp__field {
+  display: flex;
+  gap: var(--hui-coupon-input-gap, var(--hui-space-sm));
+}
+
+.cp__input {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  height: var(--hui-coupon-input-height, var(--_cp-height));
+  padding: 0 var(--hui-space-md);
+  border: 1px solid var(--_cp-border);
+  border-radius: var(--hui-coupon-input-radius, var(--hui-radius));
+  outline: none;
+  background: var(--hui-coupon-input-bg, var(--hui-bg));
+  color: var(--hui-text);
+  font: inherit;
+  font-size: var(--_cp-font);
+  letter-spacing: 0.04em;
+  transition: border-color var(--hui-transition), box-shadow var(--hui-transition);
+}
+
+.cp__input::placeholder {
+  color: var(--hui-text-muted);
+  letter-spacing: normal;
+}
+
+.cp__input:hover {
+  border-color: var(--hui-coupon-input-border-color, var(--hui-border-hover));
+}
+
+.cp__input:focus {
+  border-color: var(--hui-coupon-input-focus-border-color, var(--hui-primary));
+  box-shadow: var(--hui-focus-ring);
+}
+
+.cp--error .cp__input {
+  border-color: var(--_cp-error);
+}
+
+.cp--error .cp__input:focus {
+  box-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.cp--loading .cp__input {
+  color: var(--hui-text-secondary);
+}
+
+.cp__apply {
+  flex: none;
+}
+
+/* ================== ĐÃ ÁP DỤNG ================== */
+.cp__applied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-sm);
+  min-height: var(--hui-coupon-input-height, var(--_cp-height));
+  animation: cp-in 260ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+@keyframes cp-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+.cp__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  padding: 2px 4px 2px var(--hui-space-sm);
+  border: 1px dashed var(--hui-success);
+  border-radius: var(--hui-radius);
+  background: var(--hui-coupon-input-tag-bg, var(--hui-success-light));
+  color: var(--hui-coupon-input-tag-color, var(--hui-success));
+  font-weight: var(--hui-font-weight-semibold);
+  letter-spacing: 0.04em;
+}
+
+.cp__tag-icon {
+  font-size: 1em;
+}
+
+.cp__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: inherit;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.cp__remove:hover {
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.cp__remove:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+.cp__discount {
+  color: var(--hui-coupon-input-discount-color, var(--hui-success));
+  font-weight: var(--hui-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.cp__message {
+  font-size: var(--hui-font-xs);
+  color: var(--hui-text-secondary);
+}
+
+.cp--applied .cp__message {
+  color: var(--hui-success);
+}
+
+.cp--error .cp__message {
+  color: var(--_cp-error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp__applied {
+    animation: none;
+  }
+}

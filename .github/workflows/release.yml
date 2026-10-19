@@ -38,11 +38,26 @@ jobs:
 
       - run: npm ci
 
+      # Chưa có NPM_TOKEN và chưa bật Trusted Publishing (biến repo NPM_TRUSTED_PUBLISHING=true)
+      # → chỉ mở/cập nhật PR "version packages", KHÔNG thử publish (tránh workflow đỏ mỗi lần push)
+      - name: Kiểm tra quyền đăng npm
+        id: npm-auth
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          TRUSTED: ${{ vars.NPM_TRUSTED_PUBLISHING }}
+        run: |
+          if [ -n "$NPM_TOKEN" ] || [ "$TRUSTED" = "true" ]; then
+            echo "publish=npm run release" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=" >> "$GITHUB_OUTPUT"
+            echo "::notice::Chưa có NPM_TOKEN / Trusted Publishing — bỏ qua bước đăng npm."
+          fi
+
       - name: Version PR hoặc phát hành
         uses: changesets/action@v1
         with:
           version: npm run version-packages
-          publish: npm run release
+          publish: ${{ steps.npm-auth.outputs.publish }}
           title: 'chore: version packages'
           commit: 'chore: version packages'
           createGithubReleases: true

@@ -1,0 +1,45 @@
+/*
+ * HUI Gradient Text CSS
+ *   --hui-gradient-text-colors    Danh sách màu (ghi đè attribute colors)
+ *   --hui-gradient-text-duration  Chu kỳ chạy (ghi đè attribute duration)
+ */
+
+:host {
+  display: inline;
+}
+
+.gt {
+  background-image: linear-gradient(var(--_gt-angle, 90deg), var(--hui-gradient-text-colors, var(--_gt-colors)));
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* Gạch chân / bóng của chữ con cũng trong suốt theo → không lộ khối màu */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  animation: hui-gt-move var(--hui-gradient-text-duration, var(--_gt-duration, 6s)) ease-in-out infinite alternate;
+}
+
+@keyframes hui-gt-move {
+  to { background-position: 100% 50%; }
+}
+
+:host([no-animation]) .gt,
+.gt.is-still {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gt { animation: none; }
+}
+
+/* Chế độ tương phản cao: bỏ gradient, dùng màu chữ hệ thống */
+@media (forced-colors: active) {
+  .gt {
+    background: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+  }
+}

@@ -62,6 +62,8 @@ class HuiStatistic extends HuiElement {
   static localized = true;
 
   static properties = {
+    /** start | center | end — căn tiêu đề + giá trị (center/end: chiếm hết chiều ngang ô chứa) */
+    align: { type: String, default: 'start' },
     /** Tiêu đề (hoặc slot="title") */
     title: { type: String },
     /** Giá trị: số (property number hoặc chuỗi số "1128.5") hoặc chuỗi bất kỳ */

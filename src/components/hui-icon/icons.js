@@ -44,6 +44,26 @@ const registry = new Map(Object.entries({
   chat: '<path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.6L3 21l1.9-5.6A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
 
+  // Media
+  'zoom-in': '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M11 8v6M8 11h6"/>',
+  'zoom-out': '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8 11h6"/>',
+  'rotate-cw': '<path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/>',
+  play: '<path d="M7 4.5v15l12-7.5Z" fill="currentColor"/>',
+  pause: '<rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/>',
+  image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+
+  // Thương mại điện tử
+  cart: '<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.6l2.3 11a2 2 0 0 0 2 1.6h8.1a2 2 0 0 0 1.9-1.4L21.5 7H6"/>',
+  tag: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  truck: '<path d="M2 6h11v10H2zM13 9h4.5l3.5 3.5V16h-8"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>',
+
+  // Chia sẻ (glyph chữ cái đơn giản — không phải logo thương hiệu; muốn logo thật thì registerIcon đè lên)
+  share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
+  'share-facebook': '<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M15 7.5h-1.5A2.5 2.5 0 0 0 11 10v8M8.5 12.5H14"/>',
+  'share-zalo': '<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 8.5h8l-8 7h8"/>',
+  'share-x': '<rect x="3" y="3" width="18" height="18" rx="5"/><path d="m8 8 8 8M16 8l-8 8"/>',
+  'share-linkedin': '<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 11v5.5M8 7.75v.01M11.5 16.5V11m0 2.5a2.25 2.25 0 0 1 4.5 0v3"/>',
+
   // Giao diện (theme)
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
   moon: '<path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6 6 0 0 0 10 10Z"/>',

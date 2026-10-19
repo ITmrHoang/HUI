@@ -1,0 +1,72 @@
+/*
+ * HUI Scrolly CSS
+ * Biến công khai: --hui-scrolly-graphic-width, --hui-scrolly-steps-width, --hui-scrolly-gap, --hui-scrolly-top,
+ *   --hui-scrolly-graphic-height, --hui-scrolly-stacked-height, --hui-scrolly-graphic-bg, --hui-scrolly-step-gap
+ */
+
+:host {
+  display: block;
+  min-width: 0;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host([hidden]) {
+  display: none !important;
+}
+
+.scrolly {
+  display: grid;
+  grid-template-columns: var(--hui-scrolly-graphic-width, minmax(0, 1fr)) var(--hui-scrolly-steps-width, minmax(0, 1fr));
+  grid-template-areas: 'graphic steps';
+  column-gap: var(--hui-scrolly-gap, var(--hui-space-2xl));
+  /* Grid item mặc định kéo giãn → đồ họa phải bám đầu cột thì sticky mới chạy */
+  align-items: start;
+}
+
+.scrolly--right {
+  grid-template-columns: var(--hui-scrolly-steps-width, minmax(0, 1fr)) var(--hui-scrolly-graphic-width, minmax(0, 1fr));
+  grid-template-areas: 'steps graphic';
+}
+
+.scrolly__graphic {
+  grid-area: graphic;
+  position: sticky;
+  top: var(--hui-scrolly-top, 0px);
+  height: var(--hui-scrolly-graphic-height, 100vh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--hui-scrolly-graphic-bg, var(--hui-bg-container));
+}
+
+::slotted([slot='sticky']) {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.scrolly__steps {
+  grid-area: steps;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-scrolly-step-gap, 0px);
+  min-width: 0;
+}
+
+/* ---------- Xếp chồng (khung hẹp): đồ họa dính trên cùng, bước cuộn phía dưới ---------- */
+.scrolly--stacked {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'graphic' 'steps';
+}
+
+.scrolly--stacked .scrolly__graphic {
+  height: var(--hui-scrolly-stacked-height, 50vh);
+  z-index: 1;
+}
+
+.scrolly--stacked .scrolly__steps {
+  position: relative;
+  z-index: 2;
+  padding-inline: var(--hui-space-md);
+}

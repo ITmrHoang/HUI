@@ -1,0 +1,137 @@
+/*
+ * HUI OTP Input CSS
+ * Override: var(--hui-otp-input-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-otp-input-size                 Cạnh mỗi ô (sm 32px · md 40px · lg 48px)
+ *   --hui-otp-input-gap                  Khoảng cách giữa các ô
+ *   --hui-otp-input-radius               Bo góc ô
+ *   --hui-otp-input-font-size            Cỡ chữ trong ô
+ *   --hui-otp-input-bg                   Nền ô
+ *   --hui-otp-input-color                Màu chữ
+ *   --hui-otp-input-border-color         Viền ô
+ *   --hui-otp-input-filled-border-color  Viền ô đã có ký tự
+ *   --hui-otp-input-focus-border-color   Viền ô đang focus
+ *   --hui-otp-input-focus-shadow         Vòng sáng khi focus
+ *
+ * Parts: base, box (+ box-filled)
+ * State: :state(complete), :state(user-invalid), :state(filled), :state(disabled)
+ * Biến nội bộ: --_otp-size, --_otp-font, --_otp-radius, --_otp-border, --_otp-focus-border, --_otp-focus-shadow
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+}
+
+:host([disabled]) {
+  pointer-events: none;
+}
+
+.hui-otp {
+  --_otp-border: var(--hui-otp-input-border-color, var(--hui-border));
+  --_otp-filled-border: var(--hui-otp-input-filled-border-color, var(--hui-border-hover));
+  --_otp-focus-border: var(--hui-otp-input-focus-border-color, var(--hui-primary));
+  --_otp-focus-shadow: var(--hui-otp-input-focus-shadow, var(--hui-focus-ring));
+
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: var(--hui-otp-input-gap, var(--hui-space-sm));
+}
+
+/* ================== KÍCH THƯỚC ================== */
+.hui-otp--sm {
+  --_otp-size: 2rem;
+  --_otp-font: var(--hui-font-base);
+  --_otp-radius: var(--hui-radius-sm);
+}
+
+.hui-otp--md {
+  --_otp-size: 2.5rem;
+  --_otp-font: var(--hui-font-lg);
+  --_otp-radius: var(--hui-radius);
+}
+
+.hui-otp--lg {
+  --_otp-size: 3rem;
+  --_otp-font: var(--hui-font-xl);
+  --_otp-radius: var(--hui-radius-md);
+}
+
+/* ================== Ô ================== */
+.hui-otp__box {
+  box-sizing: border-box;
+  width: var(--hui-otp-input-size, var(--_otp-size));
+  height: var(--hui-otp-input-size, var(--_otp-size));
+  min-width: 0;
+  padding: 0;
+  border: 1px solid var(--_otp-border);
+  border-radius: var(--hui-otp-input-radius, var(--_otp-radius));
+  background: var(--hui-otp-input-bg, var(--hui-bg));
+  color: var(--hui-otp-input-color, var(--hui-text));
+  font-family: inherit;
+  font-size: var(--hui-otp-input-font-size, var(--_otp-font));
+  font-weight: var(--hui-font-weight-semibold, 600);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  caret-color: var(--_otp-focus-border);
+  outline: none;
+  transition: border-color var(--hui-transition-fast), box-shadow var(--hui-transition-fast), background-color var(--hui-transition-fast);
+}
+
+.hui-otp__box::placeholder {
+  color: var(--hui-text-muted);
+  font-weight: var(--hui-font-weight-normal, 400);
+}
+
+.hui-otp__box:hover {
+  border-color: var(--hui-border-hover);
+}
+
+.hui-otp__box[part~='box-filled'] {
+  border-color: var(--_otp-filled-border);
+}
+
+.hui-otp__box:focus,
+.hui-otp__box:focus-visible {
+  border-color: var(--_otp-focus-border);
+  box-shadow: var(--_otp-focus-shadow);
+}
+
+.hui-otp__box:disabled {
+  cursor: not-allowed;
+  background: var(--hui-fill-tertiary);
+  color: var(--hui-text-disabled);
+}
+
+.hui-otp--disabled {
+  opacity: 0.6;
+}
+
+/* ================== TRẠNG THÁI ================== */
+.hui-otp--error,
+:host(:state(user-invalid)) .hui-otp {
+  --_otp-border: var(--hui-danger);
+  --_otp-filled-border: var(--hui-danger);
+  --_otp-focus-border: var(--hui-danger);
+  --_otp-focus-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.hui-otp--warning {
+  --_otp-border: var(--hui-warning);
+  --_otp-filled-border: var(--hui-warning);
+  --_otp-focus-border: var(--hui-warning);
+  --_otp-focus-shadow: 0 0 0 3px var(--hui-warning-light);
+}
+
+/* ================== TẮT HIỆU ỨNG ================== */
+.hui-otp--static .hui-otp__box {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-otp__box {
+    transition: none !important;
+  }
+}

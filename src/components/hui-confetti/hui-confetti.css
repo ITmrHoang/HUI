@@ -1,0 +1,13 @@
+/* HUI Confetti CSS — chỉ là khung bao; pháo giấy vẽ trên canvas top layer riêng */
+
+:host {
+  display: inline-block;
+}
+
+:host([block]) {
+  display: block;
+}
+
+.cf {
+  display: contents;
+}

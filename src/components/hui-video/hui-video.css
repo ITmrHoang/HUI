@@ -1,0 +1,231 @@
+/*
+ * HUI Video CSS
+ * Biến công khai:
+ *   --hui-video-radius          Bo góc
+ *   --hui-video-bg              Nền khi chưa có ảnh bìa
+ *   --hui-video-play-size       Đường kính nút play (mặc định 68px)
+ *   --hui-video-play-bg         Nền nút play
+ *   --hui-video-play-hover-bg   Nền nút play khi hover
+ *   --hui-video-play-color      Màu icon play
+ *   --hui-video-overlay         Lớp phủ tối trên ảnh bìa
+ *   --hui-video-popup-width     Bề rộng khung video trong popup
+ *   --hui-video-mask-bg         Nền popup
+ *   --hui-video-focus-color     Viền focus nút play
+ * Parts: base, poster, play, play-icon, player, dialog, mask, panel, close
+ * Biến nội bộ: --_video-ratio
+ */
+
+:host {
+  display: block;
+  min-width: 0;
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]),
+[hidden] {
+  display: none !important;
+}
+
+.video {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: var(--_video-ratio, 16 / 9);
+  border-radius: var(--hui-video-radius, var(--hui-radius-lg));
+  background: var(--hui-video-bg, var(--hui-bg-spotlight));
+  isolation: isolate;
+}
+
+.facade,
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+.poster,
+::slotted([slot='poster']) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--hui-motion-duration-slow, 300ms) var(--hui-motion-ease-out, ease-out);
+}
+
+.facade:hover .poster {
+  transform: scale(1.03);
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  background: var(--hui-video-overlay, linear-gradient(to top, var(--hui-overlay), transparent 55%));
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  color: var(--hui-text-light-solid);
+}
+
+/* Nút play phủ toàn khung — bấm chỗ nào cũng phát */
+.play {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--hui-video-play-color, var(--hui-text-light-solid));
+  cursor: pointer;
+}
+
+.play:focus-visible {
+  outline: none;
+}
+
+.play__icon {
+  display: grid;
+  place-items: center;
+  width: var(--hui-video-play-size, 68px);
+  height: var(--hui-video-play-size, 68px);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-video-play-bg, var(--hui-bg-spotlight));
+  box-shadow: var(--hui-shadow-lg);
+  font-size: calc(var(--hui-video-play-size, 68px) * 0.42);
+  transition: transform var(--hui-transition), background var(--hui-transition);
+}
+
+.play__icon hui-icon {
+  /* Tam giác play lệch phải một chút để cân thị giác */
+  translate: 8% 0;
+}
+
+.play:hover .play__icon,
+.play:focus-visible .play__icon {
+  transform: scale(1.08);
+  background: var(--hui-video-play-hover-bg, var(--hui-primary));
+}
+
+.play:focus-visible .play__icon {
+  outline: 3px solid var(--hui-video-focus-color, var(--hui-text-light-solid));
+  outline-offset: 3px;
+}
+
+.player {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--hui-video-bg, var(--hui-bg-spotlight));
+  object-fit: cover;
+}
+
+/* =====================================================
+ * POPUP
+ * ===================================================== */
+
+.popup {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+  z-index: var(--hui-z-modal);
+}
+
+.popup::backdrop {
+  background: transparent;
+}
+
+.popup:focus {
+  outline: none;
+}
+
+.popup__mask {
+  position: absolute;
+  inset: 0;
+  background: var(--hui-video-mask-bg, linear-gradient(var(--hui-overlay), var(--hui-overlay)), var(--hui-overlay));
+}
+
+.popup__wrap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--hui-space-xl) var(--hui-space-md);
+}
+
+.popup__panel {
+  position: relative;
+  width: var(--hui-video-popup-width, min(960px, 92vw));
+  max-height: 100%;
+  aspect-ratio: var(--_video-ratio, 16 / 9);
+  border-radius: var(--hui-video-radius, var(--hui-radius-lg));
+  background: var(--hui-video-bg, var(--hui-bg-spotlight));
+  box-shadow: var(--hui-shadow-xl);
+  outline: none;
+}
+
+.popup__stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.close {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--hui-space-sm));
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-bg-spotlight);
+  color: var(--hui-text-light-solid);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--hui-text-light-solid);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster,
+  .play__icon {
+    transition: none;
+  }
+
+  .facade:hover .poster {
+    transform: none;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,71 @@
+/*
+ * HUI Blob CSS
+ *   --hui-blob-bg          Nền khung (mặc định trong suốt)
+ *   --hui-blob-radius      Bo góc khung
+ *   --hui-blob-padding     Khoảng đệm nội dung
+ *   --hui-blob-min-height  Chiều cao tối thiểu
+ */
+
+:host {
+  display: block;
+}
+
+.blob {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: var(--hui-blob-min-height, auto);
+  border-radius: var(--hui-blob-radius, 0);
+  background: var(--hui-blob-bg, transparent);
+  color: var(--hui-text);
+  font-family: var(--hui-font-family);
+}
+
+.blob__layer {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.blob__item {
+  position: absolute;
+  width: var(--_blob-size, 45%);
+  aspect-ratio: 1;
+  background: var(--_blob-color);
+  opacity: var(--_blob-opacity, 0.5);
+  filter: blur(var(--_blob-blur, 60px));
+  border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+  will-change: transform;
+  animation: hui-blob-float var(--_blob-dur, 20s) ease-in-out var(--_blob-delay, 0s) infinite;
+}
+
+@keyframes hui-blob-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+  }
+  33% {
+    transform: translate(var(--_blob-dx, 20%), var(--_blob-dy, 15%)) scale(1.12);
+    border-radius: 70% 30% 46% 54% / 30% 29% 71% 70%;
+  }
+  66% {
+    transform: translate(calc(var(--_blob-dx, 20%) * -0.6), calc(var(--_blob-dy, 15%) * 0.8)) scale(0.9);
+    border-radius: 50% 50% 34% 66% / 56% 68% 32% 44%;
+  }
+}
+
+.blob__content {
+  position: relative;
+  box-sizing: border-box;
+  padding: var(--hui-blob-padding, 0);
+}
+
+:host([no-animation]) .blob__item,
+.blob.is-still .blob__item {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob__item { animation: none; }
+}

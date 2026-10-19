@@ -1,0 +1,43 @@
+/*
+ * HUI Scrolly Step CSS
+ * Biến công khai: --hui-scrolly-step-min-height, -align, -bg, -padding, -radius, -shadow,
+ *   -inactive-opacity, -active-border
+ */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  justify-content: var(--hui-scrolly-step-align, center);
+  min-height: var(--hui-scrolly-step-min-height, 80vh);
+  box-sizing: border-box;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host([hidden]) {
+  display: none !important;
+}
+
+.step {
+  position: relative;
+  padding: var(--hui-scrolly-step-padding, var(--hui-space-xl));
+  background: var(--hui-scrolly-step-bg, var(--hui-bg-elevated));
+  border-radius: var(--hui-scrolly-step-radius, var(--hui-radius-lg));
+  box-shadow: var(--hui-scrolly-step-shadow, var(--hui-shadow-md));
+  border-inline-start: 3px solid transparent;
+  opacity: var(--hui-scrolly-step-inactive-opacity, 0.4);
+  transition:
+    opacity var(--hui-motion-duration-slow, 0.3s) var(--hui-motion-ease-out, ease),
+    border-color var(--hui-motion-duration-slow, 0.3s) var(--hui-motion-ease-out, ease);
+}
+
+:host([active]) .step {
+  opacity: 1;
+  border-inline-start: var(--hui-scrolly-step-active-border, 3px solid var(--hui-primary));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step {
+    transition: none;
+  }
+}

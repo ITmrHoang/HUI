@@ -1,0 +1,141 @@
+/*
+ * HUI Share — biến override (đặt ở đâu cũng được):
+ *   --hui-share-gap, --hui-share-size, --hui-share-radius, --hui-share-color, --hui-share-text-color,
+ *   --hui-share-<network>-color (facebook | zalo | x | linkedin | email | copy | native)
+ * Parts: base, item (+ item-<network>), icon, label, status
+ * Màu mặc định lấy từ token (không dùng màu thương hiệu) → tự đúng ở dark mode.
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.share {
+  --_share-size: var(--hui-size-md, 36px);
+  --_share-radius: 50%;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-share-gap, var(--hui-space-sm, 8px));
+}
+
+.share--sm { --_share-size: var(--hui-size-sm, 28px); }
+.share--lg { --_share-size: var(--hui-size-lg, 44px); }
+.share--rounded { --_share-radius: var(--hui-radius-md, 8px); }
+.share--square { --_share-radius: var(--hui-radius-sm, 4px); }
+.share--labels { --_share-radius: var(--hui-radius-full, 999px); }
+.share--labels.share--rounded { --_share-radius: var(--hui-radius-md, 8px); }
+.share--labels.share--square { --_share-radius: var(--hui-radius-sm, 4px); }
+
+.share--vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Màu nhấn riêng từng mạng (token, không phải màu thương hiệu) */
+.share__item--facebook { --_share-accent: var(--hui-share-facebook-color, var(--hui-share-color, var(--hui-info-8))); }
+.share__item--zalo { --_share-accent: var(--hui-share-zalo-color, var(--hui-share-color, var(--hui-info-7))); }
+.share__item--x { --_share-accent: var(--hui-share-x-color, var(--hui-share-color, var(--hui-text))); --_share-on: var(--hui-bg); }
+.share__item--linkedin { --_share-accent: var(--hui-share-linkedin-color, var(--hui-share-color, var(--hui-primary-8))); }
+.share__item--email { --_share-accent: var(--hui-share-email-color, var(--hui-share-color, var(--hui-danger-7))); }
+.share__item--copy { --_share-accent: var(--hui-share-copy-color, var(--hui-share-color, var(--hui-secondary-7))); }
+.share__item--native { --_share-accent: var(--hui-share-native-color, var(--hui-share-color, var(--hui-primary-7))); }
+
+.share__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-width: var(--hui-share-size, var(--_share-size));
+  height: var(--hui-share-size, var(--_share-size));
+  padding: 0;
+  border: 1px solid var(--_share-accent);
+  border-radius: var(--hui-share-radius, var(--_share-radius));
+  background: var(--_share-accent);
+  color: var(--hui-share-text-color, var(--_share-on, var(--hui-text-light-solid)));
+  font: inherit;
+  font-size: var(--hui-font-sm, 14px);
+  font-weight: var(--hui-font-weight-medium, 500);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--hui-transition-fast, 0.15s), box-shadow var(--hui-transition-fast, 0.15s),
+    background-color var(--hui-transition-fast, 0.15s), color var(--hui-transition-fast, 0.15s);
+}
+
+.share--labels .share__item {
+  padding-inline: 12px 14px;
+}
+
+.share__item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--hui-shadow-md);
+}
+
+.share__item:active {
+  transform: translateY(0);
+}
+
+.share__item:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+.share__icon {
+  --hui-icon-size: calc(var(--hui-share-size, var(--_share-size)) * 0.5);
+  flex: none;
+}
+
+.share--labels .share__icon {
+  --hui-icon-size: 1.15em;
+}
+
+.share--outline .share__item {
+  background: transparent;
+  color: var(--_share-accent);
+}
+
+.share--outline .share__item:hover {
+  background: color-mix(in srgb, var(--_share-accent) 10%, transparent);
+}
+
+.share--ghost .share__item {
+  border-color: transparent;
+  background: transparent;
+  color: var(--_share-accent);
+}
+
+.share--ghost .share__item:hover {
+  background: color-mix(in srgb, var(--_share-accent) 12%, transparent);
+  box-shadow: none;
+}
+
+/* Sao chép xong → màu thành công */
+.share__item--done {
+  --_share-accent: var(--hui-success);
+}
+
+.share__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .share__item,
+  .share__item:hover {
+    transition: none;
+    transform: none;
+  }
+}

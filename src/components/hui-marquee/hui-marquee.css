@@ -1,0 +1,121 @@
+/*
+ * HUI Marquee CSS
+ * Biến công khai: --hui-marquee-gap, --hui-marquee-fade-size, --hui-marquee-height, --hui-marquee-padding
+ * Biến nội bộ (JS đặt trên .marquee): --_marquee-gap, --_marquee-distance, --_marquee-duration
+ */
+
+:host {
+  display: block;
+  min-width: 0;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host([hidden]) {
+  display: none !important;
+}
+
+.marquee {
+  --_marquee-gap-v: var(--_marquee-gap, var(--hui-marquee-gap, var(--hui-space-lg)));
+  --_marquee-fade: var(--hui-marquee-fade-size, 64px);
+  position: relative;
+  overflow: hidden;
+  padding: var(--hui-marquee-padding, 0);
+}
+
+.marquee__track,
+.marquee__group,
+.marquee__clones {
+  display: flex;
+  align-items: center;
+  gap: var(--_marquee-gap-v);
+  flex-shrink: 0;
+}
+
+.marquee__track {
+  width: max-content;
+  will-change: transform;
+}
+
+/* ---------- Chiều dọc ---------- */
+.marquee--vertical {
+  height: var(--hui-marquee-height, 240px);
+}
+
+.marquee--vertical .marquee__track,
+.marquee--vertical .marquee__group,
+.marquee--vertical .marquee__clones {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.marquee--vertical .marquee__track {
+  width: auto;
+  height: max-content;
+}
+
+/* ---------- Chuyển động ---------- */
+.marquee--running .marquee__track {
+  animation: hui-marquee-x var(--_marquee-duration, 20s) linear infinite;
+}
+
+.marquee--running.marquee--vertical .marquee__track {
+  animation-name: hui-marquee-y;
+}
+
+.marquee--right .marquee__track,
+.marquee--down .marquee__track {
+  animation-direction: reverse;
+}
+
+.marquee--paused .marquee__track {
+  animation-play-state: paused;
+}
+
+@keyframes hui-marquee-x {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(var(--_marquee-distance, -50%), 0, 0); }
+}
+
+@keyframes hui-marquee-y {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, var(--_marquee-distance, -50%), 0); }
+}
+
+/* ---------- Mờ 2 mép ---------- */
+.marquee--fade {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--_marquee-fade), #000 calc(100% - var(--_marquee-fade)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--_marquee-fade), #000 calc(100% - var(--_marquee-fade)), transparent);
+}
+
+.marquee--fade.marquee--vertical {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--_marquee-fade), #000 calc(100% - var(--_marquee-fade)), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--_marquee-fade), #000 calc(100% - var(--_marquee-fade)), transparent);
+}
+
+/* ---------- Tĩnh (giảm chuyển động / no-animation): hàng cuộn tay ---------- */
+.marquee--static {
+  overflow: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.marquee--static .marquee__track {
+  animation: none;
+  will-change: auto;
+}
+
+.marquee--static .marquee__clones {
+  display: none;
+}
+
+.marquee--static:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track {
+    animation: none !important;
+  }
+}

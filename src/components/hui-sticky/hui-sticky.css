@@ -1,0 +1,44 @@
+/*
+ * HUI Sticky CSS
+ * Biến công khai: --hui-sticky-bg, --hui-sticky-shadow, --hui-sticky-transition
+ * top / bottom / z-index do JS ghi vào <style> riêng của từng instance (CSS ngoài vẫn đè được).
+ */
+
+:host {
+  display: block;
+  position: sticky;
+  z-index: var(--hui-z-sticky, 100);
+}
+
+:host([disabled]) {
+  position: static;
+}
+
+:host([hidden]) {
+  display: none !important;
+}
+
+.sticky {
+  transition: var(--hui-sticky-transition, background-color var(--hui-motion-duration, 0.2s), box-shadow var(--hui-motion-duration, 0.2s));
+}
+
+:host([stuck]) .sticky {
+  background: var(--hui-sticky-bg, transparent);
+  box-shadow: var(--hui-sticky-shadow, none);
+}
+
+/* Mốc 1px vô hình để phát hiện "đang dính" — vị trí top/bottom do JS ghi theo offset */
+.sticky__sentinel {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticky {
+    transition: none;
+  }
+}

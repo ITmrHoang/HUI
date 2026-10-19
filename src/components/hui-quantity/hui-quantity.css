@@ -1,0 +1,123 @@
+/*
+ * HUI Quantity CSS — "− [n] +" gọn cho giỏ hàng.
+ * Override: var(--hui-quantity-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ * Parts: base, decrement, increment, input · State: :state(disabled), :state(user-invalid)
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+}
+
+:host([disabled]) {
+  pointer-events: none;
+}
+
+.qty {
+  --_qty-height: var(--hui-size-md);
+  --_qty-font: var(--hui-font-sm);
+  --_qty-radius: var(--hui-radius);
+  --_qty-border: var(--hui-quantity-border-color, var(--hui-border));
+
+  display: inline-flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  height: var(--hui-quantity-height, var(--_qty-height));
+  border: 1px solid var(--_qty-border);
+  border-radius: var(--hui-quantity-radius, var(--_qty-radius));
+  background: var(--hui-quantity-bg, var(--hui-bg));
+  overflow: hidden;
+  transition: border-color var(--hui-transition), box-shadow var(--hui-transition);
+}
+
+.qty:hover {
+  --_qty-border: var(--hui-quantity-border-color, var(--hui-border-hover));
+}
+
+.qty:focus-within {
+  --_qty-border: var(--hui-quantity-focus-border-color, var(--hui-primary));
+  box-shadow: var(--hui-focus-ring);
+}
+
+:host(:state(user-invalid)) .qty {
+  --_qty-border: var(--hui-danger);
+}
+
+.qty--sm {
+  --_qty-height: var(--hui-size-sm);
+  --_qty-font: var(--hui-font-xs);
+  --_qty-radius: var(--hui-radius-sm);
+}
+
+.qty--lg {
+  --_qty-height: var(--hui-size-lg);
+  --_qty-font: var(--hui-font-base);
+  --_qty-radius: var(--hui-radius-md);
+}
+
+.qty--filled {
+  --_qty-border: transparent;
+  background: var(--hui-quantity-bg, var(--hui-fill-tertiary));
+}
+
+.qty--borderless,
+.qty--borderless:hover {
+  --_qty-border: transparent;
+  background: transparent;
+}
+
+.qty--disabled {
+  opacity: 0.5;
+}
+
+.qty__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--hui-quantity-height, var(--_qty-height));
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--hui-quantity-button-color, var(--hui-text-secondary));
+  font-size: calc(var(--_qty-font) + 2px);
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.qty__btn:hover:not(:disabled) {
+  background: var(--hui-quantity-button-hover-bg, var(--hui-fill-secondary));
+  color: var(--hui-primary);
+}
+
+.qty__btn:active:not(:disabled) {
+  background: var(--hui-fill);
+}
+
+.qty__btn:disabled {
+  cursor: not-allowed;
+  color: var(--hui-text-disabled);
+}
+
+.qty__input {
+  width: var(--hui-quantity-input-width, 2.75em);
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  font-family: inherit;
+  font-size: var(--hui-quantity-font-size, var(--_qty-font));
+  font-weight: var(--hui-font-weight-medium);
+  font-variant-numeric: tabular-nums;
+  color: var(--hui-quantity-color, var(--hui-text));
+}
+
+.qty__input:disabled {
+  cursor: not-allowed;
+}

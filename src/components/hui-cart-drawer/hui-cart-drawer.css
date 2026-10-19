@@ -1,0 +1,241 @@
+/*
+ * HUI Cart Drawer CSS — danh sách dòng (ảnh | tên + biến thể + số lượng/giá | xóa), footer tạm tính + thanh toán.
+ * Override: var(--hui-cart-drawer-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ * Drawer bên trong: ::part(drawer-panel | drawer-header | drawer-body | drawer-footer | drawer-close | drawer-mask)
+ * và biến --hui-drawer-* của hui-drawer. State: :state(empty)
+ */
+
+:host {
+  display: contents;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.cd::part(body) {
+  display: flex;
+  flex-direction: column;
+  padding: var(--hui-cart-drawer-body-padding, 8px 20px);
+}
+
+.cd::part(footer) {
+  padding: var(--hui-drawer-footer-padding, 16px 20px);
+}
+
+.cd__heading {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.cd__count {
+  color: var(--hui-text-secondary);
+  font-weight: var(--hui-font-weight-normal);
+}
+
+.cd__free-ship-box {
+  padding: var(--hui-space-sm) 0 var(--hui-space-md);
+  border-bottom: 1px solid var(--hui-cart-drawer-divider, var(--hui-border-secondary));
+}
+
+/* ================== DANH SÁCH ================== */
+.cd__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cd__item,
+.cd__undo {
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--hui-cart-drawer-divider, var(--hui-border-secondary));
+}
+
+.cd__item:last-child,
+.cd__undo:last-child {
+  border-bottom: none;
+}
+
+.cd__item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: var(--hui-space-md);
+  padding: var(--hui-cart-drawer-item-gap, var(--hui-space-md)) 0;
+}
+
+.cd__img {
+  width: var(--hui-cart-drawer-image-size, 72px);
+  height: var(--hui-cart-drawer-image-size, 72px);
+  object-fit: cover;
+  border-radius: var(--hui-cart-drawer-image-radius, var(--hui-radius-md));
+  background: var(--hui-fill-tertiary);
+}
+
+.cd__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cd__name {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--hui-cart-drawer-name-color, var(--hui-text));
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium);
+  line-height: var(--hui-line-height);
+  text-decoration: none;
+}
+
+.cd__name[href]:hover {
+  color: var(--hui-primary);
+}
+
+.cd__name[href]:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.cd__variant {
+  color: var(--hui-cart-drawer-variant-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-xs);
+}
+
+.cd__qty {
+  align-self: flex-start;
+  margin-top: var(--hui-space-xs);
+}
+
+/* Cột phải: thành tiền trên, nút xóa dưới */
+.cd__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: var(--hui-space-xs);
+}
+
+/* Giá gốc xuống dòng dưới giá bán → cột phải hẹp, nhường chỗ cho tên sản phẩm */
+.cd__price {
+  max-width: 7rem;
+  text-align: end;
+}
+
+.cd__price::part(original) {
+  display: block;
+  width: 100%;
+  text-align: end;
+}
+
+.cd__remove {
+  margin-inline-end: -4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--hui-radius);
+  background: transparent;
+  color: var(--hui-text-tertiary);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.cd__remove:hover {
+  background: var(--hui-danger-light);
+  color: var(--hui-danger);
+}
+
+.cd__remove:focus-visible {
+  outline: 2px solid var(--hui-danger);
+  outline-offset: 1px;
+}
+
+/* ================== HOÀN TÁC ================== */
+.cd__undo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-sm);
+  margin: var(--hui-space-sm) 0;
+  padding: var(--hui-space-sm) var(--hui-space-md);
+  border-radius: var(--hui-radius);
+  border-bottom: none;
+  background: var(--hui-cart-drawer-undo-bg, var(--hui-fill-tertiary));
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+}
+
+.cd__undo-btn {
+  flex: none;
+  padding: 2px var(--hui-space-xs);
+  border: none;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-primary);
+  font: inherit;
+  font-weight: var(--hui-font-weight-semibold);
+  cursor: pointer;
+}
+
+.cd__undo-btn:hover {
+  background: var(--hui-primary-light);
+}
+
+.cd__undo-btn:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 1px;
+}
+
+/* ================== TRỐNG ================== */
+.cd__empty {
+  margin: auto 0;
+  padding: var(--hui-space-xl) 0;
+}
+
+/* ================== FOOTER ================== */
+.cd__footer {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-sm);
+}
+
+.cd__subtotal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--hui-space-md);
+  color: var(--hui-text);
+  font-size: var(--hui-font-base);
+}
+
+.cd__total {
+  display: inline-block;
+  color: var(--hui-cart-drawer-total-color, var(--hui-text));
+  font-size: var(--hui-cart-drawer-total-font-size, var(--hui-font-lg));
+  font-weight: var(--hui-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.cd__note {
+  margin: 0;
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-xs);
+}
+
+.cd__checkout {
+  margin-top: var(--hui-space-xs);
+}

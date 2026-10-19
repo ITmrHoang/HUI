@@ -1,0 +1,130 @@
+/*
+ * HUI Stats Counter — biến override (đặt ở đâu cũng được):
+ *   --hui-stats-counter-gap, -min-width, -value-size, -value-weight, -value-color, -affix-color,
+ *   -label-color, -label-size, -description-color, -icon-color, -icon-bg,
+ *   -item-bg, -item-radius, -item-padding, -item-shadow, -divider-color
+ * Parts: base, item, icon, value, number, prefix, suffix, label, description
+ */
+
+:host {
+  display: block;
+  container-type: inline-size;
+  font-family: var(--hui-font-family);
+}
+
+.sc {
+  --_sc-value-size: clamp(1.75rem, 5cqi, 2.5rem);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--hui-stats-counter-min-width, 160px)), 1fr));
+  gap: var(--hui-stats-counter-gap, var(--hui-space-xl, 24px));
+}
+
+.sc--sm { --_sc-value-size: clamp(1.25rem, 4cqi, 1.75rem); }
+.sc--lg { --_sc-value-size: clamp(2.25rem, 7cqi, 3.5rem); }
+
+/* columns cố định → khung hẹp tự giảm còn 2 rồi 1 cột */
+.sc--fixed {
+  grid-template-columns: repeat(var(--_sc-cols), minmax(0, 1fr));
+}
+
+@container (max-width: 640px) {
+  .sc--fixed-many {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 360px) {
+  .sc--fixed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sc__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: var(--hui-stats-counter-item-padding, var(--hui-space-sm, 8px));
+  text-align: center;
+}
+
+.sc--start .sc__item {
+  align-items: flex-start;
+  text-align: start;
+}
+
+.sc__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 6px;
+  border-radius: var(--hui-radius-lg, 10px);
+  background: var(--hui-stats-counter-icon-bg, var(--hui-primary-light));
+  color: var(--hui-stats-counter-icon-color, var(--hui-primary));
+  --hui-icon-size: 1.4rem;
+}
+
+.sc__value {
+  font-size: var(--hui-stats-counter-value-size, var(--_sc-value-size));
+  font-weight: var(--hui-stats-counter-value-weight, var(--hui-font-weight-bold, 700));
+  line-height: 1.15;
+  color: var(--hui-stats-counter-value-color, var(--hui-text));
+  letter-spacing: -0.01em;
+  max-width: 100%;
+}
+
+.sc__value hui-number {
+  --hui-number-affix-color: var(--hui-stats-counter-affix-color, var(--hui-primary));
+}
+
+.sc__label {
+  font-size: var(--hui-stats-counter-label-size, var(--hui-font-sm, 14px));
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-stats-counter-label-color, var(--hui-text-secondary));
+}
+
+.sc__desc {
+  font-size: var(--hui-font-xs, 12px);
+  color: var(--hui-stats-counter-description-color, var(--hui-text-secondary));
+}
+
+/* ================== CARD ================== */
+.sc--card .sc__item {
+  padding: var(--hui-stats-counter-item-padding, var(--hui-space-xl, 24px) var(--hui-space-lg, 16px));
+  border: 1px solid var(--hui-border-secondary);
+  border-radius: var(--hui-stats-counter-item-radius, var(--hui-radius-xl, 14px));
+  background: var(--hui-stats-counter-item-bg, var(--hui-bg-container));
+  box-shadow: var(--hui-stats-counter-item-shadow, var(--hui-shadow-sm));
+  transition: transform var(--hui-transition, 0.2s), box-shadow var(--hui-transition, 0.2s);
+}
+
+.sc--card .sc__item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--hui-shadow-lg);
+}
+
+/* ================== DIVIDED ==================
+ * Vạch chia vẽ bằng box-shadow tràn ra trái/trên mỗi ô; ô ở mép trái / hàng đầu bị khung (overflow) cắt đi
+ * → chỉ còn vạch GIỮA các ô, đúng cả khi lưới xuống hàng. */
+.sc--divided {
+  gap: 0;
+  overflow: hidden;
+}
+
+.sc--divided .sc__item {
+  padding: var(--hui-stats-counter-item-padding, var(--hui-space-lg, 16px) var(--hui-space-xl, 24px));
+  box-shadow:
+    -1px 0 0 var(--hui-stats-counter-divider-color, var(--hui-border)),
+    0 -1px 0 var(--hui-stats-counter-divider-color, var(--hui-border));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc--card .sc__item,
+  .sc--card .sc__item:hover {
+    transition: none;
+    transform: none;
+  }
+}

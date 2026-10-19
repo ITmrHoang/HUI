@@ -1,0 +1,207 @@
+/*
+ * HUI Add To Cart CSS — 3 "mặt" nội dung chồng lên nhau (idle / loading / added), chuyển bằng trượt + mờ;
+ * nút giữ bề ngang của mặt rộng nhất → không giật layout khi đổi trạng thái.
+ * Override: var(--hui-add-to-cart-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ * Parts: button, face (+ face-idle | face-loading | face-added), icon, label, spinner, check
+ * State: :state(idle) | :state(loading) | :state(added)
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+}
+
+:host([block]) {
+  display: block;
+}
+
+:host([block]) .atc {
+  width: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.atc {
+  --_atc-height: var(--hui-size-md);
+  --_atc-font: var(--hui-font-sm);
+  --_atc-pad: var(--hui-space-md);
+  --_atc-bg: var(--hui-add-to-cart-bg, var(--hui-primary));
+  --_atc-color: var(--hui-add-to-cart-color, var(--hui-text-inverse));
+  --_atc-hover-bg: var(--hui-add-to-cart-hover-bg, var(--hui-primary-hover));
+  --_atc-border: transparent;
+  --_atc-ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  height: var(--hui-add-to-cart-height, var(--_atc-height));
+  margin: 0;
+  padding: 0 var(--hui-add-to-cart-padding-x, var(--_atc-pad));
+  overflow: hidden;
+  border: 1px solid var(--_atc-border);
+  border-radius: var(--hui-add-to-cart-radius, var(--hui-radius));
+  background: var(--_atc-bg);
+  color: var(--_atc-color);
+  font: inherit;
+  font-size: var(--hui-add-to-cart-font-size, var(--_atc-font));
+  font-weight: var(--hui-font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--hui-transition), color var(--hui-transition), border-color var(--hui-transition);
+}
+
+.atc--sm {
+  --_atc-height: var(--hui-size-sm);
+  --_atc-font: var(--hui-font-xs);
+  --_atc-pad: var(--hui-space-sm);
+}
+
+.atc--lg {
+  --_atc-height: var(--hui-size-lg);
+  --_atc-font: var(--hui-font-base);
+  --_atc-pad: var(--hui-space-lg);
+}
+
+.atc--outline {
+  --_atc-bg: var(--hui-add-to-cart-bg, transparent);
+  --_atc-color: var(--hui-add-to-cart-color, var(--hui-primary));
+  --_atc-border: var(--hui-primary);
+  --_atc-hover-bg: var(--hui-add-to-cart-hover-bg, var(--hui-primary-light));
+}
+
+.atc--soft {
+  --_atc-bg: var(--hui-add-to-cart-bg, var(--hui-primary-light));
+  --_atc-color: var(--hui-add-to-cart-color, var(--hui-primary));
+  --_atc-hover-bg: var(--hui-add-to-cart-hover-bg, var(--hui-primary-light));
+}
+
+.atc:hover:not(:disabled):not(.atc--added) {
+  background: var(--_atc-hover-bg);
+}
+
+.atc:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.atc:focus-visible {
+  outline: none;
+  box-shadow: var(--hui-focus-ring);
+}
+
+.atc:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.atc--loading {
+  cursor: progress;
+}
+
+.atc--added {
+  --_atc-border: transparent;
+  background: var(--hui-add-to-cart-added-bg, var(--hui-success));
+  color: var(--hui-add-to-cart-added-color, var(--hui-text-inverse));
+}
+
+/* ================== CÁC MẶT ================== */
+.atc__face {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hui-space-xs);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(70%);
+  transition: opacity 200ms var(--_atc-ease), transform 260ms var(--_atc-ease), visibility 0s linear 260ms;
+}
+
+/* mặt cũ trượt lên trên, mặt mới đi lên từ dưới */
+.atc--idle .atc__face--loading,
+.atc--idle .atc__face--added,
+.atc--added .atc__face--loading {
+  transform: translateY(-70%);
+}
+
+.atc--idle .atc__face--idle,
+.atc--loading .atc__face--loading,
+.atc--added .atc__face--added {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 200ms var(--_atc-ease), transform 260ms var(--_atc-ease);
+}
+
+.atc__icon {
+  font-size: 1.15em;
+}
+
+.atc__spinner {
+  width: 1.15em;
+  height: 1.15em;
+  box-sizing: border-box;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: atc-spin 0.7s linear infinite;
+}
+
+@keyframes atc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.atc__check {
+  width: 1.2em;
+  height: 1.2em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.atc__check path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.atc--added .atc__check path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 360ms var(--_atc-ease) 120ms;
+}
+
+.atc__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ================== TẮT HIỆU ỨNG ================== */
+.atc--static,
+.atc--static .atc__face,
+.atc--static .atc__check path {
+  transition: none !important;
+}
+
+.atc--static .atc__face {
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atc__spinner {
+    animation-duration: 1.6s;
+  }
+}

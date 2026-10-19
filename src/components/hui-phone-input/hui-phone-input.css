@@ -1,0 +1,229 @@
+/*
+ * HUI Phone Input CSS
+ * Override: var(--hui-phone-input-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-phone-input-height              Chiều cao khung (mặc định theo size)
+ *   --hui-phone-input-radius              Bo góc
+ *   --hui-phone-input-bg                  Nền
+ *   --hui-phone-input-color               Màu chữ
+ *   --hui-phone-input-border-color        Viền
+ *   --hui-phone-input-hover-border-color  Viền khi hover
+ *   --hui-phone-input-focus-border-color  Viền khi focus
+ *   --hui-phone-input-focus-shadow        Vòng sáng khi focus
+ *   --hui-phone-input-country-bg          Nền vùng chọn quốc gia
+ *   --hui-phone-input-font-size           Cỡ chữ
+ *
+ * Parts: base, label, control, country, flag, dial, country-select, input, message
+ * State: :state(user-invalid), :state(filled), :state(disabled)
+ * Biến nội bộ: --_phone-height, --_phone-radius, --_phone-font, --_phone-pad, --_phone-border, --_phone-focus-*
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([disabled]) {
+  pointer-events: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-phone {
+  --_phone-border: var(--hui-phone-input-border-color, var(--hui-border));
+  --_phone-hover-border: var(--hui-phone-input-hover-border-color, var(--hui-border-hover));
+  --_phone-focus-border: var(--hui-phone-input-focus-border-color, var(--hui-primary));
+  --_phone-focus-shadow: var(--hui-phone-input-focus-shadow, var(--hui-focus-ring));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+}
+
+.hui-phone--sm {
+  --_phone-height: var(--hui-size-sm);
+  --_phone-radius: var(--hui-radius-sm);
+  --_phone-font: var(--hui-font-xs);
+  --_phone-pad: 8px;
+}
+
+.hui-phone--md {
+  --_phone-height: var(--hui-size-md);
+  --_phone-radius: var(--hui-radius);
+  --_phone-font: var(--hui-font-sm);
+  --_phone-pad: 12px;
+}
+
+.hui-phone--lg {
+  --_phone-height: var(--hui-size-lg);
+  --_phone-radius: var(--hui-radius-md);
+  --_phone-font: var(--hui-font-base);
+  --_phone-pad: 16px;
+}
+
+.hui-phone__label {
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-text);
+}
+
+:host([required]) .hui-phone__label::after {
+  content: ' *';
+  color: var(--hui-danger);
+}
+
+/* ================== KHUNG VIỀN ================== */
+.hui-phone__control {
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  height: var(--hui-phone-input-height, var(--_phone-height));
+  border: 1px solid var(--_phone-border);
+  border-radius: var(--hui-phone-input-radius, var(--_phone-radius));
+  background: var(--hui-phone-input-bg, var(--hui-bg));
+  font-size: var(--hui-phone-input-font-size, var(--_phone-font));
+  overflow: hidden;
+  transition: border-color var(--hui-transition), box-shadow var(--hui-transition);
+}
+
+.hui-phone__control:hover {
+  border-color: var(--_phone-hover-border);
+}
+
+.hui-phone__control:focus-within {
+  border-color: var(--_phone-focus-border);
+  box-shadow: var(--_phone-focus-shadow);
+}
+
+/* ================== BỘ CHỌN QUỐC GIA ================== */
+.hui-phone__country {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+  padding: 0 calc(var(--_phone-pad) - 4px) 0 var(--_phone-pad);
+  border-right: 1px solid var(--_phone-border);
+  background: var(--hui-phone-input-country-bg, var(--hui-fill-tertiary));
+  color: var(--hui-phone-input-color, var(--hui-text));
+  white-space: nowrap;
+  transition: background-color var(--hui-transition-fast);
+}
+
+.hui-phone__country:hover {
+  background: var(--hui-fill-secondary);
+}
+
+/* Viền focus bàn phím cho vùng quốc gia (select trong suốt nằm trên) */
+.hui-phone__country:has(.hui-phone__select:focus-visible) {
+  outline: 2px solid var(--_phone-focus-border);
+  outline-offset: -2px;
+}
+
+.hui-phone__flag {
+  font-size: 1.15em;
+  line-height: 1;
+}
+
+.hui-phone__dial {
+  font-variant-numeric: tabular-nums;
+}
+
+.hui-phone__chevron {
+  display: inline-flex;
+  width: 1em;
+  height: 1em;
+  color: var(--hui-text-muted);
+}
+
+.hui-phone__chevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* <select> native phủ kín vùng quốc gia, trong suốt — bấm / bàn phím mở danh sách hệ thống */
+.hui-phone__select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--hui-text);
+  background: var(--hui-bg-elevated);
+}
+
+.hui-phone__select:disabled {
+  cursor: default;
+}
+
+.hui-phone--locked .hui-phone__chevron {
+  display: none;
+}
+
+.hui-phone--locked .hui-phone__country:hover {
+  background: var(--hui-phone-input-country-bg, var(--hui-fill-tertiary));
+}
+
+/* ================== Ô SỐ ================== */
+.hui-phone__field {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0 var(--_phone-pad);
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--hui-phone-input-color, var(--hui-text));
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.hui-phone__field::placeholder {
+  color: var(--hui-text-muted);
+}
+
+.hui-phone__field:disabled {
+  cursor: not-allowed;
+}
+
+/* ================== TRẠNG THÁI ================== */
+.hui-phone--error,
+:host(:state(user-invalid)) .hui-phone {
+  --_phone-border: var(--hui-danger);
+  --_phone-hover-border: var(--hui-danger);
+  --_phone-focus-border: var(--hui-danger);
+  --_phone-focus-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.hui-phone--warning {
+  --_phone-border: var(--hui-warning);
+  --_phone-hover-border: var(--hui-warning);
+  --_phone-focus-border: var(--hui-warning);
+  --_phone-focus-shadow: 0 0 0 3px var(--hui-warning-light);
+}
+
+.hui-phone--disabled {
+  opacity: 0.5;
+}
+
+.hui-phone__message {
+  font-size: var(--hui-font-xs);
+  color: var(--hui-text-secondary);
+}
+
+.hui-phone__message--error {
+  color: var(--hui-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-phone__control,
+  .hui-phone__country {
+    transition: none;
+  }
+}

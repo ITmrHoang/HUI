@@ -1,0 +1,259 @@
+/*
+ * HUI Lightbox CSS
+ * Biến công khai:
+ *   --hui-lightbox-mask-bg            Nền phía sau (mặc định 2 lớp --hui-overlay → tối hơn mask modal)
+ *   --hui-lightbox-color              Màu chữ / icon (mặc định --hui-text-light-solid)
+ *   --hui-lightbox-button-bg          Nền nút (mặc định --hui-bg-spotlight)
+ *   --hui-lightbox-button-hover-bg    Nền nút khi hover
+ *   --hui-lightbox-button-size        Kích thước nút (mặc định 40px)
+ *   --hui-lightbox-padding            Khoảng đệm quanh ảnh
+ *   --hui-lightbox-caption-max-width  Bề rộng tối đa chú thích
+ *   --hui-lightbox-duration           Thời gian chuyển zoom / xoay
+ *   --hui-lightbox-focus-color        Viền focus của nút
+ * Parts: dialog, mask, stage, image, toolbar, counter, zoom-in, zoom-out, rotate, download, close,
+ *        prev, next, caption, loader, error
+ */
+
+:host {
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--hui-lightbox-color, var(--hui-text-light-solid));
+  overflow: hidden;
+  /* Chỉ có tác dụng khi không có top-layer (trình duyệt cũ) */
+  z-index: var(--hui-z-modal);
+}
+
+.dialog::backdrop {
+  background: transparent;
+}
+
+.dialog:focus,
+.wrap:focus {
+  outline: none;
+}
+
+.mask {
+  position: absolute;
+  inset: 0;
+  /* 3 lớp --hui-overlay chồng nhau → tối hơn mask của modal mà vẫn theo token (sáng: ~88%, tối: ~97%) */
+  background: var(--hui-lightbox-mask-bg, linear-gradient(var(--hui-overlay), var(--hui-overlay)), linear-gradient(var(--hui-overlay), var(--hui-overlay)), var(--hui-overlay));
+}
+
+.wrap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+/* =====================================================
+ * THANH CÔNG CỤ
+ * ===================================================== */
+
+.toolbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-sm);
+  padding: var(--hui-space-sm) var(--hui-space-md);
+}
+
+.counter {
+  font-size: var(--hui-font-sm);
+  font-variant-numeric: tabular-nums;
+  padding-inline: var(--hui-space-sm);
+}
+
+.actions {
+  display: flex;
+  gap: var(--hui-space-xs);
+  margin-inline-start: auto;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--hui-lightbox-button-size, 40px);
+  height: var(--hui-lightbox-button-size, 40px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-lightbox-button-bg, var(--hui-bg-spotlight));
+  color: inherit;
+  font-size: 1.15rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), opacity var(--hui-transition-fast);
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--hui-lightbox-button-hover-bg, color-mix(in srgb, var(--hui-bg-spotlight), var(--hui-text-light-solid) 18%));
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--hui-lightbox-focus-color, var(--hui-text-light-solid));
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn--prev,
+.btn--next {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: calc(var(--hui-lightbox-button-size, 40px) + 4px);
+  height: calc(var(--hui-lightbox-button-size, 40px) + 4px);
+  transform: translateY(-50%);
+  font-size: 1.4rem;
+}
+
+.btn--prev {
+  left: var(--hui-space-md);
+}
+
+.btn--next {
+  right: var(--hui-space-md);
+}
+
+/* =====================================================
+ * VÙNG ẢNH
+ * ===================================================== */
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: var(--hui-lightbox-padding, var(--hui-space-sm) calc(var(--hui-lightbox-button-size, 40px) + 2 * var(--hui-space-md)));
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+
+@media (max-width: 575px) {
+  .stage {
+    padding: var(--hui-lightbox-padding, var(--hui-space-sm));
+  }
+}
+
+.img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform-origin: center;
+  transition:
+    transform var(--hui-lightbox-duration, var(--hui-motion-duration, 200ms)) var(--hui-motion-ease-out, ease-out),
+    opacity var(--hui-motion-duration, 200ms) var(--hui-motion-ease-out, ease-out);
+  cursor: zoom-in;
+  -webkit-user-drag: none;
+}
+
+.is-zoomed .img {
+  cursor: grab;
+}
+
+.is-zoomed.is-gesture .img {
+  cursor: grabbing;
+}
+
+.is-gesture .img,
+.is-instant .img {
+  transition: none;
+}
+
+.is-loading .img,
+.is-error .img {
+  opacity: 0;
+}
+
+.is-error .img {
+  position: absolute;
+}
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 3px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Hiện sau 200ms → ảnh tải nhanh thì không nháy vòng xoay */
+.is-loading .loader {
+  animation: hui-lightbox-spin 0.8s linear infinite, hui-lightbox-show 0.2s 0.2s forwards;
+}
+
+@keyframes hui-lightbox-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes hui-lightbox-show {
+  to { opacity: 1; }
+}
+
+.error {
+  display: grid;
+  justify-items: center;
+  gap: var(--hui-space-sm);
+  font-size: var(--hui-font-sm);
+  opacity: 0.85;
+}
+
+.error__icon {
+  font-size: 3rem;
+}
+
+.caption {
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--hui-lightbox-caption-max-width, 70ch);
+  margin: 0 auto;
+  padding: var(--hui-space-sm) var(--hui-space-md) var(--hui-space-md);
+  text-align: center;
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height, 1.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .img {
+    transition: none;
+  }
+
+  .is-loading .loader {
+    animation: hui-lightbox-show 0.2s 0.2s forwards;
+  }
+}

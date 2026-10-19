@@ -1,0 +1,161 @@
+/*
+ * HUI Splitter CSS
+ * Biến công khai: --hui-splitter-gutter, --hui-splitter-gutter-color, --hui-splitter-handle-size,
+ *   --hui-splitter-active-color, --hui-splitter-height
+ * Biến nội bộ (JS đặt trên .splitter): --_splitter-gutters (tổng bề dày khe chia)
+ */
+
+:host {
+  display: block;
+  min-width: 0;
+  height: var(--hui-splitter-height, auto);
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host([hidden]) {
+  display: none !important;
+}
+
+.splitter {
+  position: relative;
+  height: 100%;
+  min-height: inherit;
+}
+
+.splitter__panels {
+  display: flex;
+  flex-direction: row;
+  gap: var(--hui-splitter-gutter, 1px);
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  /* Nền khe chia: thấy ở các khe giữa vùng */
+  background: var(--hui-splitter-gutter-color, var(--hui-border-secondary));
+}
+
+.splitter--vertical .splitter__panels {
+  flex-direction: column;
+}
+
+::slotted(hui-splitter-panel) {
+  background: var(--hui-bg-container);
+}
+
+/* ---------- Thanh kéo (lớp phủ) ---------- */
+.splitter__handles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.splitter__handle {
+  --_splitter-hit: var(--hui-splitter-handle-size, 9px);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--_splitter-hit);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 1;
+  outline: none;
+}
+
+.splitter--vertical .splitter__handle {
+  top: auto;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: var(--_splitter-hit);
+  transform: translateY(-50%);
+  cursor: row-resize;
+}
+
+/* Vạch sáng khi hover / kéo / focus — phủ đúng khe chia */
+.splitter__handle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: max(var(--hui-splitter-gutter, 1px), 2px);
+  transform: translateX(-50%);
+  background: transparent;
+  transition: background-color var(--hui-motion-duration-fast, 0.1s);
+}
+
+.splitter--vertical .splitter__handle::before {
+  top: 50%;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: max(var(--hui-splitter-gutter, 1px), 2px);
+  transform: translateY(-50%);
+}
+
+.splitter__grip {
+  position: relative;
+  width: 4px;
+  height: 24px;
+  border-radius: var(--hui-radius-full, 999px);
+  background: var(--hui-splitter-gutter-color, var(--hui-border));
+  box-shadow: 0 0 0 2px var(--hui-bg-container);
+  transition: background-color var(--hui-motion-duration-fast, 0.1s);
+}
+
+.splitter--vertical .splitter__grip {
+  width: 24px;
+  height: 4px;
+}
+
+.splitter__handle:hover::before,
+.splitter__handle:focus-visible::before,
+.splitter--dragging .splitter__handle[part~='handle-active']::before {
+  background: var(--hui-splitter-active-color, var(--hui-primary));
+}
+
+.splitter__handle:hover .splitter__grip,
+.splitter__handle:focus-visible .splitter__grip,
+.splitter--dragging .splitter__handle[part~='handle-active'] .splitter__grip {
+  background: var(--hui-splitter-active-color, var(--hui-primary));
+}
+
+.splitter__handle:focus-visible .splitter__grip {
+  box-shadow: 0 0 0 2px var(--hui-bg-container), 0 0 0 4px var(--hui-primary-3);
+}
+
+/* Đang kéo: chặn chọn chữ + iframe trong vùng "nuốt" sự kiện chuột */
+.splitter--dragging {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.splitter--dragging.splitter--vertical {
+  cursor: row-resize;
+}
+
+.splitter--dragging ::slotted(*) {
+  pointer-events: none;
+}
+
+.splitter--disabled .splitter__handle {
+  cursor: default;
+}
+
+.splitter--disabled .splitter__grip {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splitter__handle::before,
+  .splitter__grip {
+    transition: none;
+  }
+}

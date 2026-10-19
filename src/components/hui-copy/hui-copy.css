@@ -1,0 +1,71 @@
+/*
+ * HUI Copy — biến override: --hui-copy-success-color, --hui-copy-tooltip-bg, --hui-copy-tooltip-color
+ * (nút bên trong là hui-button → mọi biến --hui-button-* cũng dùng được)
+ * Parts: button, button-base, button-label, icon, tooltip
+ */
+
+:host {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+hui-button {
+  display: inline-block;
+}
+
+/* Đã sao chép: icon/chữ chuyển màu thành công */
+hui-button.copy--done {
+  --hui-button-color: var(--hui-copy-success-color, var(--hui-success));
+  --hui-button-hover-color: var(--hui-copy-success-color, var(--hui-success));
+}
+
+/* Bong bóng "Đã sao chép" phía trên nút */
+.copy__tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  z-index: var(--hui-z-tooltip, 1070);
+  padding: 4px 8px;
+  border-radius: var(--hui-radius-sm, 4px);
+  background: var(--hui-copy-tooltip-bg, var(--hui-bg-spotlight));
+  color: var(--hui-copy-tooltip-color, var(--hui-text-light-solid));
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-xs, 12px);
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition: opacity var(--hui-motion-duration-fast, 120ms) ease, transform var(--hui-motion-duration-fast, 120ms) ease;
+}
+
+.copy__tip:empty {
+  padding: 0;
+}
+
+.copy__tip--show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* no-tooltip: vẫn có chữ cho trình đọc màn hình nhưng ẩn khỏi mắt */
+.copy__tip--sr {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy__tip {
+    transition: none;
+  }
+}

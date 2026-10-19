@@ -1,0 +1,166 @@
+/*
+ * HUI Newsletter CSS
+ * Override: var(--hui-newsletter-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-newsletter-gap                Khoảng cách các phần tử
+ *   --hui-newsletter-button-min-width   Bề rộng tối thiểu nút (layout inline)
+ *   --hui-newsletter-error-color        Màu dòng lỗi gửi
+ *   --hui-newsletter-success-color      Màu dấu ✓ + chữ thành công
+ *   --hui-newsletter-success-icon-size  Cạnh dấu ✓ (48px)
+ *
+ * Parts: base, form, row, input, button, consent, error, success, success-icon, success-text
+ * State: :state(idle | loading | success | error)
+ * Biến nội bộ: --_nl-gap, --_nl-success
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-nl {
+  --_nl-gap: var(--hui-newsletter-gap, var(--hui-space-sm));
+  --_nl-success: var(--hui-newsletter-success-color, var(--hui-success));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--_nl-gap);
+}
+
+.hui-nl__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_nl-gap);
+}
+
+/* ================== HÀNG Ô EMAIL + NÚT ================== */
+.hui-nl__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--_nl-gap);
+}
+
+.hui-nl__input {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.hui-nl__button {
+  flex: 0 0 auto;
+  min-width: var(--hui-newsletter-button-min-width, 7rem);
+}
+
+.hui-nl--stacked .hui-nl__row {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.hui-nl--stacked .hui-nl__input,
+.hui-nl--stacked .hui-nl__button {
+  flex: none;
+  width: 100%;
+}
+
+.hui-nl__label {
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-text);
+  cursor: default;
+}
+
+.hui-nl__consent {
+  font-size: var(--hui-font-sm);
+}
+
+.hui-nl__error {
+  font-size: var(--hui-font-sm);
+  color: var(--hui-newsletter-error-color, var(--hui-danger));
+}
+
+.hui-nl__error:empty {
+  display: none;
+}
+
+/* ================== THÀNH CÔNG ================== */
+.hui-nl__success {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-md);
+  padding: var(--hui-space-sm) 0;
+  color: var(--_nl-success);
+  font-weight: var(--hui-font-weight-medium, 500);
+  outline: none;
+}
+
+.hui-nl__success:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+  border-radius: var(--hui-radius);
+}
+
+.hui-nl__success-text {
+  color: var(--hui-text);
+}
+
+.hui-nl__check {
+  flex-shrink: 0;
+  width: var(--hui-newsletter-success-icon-size, 48px);
+  height: var(--hui-newsletter-success-icon-size, 48px);
+  stroke: var(--_nl-success);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Vẽ nét: vòng tròn rồi dấu ✓ */
+.hui-nl__check-circle {
+  stroke-dasharray: 151;
+  stroke-dashoffset: 0;
+  animation: hui-nl-draw-circle 0.5s cubic-bezier(0.65, 0, 0.45, 1) both;
+}
+
+.hui-nl__check-mark {
+  stroke-dasharray: 32;
+  stroke-dashoffset: 0;
+  animation: hui-nl-draw-mark 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.4s both;
+}
+
+.hui-nl__success .hui-nl__success-text {
+  animation: hui-nl-fade 0.4s ease-out 0.2s both;
+}
+
+@keyframes hui-nl-draw-circle {
+  from { stroke-dashoffset: 151; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes hui-nl-draw-mark {
+  from { stroke-dashoffset: 32; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes hui-nl-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ================== TẮT HIỆU ỨNG ================== */
+.hui-nl--static .hui-nl__check-circle,
+.hui-nl--static .hui-nl__check-mark,
+.hui-nl--static .hui-nl__success-text {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-nl__check-circle,
+  .hui-nl__check-mark,
+  .hui-nl__success .hui-nl__success-text {
+    animation: none;
+  }
+}

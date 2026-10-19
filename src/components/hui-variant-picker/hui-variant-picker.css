@@ -1,0 +1,198 @@
+/*
+ * HUI Variant Picker CSS — swatch màu / pill cỡ / ảnh thu nhỏ; mục hết hàng gạch chéo.
+ * Override: var(--hui-variant-picker-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ * Parts: base, header, label, selected, group, option (+ option-checked, option-disabled), swatch, thumb
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.vp {
+  --_vp-size: 32px;
+  --_vp-font: var(--hui-font-sm);
+  --_vp-active: var(--hui-variant-picker-active-color, var(--hui-primary));
+  --_vp-border: var(--hui-variant-picker-border-color, var(--hui-border));
+  --_vp-off: var(--hui-variant-picker-disabled-color, var(--hui-text-disabled));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-sm);
+}
+
+.vp--sm {
+  --_vp-size: 24px;
+  --_vp-font: var(--hui-font-xs);
+}
+
+.vp--lg {
+  --_vp-size: 40px;
+  --_vp-font: var(--hui-font-base);
+}
+
+.vp--image {
+  --_vp-size: 56px;
+}
+
+.vp--image.vp--sm {
+  --_vp-size: 44px;
+}
+
+.vp--image.vp--lg {
+  --_vp-size: 72px;
+}
+
+.vp--disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.vp__header {
+  font-size: var(--hui-font-sm);
+  color: var(--hui-text-secondary);
+}
+
+.vp__label {
+  font-weight: var(--hui-font-weight-medium);
+  color: var(--hui-text);
+}
+
+.vp__selected::before {
+  content: ': ';
+}
+
+.vp__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hui-variant-picker-gap, var(--hui-space-sm));
+}
+
+/* ================== MỤC ================== */
+.vp__option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--_vp-border);
+  background: var(--hui-variant-picker-bg, var(--hui-bg));
+  color: var(--hui-variant-picker-color, var(--hui-text));
+  font-family: inherit;
+  font-size: var(--_vp-font);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color var(--hui-transition-fast), box-shadow var(--hui-transition-fast),
+    background var(--hui-transition-fast), color var(--hui-transition-fast), transform var(--hui-transition-fast);
+}
+
+.vp__option:hover:not(.vp__option--disabled) {
+  border-color: var(--_vp-active);
+}
+
+.vp__option:focus-visible {
+  outline: 2px solid var(--_vp-active);
+  outline-offset: 2px;
+}
+
+.vp__option--checked {
+  border-color: var(--_vp-active);
+  box-shadow: 0 0 0 1px var(--_vp-active);
+}
+
+/* Hết hàng: gạch chéo + mờ, vẫn đọc được tên */
+.vp__option--disabled {
+  cursor: not-allowed;
+  color: var(--_vp-off);
+}
+
+.vp__option--disabled::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(to top right,
+    transparent calc(50% - 0.75px), var(--_vp-off) calc(50% - 0.75px),
+    var(--_vp-off) calc(50% + 0.75px), transparent calc(50% + 0.75px));
+}
+
+/* ================== NÚT CỠ (pill) ================== */
+.vp--button .vp__option {
+  min-width: calc(var(--_vp-size) * 1.4);
+  height: var(--_vp-size);
+  padding: 0 var(--hui-space-md);
+  border-radius: var(--hui-variant-picker-radius, var(--hui-radius-full));
+  overflow: hidden;
+}
+
+.vp--button .vp__option--checked {
+  background: var(--hui-variant-picker-active-bg, var(--hui-primary-light));
+  color: var(--_vp-active);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+/* ================== Ô MÀU ================== */
+.vp--color .vp__option {
+  width: var(--_vp-size);
+  height: var(--_vp-size);
+  padding: 3px;
+  border-radius: 50%;
+  border-color: transparent;
+}
+
+.vp--color .vp__option:hover:not(.vp__option--disabled) {
+  border-color: var(--_vp-border);
+}
+
+.vp--color .vp__option--checked,
+.vp--color .vp__option--checked:hover {
+  border-color: var(--_vp-active);
+  box-shadow: none;
+}
+
+.vp__swatch {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--hui-fill);
+  /* Viền mảnh bên trong để ô màu trắng vẫn thấy trên nền trắng */
+  box-shadow: inset 0 0 0 1px var(--hui-border-secondary);
+}
+
+.vp--color .vp__option--disabled .vp__swatch {
+  opacity: 0.45;
+}
+
+/* ================== ẢNH ================== */
+.vp--image .vp__option {
+  width: var(--_vp-size);
+  height: var(--_vp-size);
+  padding: 2px;
+  border-radius: var(--hui-radius-md);
+  overflow: hidden;
+}
+
+.vp__thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--hui-radius-md) - 2px);
+  pointer-events: none;
+}
+
+.vp--image .vp__option--disabled .vp__thumb {
+  opacity: 0.45;
+}
+
+.vp--static .vp__option {
+  transition: none;
+}

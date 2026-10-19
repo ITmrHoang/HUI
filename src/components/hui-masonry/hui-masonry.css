@@ -1,0 +1,66 @@
+/*
+ * HUI Masonry CSS
+ * Biến công khai: --hui-masonry-gap, --hui-masonry-duration
+ * Biến nội bộ (JS đặt trên .masonry): --_masonry-gap
+ * Vị trí item (top / inset-inline-start / width) do JS ghi inline lên từng item.
+ */
+
+:host {
+  display: block;
+  min-width: 0;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host([hidden]),
+[hidden] {
+  display: none !important;
+}
+
+.masonry {
+  --_masonry-gap-v: var(--_masonry-gap, var(--hui-masonry-gap, var(--hui-space-lg)));
+}
+
+.masonry__grid {
+  position: relative;
+  column-gap: var(--_masonry-gap-v);
+  /* Trước khi JS xếp (hoặc khi không có JS): lưới thường, item không chồng lên nhau */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  row-gap: var(--_masonry-gap-v);
+  align-items: start;
+}
+
+.masonry__grid--positioned {
+  display: block;
+}
+
+::slotted(*) {
+  box-sizing: border-box;
+}
+
+.masonry__grid--positioned ::slotted(*) {
+  position: absolute;
+  top: 0;
+  margin: 0;
+}
+
+.masonry__grid--animated ::slotted(*) {
+  transition:
+    top var(--hui-masonry-duration, var(--hui-motion-duration-slow, 0.3s)) var(--hui-motion-ease-in-out, ease),
+    inset-inline-start var(--hui-masonry-duration, var(--hui-motion-duration-slow, 0.3s)) var(--hui-motion-ease-in-out, ease);
+}
+
+.masonry--no-animation .masonry__grid ::slotted(*) {
+  transition: none;
+}
+
+.masonry__state {
+  padding: var(--hui-space-lg) 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .masonry__grid ::slotted(*) {
+    transition: none !important;
+  }
+}

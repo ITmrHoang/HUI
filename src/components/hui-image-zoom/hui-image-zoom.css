@@ -1,0 +1,121 @@
+/*
+ * HUI Image Zoom CSS — kính lúp / khung bên cạnh / phóng tại chỗ.
+ * Override: var(--hui-image-zoom-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ * Parts: base, frame, image, lens, inner, panel · State: :state(zoomed)
+ */
+
+:host {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+}
+
+.iz {
+  position: relative;
+}
+
+.iz__frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--hui-image-zoom-radius, var(--hui-radius-md));
+  cursor: var(--hui-image-zoom-cursor, crosshair);
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.iz--inner .iz__frame {
+  cursor: var(--hui-image-zoom-cursor, zoom-in);
+}
+
+.iz__frame:focus-visible {
+  box-shadow: var(--hui-focus-ring);
+}
+
+:host([disabled]) .iz__frame {
+  cursor: default;
+}
+
+.iz__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Các lớp phóng: ẩn mặc định, hiện theo data-render khi đang phóng */
+.iz__lens,
+.iz__inner,
+.iz__panel {
+  background-repeat: no-repeat;
+  background-color: var(--hui-bg);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--hui-motion-duration-fast, 150ms) ease, visibility 0s linear var(--hui-motion-duration-fast, 150ms);
+}
+
+.iz__inner {
+  position: absolute;
+  inset: 0;
+}
+
+.iz__lens {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  will-change: transform;
+}
+
+.iz--active[data-render='inner'] .iz__inner,
+.iz--active[data-render='lens'] .iz__lens,
+.iz--active[data-render='side'] .iz__lens,
+.iz--active[data-render='side'] .iz__panel {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--hui-motion-duration-fast, 150ms) ease;
+}
+
+/* Kính lúp tròn */
+.iz[data-render='lens'] .iz__lens {
+  border-radius: 50%;
+  border: var(--hui-image-zoom-lens-border, 2px solid var(--hui-bg));
+  box-shadow: var(--hui-image-zoom-lens-shadow, var(--hui-shadow-lg));
+}
+
+/* side: ô chọn vùng trong suốt trên ảnh + khung phóng bên cạnh */
+.iz[data-render='side'] .iz__lens {
+  background: var(--hui-image-zoom-region-bg, color-mix(in srgb, var(--hui-bg) 35%, transparent)) !important;
+  border: 1px solid var(--hui-border);
+}
+
+.iz__panel {
+  position: absolute;
+  top: 0;
+  z-index: var(--hui-z-dropdown);
+  width: var(--hui-image-zoom-panel-width, 100%);
+  height: var(--hui-image-zoom-panel-height, 100%);
+  border-radius: var(--hui-image-zoom-radius, var(--hui-radius-md));
+  box-shadow: var(--hui-image-zoom-panel-shadow, var(--hui-shadow-lg));
+  border: 1px solid var(--hui-border-secondary);
+}
+
+.iz--side-right .iz__panel {
+  left: calc(100% + var(--hui-image-zoom-panel-gap, var(--hui-space-md)));
+}
+
+.iz--side-left .iz__panel {
+  right: calc(100% + var(--hui-image-zoom-panel-gap, var(--hui-space-md)));
+}
+
+/* Chạm: đang phóng thì kéo để di chuyển, không cuộn trang */
+.iz--via-touch .iz__frame {
+  touch-action: none;
+}
+
+.iz--static .iz__lens,
+.iz--static .iz__inner,
+.iz--static .iz__panel {
+  transition: none !important;
+}

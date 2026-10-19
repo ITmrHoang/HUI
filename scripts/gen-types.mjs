@@ -99,6 +99,7 @@ if (group) {
 
 // Kiểu viết tay cho core
 copyFileSync(resolve(root, 'scripts/types/core.d.ts'), resolve(out, 'core.d.ts'));
+copyFileSync(resolve(root, 'scripts/types/effects.d.ts'), resolve(out, 'effects.d.ts'));
 
 // Vue — GlobalComponents
 let vue = `// Bật gợi ý cho Vue: thêm "@itmrhoang/h-ui/types/vue" vào compilerOptions.types (tsconfig)\nimport type { DefineComponent } from 'vue';\nimport type * as H from './index';\n\ndeclare module 'vue' {\n  interface GlobalComponents {\n`;

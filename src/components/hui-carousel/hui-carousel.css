@@ -1,0 +1,303 @@
+/*
+ * HUI Carousel CSS
+ * Biến công khai:
+ *   --hui-carousel-duration            Thời gian chuyển slide (mặc định 500ms; JS đọc biến này cho effect slide)
+ *   --hui-carousel-gap                 Khoảng cách slide (items-per-view > 1)
+ *   --hui-carousel-radius              Bo góc viewport
+ *   --hui-carousel-arrow-size / -arrow-bg / -arrow-color / -arrow-offset   Nút mũi tên + tạm dừng
+ *   --hui-carousel-dot-size / -dot-color / -dot-active-color               Chấm
+ *   --hui-carousel-thumb-width / -thumb-ratio                              Ảnh thu nhỏ
+ *   --hui-carousel-progress-height / -progress-color                       Thanh tiến độ tự chạy
+ *   --hui-carousel-kenburns-scale      Mức phóng Ken Burns (JS đọc)
+ *   --hui-carousel-focus-color         Viền focus
+ * Parts: base, frame, viewport, track, prev, next, pause, progress, progress-bar, nav, dot, dot-active, thumb, thumb-active
+ * Biến nội bộ (JS đặt inline): --_carousel-n, --_carousel-gap, --_carousel-ratio
+ */
+
+:host {
+  display: block;
+  min-width: 0;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+:host([hidden]),
+[hidden] {
+  display: none !important;
+}
+
+.carousel {
+  --_carousel-gap-v: var(--_carousel-gap, var(--hui-carousel-gap, var(--hui-space-md)));
+  --_carousel-dur: var(--hui-carousel-duration, 500ms);
+
+  position: relative;
+}
+
+.frame {
+  position: relative;
+}
+
+.viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--hui-carousel-radius, var(--hui-radius-lg));
+  touch-action: pan-y;
+  outline: none;
+}
+
+.viewport:focus-visible {
+  outline: 2px solid var(--hui-carousel-focus-color, var(--hui-border-focus));
+  outline-offset: 2px;
+}
+
+.carousel--ratio .viewport {
+  aspect-ratio: var(--_carousel-ratio);
+}
+
+.track {
+  height: 100%;
+}
+
+.is-dragging .viewport {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* =====================================================
+ * EFFECT SLIDE — hàng ngang, track dịch bằng transform
+ * ===================================================== */
+
+.carousel--slide .track {
+  display: flex;
+  gap: var(--_carousel-gap-v);
+  will-change: transform;
+}
+
+.carousel--slide ::slotted(*) {
+  box-sizing: border-box;
+  flex: 0 0 calc((100% - (var(--_carousel-n, 1) - 1) * var(--_carousel-gap-v)) / var(--_carousel-n, 1));
+  min-width: 0;
+}
+
+/* =====================================================
+ * EFFECT FADE / ZOOM — chồng slide, đổi opacity
+ * ===================================================== */
+
+.carousel--fade .track,
+.carousel--zoom .track {
+  display: grid;
+}
+
+.carousel--fade ::slotted(*),
+.carousel--zoom ::slotted(*) {
+  box-sizing: border-box;
+  grid-area: 1 / 1;
+  min-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--_carousel-dur) ease, visibility 0s linear var(--_carousel-dur);
+}
+
+.carousel--fade ::slotted([data-hui-active]),
+.carousel--zoom ::slotted([data-hui-active]) {
+  z-index: 1;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--_carousel-dur) ease, visibility 0s;
+}
+
+/* Ken Burns: ảnh phóng bên trong slide → cắt phần tràn */
+.carousel--zoom ::slotted(*) {
+  overflow: hidden;
+}
+
+.carousel--ratio ::slotted(*) {
+  height: 100%;
+}
+
+.carousel--static ::slotted(*) {
+  transition: none !important;
+}
+
+/* =====================================================
+ * NÚT
+ * ===================================================== */
+
+.btn {
+  position: absolute;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--hui-carousel-arrow-size, 40px);
+  height: var(--hui-carousel-arrow-size, 40px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-carousel-arrow-bg, var(--hui-bg-elevated));
+  color: var(--hui-carousel-arrow-color, var(--hui-text));
+  box-shadow: var(--hui-shadow-md);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: opacity var(--hui-transition-fast), transform var(--hui-transition-fast), background var(--hui-transition-fast);
+}
+
+.btn:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.btn--prev:hover:not(:disabled),
+.btn--next:hover:not(:disabled) {
+  transform: translateY(-50%) scale(1.06);
+}
+
+.btn:focus-visible,
+.dot:focus-visible,
+.thumb:focus-visible {
+  outline: 2px solid var(--hui-carousel-focus-color, var(--hui-border-focus));
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn--prev,
+.btn--next {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.btn--prev {
+  left: var(--hui-carousel-arrow-offset, var(--hui-space-md));
+}
+
+.btn--next {
+  right: var(--hui-carousel-arrow-offset, var(--hui-space-md));
+}
+
+.btn--pause {
+  right: var(--hui-carousel-arrow-offset, var(--hui-space-md));
+  bottom: var(--hui-carousel-arrow-offset, var(--hui-space-md));
+  width: calc(var(--hui-carousel-arrow-size, 40px) * 0.8);
+  height: calc(var(--hui-carousel-arrow-size, 40px) * 0.8);
+  font-size: 0.9rem;
+}
+
+/* arrows="hover": hiện khi rê chuột / focus bên trong; thiết bị cảm ứng luôn hiện */
+@media (hover: hover) {
+  .carousel--arrows-hover .btn--prev,
+  .carousel--arrows-hover .btn--next {
+    opacity: 0;
+  }
+
+  .carousel--arrows-hover:hover .btn--prev:not(:disabled),
+  .carousel--arrows-hover:hover .btn--next:not(:disabled),
+  .carousel--arrows-hover:focus-within .btn--prev:not(:disabled),
+  .carousel--arrows-hover:focus-within .btn--next:not(:disabled) {
+    opacity: 1;
+  }
+}
+
+/* =====================================================
+ * THANH TIẾN ĐỘ TỰ CHẠY
+ * ===================================================== */
+
+.progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  height: var(--hui-carousel-progress-height, 3px);
+  overflow: hidden;
+  border-radius: 0 0 var(--hui-carousel-radius, var(--hui-radius-lg)) var(--hui-carousel-radius, var(--hui-radius-lg));
+  pointer-events: none;
+}
+
+.progress__bar {
+  height: 100%;
+  background: var(--hui-carousel-progress-color, var(--hui-primary));
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* =====================================================
+ * CHẤM / ẢNH THU NHỎ
+ * ===================================================== */
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--hui-space-sm);
+  margin-top: var(--hui-space-md);
+}
+
+.dot {
+  box-sizing: content-box;
+  width: var(--hui-carousel-dot-size, 8px);
+  height: var(--hui-carousel-dot-size, 8px);
+  padding: 4px;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-carousel-dot-color, var(--hui-fill));
+  background-clip: content-box;
+  cursor: pointer;
+  transition: width var(--hui-transition), background-color var(--hui-transition);
+}
+
+.dot.is-active {
+  width: calc(var(--hui-carousel-dot-size, 8px) * 3);
+  background-color: var(--hui-carousel-dot-active-color, var(--hui-primary));
+}
+
+.nav--thumbs {
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  overflow-x: auto;
+  padding: 2px;
+  scrollbar-width: thin;
+}
+
+.thumb {
+  flex: 0 0 auto;
+  width: var(--hui-carousel-thumb-width, 72px);
+  aspect-ratio: var(--hui-carousel-thumb-ratio, 4 / 3);
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: var(--hui-radius-md);
+  background: var(--hui-fill-secondary);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity var(--hui-transition), border-color var(--hui-transition);
+}
+
+.thumb:hover {
+  opacity: 0.9;
+}
+
+.thumb.is-active {
+  border-color: var(--hui-carousel-dot-active-color, var(--hui-primary));
+  opacity: 1;
+}
+
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::slotted(*),
+  .btn,
+  .dot,
+  .thumb {
+    transition: none !important;
+  }
+}

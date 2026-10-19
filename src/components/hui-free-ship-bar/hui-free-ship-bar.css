@@ -1,0 +1,144 @@
+/*
+ * HUI Free Ship Bar CSS — dòng chữ + thanh tiến độ; đạt ngưỡng thì chuyển success + vẽ dấu ✓.
+ * Override: var(--hui-free-ship-bar-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ * Parts: base, message, icon, amount, track, fill · State: :state(reached)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+.fsb {
+  --_fsb-color: var(--hui-free-ship-bar-color, var(--hui-primary));
+  --_fsb-height: 6px;
+  --_fsb-font: var(--hui-font-sm);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-free-ship-bar-gap, var(--hui-space-sm));
+  color: var(--hui-free-ship-bar-text-color, var(--hui-text));
+  font-size: var(--hui-free-ship-bar-font-size, var(--_fsb-font));
+  line-height: var(--hui-line-height);
+}
+
+.fsb--sm {
+  --_fsb-height: 4px;
+  --_fsb-font: var(--hui-font-xs);
+}
+
+.fsb--reached {
+  --_fsb-color: var(--hui-free-ship-bar-success-color, var(--hui-success));
+}
+
+.fsb__message {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+}
+
+.fsb__icon {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  width: 1.4em;
+  height: 1.4em;
+  align-items: center;
+  justify-content: center;
+  color: var(--_fsb-color);
+  font-size: 1.1em;
+}
+
+.fsb__check {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  visibility: hidden;
+}
+
+.fsb__check circle,
+.fsb__check path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.fsb--reached .fsb__check {
+  visibility: visible;
+}
+
+.fsb--reached .fsb__check circle,
+.fsb--reached .fsb__check path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 420ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.fsb--reached .fsb__check path {
+  transition-delay: 300ms;
+}
+
+.fsb--reached slot[name='icon'] {
+  display: none;
+}
+
+.fsb__amount {
+  color: var(--hui-free-ship-bar-amount-color, var(--hui-danger));
+  font-weight: var(--hui-font-weight-semibold);
+  white-space: nowrap;
+}
+
+.fsb--reached .fsb__text {
+  color: var(--hui-free-ship-bar-success-color, var(--hui-success));
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.fsb__track {
+  position: relative;
+  height: var(--hui-free-ship-bar-height, var(--_fsb-height));
+  overflow: hidden;
+  border-radius: var(--hui-free-ship-bar-radius, var(--hui-radius-full));
+  background: var(--hui-free-ship-bar-track-bg, var(--hui-fill-secondary));
+}
+
+.fsb__fill {
+  position: relative;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--_fsb-color);
+  overflow: hidden;
+  transition: width 600ms cubic-bezier(0.215, 0.61, 0.355, 1), background var(--hui-transition);
+}
+
+/* Vạch sáng chạy qua phần đã đạt (khi chưa đủ ngưỡng) */
+.fsb:not(.fsb--reached):not(.fsb--static) .fsb__fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--hui-bg) 45%, transparent), transparent);
+  transform: translateX(-100%);
+  animation: fsb-shine 2.2s ease-in-out infinite;
+}
+
+@keyframes fsb-shine {
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.fsb--static .fsb__fill,
+.fsb--static .fsb__check circle,
+.fsb--static .fsb__check path {
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fsb__fill::after {
+    animation: none !important;
+  }
+}

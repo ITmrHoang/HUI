@@ -104,3 +104,57 @@ export { default as HuiAvatar, HuiAvatarGroup } from './components/hui-avatar/in
 export { default as HuiDemo } from './components/hui-demo/index.js';
 
 console.info('🧩 HUI-Lib Loaded! Hệ thống Component Sẵn Sàng.');
+
+// Đợt 1 (A3) — cuộn & bố cục động
+export { default as HuiMarquee } from './components/hui-marquee/index.js';
+export { default as HuiInfiniteScroll } from './components/hui-infinite-scroll/index.js';
+export { default as HuiSticky } from './components/hui-sticky/index.js';
+export { default as HuiMasonry } from './components/hui-masonry/index.js';
+export { default as HuiScrolly, HuiScrollyStep } from './components/hui-scrolly/index.js';
+export { default as HuiSplitter, HuiSplitterPanel } from './components/hui-splitter/index.js';
+
+// Đợt 1 (A7) — hiệu ứng chữ & nền (hàm confetti/burst/shake/ripple nằm riêng ở '@itmrhoang/h-ui/effects')
+export { default as HuiTypewriter } from './components/hui-typewriter/index.js';
+export { default as HuiTextRotate } from './components/hui-text-rotate/index.js';
+export { default as HuiGradientText } from './components/hui-gradient-text/index.js';
+export { default as HuiSplitText } from './components/hui-split-text/index.js';
+export { default as HuiGradientBg } from './components/hui-gradient-bg/index.js';
+export { default as HuiBlob } from './components/hui-blob/index.js';
+export { default as HuiPattern } from './components/hui-pattern/index.js';
+export { default as HuiParallax } from './components/hui-parallax/index.js';
+export { default as HuiConfetti } from './components/hui-confetti/index.js';
+
+// Đợt 1 (A6.6 + A6.7) — thương mại điện tử & form
+export { default as HuiQuantity } from './components/hui-quantity/index.js';
+export { default as HuiVariantPicker } from './components/hui-variant-picker/index.js';
+export { default as HuiImageZoom } from './components/hui-image-zoom/index.js';
+export { default as HuiAddToCart } from './components/hui-add-to-cart/index.js';
+export { default as HuiWishlistToggle } from './components/hui-wishlist-toggle/index.js';
+export { default as HuiCartDrawer } from './components/hui-cart-drawer/index.js';
+export { default as HuiFreeShipBar } from './components/hui-free-ship-bar/index.js';
+export { default as HuiCouponInput } from './components/hui-coupon-input/index.js';
+export { default as HuiOtpInput } from './components/hui-otp-input/index.js';
+export { default as HuiPhoneInput, PHONE_COUNTRIES, parsePhone, formatNational } from './components/hui-phone-input/index.js';
+export { default as HuiPasswordStrength, scorePassword } from './components/hui-password-strength/index.js';
+export { default as HuiNewsletter } from './components/hui-newsletter/index.js';
+export { default as HuiContactForm } from './components/hui-contact-form/index.js';
+
+// Đợt 1 (A1 + A6.2) — media
+export { default as HuiImage } from './components/hui-image/index.js';
+export { default as HuiLightbox, lightbox } from './components/hui-lightbox/index.js';
+export { default as HuiGallery } from './components/hui-gallery/index.js';
+export { default as HuiCarousel } from './components/hui-carousel/index.js';
+export { default as HuiVideo, parseVideoSource } from './components/hui-video/index.js';
+export { default as HuiCompareSlider } from './components/hui-compare-slider/index.js';
+
+// Nội dung (A1 / A6.2)
+export { default as HuiNumber } from './components/hui-number/index.js';
+export { default as HuiTime, formatTime } from './components/hui-time/index.js';
+export { default as HuiCountdown, splitDuration } from './components/hui-countdown/index.js';
+export { default as HuiStatsCounter } from './components/hui-stats-counter/index.js';
+export { default as HuiCopy, copyText } from './components/hui-copy/index.js';
+export { default as HuiKbd, parseKeys } from './components/hui-kbd/index.js';
+export { default as HuiCodeBlock, tokenize } from './components/hui-code-block/index.js';
+export { default as HuiProse } from './components/hui-prose/index.js';
+export { default as HuiShare, buildShareUrl } from './components/hui-share/index.js';
+export { default as HuiToc, slugify } from './components/hui-toc/index.js';

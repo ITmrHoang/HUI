@@ -1,0 +1,224 @@
+/*
+ * HUI Image CSS
+ * Biến công khai (đặt ở :root, thẻ cha hoặc chính <hui-image>):
+ *   --hui-image-radius                Bo góc khi rounded (mặc định --hui-radius-lg)
+ *   --hui-image-bg                    Nền khung khi chưa có ảnh
+ *   --hui-image-placeholder-color     Màu skeleton
+ *   --hui-image-placeholder-highlight Vệt sáng skeleton
+ *   --hui-image-placeholder-ratio     Tỉ lệ khung tạm khi chưa biết kích thước (mặc định 4 / 3)
+ *   --hui-image-blur                  Độ mờ ảnh placeholder-src (mặc định 16px)
+ *   --hui-image-duration              Thời gian hiện dần khi tải xong
+ *   --hui-image-error-color           Màu icon lỗi
+ *   --hui-image-focus-color           Viền focus khi preview
+ * Parts: base, img, placeholder, error
+ * Biến nội bộ (JS đặt inline): --_image-ratio, --_image-fit
+ */
+
+:host {
+  display: block;
+  position: relative;
+  min-width: 0;
+  outline: none;
+}
+
+:host([hidden]),
+[hidden] {
+  display: none !important;
+}
+
+.image {
+  --_image-fit: cover;
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--hui-image-bg, var(--hui-fill-tertiary));
+  border-radius: inherit;
+  isolation: isolate;
+}
+
+.image--rounded {
+  border-radius: var(--hui-image-radius, var(--hui-radius-lg));
+}
+
+/* Có tỉ lệ: khung giữ tỉ lệ, ảnh phủ kín khung */
+.image--ratio {
+  aspect-ratio: var(--_image-ratio);
+  height: auto;
+}
+
+/* Chưa biết kích thước (không ratio, chưa tải xong) → khung tạm để placeholder có chỗ hiện */
+.image:not(.image--ratio):not(.is-loaded) {
+  aspect-ratio: var(--hui-image-placeholder-ratio, 4 / 3);
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--_image-fit);
+  opacity: 1;
+  transition: opacity var(--hui-image-duration, var(--hui-motion-duration-slow, 300ms)) var(--hui-motion-ease-out, ease-out);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.image--ratio .img,
+.image:not(.is-loaded) .img {
+  position: absolute;
+  inset: 0;
+}
+
+.is-loading .img {
+  opacity: 0;
+}
+
+/* =====================================================
+ * PLACEHOLDER
+ * ===================================================== */
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--hui-image-duration, var(--hui-motion-duration-slow, 300ms)) var(--hui-motion-ease-out, ease-out);
+}
+
+.is-loading .placeholder,
+.is-idle .placeholder {
+  opacity: 1;
+}
+
+.image--ph-none .placeholder {
+  display: none;
+}
+
+.image--ph-skeleton .placeholder,
+.image--ph-blur .placeholder {
+  background: linear-gradient(
+    90deg,
+    var(--hui-image-placeholder-color, var(--hui-fill-secondary)) 25%,
+    var(--hui-image-placeholder-highlight, var(--hui-fill)) 37%,
+    var(--hui-image-placeholder-color, var(--hui-fill-secondary)) 63%
+  );
+  background-size: 400% 100%;
+}
+
+.is-loading.image--ph-skeleton .placeholder,
+.is-loading.image--ph-blur .placeholder,
+.is-idle.image--ph-skeleton .placeholder,
+.is-idle.image--ph-blur .placeholder {
+  animation: hui-image-shimmer 1.4s ease infinite;
+}
+
+.lqip {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--_image-fit);
+  filter: blur(var(--hui-image-blur, 16px));
+  transform: scale(1.1);
+}
+
+/* Có ảnh mờ (LQIP) thì không cần vệt shimmer */
+.image--ph-blur .placeholder:has(.lqip:not([hidden])) {
+  animation: none;
+  background: none;
+}
+
+@keyframes hui-image-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* =====================================================
+ * LỖI
+ * ===================================================== */
+
+.error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--hui-image-error-color, var(--hui-text-tertiary));
+  font-size: 2rem;
+}
+
+.error__icon {
+  max-width: 40%;
+}
+
+.is-error {
+  aspect-ratio: var(--_image-ratio, var(--hui-image-placeholder-ratio, 4 / 3));
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.overlay ::slotted(*) {
+  pointer-events: auto;
+}
+
+/* =====================================================
+ * PREVIEW (bấm mở lightbox)
+ * ===================================================== */
+
+.image--preview {
+  cursor: zoom-in;
+}
+
+.image--preview .img {
+  transition:
+    opacity var(--hui-image-duration, var(--hui-motion-duration-slow, 300ms)) var(--hui-motion-ease-out, ease-out),
+    transform var(--hui-motion-duration-slow, 300ms) var(--hui-motion-ease-out, ease-out);
+}
+
+.image--preview:hover .img {
+  transform: scale(1.03);
+}
+
+.image:focus-visible {
+  outline: 3px solid var(--hui-image-focus-color, var(--hui-border-focus));
+  outline-offset: -3px; /* vẽ phía trong: không bị cắt khi khung cha overflow: hidden */
+}
+
+.image--static .img,
+.image--static .placeholder {
+  transition: none;
+  animation: none !important;
+}
+
+.image--static:hover .img {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .img,
+  .placeholder {
+    transition: none;
+    animation: none !important;
+  }
+
+  .image--preview:hover .img {
+    transform: none;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

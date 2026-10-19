@@ -1,0 +1,34 @@
+/*
+ * HUI Parallax CSS
+ *   --hui-parallax-height    Chiều cao khung (mặc định auto)
+ *   --hui-parallax-overflow  Cắt phần lớp tràn ra ngoài (mặc định hidden)
+ *   --hui-parallax-radius    Bo góc khung
+ */
+
+:host {
+  display: block;
+  height: var(--hui-parallax-height, auto);
+}
+
+.px {
+  position: relative;
+  isolation: isolate;
+  height: 100%;
+  overflow: var(--hui-parallax-overflow, hidden);
+  border-radius: var(--hui-parallax-radius, 0);
+}
+
+/* data-layer: lớp phủ kín khung (ảnh nền, hoạ tiết…) — rộng hơn khung một chút để trôi không hở mép */
+::slotted([data-layer]) {
+  position: absolute;
+  top: -15%;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 130%;
+  object-fit: cover;
+}
+
+::slotted(*) {
+  will-change: translate;
+}

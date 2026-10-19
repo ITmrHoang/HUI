@@ -1,0 +1,113 @@
+/*
+ * HUI Toc — biến override (đặt ở đâu cũng được):
+ *   --hui-toc-font-size, --hui-toc-color, --hui-toc-hover-color, --hui-toc-active-color, --hui-toc-active-bg,
+ *   --hui-toc-track-color, --hui-toc-indicator-color, --hui-toc-indicator-width, --hui-toc-indent,
+ *   --hui-toc-title-color, --hui-toc-sticky-top, --hui-toc-max-height
+ * Parts: base, title, list (+ list-nested), item, link (+ link-active), indicator
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([sticky]) {
+  position: sticky;
+  top: var(--hui-toc-sticky-top, var(--hui-space-lg, 16px));
+  align-self: flex-start;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.toc {
+  font-size: var(--hui-toc-font-size, var(--hui-font-sm, 14px));
+  line-height: 1.45;
+}
+
+:host([sticky]) .toc {
+  max-height: var(--hui-toc-max-height, calc(100vh - 2 * var(--hui-toc-sticky-top, var(--hui-space-lg, 16px))));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.toc__title {
+  margin: 0 0 var(--hui-space-sm, 8px);
+  font-size: var(--hui-font-xs, 12px);
+  font-weight: var(--hui-font-weight-semibold, 600);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hui-toc-title-color, var(--hui-text-secondary));
+}
+
+/* Đường ray bên trái + thanh chỉ báo trượt trên đó */
+.toc__body {
+  position: relative;
+  border-inline-start: var(--hui-toc-indicator-width, 2px) solid var(--hui-toc-track-color, var(--hui-border));
+}
+
+.toc__indicator {
+  position: absolute;
+  top: 0;
+  inset-inline-start: calc(-1 * var(--hui-toc-indicator-width, 2px));
+  width: var(--hui-toc-indicator-width, 2px);
+  height: 0;
+  border-radius: 2px;
+  background: var(--hui-toc-indicator-color, var(--hui-primary));
+  opacity: 0;
+  transition:
+    transform var(--hui-motion-duration-slow, 300ms) var(--hui-motion-ease-out, cubic-bezier(0.215, 0.61, 0.355, 1)),
+    height var(--hui-motion-duration-slow, 300ms) var(--hui-motion-ease-out, cubic-bezier(0.215, 0.61, 0.355, 1)),
+    opacity var(--hui-motion-duration, 200ms);
+}
+
+.toc__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toc__list--nested .toc__link {
+  padding-inline-start: calc(12px + var(--hui-toc-indent, 14px));
+}
+
+.toc__list--nested .toc__list--nested .toc__link {
+  padding-inline-start: calc(12px + 2 * var(--hui-toc-indent, 14px));
+}
+
+.toc__link {
+  display: block;
+  padding: 5px 10px 5px 12px;
+  border-radius: 0 var(--hui-radius-sm, 4px) var(--hui-radius-sm, 4px) 0;
+  color: var(--hui-toc-color, var(--hui-text-secondary));
+  text-decoration: none;
+  transition: color var(--hui-transition-fast, 0.15s), background-color var(--hui-transition-fast, 0.15s);
+}
+
+.toc__link:hover {
+  color: var(--hui-toc-hover-color, var(--hui-text));
+}
+
+.toc__link:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: -2px;
+}
+
+.toc__link--active {
+  color: var(--hui-toc-active-color, var(--hui-primary-7));
+  background: var(--hui-toc-active-bg, transparent);
+  font-weight: var(--hui-font-weight-medium, 500);
+}
+
+.toc--static .toc__indicator,
+.toc--static .toc__link {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc__indicator,
+  .toc__link {
+    transition: none;
+  }
+}

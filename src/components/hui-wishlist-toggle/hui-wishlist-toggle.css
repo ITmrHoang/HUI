@@ -1,0 +1,151 @@
+/*
+ * HUI Wishlist Toggle CSS — nút tim tròn, tô đặc khi bật, hạt bắn ra.
+ * Override: var(--hui-wishlist-toggle-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ * Parts: button, icon, label, burst · State: :state(active)
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.wl {
+  --_wl-size: 36px;
+  --_wl-icon: 20px;
+  --_wl-active: var(--hui-wishlist-toggle-active-color, var(--hui-danger));
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hui-space-xs);
+  box-sizing: border-box;
+  min-width: var(--hui-wishlist-toggle-size, var(--_wl-size));
+  height: var(--hui-wishlist-toggle-size, var(--_wl-size));
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--hui-radius-full);
+  background: transparent;
+  color: var(--hui-wishlist-toggle-color, var(--hui-text-secondary));
+  font: inherit;
+  font-size: var(--hui-font-sm);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast),
+    border-color var(--hui-transition-fast), transform var(--hui-transition-fast);
+}
+
+.wl--sm {
+  --_wl-size: 28px;
+  --_wl-icon: 16px;
+  font-size: var(--hui-font-xs);
+}
+
+.wl--lg {
+  --_wl-size: 44px;
+  --_wl-icon: 24px;
+  font-size: var(--hui-font-base);
+}
+
+.wl--filled {
+  background: var(--hui-wishlist-toggle-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-wishlist-toggle-shadow, var(--hui-shadow-sm));
+}
+
+.wl--outlined {
+  border-color: var(--hui-border);
+  background: var(--hui-wishlist-toggle-bg, var(--hui-bg));
+}
+
+.wl--with-label {
+  padding: 0 var(--hui-space-md) 0 var(--hui-space-sm);
+}
+
+.wl:hover:not(:disabled) {
+  color: var(--_wl-active);
+  background: var(--hui-wishlist-toggle-hover-bg, var(--hui-danger-light));
+}
+
+.wl:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.wl:focus-visible {
+  outline: 2px solid var(--_wl-active);
+  outline-offset: 2px;
+}
+
+.wl:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.wl--active {
+  color: var(--_wl-active);
+}
+
+.wl__icon-box {
+  position: relative;
+  display: inline-flex;
+  width: var(--hui-wishlist-toggle-icon-size, var(--_wl-icon));
+  height: var(--hui-wishlist-toggle-icon-size, var(--_wl-icon));
+}
+
+.wl__icon {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  transition: fill var(--hui-transition-fast);
+}
+
+.wl--active .wl__icon {
+  fill: currentColor;
+}
+
+/* ================== BURST ================== */
+.wl__burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.wl__ring {
+  position: absolute;
+  inset: -40%;
+  box-sizing: border-box;
+  border: 2px solid var(--hui-wishlist-toggle-burst-color, var(--_wl-active));
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.wl__dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--hui-wishlist-toggle-burst-color, var(--_wl-active));
+  opacity: 0;
+}
+
+.wl__dot--1 {
+  width: 4px;
+  height: 4px;
+  background: var(--hui-wishlist-toggle-burst-color, var(--hui-warning));
+}
+
+.wl__dot--2 {
+  width: 3px;
+  height: 3px;
+  background: var(--hui-wishlist-toggle-burst-color, var(--hui-primary));
+}

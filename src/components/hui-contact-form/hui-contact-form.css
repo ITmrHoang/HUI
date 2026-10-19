@@ -1,0 +1,70 @@
+/*
+ * HUI Contact Form CSS
+ * Override: var(--hui-contact-form-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-contact-form-gap        Khoảng cách giữa các field (ghi đè --hui-form-item-margin-bottom)
+ *   --hui-contact-form-max-width  Bề rộng tối đa (mặc định không giới hạn)
+ *   --hui-contact-form-columns    Số cột cho field ngắn (name / email / phone / subject) — mặc định 1
+ *
+ * Control con nhận biến của chính chúng (--hui-input-*, --hui-form-*, --hui-button-*...).
+ * Parts: base, form, field (+ field-<tên>), control (+ control-<tên>), alert, actions, submit, success, reset
+ * State: :state(idle | loading | success | error)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-cf {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-md);
+  max-width: var(--hui-contact-form-max-width, none);
+}
+
+.hui-cf__form {
+  --hui-form-item-margin-bottom: var(--hui-contact-form-gap, var(--hui-space-lg));
+}
+
+/* Field ngắn có thể xếp nhiều cột; nội dung / đồng ý luôn chiếm cả hàng */
+.hui-cf__fields {
+  display: grid;
+  grid-template-columns: repeat(var(--hui-contact-form-columns, 1), minmax(0, 1fr));
+  column-gap: var(--hui-space-md);
+}
+
+.hui-cf__field--message,
+.hui-cf__field--consent {
+  grid-column: 1 / -1;
+}
+
+/* Màn hình hẹp: luôn 1 cột */
+@media (max-width: 560px) {
+  .hui-cf__fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.hui-cf__alert {
+  margin-bottom: var(--hui-space-md);
+}
+
+.hui-cf__actions {
+  --hui-form-item-margin-bottom: 0;
+}
+
+.hui-cf__success {
+  outline: none;
+  border-radius: var(--hui-radius-lg);
+}
+
+.hui-cf__success:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}

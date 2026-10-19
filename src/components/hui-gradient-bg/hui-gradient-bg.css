@@ -1,0 +1,83 @@
+/*
+ * HUI Gradient Bg CSS
+ *   --hui-gradient-bg-base        Màu nền dưới mesh (mặc định --hui-bg-container)
+ *   --hui-gradient-bg-opacity     Độ đậm lớp gradient (mặc định 1)
+ *   --hui-gradient-bg-blur        Làm mờ lớp gradient (mặc định 0px)
+ *   --hui-gradient-bg-radius      Bo góc
+ *   --hui-gradient-bg-padding     Khoảng đệm nội dung
+ *   --hui-gradient-bg-min-height  Chiều cao tối thiểu
+ *   --hui-gradient-bg-color       Màu chữ
+ */
+
+:host {
+  display: block;
+}
+
+.gbg {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: var(--hui-gradient-bg-min-height, auto);
+  border-radius: var(--hui-gradient-bg-radius, 0);
+  background: var(--hui-gradient-bg-base, var(--hui-bg-container));
+  color: var(--hui-gradient-bg-color, var(--hui-text));
+  font-family: var(--hui-font-family);
+}
+
+.gbg__layer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--_gbg-side, 200%);
+  height: var(--_gbg-side, 200%);
+  margin: calc(var(--_gbg-side, 200%) / -2) 0 0 calc(var(--_gbg-side, 200%) / -2);
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--hui-gradient-bg-opacity, 1);
+  filter: blur(var(--hui-gradient-bg-blur, 0px));
+  background:
+    radial-gradient(circle at 36% 36%, var(--_gbg-c1) 0, transparent 30%),
+    radial-gradient(circle at 64% 38%, var(--_gbg-c2) 0, transparent 30%),
+    radial-gradient(circle at 62% 64%, var(--_gbg-c3) 0, transparent 30%),
+    radial-gradient(circle at 38% 62%, var(--_gbg-c4) 0, transparent 30%);
+  will-change: transform;
+  animation: hui-gbg-spin var(--_gbg-duration, 18s) linear infinite;
+}
+
+@keyframes hui-gbg-spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* linear: dải gradient lớn trôi qua lại */
+.gbg--linear .gbg__layer {
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  background: linear-gradient(var(--_gbg-angle, 120deg), var(--_gbg-list));
+  background-size: 400% 400%;
+  will-change: auto;
+  animation: hui-gbg-pan var(--_gbg-duration, 18s) ease-in-out infinite alternate;
+}
+
+@keyframes hui-gbg-pan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.gbg__content {
+  position: relative;
+  box-sizing: border-box;
+  padding: var(--hui-gradient-bg-padding, 0);
+}
+
+:host([no-animation]) .gbg__layer,
+.gbg.is-still .gbg__layer {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gbg__layer { animation: none; }
+}

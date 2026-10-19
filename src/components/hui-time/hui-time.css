@@ -1,0 +1,20 @@
+/*
+ * HUI Time — biến override: --hui-time-color, --hui-time-font-size, --hui-time-decoration
+ * Part: base (thẻ <time>)
+ */
+
+:host {
+  display: inline;
+}
+
+.time {
+  color: var(--hui-time-color, inherit);
+  font-size: var(--hui-time-font-size, inherit);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Có tooltip ngày đầy đủ → gạch chấm nhẹ gợi ý rê chuột */
+.time--tip {
+  text-decoration: var(--hui-time-decoration, none);
+  cursor: help;
+}

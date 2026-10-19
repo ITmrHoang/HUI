@@ -1,0 +1,182 @@
+/*
+ * HUI Code Block — biến override (đặt ở đâu cũng được):
+ *   Khung: --hui-code-block-bg, -color, -header-bg, -border-color, -radius, -font-family, -font-size,
+ *          -line-height, -padding, -tab-size, -highlight-bg, -highlight-border, -line-number-color
+ *   Màu token: --hui-code-block-comment, -keyword, -string, -number, -function, -tag, -attr, -property, -punctuation
+ * Parts: base, header, filename, language, copy, pre, code, line (+ line-highlight), line-number
+ * Màu token dùng sắc độ 7–8 của bảng màu → đậm hơn trên nền sáng, sáng hơn trên nền tối (đủ tương phản cả 2 theme).
+ */
+
+:host {
+  display: block;
+  margin: var(--hui-space-md, 12px) 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.cb {
+  --_cb-lh: var(--hui-code-block-line-height, 1.6);
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--hui-code-block-border-color, var(--hui-border));
+  border-radius: var(--hui-code-block-radius, var(--hui-radius-lg, 10px));
+  background: var(--hui-code-block-bg, var(--hui-bg-secondary));
+  color: var(--hui-code-block-color, var(--hui-text));
+  font-family: var(--hui-font-family);
+}
+
+.cb__header {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm, 8px);
+  min-height: 36px;
+  padding: 2px 6px 2px 14px;
+  border-bottom: 1px solid var(--hui-code-block-border-color, var(--hui-border));
+  background: var(--hui-code-block-header-bg, var(--hui-fill-tertiary));
+  font-size: var(--hui-font-xs, 12px);
+  color: var(--hui-text-secondary);
+}
+
+.cb__filename {
+  overflow: hidden;
+  font-family: var(--hui-code-block-font-family, var(--hui-font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace));
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cb__lang {
+  padding: 1px 6px;
+  border-radius: var(--hui-radius-sm, 4px);
+  background: var(--hui-fill-secondary);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+
+.cb__header .cb__copy {
+  margin-inline-start: auto;
+}
+
+.cb__body {
+  position: relative;
+}
+
+/* Không có thanh tiêu đề → nút copy nổi ở góc trên phải, hiện rõ khi rê chuột / focus */
+.cb__copy--float {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  opacity: 0.6;
+  transition: opacity var(--hui-transition-fast, 0.15s);
+}
+
+.cb:hover .cb__copy--float,
+.cb__copy--float:focus-within {
+  opacity: 1;
+}
+
+.cb__pre {
+  box-sizing: border-box;
+  margin: 0;
+  overflow: auto;
+  padding: var(--hui-code-block-padding, 14px 0);
+  font-family: var(--hui-code-block-font-family, var(--hui-font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace));
+  font-size: var(--hui-code-block-font-size, var(--hui-font-sm, 14px));
+  line-height: var(--_cb-lh);
+  tab-size: var(--hui-code-block-tab-size, 2);
+  white-space: pre;
+}
+
+.cb__pre:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: -2px;
+}
+
+/* inline-block + min-width 100% → dòng tô sáng phủ hết chiều ngang kể cả khi cuộn ngang */
+.cb__code {
+  display: inline-block;
+  min-width: 100%;
+  font-family: inherit;
+}
+
+.cb__line {
+  display: flex;
+  min-height: calc(var(--_cb-lh) * 1em);
+  padding-inline: 16px;
+  box-sizing: border-box;
+}
+
+.cb__lc {
+  flex: 1 0 auto;
+}
+
+.cb--numbers .cb__line {
+  padding-inline-start: 0;
+}
+
+.cb__ln {
+  position: sticky;
+  left: 0;
+  flex: none;
+  box-sizing: content-box;
+  width: calc(var(--_cb-digits, 2) * 1ch);
+  padding-inline: 12px 14px;
+  text-align: right;
+  color: var(--hui-code-block-line-number-color, var(--hui-text-tertiary));
+  background: var(--hui-code-block-bg, var(--hui-bg-secondary));
+  user-select: none;
+}
+
+.cb__line--hl {
+  background: var(--hui-code-block-highlight-bg, var(--hui-primary-light));
+  box-shadow: inset 3px 0 0 var(--hui-code-block-highlight-border, var(--hui-primary));
+}
+
+.cb__line--hl .cb__ln {
+  background: color-mix(in srgb, var(--hui-code-block-highlight-bg, var(--hui-primary-light)), var(--hui-code-block-bg, var(--hui-bg-secondary)));
+}
+
+/* wrap: xuống dòng, không cuộn ngang */
+.cb--wrap .cb__pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cb--wrap .cb__code {
+  display: block;
+}
+
+.cb--wrap .cb__lc {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ================== MÀU TOKEN ================== */
+.tok-comment,
+.tok-prompt {
+  color: var(--hui-code-block-comment, var(--hui-text-secondary));
+  font-style: italic;
+}
+
+.tok-prompt {
+  font-style: normal;
+  user-select: none;
+}
+
+.tok-keyword { color: var(--hui-code-block-keyword, var(--hui-primary-7)); }
+.tok-string { color: var(--hui-code-block-string, var(--hui-success-8)); }
+.tok-number { color: var(--hui-code-block-number, var(--hui-warning-9)); }
+.tok-function { color: var(--hui-code-block-function, var(--hui-info-8)); }
+.tok-class { color: var(--hui-code-block-function, var(--hui-info-8)); }
+.tok-tag,
+.tok-selector { color: var(--hui-code-block-tag, var(--hui-danger-7)); }
+.tok-attr { color: var(--hui-code-block-attr, var(--hui-warning-9)); }
+.tok-property { color: var(--hui-code-block-property, var(--hui-info-8)); }
+.tok-variable { color: var(--hui-code-block-property, var(--hui-info-8)); }
+.tok-punctuation,
+.tok-operator { color: var(--hui-code-block-punctuation, var(--hui-text-secondary)); }

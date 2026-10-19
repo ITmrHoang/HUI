@@ -13,6 +13,28 @@
   display: none !important;
 }
 
+/* align="center | end": chiếm hết ô chứa rồi căn tiêu đề + giá trị */
+:host([align='center']),
+:host([align='end']) {
+  display: block;
+}
+
+:host([align='center']) .hui-statistic {
+  text-align: center;
+}
+
+:host([align='center']) .hui-statistic__content {
+  justify-content: center;
+}
+
+:host([align='end']) .hui-statistic {
+  text-align: end;
+}
+
+:host([align='end']) .hui-statistic__content {
+  justify-content: flex-end;
+}
+
 .hui-statistic__title {
   margin-bottom: var(--hui-space-xs);
   color: var(--hui-statistic-title-color, var(--hui-text-secondary));

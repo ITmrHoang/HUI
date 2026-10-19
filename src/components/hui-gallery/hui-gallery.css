@@ -1,0 +1,102 @@
+/*
+ * HUI Gallery CSS
+ * Biến công khai:
+ *   --hui-gallery-gap          Khoảng cách ô (attribute gap ưu tiên hơn), mặc định --hui-space-sm
+ *   --hui-gallery-radius       Bo góc mỗi ảnh, mặc định --hui-radius-md
+ *   --hui-gallery-ratio        Tỉ lệ ô ở layout grid (attribute ratio ưu tiên hơn), mặc định 1 / 1
+ *   --hui-gallery-focus-color  Viền focus ô ảnh
+ * Parts: base, item (chế độ data)
+ * Biến nội bộ (JS đặt inline): --_gallery-cols, --_gallery-gap, --_gallery-ratio
+ */
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+:host([hidden]),
+[hidden] {
+  display: none !important;
+}
+
+.gallery {
+  --_gallery-gap-v: var(--_gallery-gap, var(--hui-gallery-gap, var(--hui-space-sm)));
+  --_gallery-ratio-v: var(--_gallery-ratio, var(--hui-gallery-ratio, 1 / 1));
+}
+
+/* slot / khung data đứng "trong suốt" để item là con trực tiếp của lưới */
+.gallery slot,
+.gallery__data {
+  display: contents;
+}
+
+/* =====================================================
+ * GRID — ô đều nhau, ảnh cắt theo tỉ lệ
+ * ===================================================== */
+
+.gallery--grid {
+  display: grid;
+  grid-template-columns: repeat(var(--_gallery-cols, 3), minmax(0, 1fr));
+  gap: var(--_gallery-gap-v);
+}
+
+.gallery--grid ::slotted(*) {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: var(--_gallery-ratio-v);
+}
+
+.gallery--grid ::slotted(img) {
+  height: auto;
+  object-fit: cover;
+}
+
+/* =====================================================
+ * MASONRY — CSS columns, giữ nguyên tỉ lệ ảnh
+ * ===================================================== */
+
+.gallery--masonry {
+  columns: var(--_gallery-cols, 3);
+  column-gap: var(--_gallery-gap-v);
+}
+
+.gallery--masonry ::slotted(*),
+.gallery--masonry .gallery__item {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  margin: 0 0 var(--_gallery-gap-v);
+  break-inside: avoid;
+}
+
+.gallery--masonry ::slotted(img) {
+  height: auto;
+}
+
+/* =====================================================
+ * Ô ảnh chung
+ * ===================================================== */
+
+::slotted(*),
+.gallery__item {
+  border-radius: var(--hui-gallery-radius, var(--hui-radius-md));
+}
+
+::slotted(img),
+::slotted(a) {
+  cursor: zoom-in;
+}
+
+::slotted(img:focus-visible),
+::slotted(a:focus-visible) {
+  outline: 2px solid var(--hui-gallery-focus-color, var(--hui-border-focus));
+  outline-offset: 2px;
+}
+
+::slotted(a) {
+  overflow: hidden;
+}
+
+/* hui-image tự vẽ viền focus (part base) */
