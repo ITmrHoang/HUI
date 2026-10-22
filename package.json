@@ -1,6 +1,6 @@
 {
   "name": "@itmrhoang/h-ui",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "H-UI — thư viện Web Components zero-dependency (Ant Design + MUI inspired): 110+ component, theme/dark mode, form native, dữ liệu, hiệu ứng. Dùng được với HTML thuần, Vue, React, Angular.",
   "type": "module",
   "main": "./dist/index.esm.js",
