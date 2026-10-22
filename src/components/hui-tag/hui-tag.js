@@ -1,8 +1,9 @@
 /**
- * HUI Tag — Nhãn / Chip (Ant Tag + CheckableTag + MUI Chip)
+ * HUI Tag — Nhãn / Chip (Ant Tag + CheckableTag + MUI Chip). `hui-chip` được gộp vào đây (không có thẻ riêng):
  * color: preset (primary, success...) hoặc mã màu CSS bất kỳ · variant: soft | filled | outlined
+ * avatar (ảnh hoặc chữ viết tắt qua hui-avatar) · clickable (nút) · toggle + selected (nút bật/tắt, aria-pressed)
  * Parts: base, avatar, icon, label, close · Slots: (mặc định), icon, avatar
- * Events: click (native), change { checked }, close { originalEvent } (cancelable)
+ * Events: click (native), change { checked } | { selected }, close { originalEvent } (cancelable)
  * Biến CSS: xem đầu hui-tag.css
  */
 
@@ -13,18 +14,22 @@ import { t } from '../../core/locale.js';
 import { createElement } from '../../utils/dom.js';
 import { animateOut } from '../../utils/motion.js';
 import '../hui-icon/hui-icon.js';
+import '../hui-avatar/hui-avatar.js';
 
 const PRESET_COLORS = ['primary', 'secondary', 'success', 'warning', 'danger', 'info'];
 const VARIANTS = ['soft', 'filled', 'outlined'];
 const SIZES = ['sm', 'md', 'lg'];
 const SHAPES = ['rounded', 'pill', 'square'];
 
+/** Chuỗi trông như đường dẫn ảnh (URL, data:, đuôi ảnh) → dùng làm src; còn lại là tên → chữ viết tắt */
+const isImageSrc = (v) => /^(data:|blob:|https?:|\/|\.\.?\/)/i.test(v) || /\.(png|jpe?g|gif|webp|avif|svg)([?#].*)?$/i.test(v);
+
 /** Giá trị không hợp lệ → mặc định */
 const pick = (value, list, fallback) => (list.includes(value) ? value : fallback);
 
 /**
  * @fires click - Click (native), hoặc Enter/Space trên tag clickable/checkable. Không phát khi disabled
- * @fires change - Tag checkable được bật/tắt. detail: { checked }
+ * @fires change - Tag checkable được bật/tắt (detail: { checked }) hoặc chip toggle đổi selected (detail: { selected })
  * @fires close - Bấm × / Backspace / Delete. Cancelable: preventDefault() để giữ tag. detail: { originalEvent }
  * @slot - Nội dung nhãn
  * @slot icon - Icon phía trước (thay cho attribute icon)
@@ -60,8 +65,14 @@ class HuiTag extends HuiElement {
     icon: { type: String },
     /** Hiện nút × để xóa tag (Backspace/Delete khi focus cũng xóa) */
     closable: { type: Boolean },
+    /** Ảnh avatar phía trước (URL / data URI) hoặc tên → chữ viết tắt (hui-avatar). Slot avatar thắng attribute này */
+    avatar: { type: String },
     /** Tag hoạt động như nút bấm (role="button") */
     clickable: { type: Boolean },
+    /** Chip bật/tắt: click / Enter / Space đảo `selected` (cần clickable) */
+    toggle: { type: Boolean },
+    /** Đang được chọn (chip clickable → aria-pressed, nền đặc + icon ✓ khi không có icon/avatar) */
+    selected: { type: Boolean },
     /** Tag bật/tắt được (Ant CheckableTag, role="checkbox") */
     checkable: { type: Boolean },
     /** Đang được chọn (chỉ có tác dụng khi checkable) */
@@ -80,6 +91,9 @@ class HuiTag extends HuiElement {
 
   render() {
     this._avatarSlot = createElement('slot', { name: 'avatar' });
+    // Avatar theo attribute (ảnh / chữ viết tắt) là nội dung dự phòng của slot avatar; chỉ trang trí → aria-hidden
+    this._avatarEl = createElement('hui-avatar', { 'aria-hidden': 'true' });
+    this._avatarSlot.append(this._avatarEl);
     this._avatar = createElement('span', { className: 'hui-tag__avatar', part: 'avatar' }, this._avatarSlot);
 
     // slot="icon" thay được icon mặc định (lấy theo attribute icon)
@@ -92,10 +106,18 @@ class HuiTag extends HuiElement {
 
     const label = createElement('span', { className: 'hui-tag__label', part: 'label' }, createElement('slot'));
 
-    this._close = createElement('button', { type: 'button', className: 'hui-tag__close', part: 'close' },
+    // × là span (không phải <button>): trong tag tương tác (role=button/checkbox) nó không được focus được
+    // để tránh control lồng nhau; tag tĩnh → updated() gán role=button + tabindex
+    this._close = createElement('span', { className: 'hui-tag__close', part: 'close' },
       createElement('hui-icon', { name: 'close', className: 'hui-tag__close-icon' }));
     this._close.addEventListener('click', (e) => {
       // Bấm × không tính là click / toggle của tag
+      e.stopPropagation();
+      this.close(e);
+    });
+    this._close.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
       e.stopPropagation();
       this.close(e);
     });
@@ -110,9 +132,14 @@ class HuiTag extends HuiElement {
     const variant = pick(this.variant, VARIANTS, 'soft');
     const size = pick(this.size, SIZES, 'md');
     const shape = pick(this.shape, SHAPES, 'rounded');
-    const color = (this.color || '').trim() || (this.checkable ? 'primary' : ''); // CheckableTag mặc định primary
+    // Chip chọn được (checkable / toggle / selected) mặc định màu primary
+    const choosable = this.checkable || (this.clickable && (this.toggle || this.selected)) || this.selected;
+    const color = (this.color || '').trim() || (choosable ? 'primary' : '');
     const interactive = this.clickable || this.checkable;
     const checked = this.checkable && this.checked;
+    const selected = !this.checkable && this.selected;
+    // Nút bật/tắt (APG toggle button): clickable + (toggle hoặc đang selected)
+    const pressable = this.clickable && !this.checkable && (this.toggle || this.selected);
 
     base.className = [
       'hui-tag',
@@ -123,6 +150,7 @@ class HuiTag extends HuiElement {
       this.clickable ? 'hui-tag--clickable' : '',
       this.checkable ? 'hui-tag--checkable' : '',
       checked ? 'hui-tag--checked' : '',
+      selected ? 'hui-tag--selected' : '',
       this.closable ? 'hui-tag--closable' : '',
       this.disabled ? 'hui-tag--disabled' : '',
     ].filter(Boolean).join(' ');
@@ -139,27 +167,41 @@ class HuiTag extends HuiElement {
     if (this.checkable) base.setAttribute('aria-checked', String(checked));
     else base.removeAttribute('aria-checked');
 
-    if (interactive) {
-      base.tabIndex = this.disabled ? -1 : 0;
-      if (this.disabled) base.setAttribute('aria-disabled', 'true');
-      else base.removeAttribute('aria-disabled');
-    } else {
-      base.removeAttribute('tabindex');
-      base.removeAttribute('aria-disabled');
-    }
+    if (pressable) base.setAttribute('aria-pressed', String(selected));
+    else base.removeAttribute('aria-pressed');
 
-    // Nút ×: tag tương tác đã focus được → × không nhận Tab (xóa bằng Backspace/Delete);
-    // tag tĩnh → × là điểm focus duy nhất
+    if (interactive) base.tabIndex = this.disabled ? -1 : 0;
+    else base.removeAttribute('tabindex');
+    // Cả tag tĩnh cũng báo aria-disabled: trình đọc màn hình biết trạng thái, công cụ kiểm tra tương phản bỏ qua (chữ mờ 50%)
+    if (this.disabled) base.setAttribute('aria-disabled', 'true');
+    else base.removeAttribute('aria-disabled');
+
+    // Nút ×: tag tương tác đã focus được → × chỉ để bấm chuột, ẩn khỏi cây a11y, không focus được
+    // (xóa bằng Backspace/Delete); tag tĩnh → × là nút (role=button) và là điểm focus duy nhất
     this._close.hidden = !this.closable;
-    this._close.disabled = this.disabled;
-    this._close.tabIndex = interactive || this.disabled ? -1 : 0;
+    if (interactive) {
+      this._close.removeAttribute('role');
+      this._close.removeAttribute('tabindex');
+      this._close.removeAttribute('aria-disabled');
+      this._close.setAttribute('aria-hidden', 'true');
+    } else {
+      this._close.setAttribute('role', 'button');
+      this._close.tabIndex = this.disabled ? -1 : 0;
+      if (this.disabled) this._close.setAttribute('aria-disabled', 'true');
+      else this._close.removeAttribute('aria-disabled');
+      this._close.removeAttribute('aria-hidden');
+    }
     if (changed.has('locale') || !this._close.hasAttribute('aria-label')) {
       this._close.setAttribute('aria-label', t('common.close'));
     }
 
-    if (changed.has('icon')) {
-      if (this.icon) this._iconEl.setAttribute('name', this.icon);
-      else this._iconEl.removeAttribute('name');
+    if (changed.has('avatar')) {
+      const v = (this.avatar || '').trim();
+      const isSrc = v && isImageSrc(v);
+      if (isSrc) this._avatarEl.setAttribute('src', v);
+      else this._avatarEl.removeAttribute('src');
+      if (v && !isSrc) this._avatarEl.setAttribute('name', v);
+      else this._avatarEl.removeAttribute('name');
     }
     this._syncSlots();
   }
@@ -194,6 +236,9 @@ class HuiTag extends HuiElement {
     if (this.checkable) {
       this.checked = !this.checked;
       this.emit('change', { checked: this.checked });
+    } else if (this.clickable && this.toggle) {
+      this.selected = !this.selected;
+      this.emit('change', { selected: this.selected });
     }
   }
 
@@ -212,12 +257,18 @@ class HuiTag extends HuiElement {
     }
   }
 
-  /** Ẩn vùng icon/avatar khi trống (tránh gap thừa) */
+  /** Ẩn vùng icon/avatar khi trống (tránh gap thừa); chip selected không có icon/avatar → icon ✓ (MUI filter chip) */
   _syncSlots() {
     if (!this._base) return;
-    const hasIcon = this._iconSlot.assignedNodes().length > 0 || Boolean(this.icon);
-    this._base.classList.toggle('hui-tag--has-icon', hasIcon);
-    this._base.classList.toggle('hui-tag--has-avatar', this._avatarSlot.assignedNodes().length > 0);
+    const hasIconSlot = this._iconSlot.assignedNodes().length > 0;
+    const hasAvatar = this._avatarSlot.assignedNodes().length > 0 || Boolean((this.avatar || '').trim());
+    const autoCheck = this.selected && !this.checkable && !this.icon && !hasIconSlot && !hasAvatar;
+    const iconName = this.icon || (autoCheck ? 'check' : '');
+    if (iconName) {
+      if (this._iconEl.getAttribute('name') !== iconName) this._iconEl.setAttribute('name', iconName);
+    } else this._iconEl.removeAttribute('name');
+    this._base.classList.toggle('hui-tag--has-icon', hasIconSlot || Boolean(iconName));
+    this._base.classList.toggle('hui-tag--has-avatar', hasAvatar);
   }
 
   focus(options) {

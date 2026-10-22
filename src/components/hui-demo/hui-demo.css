@@ -368,7 +368,7 @@ slot[name='actions']::slotted(*) {
  * PHẦN 9: THEME BẰNG TOKEN — :where(), color-mix(), data-theme
  * ==========================================================
  * tokens.css (gắn 1 lần vào <head> bởi ensureTokens()) khai báo biến trong :where(...):
- *     :where(:root) { --hui-primary: #6366f1; }
+ *     :where(:root) { --hui-primary: #4f46e5; }
  *   :where() có ĐỘ ƯU TIÊN = 0 → mọi CSS của người dùng đều thắng, kể cả `:root { ... }` đơn giản.
  *   So sánh độ ưu tiên (specificity) để nhớ:
  *     :where(.a #b)      → 0,0,0  (luôn thua)

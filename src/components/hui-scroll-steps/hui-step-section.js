@@ -162,6 +162,9 @@ class HuiStepSection extends HuiElement {
   _checkOverflow() {
     const over = this._content.scrollHeight > this._content.clientHeight + 1;
     if (over !== this.hasAttribute('overflowing')) this.toggleAttribute('overflowing', over);
+    // Vùng cuộn bên trong phải focus được để cuộn bằng bàn phím (WCAG 2.1.1)
+    if (over) this._content.tabIndex = 0;
+    else this._content.removeAttribute('tabindex');
     this.setState('overflowing', over);
   }
 }

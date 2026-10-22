@@ -64,6 +64,18 @@ export class HuiFormElement extends HuiElement {
     super.connectedCallback();
   }
 
+  /**
+   * Giá trị mặc định (giống <input>.defaultValue) — giá trị mà form.reset() trả về.
+   * Vue SSR hydrate `v-model` đọc `el.defaultValue` nên phải luôn là chuỗi.
+   */
+  get defaultValue() {
+    return String(this._defaultValue ?? this.getAttribute('value') ?? '');
+  }
+
+  set defaultValue(v) {
+    this._defaultValue = v ?? '';
+  }
+
   /** Kích thước thực tế: tự đặt > <hui-form size> / <hui-config-provider size> gần nhất > md */
   get effectiveSize() {
     return this.size || this.closest('hui-form[size], hui-config-provider[size]')?.getAttribute('size') || 'md';

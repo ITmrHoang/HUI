@@ -135,6 +135,8 @@ export const Default = {
     const [, content5] = cells(all[4]);
     await expect(content5.style.gridColumn).toBe('4 / span 3');
     await expect(cells(all[0])[0].getAttribute('role')).toBe('rowheader');
+    // role=row là attribute thật trên item (axe kiểm tra quan hệ table → row → cell)
+    await expect(all[0].getAttribute('role')).toBe('row');
   },
 };
 

@@ -67,6 +67,22 @@
   --_list-extra-ms: var(--hui-space-xl);
 }
 
+/* ================== HOVERABLE (item nổi nhẹ) ================== */
+/* Biến nội bộ kế thừa xuống hui-list-item (xem hui-list-item.css) */
+.hui-list--hoverable {
+  --_list-hover-bg: var(--hui-list-hover-bg, var(--hui-fill-tertiary));
+  --_list-hover-bg-solid: var(--hui-list-hover-bg, color-mix(in srgb, var(--hui-text) 4%, var(--hui-bg-container)));
+  --_list-hover-shadow: var(--hui-list-hover-shadow, var(--hui-shadow-md));
+  --_list-hover-transform: translateY(var(--hui-list-hover-lift, -2px));
+  --_list-hover-z: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-list--hoverable {
+    --_list-hover-transform: none;
+  }
+}
+
 /* ================== HEADER / FOOTER ================== */
 .hui-list__header,
 .hui-list__footer {

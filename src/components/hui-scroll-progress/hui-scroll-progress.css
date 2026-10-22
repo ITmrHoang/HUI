@@ -26,7 +26,8 @@
 .track--fixed {
   position: fixed;
   inset: 0 0 auto 0;
-  z-index: var(--hui-scroll-progress-z-index, var(--hui-z-sticky));
+  /* Trên các thanh sticky (navbar…) để không bị che dù đứng trước trong DOM */
+  z-index: var(--hui-scroll-progress-z-index, calc(var(--hui-z-sticky) + 1));
 }
 
 .track--bottom {

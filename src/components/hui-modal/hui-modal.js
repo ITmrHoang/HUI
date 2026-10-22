@@ -192,9 +192,10 @@ class HuiModal extends HuiElement {
       e.preventDefault();
       if (this._handle?.isTop()) this._dismiss();
     });
-    // Trình duyệt tự đóng dialog (vd: chống lạm dụng chặn Esc) → đồng bộ lại trạng thái
+    // Trình duyệt tự đóng dialog (vd: chống lạm dụng chặn Esc) → đồng bộ lại trạng thái.
+    // 'close' đến sau 1 task: nếu đã mở lại ngay (dialog.open = true) thì bỏ qua, tránh đóng nhầm
     this._dialog.addEventListener('close', () => {
-      if (!this._props.open) return;
+      if (!this._props.open || this._dialog.open) return;
       if (this._closable) this.close();
       else this._showDialog();
     });

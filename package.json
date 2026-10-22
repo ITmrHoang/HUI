@@ -22,6 +22,16 @@
       "import": "./dist/effects.esm.js",
       "default": "./dist/effects.esm.js"
     },
+    "./vue": {
+      "types": "./dist/types/vue-plugin.d.ts",
+      "import": "./dist/vue.esm.js",
+      "default": "./dist/vue.esm.js"
+    },
+    "./react": {
+      "types": "./dist/types/react-helper.d.ts",
+      "import": "./dist/react.esm.js",
+      "default": "./dist/react.esm.js"
+    },
     "./hui-add-to-cart": {
       "types": "./dist/types/hui-add-to-cart.d.ts",
       "import": "./dist/hui-add-to-cart.esm.js",
@@ -361,6 +371,11 @@
       "types": "./dist/types/hui-hero.d.ts",
       "import": "./dist/hui-hero.esm.js",
       "default": "./dist/hui-hero.esm.js"
+    },
+    "./hui-highlight": {
+      "types": "./dist/types/hui-highlight.d.ts",
+      "import": "./dist/hui-highlight.esm.js",
+      "default": "./dist/hui-highlight.esm.js"
     },
     "./hui-hotkey": {
       "types": "./dist/types/hui-hotkey.d.ts",
@@ -902,6 +917,11 @@
       "import": "./dist/hui-video.esm.js",
       "default": "./dist/hui-video.esm.js"
     },
+    "./hui-virtual-list": {
+      "types": "./dist/types/hui-virtual-list.d.ts",
+      "import": "./dist/hui-virtual-list.esm.js",
+      "default": "./dist/hui-virtual-list.esm.js"
+    },
     "./hui-watermark": {
       "types": "./dist/types/hui-watermark.d.ts",
       "import": "./dist/hui-watermark.esm.js",
@@ -913,6 +933,7 @@
       "default": "./dist/hui-wishlist-toggle.esm.js"
     },
     "./style.css": "./dist/style.css",
+    "./undefined.css": "./dist/undefined.css",
     "./types/vue": {
       "types": "./dist/types/vue.d.ts"
     },
@@ -947,7 +968,8 @@
     "build-storybook": "storybook build",
     "test": "vitest run --project unit",
     "test:stories": "vitest run --project storybook",
-    "build:cdn": "vite build --config vite.cdn.config.js",
+    "build:cdn": "node scripts/build-cdn.mjs",
+    "check:cdn": "node scripts/check-cdn.mjs",
     "build:examples": "vite build --config vite.examples.config.js",
     "check:types": "tsc -p tsconfig.types.json",
     "size": "node scripts/size-report.mjs",
@@ -994,6 +1016,7 @@
     "@storybook/addon-docs": "^10.6.2",
     "@storybook/addon-vitest": "^10.6.2",
     "@storybook/web-components-vite": "^10.6.2",
+    "@types/react": "19.2.14",
     "@vitest/browser-playwright": "^5.0.5",
     "@vitest/coverage-v8": "^5.0.5",
     "fast-glob": "^3.3.0",
@@ -1001,6 +1024,7 @@
     "playwright": "^1.64.1",
     "storybook": "^10.3.5",
     "vite": "^8.3.4",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "vue": "3.5.43"
   }
 }

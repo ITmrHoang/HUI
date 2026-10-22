@@ -44,8 +44,9 @@ jobs:
       - name: Kiểm tra file .d.ts sinh ra
         run: npm run check:types
 
-      - name: Build bản CDN
-        run: npm run build:cdn
+      # Trọn gói + core / form / data / marketing / shop; rồi mở examples/cdn-check.html trong Chromium (từng cách tải)
+      - name: Build bản CDN (trọn gói + chia nhóm) + kiểm tra chạy thật
+        run: npm run build:cdn && npm run check:cdn
 
       - name: Build trang mẫu + kiểm tra mọi thẻ được đăng ký trong bản build tĩnh
         run: npm run build:examples && npm run check:static

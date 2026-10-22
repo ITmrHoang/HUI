@@ -4,7 +4,8 @@
  *   const close = message.loading('Đang lưu...', { key: 'save', duration: 0 });
  *   await api.save();
  *   message.success('Đã lưu', { key: 'save' });   // cùng key → cập nhật thông báo cũ
- * Container <hui-message-container> tự gắn vào <body> ở lần gọi đầu, nằm trên top-layer (trên cả Modal).
+ * Container <hui-message-container> tự gắn vào <body> ở lần gọi đầu, nằm trên top-layer (trên cả Modal);
+ * đang mở Modal/Drawer thì chuyển vào <dialog> của modal để bấm được (xem toast-core.js).
  * Biến CSS: xem đầu hui-message.css.
  */
 
@@ -12,7 +13,7 @@ import styles from './hui-message.css?raw';
 import { HuiElement, defineElement } from '../../core/hui-element.js';
 import { createElement } from '../../utils/dom.js';
 import { animateIn, animateOut, collapse } from '../../utils/motion.js';
-import { PausableTimer, createHandle, raiseTopLayer, hideTopLayer, setContent } from './toast-core.js';
+import { PausableTimer, createHandle, raiseTopLayer, hideTopLayer, toastHostDisconnected, setContent } from './toast-core.js';
 import '../hui-icon/hui-icon.js';
 
 const TYPES = ['info', 'success', 'error', 'warning', 'loading'];
@@ -44,6 +45,12 @@ class HuiMessageContainer extends HuiElement {
     super();
     /** @type {Map<string, object>} key → bản ghi message đang hiển thị */
     this._records = new Map();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    // Modal chứa container bị gỡ khi còn thông báo → gắn lại vào trang
+    toastHostDisconnected(this);
   }
 
   render() {
@@ -167,10 +174,9 @@ defineElement('hui-message-container', HuiMessageContainer);
 let container = null;
 
 function getContainer() {
-  if (!container || !container.isConnected) {
-    container = document.querySelector('hui-message-container') || document.createElement('hui-message-container');
-    if (!container.isConnected) document.body.appendChild(container);
-  }
+  // Giữ nguyên container cũ (kể cả khi vừa bị tháo cùng modal chứa nó) → không sinh container thứ hai
+  if (!container) container = document.querySelector('hui-message-container') || document.createElement('hui-message-container');
+  if (!container.isConnected) document.body.appendChild(container);
   return container;
 }
 

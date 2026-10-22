@@ -5,7 +5,7 @@
  */
 
 import { html, nothing } from 'lit';
-import { expect, userEvent } from 'storybook/test';
+import { expect, userEvent, waitFor } from 'storybook/test';
 import './index.js';
 
 export default {
@@ -538,7 +538,7 @@ export const Variants = {
           <hui-input variant=${variant} label=${variant} placeholder="Bình thường"></hui-input>
           <hui-input variant=${variant} status="warning" placeholder="status=warning"></hui-input>
           <hui-input variant=${variant} status="error" placeholder="status=error"></hui-input>
-          <hui-input variant=${variant} disabled value="disabled"></hui-input>
+          <hui-input variant=${variant} disabled value="disabled" placeholder="disabled"></hui-input>
         </div>
       `)}
     </div>
@@ -580,5 +580,46 @@ export const InForm = {
     form.reset();
     await expect(user.value).toBe('hoang');
     await expect(pass.value).toBe('');
+  },
+};
+
+/**
+ * Không có `label` — đặt `aria-label` / `aria-labelledby` / `aria-describedby` trên thẻ: component chuyển xuống `<input>`
+ * bên trong (id ở light DOM không trỏ xuyên shadow root được nên chữ được đọc rồi gán `aria-label` / `aria-description`).
+ * Đổi attribute trên host lúc chạy cũng được cập nhật. Có `label` thì `<label>` đặt tên như cũ.
+ */
+export const HostAria = {
+  render: () => html`
+    <div style="display: flex; flex-direction: column; gap: 12px; max-width: 360px;">
+      <hui-input id="ha-label" aria-label="Tìm sản phẩm" placeholder="Nhập tên..."></hui-input>
+      <span id="ha-title">Mã giảm giá</span>
+      <span id="ha-desc">Tối đa 10 ký tự</span>
+      <hui-input id="ha-ref" aria-labelledby="ha-title" aria-describedby="ha-desc"></hui-input>
+      <hui-input id="ha-both" label="Email" aria-label="Bị bỏ qua vì đã có label"></hui-input>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const field = (id) => canvasElement.querySelector(`#${id}`).shadowRoot.querySelector('input');
+    await waitFor(() => expect(field('ha-label').getAttribute('aria-label')).toBe('Tìm sản phẩm'));
+    await expect(field('ha-ref').getAttribute('aria-label')).toBe('Mã giảm giá');
+    await expect(field('ha-ref').getAttribute('aria-description')).toBe('Tối đa 10 ký tự');
+    // Có label → giữ <label for="input">, không gán aria-label
+    await expect(field('ha-both').hasAttribute('aria-label')).toBe(false);
+    await expect(field('ha-both').labels[0].textContent).toBe('Email');
+
+    // Đổi / gỡ attribute trên host → cập nhật theo
+    const host = canvasElement.querySelector('#ha-label');
+    host.setAttribute('aria-label', 'Tìm đơn hàng');
+    await waitFor(() => expect(field('ha-label').getAttribute('aria-label')).toBe('Tìm đơn hàng'));
+    host.removeAttribute('aria-label');
+    await waitFor(() => expect(field('ha-label').hasAttribute('aria-label')).toBe(false));
+    host.setAttribute('aria-label', 'Tìm sản phẩm');
+    await waitFor(() => expect(field('ha-label').getAttribute('aria-label')).toBe('Tìm sản phẩm'));
+    // aria-labelledby thắng aria-label
+    const ref = canvasElement.querySelector('#ha-ref');
+    ref.setAttribute('aria-label', 'Không dùng');
+    await new Promise((r) => setTimeout(r));
+    await expect(field('ha-ref').getAttribute('aria-label')).toBe('Mã giảm giá');
+    ref.removeAttribute('aria-label');
   },
 };

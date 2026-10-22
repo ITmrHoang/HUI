@@ -79,7 +79,7 @@
   margin-top: 8px;
   font-size: var(--hui-font-sm);
   line-height: var(--hui-line-height);
-  color: var(--hui-result-subtitle-color, var(--hui-text-tertiary));
+  color: var(--hui-result-subtitle-color, var(--hui-text-secondary));
 }
 
 .extra {

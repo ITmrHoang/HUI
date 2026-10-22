@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Blog mẫu: Dựng Web Components không framework</title>
+  <script>
+    try { const m = localStorage.getItem('hui-theme'); if (m === 'light' || m === 'dark') document.documentElement.dataset.theme = m; } catch {}
+  </script>
+  <style>
+    html, body { margin: 0; }
+    html { scroll-padding-top: 76px; }
+    body { font-family: var(--hui-font-family); background: var(--hui-bg); color: var(--hui-text); }
+    :not(:defined) { visibility: hidden; }
+    .logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.1rem; color: var(--hui-text); text-decoration: none; }
+    .logo-mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 14px;
+      background: linear-gradient(135deg, var(--hui-success), var(--hui-info)); }
+
+    .hero { padding: 40px 24px 28px; text-align: center; background: linear-gradient(180deg, var(--hui-primary-1), var(--hui-bg)); }
+    .hero .cat { display: inline-flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
+    .hero h1 { max-width: 860px; margin: 14px auto 12px; font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.2; }
+    .hero p { max-width: 680px; margin: 0 auto; color: var(--hui-text-secondary); font-size: 1.05rem; line-height: 1.6; }
+    .byline { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 20px; color: var(--hui-text-secondary); font-size: 14px; }
+    .byline strong { color: var(--hui-text); }
+
+    .layout { max-width: 1120px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 48px; align-items: start; }
+    .cover { width: 100%; aspect-ratio: 16 / 7; border-radius: var(--hui-radius-lg); object-fit: cover; display: block; margin-bottom: 24px; }
+    figure { margin: 1.5em 0; }
+    figcaption { font-size: 13px; color: var(--hui-text-tertiary); text-align: center; margin-top: 8px; }
+    .callout { border-left: 4px solid var(--hui-info); background: var(--hui-info-1); padding: 12px 16px; border-radius: 0 var(--hui-radius) var(--hui-radius) 0; }
+    aside { display: grid; gap: 16px; position: sticky; top: 76px; }
+    aside hui-toc { --hui-toc-sticky-top: 76px; }
+    .aside-box { border: 1px solid var(--hui-border-secondary); border-radius: var(--hui-radius-lg); padding: 14px; background: var(--hui-bg-container); font-size: 14px; }
+    .aside-box h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--hui-text-tertiary); margin: 0 0 10px; }
+
+    .post-foot { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; margin: 32px 0; padding: 16px 0;
+      border-top: 1px solid var(--hui-border-secondary); border-bottom: 1px solid var(--hui-border-secondary); }
+    .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .author { display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: var(--hui-radius-lg); background: var(--hui-fill-tertiary); }
+    .author p { margin: 4px 0 0; color: var(--hui-text-secondary); font-size: 14px; }
+
+    .comments { margin-top: 40px; }
+    .comments h2, .more h2 { font-size: 1.35rem; margin: 0 0 16px; }
+    .comment-form { display: grid; gap: 10px; margin-bottom: 24px; }
+    .comment-form .row { display: flex; justify-content: flex-end; gap: 8px; }
+
+    .more { max-width: 1120px; margin: 24px auto 0; padding: 24px 24px 64px; }
+    footer { padding: 32px 16px; text-align: center; color: var(--hui-text-tertiary); border-top: 1px solid var(--hui-border-secondary); font-size: 14px; }
+
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      aside { position: static; order: -1; }
+      aside .aside-box.newsletter { display: none; }
+    }
+    @media (max-width: 640px) {
+      .hero { padding: 28px 16px 20px; }
+      .layout, .more { padding-left: 16px; padding-right: 16px; }
+    }
+  </style>
+  <script type="module">
+    import { message } from '../src/index.js';
+
+    // Ảnh bìa SVG (data-URI)
+    const cover = (hue, label, w = 1200, h = 525) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">`
+      + `<stop offset="0" stop-color="hsl(${hue} 70% 58%)"/><stop offset="1" stop-color="hsl(${(hue + 60) % 360} 65% 30%)"/></linearGradient></defs>`
+      + `<rect width="100%" height="100%" fill="url(#g)"/>`
+      + `<g fill="none" stroke="rgba(255,255,255,.35)" stroke-width="3">${Array.from({ length: 6 }, (_, i) => `<rect x="${80 + i * 70}" y="${90 + i * 30}" width="${w * 0.4}" height="${h * 0.4}" rx="18"/>`).join('')}</g>`
+      + `<text x="${w - 60}" y="${h - 50}" text-anchor="end" font-family="system-ui,sans-serif" font-weight="700" font-size="${Math.round(h / 9)}" fill="rgba(255,255,255,.9)">${label}</text></svg>`)}`;
+
+    document.querySelector('#cover').src = cover(250, '&lt;hui-*&gt;');
+    document.querySelector('#fig').src = cover(160, 'Shadow DOM', 1200, 600);
+
+    // TOC dính bên phải trên màn hình rộng; màn hẹp nằm trên bài, không dính
+    const toc = document.querySelector('hui-toc');
+    const wide = matchMedia('(min-width: 961px)');
+    const syncToc = () => { toc.sticky = wide.matches; };
+    wide.addEventListener('change', syncToc);
+    syncToc();
+
+    // ===== Bình luận: hui-timeline-feed =====
+    const MIN = 60_000;
+    const HOUR = 60 * MIN;
+    const now = Date.now();
+    const feed = document.querySelector('hui-timeline-feed');
+    let comments = [
+      { id: 'c1', user: { name: 'Thu Hà' }, action: 'đã bình luận', time: new Date(now - 25 * MIN).toISOString(), icon: 'chat', color: 'info',
+        content: 'Phần giải thích về :state() rất dễ hiểu. Có cách nào polyfill cho Safari cũ không ạ?' },
+      { id: 'c2', user: { name: 'Quốc Bảo' }, action: 'đã trả lời Thu Hà', time: new Date(now - 18 * MIN).toISOString(), icon: 'chat', color: 'primary',
+        content: 'Trình duyệt cũ chỉ bỏ qua rule :state(), component vẫn chạy — nên dùng thêm attribute cho trạng thái quan trọng.' },
+      { id: 'c3', user: { name: 'Minh Anh' }, action: 'đã bình luận', time: new Date(now - 27 * HOUR).toISOString(), icon: 'chat', color: 'info',
+        content: 'Mình đã chuyển dashboard nội bộ từ React sang Web Components, bundle giảm gần 60%.' },
+      { id: 'c4', user: { name: 'Đức Huy' }, action: 'đã thích bài viết', time: new Date(now - 30 * HOUR).toISOString(), icon: 'heart', color: 'danger' },
+      { id: 'c5', user: { name: 'Lan Phương' }, action: 'đã bình luận', time: new Date(now - 4 * 24 * HOUR).toISOString(), icon: 'chat', color: 'info',
+        content: 'Bài viết rất chi tiết, mong có thêm phần SSR với Nuxt.' },
+    ];
+    const older = [
+      { id: 'c6', user: { name: 'Hải Yến' }, action: 'đã bình luận', time: new Date(now - 9 * 24 * HOUR).toISOString(), icon: 'chat', color: 'info', content: 'Cảm ơn tác giả, đã lưu lại để đọc tiếp.' },
+      { id: 'c7', user: { name: 'Tuấn Kiệt' }, action: 'đã chia sẻ bài viết', time: new Date(now - 11 * 24 * HOUR).toISOString(), icon: 'share', color: 'success' },
+    ];
+    feed.data = comments;
+    feed.hasMore = true;
+    feed.addEventListener('hui-load-more', () => {
+      feed.loadingMore = true;
+      setTimeout(() => { comments = [...comments, ...older]; feed.data = comments; feed.hasMore = false; }, 600);
+    });
+    const count = () => { document.querySelector('#comment-count').textContent = String(comments.filter((c) => c.content).length); };
+    count();
+
+    const form = document.querySelector('.comment-form');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const box = form.querySelector('hui-textarea');
+      const text = String(box.value || '').trim();
+      if (!text) { message.warning('Bạn chưa nhập nội dung bình luận'); return; }
+      comments = [{ id: `n${Date.now()}`, user: { name: 'Bạn' }, action: 'đã bình luận', time: new Date().toISOString(), icon: 'chat', color: 'success', content: text }, ...comments];
+      feed.data = comments;
+      box.value = '';
+      count();
+      message.success('Đã gửi bình luận');
+    });
+
+    // ===== Bài viết khác: hui-data-view (lưới / danh sách, tìm, lọc chuyên mục, sắp xếp) =====
+    const CATS = { tech: 'Kỹ thuật', a11y: 'Trợ năng', design: 'Thiết kế', perf: 'Hiệu năng' };
+    const posts = [
+      ['Theme bằng color-mix(): 10 sắc độ từ một màu', 'design', 'Ngọc Anh', '2026-10-18', 6, 30],
+      ['ARIA cho lưới thẻ có thể chọn', 'a11y', 'Minh Anh', '2026-10-16', 6, 200],
+      ['Keyed reconcile: cập nhật 1000 item vẫn mượt', 'perf', 'Đức Huy', '2026-10-03', 7, 340],
+      ['Hiệu ứng xuất hiện tôn trọng giảm chuyển động', 'a11y', 'Thu Hà', '2026-09-28', 5, 280],
+      ['Data binding không cần framework', 'tech', 'Quốc Bảo', '2026-09-15', 8, 120],
+      ['Popover API và top-layer cho dropdown', 'tech', 'Lan Phương', '2026-09-02', 9, 60],
+      ['Form native trong Shadow DOM với ElementInternals', 'tech', 'Ngọc Anh', '2026-08-21', 10, 10],
+      ['Đo kích thước gói: import lẻ hay bundle tổng?', 'perf', 'Đức Huy', '2026-08-09', 4, 310],
+    ].map(([title, category, author, date, readingTime, hue], i) => ({
+      id: i + 1, title, category, categoryLabel: CATS[category], author, date, readingTime,
+      image: cover(hue, CATS[category], 800, 450), href: '#', excerpt: `${CATS[category]} · ${readingTime} phút đọc — ví dụ chạy được kèm mã nguồn.`,
+    }));
+    const dv = document.querySelector('hui-data-view');
+    dv.filters = [{ key: 'category', label: 'Chuyên mục', options: Object.entries(CATS).map(([value, label]) => ({ value, label })) }];
+    dv.sortOptions = [
+      { label: 'Mới nhất', key: 'date', order: 'desc' },
+      { label: 'Đọc nhanh', key: 'readingTime', order: 'asc' },
+    ];
+    dv.data = posts;
+    document.querySelector('#subscribe').addEventListener('hui-click', () => message.info('Đây là trang mẫu — chưa gửi email thật'));
+  </script>
+</head>
+<body>
+  <hui-navbar sticky>
+    <a slot="logo" class="logo" href="./index.html"><span class="logo-mark" aria-hidden="true">H</span>HUI Blog</a>
+    <hui-menu mode="horizontal" selected-keys="tech">
+      <hui-menu-item key="tech" href="#">Kỹ thuật</hui-menu-item>
+      <hui-menu-item key="a11y" href="#">Trợ năng</hui-menu-item>
+      <hui-menu-item key="design" href="#">Thiết kế</hui-menu-item>
+      <hui-menu-item key="examples" href="./index.html">Trang mẫu</hui-menu-item>
+    </hui-menu>
+    <hui-space slot="actions">
+      <hui-theme-toggle></hui-theme-toggle>
+    </hui-space>
+  </hui-navbar>
+  <!-- Đặt SAU navbar: cùng z-index (--hui-z-sticky) nên phần tử sau được vẽ đè lên -->
+  <hui-scroll-progress height="3" label="Tiến độ đọc bài"></hui-scroll-progress>
+
+  <header class="hero">
+    <hui-breadcrumb class="cat" style="justify-content:center; display:flex">
+      <hui-breadcrumb-item href="./index.html" icon="home">Trang chủ</hui-breadcrumb-item>
+      <hui-breadcrumb-item href="#">Kỹ thuật</hui-breadcrumb-item>
+    </hui-breadcrumb>
+    <h1>Dựng Web Components không framework: từ thẻ HTML đến design system</h1>
+    <p>Một component tốt mở đúng những “cánh cửa” cho người dùng: thuộc tính, biến CSS, ::part, slot và :state(). Bài này đi qua từng cửa với ví dụ thật.</p>
+    <div class="byline">
+      <hui-avatar name="Quốc Bảo" size="sm" alt=""></hui-avatar>
+      <span><strong>Quốc Bảo</strong> · <hui-time datetime="2026-10-20T08:00:00" format="date"></hui-time> · 9 phút đọc</span>
+      <hui-tag color="primary" size="sm">Web Components</hui-tag>
+    </div>
+  </header>
+
+  <div class="layout">
+    <article>
+      <img id="cover" class="cover" alt="" />
+      <hui-prose id="article" max-width="none">
+        <p>Web Components là chuẩn của trình duyệt: <strong>Custom Elements</strong> đặt tên thẻ, <strong>Shadow DOM</strong> cô lập
+          CSS, <strong>template + slot</strong> nhận nội dung. Không cần framework, thẻ chạy được ở mọi nơi có HTML.</p>
+
+        <h2 id="attr">1. Thuộc tính và property</h2>
+        <p>Attribute luôn là chuỗi, property mang kiểu thật. Quy ước tốt là đồng bộ hai chiều (reflect) cho kiểu đơn giản, còn mảng/object
+          chỉ nhận qua property.</p>
+        <hui-code-block language="js" filename="counter.js" line-numbers highlight="4-6">class HuiCounter extends HuiElement {
+  static properties = {
+    /** Giá trị hiện tại */
+    value: { type: Number, default: 0 },
+    /** Bước nhảy */
+    step: { type: Number, default: 1 },
+  };
+}
+defineElement('hui-counter', HuiCounter);</hui-code-block>
+        <ul>
+          <li>Boolean: <code>có mặt = true</code>; muốn tắt thì xóa attribute.</li>
+          <li>Tên attribute dạng kebab-case: <code>maxCount</code> ↔ <code>max-count</code>.</li>
+        </ul>
+
+        <h2 id="css-vars">2. Biến CSS là cửa chính</h2>
+        <p>Biến CSS kế thừa xuyên Shadow DOM. Đọc biến ngay tại chỗ dùng, đừng khai báo biến công khai trên <code>:host</code>:</p>
+        <hui-code-block language="css">.btn { border-radius: var(--hui-button-radius, var(--hui-radius)); }
+/* người dùng: */
+.toolbar { --hui-button-radius: 999px; }</hui-code-block>
+        <figure>
+          <img id="fig" alt="Sơ đồ minh họa ranh giới Shadow DOM" style="width:100%; border-radius: 12px" />
+          <figcaption>Biến CSS, ::part và slot là ba thứ đi xuyên “bức tường” Shadow DOM.</figcaption>
+        </figure>
+
+        <h3 id="part">::part() cho những gì không có biến</h3>
+        <p><code>hui-card::part(title)</code> chọn được phần tử bên trong mà component chủ động đánh dấu <code>part="title"</code>.
+          Dùng kèm pseudo-class trạng thái được, nhưng không chọn sâu hơn bên trong part.</p>
+
+        <h2 id="state">3. Trạng thái nội bộ với :state()</h2>
+        <blockquote>Attribute là dữ liệu đầu vào người dùng điều khiển; state là kết quả bên trong component.</blockquote>
+        <hui-code-block language="css">hui-input:state(user-invalid)::part(container) {
+  box-shadow: 0 0 0 3px var(--hui-danger-light);
+}</hui-code-block>
+        <p class="callout"><strong>Mẹo:</strong> kết hợp <code>:has()</code> để tô cả nhóm trường khi ô bên trong lỗi.</p>
+
+        <h2 id="a11y">4. Trợ năng không phải phần thêm</h2>
+        <ol>
+          <li>Đúng role và tên (<code>aria-label</code> cho nút chỉ có icon).</li>
+          <li>Điều khiển được hoàn toàn bằng bàn phím theo mẫu WAI-ARIA APG.</li>
+          <li>Thông báo thay đổi qua vùng <code>aria-live</code>.</li>
+        </ol>
+        <table>
+          <thead><tr><th>Mẫu</th><th>Phím</th></tr></thead>
+          <tbody>
+            <tr><td>Tabs</td><td>← → Home End</td></tr>
+            <tr><td>Menu</td><td>↑ ↓ Enter Esc</td></tr>
+            <tr><td>Dialog</td><td>Tab (giữ trong hộp), Esc</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="ship">5. Đóng gói và phát hành</h2>
+        <p>Mỗi component một entry để import lẻ, kèm một bản CDN một file cho người không dùng bundler:</p>
+        <hui-code-block language="bash">npm i @itmrhoang/h-ui</hui-code-block>
+        <p>Vậy là đủ để bắt đầu. Hãy thử mở mã nguồn trang này — nó chỉ là HTML thuần cộng các thẻ <code>hui-*</code>.</p>
+      </hui-prose>
+
+      <div class="post-foot">
+        <hui-reaction counts='{"like": 42, "love": 17, "wow": 5}'></hui-reaction>
+        <hui-share title="Dựng Web Components không framework" networks="facebook,zalo,x,linkedin,copy" size="sm"></hui-share>
+      </div>
+      <div class="tags">
+        <hui-tag>Web Components</hui-tag><hui-tag>Shadow DOM</hui-tag><hui-tag>CSS</hui-tag><hui-tag>A11y</hui-tag>
+      </div>
+
+      <div class="author" style="margin-top:24px">
+        <hui-avatar name="Quốc Bảo" size="lg" alt=""></hui-avatar>
+        <div><strong>Quốc Bảo</strong><p>Frontend engineer, thích viết component nhỏ, nhanh và dễ tiếp cận.</p></div>
+      </div>
+
+      <section class="comments" aria-labelledby="cmt-h">
+        <h2 id="cmt-h">Bình luận (<span id="comment-count">0</span>)</h2>
+        <form class="comment-form">
+          <hui-textarea name="comment" label="Viết bình luận" placeholder="Chia sẻ suy nghĩ của bạn…" rows="3" maxlength="500" show-count></hui-textarea>
+          <div class="row"><hui-button type="submit" icon="chat">Gửi bình luận</hui-button></div>
+        </form>
+        <hui-timeline-feed label="Bình luận và hoạt động"></hui-timeline-feed>
+      </section>
+    </article>
+
+    <aside>
+      <div class="aside-box"><hui-toc target="#article" offset="76"></hui-toc></div>
+      <div class="aside-box newsletter">
+        <h2>Bản tin</h2>
+        <p style="margin:0 0 10px; color: var(--hui-text-secondary)">Một email mỗi tháng, chỉ nội dung kỹ thuật.</p>
+        <hui-button block variant="outline" icon="mail" id="subscribe">Đăng ký</hui-button>
+      </div>
+    </aside>
+  </div>
+
+  <section class="more" aria-labelledby="more-h">
+    <h2 id="more-h">Bài viết khác</h2>
+    <hui-data-view view="grid" views="grid,list" search search-fields="title,author,categoryLabel" page-size="6" label="Danh sách bài viết">
+      <template view="grid">
+        <hui-blog-card data-bind-prop="image:image, title:title, category:categoryLabel, excerpt:excerpt, author:author, date:date, readingTime:readingTime, href:href" excerpt-lines="2"></hui-blog-card>
+      </template>
+      <template view="list">
+        <hui-blog-card orientation="horizontal" size="sm" data-bind-prop="image:image, title:title, category:categoryLabel, excerpt:excerpt, author:author, date:date, readingTime:readingTime, href:href"></hui-blog-card>
+      </template>
+    </hui-data-view>
+  </section>
+
+  <footer>Blog mẫu H-UI · nội dung minh họa · <a href="./index.html">Tất cả trang mẫu</a></footer>
+  <hui-back-top progress></hui-back-top>
+</body>
+</html>

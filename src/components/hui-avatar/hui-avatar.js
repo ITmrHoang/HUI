@@ -79,7 +79,7 @@ const hasContent = (slot) => slot.assignedNodes().some((n) =>
  * @cssprop --hui-avatar-size - Kích thước mặc định (attribute size của avatar / group ưu tiên hơn)
  * @cssprop --hui-avatar-radius - Bo góc mặc định (attribute shape của avatar / group ưu tiên hơn)
  * @cssprop --hui-avatar-bg - Nền (ghi đè color và màu tự sinh theo tên)
- * @cssprop --hui-avatar-color - Màu chữ / icon
+ * @cssprop --hui-avatar-color - Màu chữ / icon (mặc định tự chọn chữ tối / trắng theo độ chói nền)
  * @cssprop --hui-avatar-font-size - Cỡ chữ (mặc định 40% kích thước)
  * @cssprop --hui-avatar-ring - Độ dày vòng viền (bordered: 2px, trong group: 2px)
  * @cssprop --hui-avatar-ring-color - Màu vòng viền

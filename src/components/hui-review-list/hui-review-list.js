@@ -11,16 +11,13 @@ import { t, getLocaleName } from '../../core/locale.js';
 import { toDate } from '../../core/format.js';
 import { createElement } from '../../utils/dom.js';
 import { animationsDisabled } from '../../utils/animate.js';
-import { lightbox } from '../hui-lightbox/lightbox-api.js';
+import { ensureElement, renderLazyStateView } from '../hui-data-view/lazy-elements.js';
 import '../hui-icon/index.js';
 import '../hui-avatar/index.js';
 import '../hui-time/index.js';
 import '../hui-button/index.js';
-import '../hui-pagination/index.js';
-import '../hui-rate/index.js';
-import '../hui-skeleton/index.js';
-import '../hui-empty/index.js';
-import '../hui-result/index.js';
+import '../hui-rate/hui-rating-summary.js'; // kèm hui-rating-display (không cần hui-rate tương tác)
+// Tải động khi dùng tới: hui-pagination (nhiều hơn 1 trang), hui-lightbox (bấm ảnh), hui-skeleton / hui-empty / hui-result (trạng thái)
 
 const SORTS = ['newest', 'highest', 'lowest', 'helpful'];
 const PAGING = ['pagination', 'load-more', 'none'];
@@ -206,7 +203,7 @@ class HuiReviewList extends DataController(HuiElement) {
     if (changed.has('locale') || changed.has('sort')) this._renderSortOptions();
     this._sortWrap.hidden = this.noSort;
 
-    this.renderStateView(this._state, { skeletonRows: 4 });
+    renderLazyStateView(this, this._state, { skeletonRows: 4 });
     const ready = this.dataState === 'ready';
     this._summaryEl.hidden = this.noSummary || !(ready || this.summary);
     this._toolbar.hidden = !ready;
@@ -344,6 +341,7 @@ class HuiReviewList extends DataController(HuiElement) {
 
     // Footer
     this._pagination.hidden = mode !== 'pagination';
+    if (mode === 'pagination' && pages > 1) ensureElement('hui-pagination');
     this._pagination.total = all.length;
     this._pagination.pageSize = pageSize;
     this._pagination.current = page;
@@ -427,7 +425,10 @@ class HuiReviewList extends DataController(HuiElement) {
         const n = normalizeImage(img, k, author);
         return { src: n.src, alt: n.alt, caption: n.caption };
       });
-      lightbox.open(items, Number(btn.dataset.image), { origin: btn.querySelector('img'), noDownload: true });
+      // Lightbox chỉ cần khi bấm ảnh → tải động
+      import('../hui-lightbox/index.js').then(({ lightbox }) => {
+        lightbox.open(items, Number(btn.dataset.image), { origin: btn.querySelector('img'), noDownload: true });
+      });
     }
   }
 

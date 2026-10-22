@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Bảng Kanban mẫu</title>
+  <script>
+    // Áp theme đã lưu trước khi vẽ trang → không nháy sáng/tối
+    try { const m = localStorage.getItem('hui-theme'); if (m === 'light' || m === 'dark') document.documentElement.dataset.theme = m; } catch {}
+  </script>
+  <style>
+    html, body { margin: 0; }
+    body { font-family: var(--hui-font-family); background: var(--hui-bg-secondary); color: var(--hui-text); min-height: 100vh; }
+    :not(:defined) { visibility: hidden; }
+    a { color: var(--hui-primary); }
+    .logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.1rem; color: var(--hui-text); text-decoration: none; }
+    .logo-mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: #fff;
+      background: linear-gradient(135deg, var(--hui-primary), var(--hui-secondary)); font-size: 14px; }
+    .cmd-trigger { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; min-width: 220px;
+      border: 1px solid var(--hui-border); border-radius: var(--hui-radius); background: var(--hui-bg-container);
+      color: var(--hui-text-tertiary); font: inherit; font-size: 14px; cursor: pointer; }
+    .cmd-trigger:hover { border-color: var(--hui-border-hover); }
+    .cmd-trigger:focus-visible { outline: 2px solid var(--hui-primary); outline-offset: 2px; }
+    .cmd-trigger span { flex: 1; text-align: left; }
+
+    main { max-width: 1440px; margin: 0 auto; padding: 20px 24px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .board-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+    .board-title { font-size: 1.5rem; font-weight: 700; margin: 0; }
+    .board-title hui-editable { --hui-editable-padding: 2px 6px; }
+    .board-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--hui-text-secondary); font-size: 14px; }
+    .board-meta hui-progress { width: 160px; }
+    .hint { color: var(--hui-text-tertiary); font-size: 13px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+    /* Thẻ tự dựng bằng renderItem — light DOM nên CSS trang áp dụng trực tiếp */
+    .task { display: grid; gap: 8px; }
+    .task__top { display: flex; align-items: flex-start; gap: 6px; }
+    .task__title { flex: 1; min-width: 0; font-weight: 600; }
+    .task__title hui-editable { width: 100%; --hui-editable-padding: 1px 4px; }
+    .task__id { color: var(--hui-text-tertiary); font-size: 12px; font-family: var(--hui-font-mono); padding-top: 3px; }
+    .task__desc { margin: 0; color: var(--hui-text-secondary); font-size: 12px; line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .task__foot { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .task__foot hui-avatar { margin-left: auto; }
+    .prio { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--hui-text-secondary); }
+    .prio::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--_prio, var(--hui-text-tertiary)); }
+    .prio[data-p='high'] { --_prio: var(--hui-danger); }
+    .prio[data-p='medium'] { --_prio: var(--hui-warning); }
+    .prio[data-p='low'] { --_prio: var(--hui-success); }
+    .points { font-size: 12px; color: var(--hui-text-tertiary); }
+    .task.is-new { animation: pop .5s var(--hui-motion-ease-out, ease-out); }
+    @keyframes pop { from { transform: scale(.96); box-shadow: 0 0 0 3px var(--hui-primary-3); } }
+    @media (prefers-reduced-motion: reduce) { .task.is-new { animation: none; } }
+
+    hui-kanban { --hui-kanban-column-width: 290px; }
+    .detail { display: grid; gap: 14px; }
+    .detail dt { font-size: 12px; color: var(--hui-text-tertiary); margin-bottom: 2px; }
+    .detail dd { margin: 0; }
+    .detail hui-editable { display: block; width: 100%; }
+    .shortcuts { display: grid; grid-template-columns: max-content 1fr; gap: 10px 16px; align-items: center; margin: 0; }
+    .shortcuts dd { margin: 0; color: var(--hui-text-secondary); }
+
+    @media (max-width: 640px) {
+      main { padding: 16px; }
+      .cmd-trigger { min-width: 0; width: 36px; padding: 0; justify-content: center; }
+      .cmd-trigger span, .cmd-trigger hui-kbd { display: none; }
+      .board-title { font-size: 1.25rem; }
+      .hint { display: none; }
+    }
+  </style>
+  <script type="module">
+    import { message, applyTheme, storeTheme } from '../src/index.js';
+
+    // ===== Dữ liệu mẫu =====
+    const PEOPLE = ['Nguyễn An', 'Trần Bình', 'Lê Chi', 'Phạm Dũng'];
+    const ME = 'Nguyễn An';
+    const TAGS = { fe: { label: 'Frontend', color: 'primary' }, be: { label: 'Backend', color: 'secondary' }, ux: { label: 'Design', color: 'info' }, bug: { label: 'Bug', color: 'danger' } };
+    const PRIO = { high: 'Cao', medium: 'Trung bình', low: 'Thấp' };
+    let seq = 113;
+    let tasks = [
+      { id: 101, column: 'backlog', title: 'Đăng nhập bằng Apple ID', description: 'Thêm nút đăng nhập Apple trên iOS, xử lý email ẩn danh.', tags: ['be'], assignee: 'Trần Bình', priority: 'low', points: 3 },
+      { id: 102, column: 'backlog', title: 'Thiết kế màn hình ví', description: 'Wireframe + UI kit cho ví điện tử, trạng thái rỗng.', tags: ['ux'], assignee: 'Lê Chi', priority: 'medium', points: 5 },
+      { id: 103, column: 'backlog', title: 'Đa ngôn ngữ (en)', description: 'Trích chuỗi, thêm bản dịch tiếng Anh.', tags: ['fe'], assignee: 'Nguyễn An', priority: 'low', points: 2 },
+      { id: 104, column: 'todo', title: 'Bộ lọc đơn hàng theo ngày', description: 'Range picker + lưu bộ lọc trên URL.', tags: ['fe'], assignee: 'Nguyễn An', priority: 'medium', points: 3 },
+      { id: 105, column: 'todo', title: 'API xuất hóa đơn PDF', description: 'Sinh PDF phía server, gửi kèm email.', tags: ['be'], assignee: 'Phạm Dũng', priority: 'high', points: 8 },
+      { id: 106, column: 'doing', title: 'Ứng dụng crash khi xoay màn hình', description: 'Xảy ra trên Android 12 ở màn hình giỏ hàng.', tags: ['bug', 'fe'], assignee: 'Nguyễn An', priority: 'high', points: 3 },
+      { id: 107, column: 'doing', title: 'Thanh toán QR', description: 'Tích hợp VietQR, kiểm tra trạng thái giao dịch.', tags: ['be'], assignee: 'Trần Bình', priority: 'high', points: 5 },
+      { id: 108, column: 'doing', title: 'Dark mode cho màn hình hồ sơ', description: 'Dùng token màu, kiểm tra tương phản AA.', tags: ['ux', 'fe'], assignee: 'Lê Chi', priority: 'medium', points: 2 },
+      { id: 109, column: 'review', title: 'Tối ưu ảnh sản phẩm', description: 'Chuyển sang AVIF, lazy-load, placeholder mờ.', tags: ['fe'], assignee: 'Phạm Dũng', priority: 'low', points: 2 },
+      { id: 110, column: 'review', title: 'Sai tổng tiền khi áp mã giảm giá', description: 'Làm tròn sai khi giảm theo %.', tags: ['bug', 'be'], assignee: 'Trần Bình', priority: 'high', points: 1 },
+      { id: 111, column: 'done', title: 'Onboarding 3 bước', description: 'Màn hình chào + xin quyền thông báo.', tags: ['ux'], assignee: 'Lê Chi', priority: 'medium', points: 3 },
+      { id: 112, column: 'done', title: 'CI build Android', description: 'Pipeline ký bản release tự động.', tags: ['be'], assignee: 'Phạm Dũng', priority: 'low', points: 2 },
+    ];
+    const COLUMNS = [
+      { id: 'backlog', title: 'Backlog', color: 'secondary' },
+      { id: 'todo', title: 'Cần làm', color: 'info' },
+      { id: 'doing', title: 'Đang làm', color: 'warning', limit: 3 },
+      { id: 'review', title: 'Chờ duyệt', color: 'primary', limit: 3 },
+      { id: 'done', title: 'Hoàn thành', color: 'success' },
+    ];
+    const colTitle = (id) => COLUMNS.find((c) => c.id === id)?.title ?? id;
+    const byId = (id) => tasks.find((t) => t.id === id);
+
+    const kanban = document.querySelector('#board');
+    const filterBar = document.querySelector('#filters');
+    const palette = document.querySelector('hui-command-palette');
+    const drawer = document.querySelector('#detail');
+    let filters = {};
+
+    // ===== Thẻ: renderItem dựng 1 lần cho mỗi id (kanban giữ node theo key khi kéo thả) =====
+    function el(tag, attrs = {}, ...children) {
+      const n = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        if (v === undefined || v === null || v === false) continue;
+        if (k === 'className') n.className = v; else n.setAttribute(k, v === true ? '' : v);
+      }
+      n.append(...children.filter((c) => c !== null && c !== undefined));
+      return n;
+    }
+    function renderCard(item) {
+      const title = el('hui-editable', { label: 'Tiêu đề thẻ', required: true, 'no-icon': true });
+      title.value = item.title;
+      // Lưu bất đồng bộ (giả lập API) — lỗi thì hui-editable tự khôi phục giá trị cũ
+      title.addEventListener('hui-save', (e) => {
+        e.detail.waitUntil(new Promise((r) => setTimeout(r, 300)).then(() => {
+          byId(item.id).title = e.detail.value;
+          refreshDrawer(item.id);
+        }));
+      });
+      const card = el('article', { className: 'hui-kanban-card task', 'aria-label': item.title },
+        el('div', { className: 'task__top' }, el('div', { className: 'task__title' }, title), el('span', { className: 'task__id' }, `#${item.id}`)),
+        item.description ? el('p', { className: 'task__desc' }, item.description) : null,
+        el('div', { className: 'task__foot' },
+          ...item.tags.map((k) => el('hui-tag', { size: 'sm', color: TAGS[k].color }, TAGS[k].label)),
+          el('span', { className: 'prio', 'data-p': item.priority }, PRIO[item.priority]),
+          el('span', { className: 'points' }, `${item.points} điểm`),
+          el('hui-avatar', { size: 'sm', name: item.assignee, alt: item.assignee }),
+        ));
+      title.addEventListener('hui-saved', () => card.setAttribute('aria-label', title.value));
+      return card;
+    }
+
+    // ===== Lọc: filter-bar → items hiển thị (không đổi dữ liệu gốc) =====
+    const fold = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase();
+    function visible() {
+      const q = fold(filters.q || '');
+      const tagsOn = [].concat(filters.tag || []).filter(Boolean);
+      return tasks.filter((t) => (!q || fold(`${t.title} ${t.description} #${t.id}`).includes(q))
+        && (!tagsOn.length || tagsOn.some((k) => t.tags.includes(k)))
+        && (!filters.assignee || t.assignee === filters.assignee)
+        && (!filters.priority || t.priority === filters.priority));
+    }
+    function renderBoard() {
+      kanban.items = visible();
+      const done = tasks.filter((t) => t.column === 'done').reduce((s, t) => s + t.points, 0);
+      const total = tasks.reduce((s, t) => s + t.points, 0);
+      document.querySelector('#sprint-progress').percent = Math.round((done / total) * 100);
+      document.querySelector('#sprint-points').textContent = `${done}/${total} điểm`;
+      document.querySelector('#sprint-count').textContent = `${kanban.items.length}/${tasks.length} thẻ`;
+    }
+
+    kanban.columns = COLUMNS;
+    kanban.renderItem = renderCard;
+    filterBar.chips = Object.entries(TAGS).map(([value, t]) => ({ value, label: t.label, count: tasks.filter((x) => x.tags.includes(value)).length }));
+    document.querySelector('#f-assignee').options = PEOPLE.map((p) => ({ value: p, label: p }));
+    document.querySelector('#f-priority').options = Object.entries(PRIO).map(([value, label]) => ({ value, label }));
+    renderBoard();
+
+    filterBar.addEventListener('hui-filter-change', (e) => { filters = e.detail.params; renderBoard(); });
+    // Đặt bộ lọc bằng code (bảng lệnh): gán params cho filter-bar (control + chip tự cập nhật) rồi lọc luôn —
+    // gán params bằng code không phát hui-filter-change (chỉ thao tác của người dùng mới phát)
+    function setFilters(p) {
+      filterBar.params = p;
+      filters = p;
+      renderBoard();
+    }
+
+    // Kéo thả xong: cập nhật dữ liệu gốc theo thứ tự mới (thẻ đang ẩn vì lọc giữ nguyên vị trí cuối)
+    kanban.addEventListener('hui-change', (e) => {
+      const { item, from, to } = e.detail;
+      // Luật quy trình: thẻ Bug phải qua "Chờ duyệt" mới được đóng — preventDefault() → thẻ tự quay về chỗ cũ
+      if (to === 'done' && from !== 'review' && from !== 'done' && byId(item.id).tags.includes('bug')) {
+        e.preventDefault();
+        message.warning('Thẻ Bug cần qua “Chờ duyệt” trước khi chuyển sang Hoàn thành');
+        return;
+      }
+      const shown = new Set(e.detail.items.map((t) => t.id));
+      tasks = [...e.detail.items.map((t) => ({ ...byId(t.id), column: t.column })), ...tasks.filter((t) => !shown.has(t.id))];
+      if (from !== to) message.success(`Đã chuyển “${byId(item.id).title}” sang ${colTitle(to)}`);
+      queueMicrotask(renderBoard);
+    });
+
+    // ===== Chi tiết thẻ: Enter / bấm vào thẻ → drawer với các trường sửa tại chỗ =====
+    let openId = null;
+    const fields = {
+      title: document.querySelector('#d-title'),
+      description: document.querySelector('#d-desc'),
+      assignee: document.querySelector('#d-assignee'),
+      priority: document.querySelector('#d-priority'),
+      column: document.querySelector('#d-column'),
+    };
+    fields.assignee.options = PEOPLE;
+    fields.priority.options = Object.entries(PRIO).map(([value, label]) => ({ value, label }));
+    fields.column.options = COLUMNS.map((c) => ({ value: c.id, label: c.title }));
+    function refreshDrawer(id) {
+      if (id !== openId) return;
+      const t = byId(id);
+      for (const [k, f] of Object.entries(fields)) f.value = String(t[k] ?? '');
+      drawer.title = `Thẻ #${t.id}`;
+    }
+    kanban.addEventListener('hui-item-click', (e) => {
+      openId = e.detail.item.id;
+      refreshDrawer(openId);
+      drawer.show();
+    });
+    for (const [k, f] of Object.entries(fields)) {
+      f.addEventListener('hui-saved', async () => {
+        const t = byId(openId);
+        if (!t) return;
+        t[k] = f.value;
+        // renderItem chỉ dựng thẻ 1 lần theo id → gỡ thẻ (items rỗng) rồi vẽ lại để thẻ phản ánh dữ liệu mới
+        kanban.items = visible().filter((x) => x.id !== t.id);
+        await kanban.updateComplete;
+        renderBoard();
+      });
+    }
+
+    // ===== Thêm thẻ (nút, phím N, bảng lệnh) =====
+    function addCard() {
+      const t = { id: seq++, column: 'todo', title: 'Thẻ mới', description: '', tags: ['fe'], assignee: ME, priority: 'medium', points: 1 };
+      tasks = [...tasks, t];
+      filterBar.reset?.();
+      filters = {};
+      renderBoard();
+      requestAnimationFrame(() => {
+        const node = kanban.cardOf(t.id);
+        if (!node) return;
+        node.classList.add('is-new');
+        node.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+        node.querySelector('hui-editable')?.edit();
+      });
+    }
+    document.querySelector('#add-btn').addEventListener('hui-click', addCard);
+    document.querySelector('#hk-new').addEventListener('hui-hotkey', addCard);
+    document.querySelector('#hk-search').addEventListener('hui-hotkey', (e) => {
+      e.preventDefault();
+      filterBar.shadowRoot?.querySelector('hui-search')?.focus();
+    });
+    document.querySelector('#hk-help').addEventListener('hui-hotkey', () => document.querySelector('#shortcuts').open());
+
+    // ===== Bảng lệnh (Ctrl/⌘ + K) =====
+    const theme = (mode) => () => { applyTheme(mode); storeTheme(mode); }; // hui-theme-toggle tự đồng bộ qua hui-theme-change
+    palette.commands = [
+      { id: 'new', label: 'Tạo thẻ mới', group: 'Thẻ', icon: 'plus', shortcut: 'n', action: addCard },
+      { id: 'mine', label: 'Chỉ thẻ của tôi', group: 'Bộ lọc', icon: 'user', keywords: 'loc assignee', action: () => setFilters({ assignee: ME }) },
+      { id: 'bugs', label: 'Chỉ thẻ Bug', group: 'Bộ lọc', icon: 'filter', action: () => setFilters({ tag: ['bug'] }) },
+      { id: 'high', label: 'Ưu tiên cao', group: 'Bộ lọc', icon: 'warning', action: () => setFilters({ priority: 'high' }) },
+      { id: 'clear', label: 'Xóa bộ lọc', group: 'Bộ lọc', icon: 'close', action: () => filterBar.reset() },
+      ...COLUMNS.map((c) => ({ id: `go-${c.id}`, label: `Đi tới cột “${c.title}”`, group: 'Điều hướng', icon: 'arrow-right',
+        action: () => kanban.cardOf(visible().find((t) => t.column === c.id)?.id)?.focus() })),
+      { id: 'dark', label: 'Giao diện tối', group: 'Giao diện', icon: 'moon', keywords: 'dark theme', action: theme('dark') },
+      { id: 'light', label: 'Giao diện sáng', group: 'Giao diện', icon: 'sun', keywords: 'light theme', action: theme('light') },
+      { id: 'system', label: 'Theo hệ thống', group: 'Giao diện', icon: 'monitor', keywords: 'system theme', action: theme('system') },
+      { id: 'help', label: 'Phím tắt', group: 'Trợ giúp', icon: 'info', shortcut: 'shift+/', action: () => document.querySelector('#shortcuts').open() },
+      { id: 'ex-shop', label: 'Trang mẫu: E-commerce', group: 'Trang mẫu', icon: 'cart', href: './ecommerce.html' },
+      { id: 'ex-table', label: 'Trang mẫu: Bảng dữ liệu', group: 'Trang mẫu', icon: 'table', href: './table.html' },
+      { id: 'ex-blog', label: 'Trang mẫu: Blog', group: 'Trang mẫu', icon: 'file', href: './blog.html' },
+      { id: 'ex-all', label: 'Tất cả trang mẫu', group: 'Trang mẫu', icon: 'grid', href: './index.html' },
+    ];
+  </script>
+</head>
+<body>
+  <hui-navbar sticky>
+    <a slot="logo" class="logo" href="./index.html"><span class="logo-mark" aria-hidden="true">H</span>HUI Board</a>
+    <hui-menu mode="horizontal" selected-keys="board">
+      <hui-menu-item key="board" href="#">Bảng</hui-menu-item>
+      <hui-menu-item key="table" href="./table.html">Dữ liệu</hui-menu-item>
+      <hui-menu-item key="examples" href="./index.html">Trang mẫu</hui-menu-item>
+    </hui-menu>
+    <hui-space slot="actions">
+      <button class="cmd-trigger" type="button" aria-label="Mở bảng lệnh" onclick="document.querySelector('hui-command-palette').open()">
+        <hui-icon name="search"></hui-icon><span>Tìm lệnh…</span><hui-kbd keys="mod+k" size="sm"></hui-kbd>
+      </button>
+      <hui-theme-toggle></hui-theme-toggle>
+      <hui-avatar name="Nguyễn An" size="sm" alt="Nguyễn An"></hui-avatar>
+    </hui-space>
+  </hui-navbar>
+
+  <main>
+    <div class="board-head">
+      <div>
+        <h1 class="board-title"><hui-editable value="Sprint 42 — Ứng dụng mua sắm" label="Tên bảng" required></hui-editable></h1>
+        <div class="board-meta">
+          <hui-tag color="primary">14/10 – 28/10</hui-tag>
+          <span id="sprint-count"></span>
+          <hui-progress id="sprint-progress" percent="0" size="sm" aria-label="Tiến độ sprint"></hui-progress>
+          <span id="sprint-points"></span>
+        </div>
+      </div>
+      <div class="hint">
+        <hui-kbd keys="mod+k" size="sm"></hui-kbd> bảng lệnh ·
+        <hui-kbd keys="n" size="sm"></hui-kbd> thẻ mới ·
+        <hui-kbd keys="/" size="sm"></hui-kbd> tìm ·
+        <hui-kbd keys="?" size="sm"></hui-kbd> phím tắt
+      </div>
+    </div>
+
+    <hui-filter-bar id="filters" search-placeholder="Tìm theo tiêu đề, mô tả, #mã…" chips-multiple chips-all-label="Tất cả">
+      <hui-select id="f-assignee" name="assignee" placeholder="Người làm" allow-clear style="width: 170px"></hui-select>
+      <hui-select id="f-priority" name="priority" placeholder="Ưu tiên" allow-clear style="width: 150px"></hui-select>
+      <hui-button slot="actions" id="add-btn" icon="plus">Thêm thẻ</hui-button>
+    </hui-filter-bar>
+
+    <hui-kanban id="board" label="Bảng công việc Sprint 42"></hui-kanban>
+  </main>
+
+  <!-- Chi tiết thẻ: mọi trường sửa tại chỗ bằng hui-editable -->
+  <hui-drawer id="detail" title="Chi tiết thẻ">
+    <dl class="detail">
+      <div><dt>Tiêu đề</dt><dd><hui-editable id="d-title" label="Tiêu đề" required></hui-editable></dd></div>
+      <div><dt>Mô tả</dt><dd><hui-editable id="d-desc" type="textarea" rows="4" label="Mô tả" placeholder="Thêm mô tả…"></hui-editable></dd></div>
+      <div><dt>Cột</dt><dd><hui-editable id="d-column" type="select" label="Cột"></hui-editable></dd></div>
+      <div><dt>Người làm</dt><dd><hui-editable id="d-assignee" type="select" label="Người làm"></hui-editable></dd></div>
+      <div><dt>Ưu tiên</dt><dd><hui-editable id="d-priority" type="select" label="Ưu tiên"></hui-editable></dd></div>
+    </dl>
+  </hui-drawer>
+
+  <hui-modal id="shortcuts" title="Phím tắt" no-footer size="sm">
+    <dl class="shortcuts">
+      <dt><hui-kbd keys="mod+k"></hui-kbd></dt><dd>Mở bảng lệnh</dd>
+      <dt><hui-kbd keys="n"></hui-kbd></dt><dd>Tạo thẻ mới</dd>
+      <dt><hui-kbd keys="/"></hui-kbd></dt><dd>Tìm kiếm</dd>
+      <dt><hui-kbd>Space</hui-kbd></dt><dd>Nhấc / thả thẻ đang focus</dd>
+      <dt><hui-kbd>←</hui-kbd> <hui-kbd>→</hui-kbd></dt><dd>Chuyển thẻ sang cột bên cạnh (khi đang nhấc)</dd>
+      <dt><hui-kbd>Enter</hui-kbd></dt><dd>Mở chi tiết thẻ</dd>
+      <dt><hui-kbd>Esc</hui-kbd></dt><dd>Hủy kéo / đóng hộp thoại</dd>
+    </dl>
+  </hui-modal>
+
+  <hui-command-palette recent placeholder="Tìm lệnh, bộ lọc hoặc trang…"></hui-command-palette>
+  <hui-hotkey id="hk-new" keys="n"></hui-hotkey>
+  <hui-hotkey id="hk-search" keys="/"></hui-hotkey>
+  <hui-hotkey id="hk-help" keys="shift+/"></hui-hotkey>
+</body>
+</html>

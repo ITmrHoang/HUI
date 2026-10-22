@@ -101,6 +101,11 @@
   border: 1px solid var(--hui-border-secondary);
 }
 
+/* Chế độ khác side: khung bên cạnh không dùng → bỏ khỏi layout (tránh tràn ngang trang trên mobile) */
+.iz:not([data-render='side']) .iz__panel {
+  display: none;
+}
+
 .iz--side-right .iz__panel {
   left: calc(100% + var(--hui-image-zoom-panel-gap, var(--hui-space-md)));
 }

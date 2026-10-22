@@ -28,9 +28,14 @@ const exportsField = {
   '.': entry('index'),
   './core': entry('core'),
   './effects': entry('effects'),
+  // Tích hợp framework (không phụ thuộc vue/react lúc chạy) — kiểu viết tay trong scripts/types
+  './vue': { types: './dist/types/vue-plugin.d.ts', import: './dist/vue.esm.js', default: './dist/vue.esm.js' },
+  './react': { types: './dist/types/react-helper.d.ts', import: './dist/react.esm.js', default: './dist/react.esm.js' },
 };
 for (const name of components) exportsField[`./${name}`] = entry(name);
 exportsField['./style.css'] = './dist/style.css';
+// Ẩn thẻ hui-* chưa define (chống nháy khi SSR) — sinh bởi scripts/gen-types.mjs
+exportsField['./undefined.css'] = './dist/undefined.css';
 // Kiểu cho framework (chỉ có types): tsconfig → compilerOptions.types: ['@itmrhoang/h-ui/types/vue']
 exportsField['./types/vue'] = { types: './dist/types/vue.d.ts' };
 exportsField['./types/react'] = { types: './dist/types/react.d.ts' };

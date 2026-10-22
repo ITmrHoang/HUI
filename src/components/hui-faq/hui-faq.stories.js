@@ -21,6 +21,7 @@ const faqOf = (canvas) => canvas.querySelector('hui-faq');
 const panelsOf = (faq) => [...faq.shadowRoot.querySelectorAll('hui-collapse-panel'), ...faq.querySelectorAll('hui-collapse-panel')];
 const visiblePanels = (faq) => panelsOf(faq).filter((p) => p.style.display !== 'none');
 async function typeSearch(faq, text) {
+  await customElements.whenDefined('hui-input'); // ô tìm tải động khi bật search
   const input = faq.shadowRoot.querySelector('hui-input').shadowRoot.querySelector('input');
   input.value = text;
   input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
@@ -235,6 +236,7 @@ export const GroupByTabs = {
     const faq = faqOf(canvasElement);
     await faq.updateComplete;
     const tabs = faq.shadowRoot.querySelector('hui-tabs');
+    await customElements.whenDefined('hui-tabs'); // tải động khi group-by-category="tabs"
     await tabs.updateComplete;
     await waitFor(() => expect(tabs.shadowRoot.querySelectorAll('[role="tab"]').length).toBe(4));
     const tabEls = [...tabs.shadowRoot.querySelectorAll('[role="tab"]')];

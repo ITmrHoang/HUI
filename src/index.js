@@ -231,3 +231,7 @@ export { default as HuiTreeSelect } from './components/hui-tree-select/index.js'
 export { default as HuiCascader } from './components/hui-cascader/index.js';
 export { default as HuiTransfer } from './components/hui-transfer/index.js';
 export { default as HuiTable } from './components/hui-table/index.js';
+
+// Hoàn thiện
+export { default as HuiHighlight, highlightText, parseQuery } from './components/hui-highlight/index.js';
+export { default as HuiVirtualList } from './components/hui-virtual-list/index.js';

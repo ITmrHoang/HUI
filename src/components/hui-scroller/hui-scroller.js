@@ -4,6 +4,8 @@
  * số item mỗi khung nhìn (responsive, cho phép lẻ 1.2 để lộ thẻ kế), nút mũi tên, kéo chuột,
  * lăn chuột dọc → ngang, bàn phím, chấm / thanh chỉ vị trí, bóng mờ 2 mép, tự chạy.
  * Item: con trực tiếp (slot mặc định) hoặc `data` + <template> (render vào light DOM → CSS trang áp dụng được).
+ * RTL (dir="rtl" trên thẻ / tổ tiên): mũi tên, bàn phím, lăn chuột, chấm / thanh vị trí đều đảo chiều.
+ * Mọi vị trí bên trong tính theo "khoảng cách từ mép đầu" (RTL: scrollLeft âm → đổi dấu).
  */
 
 import styles from './hui-scroller.css?raw';
@@ -13,7 +15,7 @@ import { renderTemplate, updateTemplateNode, delegateActions } from '../../core/
 import { Repeater } from '../../core/repeat.js';
 import { t, getLocaleName } from '../../core/locale.js';
 import { createElement } from '../../utils/dom.js';
-import { onScroll, scrollToPosition, overflowEdges, dragToScroll, wheelToHorizontal } from '../../utils/scroll.js';
+import { onScroll, scrollToPosition, dragToScroll } from '../../utils/scroll.js';
 import { prefersReducedMotion } from '../../utils/motion.js';
 import '../hui-icon/hui-icon.js';
 
@@ -184,7 +186,7 @@ class HuiScroller extends DataController(HuiElement) {
     this._items = [];
     /** Vị trí đo được: [{ start, width }] theo tọa độ cuộn */
     this._metrics = [];
-    /** Vị trí cuộn đích (scrollLeft) của từng item, đã kẹp [0, max] */
+    /** Vị trí cuộn đích (tính từ mép đầu, RTL cũng ≥ 0) của từng item, đã kẹp [0, max] */
     this._targets = [];
     /** Chỉ số item đầu mỗi trang */
     this._pages = [0];
@@ -375,6 +377,11 @@ class HuiScroller extends DataController(HuiElement) {
     return [...this._items];
   }
 
+  /** Đang hiển thị theo hướng phải → trái (đọc từ CSS direction, cập nhật khi đo lại / refresh()) — chỉ đọc */
+  get isRtl() {
+    return Boolean(this._rtl);
+  }
+
   /**
    * Cuộn tới item thứ i (theo vị trí snap).
    * @param {number} index
@@ -390,7 +397,7 @@ class HuiScroller extends DataController(HuiElement) {
     clearTimeout(this._pendingTimer);
     // Trình duyệt không có `scrollend` → tự bỏ sau 1s
     this._pendingTimer = setTimeout(() => { this._pending = null; this._sync(); }, 1000);
-    scrollToPosition(this._viewport, { left, smooth: smooth && !this.noAnimation });
+    scrollToPosition(this._viewport, { left: this._toScrollLeft(left), smooth: smooth && !this.noAnimation });
     this._sync();
   }
 
@@ -433,6 +440,28 @@ class HuiScroller extends DataController(HuiElement) {
     return this.data != null || Boolean(this.src) || Boolean(this.fetchFn);
   }
 
+  /** Đọc hướng chữ hiện tại; đổi → gắn class scroller--rtl (CSS đảo mũi tên, bóng mờ) */
+  _readDir() {
+    const rtl = getComputedStyle(this).direction === 'rtl';
+    if (rtl !== this._rtl) {
+      this._rtl = rtl;
+      this._base.classList.toggle('scroller--rtl', rtl);
+      this.setState('rtl', rtl);
+    }
+    return rtl;
+  }
+
+  /** Vị trí cuộn tính từ mép đầu (≥ 0). RTL chuẩn hiện đại: scrollLeft từ 0 giảm dần về âm */
+  get _pos() {
+    const sl = this._viewport.scrollLeft;
+    return this._rtl ? -sl : sl;
+  }
+
+  /** Vị trí từ mép đầu → giá trị scrollLeft thật */
+  _toScrollLeft(pos) {
+    return this._rtl ? -pos || 0 : pos;
+  }
+
   /** Ghi biến nội bộ cho CSS: gap, padding, bề rộng item */
   _applyLayout() {
     const style = this._base.style;
@@ -466,16 +495,18 @@ class HuiScroller extends DataController(HuiElement) {
   _measure() {
     const vp = this._viewport;
     const items = this._items;
+    const rtl = this._readDir();
     const vpRect = vp.getBoundingClientRect();
-    const sl = vp.scrollLeft;
+    const sl = this._pos;
     const max = Math.max(0, vp.scrollWidth - vp.clientWidth);
     const cs = getComputedStyle(this._track);
-    const pad = parseFloat(cs.paddingLeft) || 0;
+    const pad = parseFloat(rtl ? cs.paddingRight : cs.paddingLeft) || 0;
     const center = this.snap === 'center';
 
+    // start = khoảng cách mép đầu item tới mép đầu nội dung (RTL: đo từ bên phải)
     this._metrics = items.map((el) => {
       const r = el.getBoundingClientRect();
-      return { start: r.left - vpRect.left + sl, width: r.width };
+      return { start: (rtl ? vpRect.right - r.right : r.left - vpRect.left) + sl, width: r.width };
     });
     this._targets = this._metrics.map(({ start, width }) => {
       const raw = center ? start + width / 2 - vp.clientWidth / 2 : start - pad;
@@ -512,11 +543,11 @@ class HuiScroller extends DataController(HuiElement) {
   _sync() {
     if (!this._hasRendered) return;
     const vp = this._viewport;
-    const sl = vp.scrollLeft;
-    const edges = overflowEdges(vp);
-    const atStart = !edges.start;
-    const atEnd = !edges.end;
+    const sl = this._pos;
     const max = Math.max(0, vp.scrollWidth - vp.clientWidth);
+    // Sai số 1px do làm tròn subpixel (giống overflowEdges nhưng theo vị trí logic → đúng cả RTL)
+    const atStart = sl <= 1;
+    const atEnd = sl >= max - 1;
     this._progress = max > 0 ? Math.min(1, Math.max(0, sl / max)) : 0;
 
     // Item gần vị trí cuộn nhất (item bị kẹp cùng đích → lấy item đầu)
@@ -580,7 +611,7 @@ class HuiScroller extends DataController(HuiElement) {
     }
     // Bỏ qua item có cùng vị trí đích (bị kẹp ở cuối) → luôn cuộn thật sự
     const from = this.currentIndex;
-    const here = this._pending ? this._pending.left : this._viewport.scrollLeft;
+    const here = this._pending ? this._pending.left : this._pos;
     for (let i = from + dir; i >= 0 && i < targets.length; i += dir) {
       if (Math.abs(targets[i] - here) > 1) {
         this.scrollToIndex(i);
@@ -695,11 +726,12 @@ class HuiScroller extends DataController(HuiElement) {
 
   _updateIndicator() {
     if (this._bar) {
-      // Thanh dài = tỉ lệ phần nhìn thấy, chạy từ trái sang phải theo progressX
+      // Thanh dài = tỉ lệ phần nhìn thấy, chạy từ mép đầu sang mép cuối (RTL: phải → trái)
       const vp = this._viewport;
       const ratio = vp.scrollWidth > 0 ? Math.min(1, vp.clientWidth / vp.scrollWidth) : 1;
       this._bar.style.width = `${ratio * 100}%`;
-      this._bar.style.transform = `translateX(${ratio > 0 ? (this._progress * (1 - ratio) / ratio) * 100 : 0}%)`;
+      const shift = ratio > 0 ? (this._progress * (1 - ratio) / ratio) * 100 : 0;
+      this._bar.style.transform = `translateX(${this._rtl ? -shift : shift}%)`;
     }
     if (this._dots) {
       const active = this._pageOf(this.currentIndex);
@@ -723,7 +755,7 @@ class HuiScroller extends DataController(HuiElement) {
     this._unbindPointer();
     if (!this.isConnected) return;
     if (this._dragEnabled) this._pointerOff.push(dragToScroll(this._viewport, { axis: 'x' }));
-    if (this.wheel) this._pointerOff.push(wheelToHorizontal(this._viewport));
+    if (this.wheel) this._pointerOff.push(this._bindWheel());
     this._base.classList.toggle('scroller--draggable', this._dragEnabled);
   }
 
@@ -732,12 +764,31 @@ class HuiScroller extends DataController(HuiElement) {
     this._pointerOff = [];
   }
 
-  /** ←/→ 1 item, PageUp/PageDown 1 trang, Home/End — chỉ khi chính viewport đang focus */
+  /**
+   * Lăn chuột dọc → cuộn ngang (như wheelToHorizontal của utils/scroll nhưng theo vị trí logic → đúng cả RTL):
+   * chỉ khi còn cuộn được theo hướng đó, hết đường thì trả lại cuộn dọc cho trang.
+   */
+  _bindWheel() {
+    const vp = this._viewport;
+    const onWheel = (e) => {
+      if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      const pos = this._pos;
+      const max = vp.scrollWidth - vp.clientWidth;
+      if ((e.deltaY > 0 && pos >= max - 1) || (e.deltaY < 0 && pos <= 1)) return;
+      e.preventDefault();
+      vp.scrollLeft += this._rtl ? -e.deltaY : e.deltaY;
+    };
+    vp.addEventListener('wheel', onWheel, { passive: false });
+    return () => vp.removeEventListener('wheel', onWheel);
+  }
+
+  /** ←/→ 1 item (RTL: đảo chiều), PageUp/PageDown 1 trang, Home/End — chỉ khi chính viewport đang focus */
   _onKeydown(e) {
     if (e.composedPath()[0] !== this._viewport || e.altKey || e.ctrlKey || e.metaKey) return;
+    const fwd = this._readDir() ? -1 : 1;
     const actions = {
-      ArrowRight: () => this._step(1, false),
-      ArrowLeft: () => this._step(-1, false),
+      ArrowRight: () => this._step(fwd, false),
+      ArrowLeft: () => this._step(-fwd, false),
       PageDown: () => this._step(1, true),
       PageUp: () => this._step(-1, true),
       Home: () => this.scrollToIndex(0),

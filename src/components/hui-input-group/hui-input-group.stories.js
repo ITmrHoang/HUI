@@ -24,7 +24,7 @@ viền giữa gộp làm một, chỉ bo góc 2 đầu, control đang focus nổ
 
 \`\`\`html
 <hui-input-group>
-  <hui-select .options=\${['https://', 'http://']} value="https://"></hui-select>
+  <hui-select aria-label="Giao thức" .options=\${['https://', 'http://']} value="https://"></hui-select>
   <hui-input placeholder="ten-mien"></hui-input>
   <hui-button>Kiểm tra</hui-button>
 </hui-input-group>
@@ -67,7 +67,7 @@ export const Default = {
   render: () => html`
     <div style="max-width:520px">
       <hui-input-group aria-label="Địa chỉ web">
-        <hui-select style="width:110px" .options=${['https://', 'http://']} value="https://"></hui-select>
+        <hui-select aria-label="Giao thức" style="width:110px" .options=${['https://', 'http://']} value="https://"></hui-select>
         <hui-input placeholder="ten-mien-cua-ban"></hui-input>
         <hui-button>Kiểm tra</hui-button>
       </hui-input-group>
@@ -84,6 +84,54 @@ export const Addons = {
       <hui-input-group aria-label="Email"><hui-input placeholder="ten"></hui-input><span slot="after">@congty.vn</span></hui-input-group>
     </div>
   `,
+};
+
+/**
+ * Addon riêng của hui-input (slot `addon-before` / `addon-after`) trong nhóm: chỉ góc ngoài cùng của khối được bo,
+ * các góc nối với control bên cạnh vuông.
+ */
+export const InputAddonsInGroup = {
+  render: () => html`
+    <div style="display:grid;gap:12px;max-width:520px">
+      <hui-input-group id="ig-input-addon" aria-label="Website">
+        <hui-input placeholder="example">
+          <span slot="addon-before">https://</span>
+          <span slot="addon-after">.com</span>
+        </hui-input>
+        <hui-button>Kiểm tra</hui-button>
+      </hui-input-group>
+      <hui-input-group id="ig-input-addon-last" aria-label="Giá">
+        <hui-button variant="outline">Gói Pro</hui-button>
+        <hui-input placeholder="Số tiền"><span slot="addon-after">/ tháng</span></hui-input>
+      </hui-input-group>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const radii = (el) => {
+      const cs = getComputedStyle(el);
+      return [cs.borderTopLeftRadius, cs.borderTopRightRadius, cs.borderBottomRightRadius, cs.borderBottomLeftRadius];
+    };
+    const part = (input, name) => input.shadowRoot.querySelector(`[part="${name}"]`);
+
+    // Ô đầu nhóm: addon-before bo trái; khung + addon-after vuông (nối với nút phía sau)
+    const first = canvasElement.querySelector('#ig-input-addon hui-input');
+    await waitFor(() => expect(part(first, 'addon-before').hidden).toBe(false));
+    const [tl, tr, br, bl] = radii(part(first, 'addon-before'));
+    await expect(tl).not.toBe('0px');
+    await expect(bl).toBe(tl);
+    await expect([tr, br]).toEqual(['0px', '0px']);
+    await expect(radii(part(first, 'container'))).toEqual(['0px', '0px', '0px', '0px']);
+    await expect(radii(part(first, 'addon-after'))).toEqual(['0px', '0px', '0px', '0px']);
+
+    // Ô cuối nhóm: addon-after bo phải; khung vuông
+    const last = canvasElement.querySelector('#ig-input-addon-last hui-input');
+    await waitFor(() => expect(part(last, 'addon-after').hidden).toBe(false));
+    const after = radii(part(last, 'addon-after'));
+    await expect(after[0]).toBe('0px');
+    await expect(after[3]).toBe('0px');
+    await expect(after[1]).not.toBe('0px');
+    await expect(radii(part(last, 'container'))).toEqual(['0px', '0px', '0px', '0px']);
+  },
 };
 
 /** Kích thước truyền xuống control + compact co theo nội dung */
@@ -117,7 +165,7 @@ export const MixedControls = {
   render: () => html`
     <div style="display:grid;gap:12px;max-width:520px">
       <hui-input-group aria-label="Tìm thành phố">
-        <hui-select style="width:120px" .options=${['Thành phố', 'Quận']} value="Thành phố"></hui-select>
+        <hui-select aria-label="Cấp hành chính" style="width:120px" .options=${['Thành phố', 'Quận']} value="Thành phố"></hui-select>
         <hui-autocomplete placeholder="Gõ tên..." .options=${['Hà Nội', 'Huế', 'Đà Nẵng', 'Hồ Chí Minh']}></hui-autocomplete>
       </hui-input-group>
       <hui-input-group aria-label="Mã giảm giá"><input placeholder="Mã giảm giá" aria-label="Mã giảm giá" /><button type="button">Áp dụng</button></hui-input-group>

@@ -7,6 +7,7 @@ import { html } from 'lit';
 import { expect, waitFor } from 'storybook/test';
 import { notification } from './index.js';
 import '../hui-button/index.js';
+import '../hui-modal/index.js';
 
 export default {
   title: 'Components/HuiNotification',
@@ -20,6 +21,10 @@ export default {
 
 Container \`<hui-notification-container>\` tự gắn vào \`<body>\`, nằm trên top-layer. Mỗi vị trí là một cột riêng;
 rê chuột (hoặc focus) vào thông báo → tạm dừng đếm giờ.
+
+Đang mở Modal / Drawer → container tự chuyển vào \`<dialog>\` của modal trên cùng nên nút hành động / nút đóng bấm được
+(ngoài dialog mọi thứ bị inert), không lấy focus của modal; modal đóng → trở về \`<body>\`. Khi đó \`::part(...)\` viết ở trang
+không áp vào (container nằm trong Shadow DOM của modal) → ưu tiên biến CSS trên \`:root\`.
 
 ### Cách sử dụng
 \`\`\`js
@@ -166,6 +171,64 @@ export const UpdateByKey = {
       }}
     >Tải lên (cập nhật cùng key)</hui-button>
   `,
+};
+
+/**
+ * Thông báo khi đang mở Modal: container tự chuyển vào trong <dialog> của modal → nút trên thông báo bấm được
+ * (ngoài dialog mọi thứ bị inert); modal đóng → container trở về <body>.
+ */
+export const InsideModal = {
+  render: () => html`
+    <hui-button @hui-click=${() => document.querySelector('#noti-modal').open()}>Mở Modal</hui-button>
+    <hui-modal id="noti-modal" title="Modal" @hui-ok=${(e) => {
+      e.preventDefault();
+      notification.info({
+        title: 'Có bản nháp chưa lưu',
+        duration: 0,
+        actions: [{ label: 'Khôi phục', onClick: (close) => { close(); notification.success({ title: 'Đã khôi phục' }); } }],
+      });
+    }}>
+      <p>Bấm OK để hiện thông báo có nút — nút bấm được dù modal đang mở.</p>
+    </hui-modal>
+  `,
+  play: async ({ canvasElement }) => {
+    notification.destroy();
+    const modalEl = canvasElement.querySelector('#noti-modal');
+    const dialog = modalEl.shadowRoot.querySelector('dialog');
+    modalEl.open();
+    await waitFor(() => expect(dialog.open).toBe(true));
+    const closeX = modalEl.shadowRoot.querySelector('[part="close"]');
+    await waitFor(() => expect(modalEl.shadowRoot.activeElement).toBe(closeX));
+
+    let acted = 0;
+    notification.open({
+      key: 'in-modal',
+      title: 'Trong modal',
+      duration: 0,
+      actions: [{ label: 'Làm', onClick: (close) => { acted++; close(); } }],
+    });
+    const container = dialog.querySelector('hui-notification-container');
+    await expect(container).toBeTruthy();
+    await waitFor(() => expect(container.shadowRoot.querySelectorAll('.notice').length).toBe(1));
+    await expect(container.matches(':popover-open')).toBe(true);
+    // Không cướp focus của nội dung modal
+    await expect(modalEl.shadowRoot.activeElement).toBe(closeX);
+
+    await new Promise((r) => setTimeout(r, 400)); // chờ animation vào xong để đo đúng vị trí
+    const action = container.shadowRoot.querySelector('[part="actions"] hui-button');
+    const rect = action.getBoundingClientRect();
+    // Hit-test thật của trình duyệt (bỏ qua phần tử inert) trúng nút hành động
+    const hit = container.shadowRoot.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    await expect(action === hit || action.contains(hit)).toBe(true);
+    action.shadowRoot.querySelector('button').click();
+    await expect(acted).toBe(1);
+    await waitFor(() => expect(container.shadowRoot.querySelectorAll('.notice').length).toBe(0), { timeout: 3000 });
+    await expect(modalEl.isOpen).toBe(true);
+
+    modalEl.close();
+    await waitFor(() => expect(dialog.open).toBe(false), { timeout: 2000 });
+    await waitFor(() => expect(container.parentNode).toBe(document.body));
+  },
 };
 
 /** Override từ bên ngoài — biến CSS trên :root và ::part() */

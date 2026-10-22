@@ -132,7 +132,8 @@ export const VideoAndHorizontal = {
     await expect(video.getAttribute('src')).toBe('video-demo.mp4');
     await expect(video.getAttribute('poster')).toContain('data:image/svg+xml');
     await expect(video.getAttribute('title')).toBe('Video giới thiệu sản phẩm');
-    // Chưa bấm → chưa có trình phát
+    // Chưa bấm → chưa có trình phát (hui-video tải động khi có video)
+    await customElements.whenDefined('hui-video');
     await expect(video.shadowRoot.querySelector('video, iframe')).toBe(null);
     const h = canvasElement.querySelector('#mc-h');
     await expect(part(h, 'image').hasAttribute('ratio')).toBe(false);

@@ -3,7 +3,8 @@
  *   import { notification } from '@itmrhoang/h-ui/hui-notification';
  *   notification.success({ title: 'Đã lưu', description: 'Thay đổi đã được ghi lại.' });
  *   notification.open({ title: 'Có bản cập nhật', duration: 0, actions: [{ label: 'Tải lại', onClick: (close) => location.reload() }] });
- * Container <hui-notification-container> tự gắn vào <body> ở lần gọi đầu, nằm trên top-layer.
+ * Container <hui-notification-container> tự gắn vào <body> ở lần gọi đầu, nằm trên top-layer;
+ * đang mở Modal/Drawer thì chuyển vào <dialog> của modal để nút bấm được (xem hui-message/toast-core.js).
  * Biến CSS: xem đầu hui-notification.css.
  */
 
@@ -12,7 +13,7 @@ import { HuiElement, defineElement } from '../../core/hui-element.js';
 import { t } from '../../core/locale.js';
 import { createElement } from '../../utils/dom.js';
 import { animateIn, animateOut, collapse } from '../../utils/motion.js';
-import { PausableTimer, createHandle, raiseTopLayer, hideTopLayer, setContent } from '../hui-message/toast-core.js';
+import { PausableTimer, createHandle, raiseTopLayer, hideTopLayer, toastHostDisconnected, setContent } from '../hui-message/toast-core.js';
 import '../hui-icon/hui-icon.js';
 import '../hui-button/hui-button.js';
 
@@ -69,6 +70,12 @@ class HuiNotificationContainer extends HuiElement {
     /** @type {Map<string, object>} */
     this._records = new Map();
     this._stacks = {};
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    // Modal chứa container bị gỡ khi còn thông báo → gắn lại vào trang
+    toastHostDisconnected(this);
   }
 
   render() {
@@ -231,10 +238,9 @@ defineElement('hui-notification-container', HuiNotificationContainer);
 let container = null;
 
 function getContainer() {
-  if (!container || !container.isConnected) {
-    container = document.querySelector('hui-notification-container') || document.createElement('hui-notification-container');
-    if (!container.isConnected) document.body.appendChild(container);
-  }
+  // Giữ nguyên container cũ (kể cả khi vừa bị tháo cùng modal chứa nó) → không sinh container thứ hai
+  if (!container) container = document.querySelector('hui-notification-container') || document.createElement('hui-notification-container');
+  if (!container.isConnected) document.body.appendChild(container);
   return container;
 }
 

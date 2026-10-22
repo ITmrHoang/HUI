@@ -241,6 +241,7 @@ export const Pagination = {
     el.addEventListener('hui-page-change', (e) => pages.push(e.detail));
     await el.updateComplete;
     const pager = el.shadowRoot.querySelector('[part="pagination"]');
+    await customElements.whenDefined('hui-pagination'); // tải động khi có nhiều hơn 1 trang
     await pager.updateComplete;
     await expect(pager.total).toBe(12);
     await userEvent.click(pager.shadowRoot.querySelector('[data-id="page-3"]'));
@@ -277,8 +278,9 @@ export const Images = {
     await expect(thumbs.length).toBe(3);
     await expect(thumbs[1].getAttribute('aria-label')).toBe('Xem ảnh 2/3 của Nguyễn An');
     await userEvent.click(thumbs[1]);
+    // hui-lightbox tải động khi bấm ảnh
+    await waitFor(() => expect(document.querySelector('hui-lightbox[data-hui-lightbox-api]')?.open).toBe(true));
     const lb = document.querySelector('hui-lightbox[data-hui-lightbox-api]');
-    await waitFor(() => expect(lb?.open).toBe(true));
     await expect(lb.index).toBe(1);
     await expect(lb.items.length).toBe(3);
     lb.close();
@@ -298,11 +300,12 @@ export const States = {
   play: async ({ canvasElement }) => {
     const loading = canvasElement.querySelector('#rl-loading');
     await loading.updateComplete;
-    await expect(loading.shadowRoot.querySelector('hui-skeleton')).not.toBeNull();
+    // hui-skeleton / hui-empty tải động → trạng thái được vẽ lại khi định nghĩa xong
+    await waitFor(() => expect(loading.shadowRoot.querySelector('hui-skeleton')).not.toBeNull());
     await expect(loading.shadowRoot.querySelector('[part="toolbar"]').hidden).toBe(true);
     const empty = canvasElement.querySelector('#rl-empty');
     await empty.updateComplete;
-    await expect(empty.shadowRoot.querySelector('hui-empty')).not.toBeNull();
+    await waitFor(() => expect(empty.shadowRoot.querySelector('hui-empty')).not.toBeNull());
     const none = canvasElement.querySelector('#rl-none');
     await none.updateComplete;
     await expect(none.shadowRoot.querySelector('[part="empty"]').textContent).toBe('Chưa có đánh giá 2 sao');

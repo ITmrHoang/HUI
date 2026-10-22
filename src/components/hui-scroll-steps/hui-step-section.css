@@ -68,6 +68,11 @@
   padding: var(--_section-padding-custom, var(--hui-step-section-padding, var(--_section-padding)));
 }
 
+.section__content:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: -2px;
+}
+
 :host([padding="none"]) .section__content { --_section-padding: 0px; }
 :host([padding="sm"]) .section__content { --_section-padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 2rem); }
 :host([padding="lg"]) .section__content { --_section-padding: clamp(2rem, 8vw, 5rem) clamp(1.5rem, 8vw, 6rem); }

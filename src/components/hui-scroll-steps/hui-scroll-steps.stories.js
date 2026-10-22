@@ -123,8 +123,12 @@ giới thiệu sản phẩm, onboarding. Lõi là **CSS scroll-snap** (\`mandato
 - **container="self"** (mặc định): component là vùng cuộn cao \`100dvh\` (fallback \`100vh\`) hoặc theo \`height\`, \`scroll-snap-type: y mandatory\`.
 - **container="window"**: các bước cao \`100dvh\` và snap theo **cuộn trang** — component gắn \`scroll-snap-type\` lên \`document.scrollingElement\`
   khi được gắn vào trang và trả lại giá trị cũ khi bị gỡ. Thanh chấm / nút / tiến độ cố định theo màn hình, chỉ hiện khi component trong màn hình.
-  Trang có header/footer ngoài component → nên dùng \`snap="proximity"\` để chúng vẫn cuộn tới được.
-- **direction="horizontal"**: các bước nằm ngang (100% chiều rộng mỗi bước), luôn cuộn trong chính component; lăn chuột dọc được đổi thành bước.
+  \`snap="mandatory"\` (mặc định) chỉ "hút" khi component phủ đường giữa màn hình (ngoài ra trang cuộn tự do), kèm 2 điểm snap
+  "lối thoát" (1 màn hình phía trên + ngay sau component) → từ bước đầu/cuối vẫn lăn ra header/footer được. Mỗi trang 1 instance window.
+- **direction="horizontal"** + self: các bước nằm ngang (100% chiều rộng mỗi bước), cuộn ngang trong chính component; lăn chuột dọc được đổi thành bước.
+- **direction="horizontal"** + **container="window"** ("horizontal scroll section"): host cao N × \`100dvh\`, khung \`base\` ghim (sticky) cao 1 màn hình;
+  trang cuộn dọc → các bước trượt ngang theo tiến độ cuộn, mỗi bước có 1 điểm snap dọc. Thanh chấm / nút nằm trong khung ghim.
+  Tổ tiên của component không được có \`overflow: hidden / auto\` (sticky cần bám theo cuộn trang).
 - **Bước cao hơn khung**: nội dung \`hui-step-section\` tự cuộn bên trong (tự phát hiện → attribute \`overflowing\`; ép bằng \`scrollable\`),
   bước đó dùng \`scroll-snap-stop: normal\`. Lăn chuột / phím mũi tên cuộn hết nội dung bên trong rồi mới sang bước kế.
   Phần tử thường (không phải \`hui-step-section\`) cũng được \`overflow-y: auto\`.
@@ -139,9 +143,9 @@ giới thiệu sản phẩm, onboarding. Lõi là **CSS scroll-snap** (\`mandato
 | Attribute | Type | Default | Mô tả |
 |-----------|------|---------|-------|
 | \`container\` | string | \`'self'\` | \`self\` \\| \`window\` |
-| \`direction\` | string | \`'vertical'\` | \`vertical\` \\| \`horizontal\` |
+| \`direction\` | string | \`'vertical'\` | \`vertical\` \\| \`horizontal\` — window + horizontal = khối ghim trượt ngang khi cuộn trang |
 | \`height\` | string | — | Chiều cao khi self: số (px) hoặc độ dài CSS; mặc định \`100dvh\` |
-| \`snap\` | string | \`'mandatory'\` | \`mandatory\` \\| \`proximity\` |
+| \`snap\` | string | \`'mandatory'\` | \`mandatory\` \\| \`proximity\` — window + mandatory chỉ "hút" khi component phủ giữa màn hình |
 | \`wheel-step\` | boolean | \`false\` | Mỗi lần lăn chuột = đúng 1 bước |
 | \`nav\` | string | \`'right'\` | \`left\` \\| \`right\` \\| \`bottom\` \\| \`none\` — thanh chấm |
 | \`nav-labels\` | boolean | \`false\` | Luôn hiện nhãn cạnh chấm (mặc định khi hover/focus) |
@@ -202,8 +206,9 @@ self: phím có tác dụng khi focus nằm trong component. window: khi compone
 Bước cuộn được bên trong → mũi tên cuộn nội dung trước.
 
 ### ARIA
-Vùng cuộn \`role="region"\` (\`aria-label\` theo locale hoặc \`aria-label\` trên thẻ). Mỗi bước \`role="group"\` + \`aria-label="Nhãn (2/5)"\`.
-Thanh chấm là \`<nav aria-label="Điều hướng các bước">\`, chấm đang xem có \`aria-current="step"\`. Bộ đếm \`aria-live="polite"\`.
+Vùng cuộn \`role="group"\` + \`aria-label\` theo locale; đặt \`aria-label\` trên thẻ → \`role="region"\` (landmark, tên do bạn đặt nên không trùng). Mỗi bước \`role="group"\` + \`aria-label="Nhãn (2/5)"\`.
+Thanh chấm là \`role="group"\` \`aria-label="Điều hướng các bước"\` (không dùng landmark \`<nav>\` → nhiều scroll-steps trên một trang không bị trùng landmark), chấm đang xem có \`aria-current="step"\`. Bộ đếm \`aria-live="polite"\`.
+Bước cao hơn khung: vùng nội dung tự có \`tabindex="0"\` để cuộn bằng bàn phím.
 Locale keys (dự phòng tại chỗ): \`scrollSteps.label\`, \`scrollSteps.nav\`, \`scrollSteps.step\`, \`scrollSteps.prev\`, \`scrollSteps.next\`, \`scrollSteps.counter\`.
 
 ### Override giao diện từ bên ngoài
@@ -455,6 +460,88 @@ export const WindowContainer = {
   },
 };
 
+/**
+ * container="window" + direction="horizontal": khối ghim (sticky) cao 1 màn hình, trang cuộn dọc → các bước trượt ngang
+ * ("horizontal scroll section"). Header/footer ngoài component vẫn cuộn tới được dù snap="mandatory".
+ */
+export const WindowHorizontal = {
+  parameters: { docs: { story: { inline: false, iframeHeight: 520 } } },
+  render: () => html`
+    <header id="steps-wh-header" style="height: 60vh; display: grid; place-items: center; background: var(--hui-bg-secondary);">
+      ${h('Cuộn xuống ↓', '1.75rem')}
+    </header>
+    <hui-scroll-steps id="steps-wh" container="window" direction="horizontal" nav="bottom" counter progress>
+      ${['Khám phá', 'Kết nối', 'Sáng tạo', 'Chia sẻ'].map((label, i) => html`
+        <hui-step-section label=${label} animate="fade-left"
+          background=${`linear-gradient(135deg, var(--hui-${['primary', 'info', 'success', 'warning'][i]}-2), var(--hui-bg))`}>
+          ${eyebrow(`Bước ${i + 1} / 4`)}
+          ${h(label)}
+          <p style=${muted}>Trang cuộn dọc, các bước trượt ngang trong khối ghim.</p>
+        </hui-step-section>`)}
+    </hui-scroll-steps>
+    <footer style="height: 240px; display: grid; place-items: center; background: var(--hui-bg-secondary);">
+      <p style=${muted}>Footer — vẫn cuộn tới được</p>
+    </footer>
+  `,
+  play: async ({ canvasElement }) => {
+    const steps = stepsOf(canvasElement);
+    await ready(steps, 4);
+    const vh = window.innerHeight;
+    const root = document.scrollingElement || document.documentElement;
+    const sections = [...steps.querySelectorAll('hui-step-section')];
+    const hostTop = () => window.scrollY + steps.getBoundingClientRect().top;
+
+    // Host cao 4 màn hình, khung ghim sticky cao 1 màn hình, mỗi bước rộng bằng khung
+    await expect(Math.abs(steps.offsetHeight - 4 * vh)).toBeLessThanOrEqual(2);
+    await expect(getComputedStyle(partOf(steps, 'base')).position).toBe('sticky');
+    await expect(Math.abs(sections[0].offsetHeight - vh)).toBeLessThanOrEqual(1);
+    await expect(sections[0].offsetWidth).toBe(partOf(steps, 'viewport').clientWidth);
+
+    // Ở header (component chưa phủ giữa màn hình) → trang không bị ép snap
+    window.scrollTo(0, 0);
+    await waitFor(() => expect(root.style.scrollSnapType).toBe('none'));
+
+    // goTo(2) → trang cuộn dọc tới điểm snap của bước 2, khung dịch ngang để bước 2 nằm gọn trong màn hình
+    const changes = [];
+    steps.addEventListener('hui-step-change', (e) => changes.push(e.detail.index));
+    steps.goTo(2, { smooth: false });
+    await waitFor(() => expect(Math.abs(window.scrollY - (hostTop() + 2 * vh))).toBeLessThanOrEqual(2));
+    await waitFor(() => expect(Math.abs(sections[2].getBoundingClientRect().left)).toBeLessThanOrEqual(1));
+    await expect(steps.current).toBe(2);
+    await waitFor(() => expect(root.style.scrollSnapType).toBe('y mandatory'));
+
+    // Cuộn trang (không qua API) → bước đang xem đổi theo tiến độ cuộn
+    window.scrollTo(0, hostTop() + vh);
+    await waitFor(() => expect(steps.current).toBe(1));
+    await waitFor(() => expect(Math.abs(sections[1].getBoundingClientRect().left)).toBeLessThanOrEqual(1));
+    await expect(changes).toEqual([2, 1]);
+
+    // Phím → / ← (focus ở trang) chuyển bước
+    key(document.body, 'ArrowRight');
+    await waitFor(() => expect(steps.current).toBe(2));
+
+    // snap mandatory + điểm snap "lối thoát": từ bước đầu lăn lên → ra header (không bị kẹt ở bước đầu)
+    steps.goTo(0, { smooth: false });
+    await waitFor(() => expect(Math.abs(window.scrollY - hostTop())).toBeLessThanOrEqual(2));
+    await waitFor(() => expect(root.style.scrollSnapType).toBe('y mandatory'));
+    window.scrollBy({ top: -100, behavior: 'instant' });
+    await waitFor(() => expect(window.scrollY).toBeLessThan(hostTop() - 100));
+    await waitFor(() => expect(root.style.scrollSnapType).toBe('none'));
+
+    // Từ bước cuối lăn xuống → sang footer
+    steps.goTo(3, { smooth: false });
+    await waitFor(() => expect(root.style.scrollSnapType).toBe('y mandatory'));
+    const lastTop = window.scrollY;
+    window.scrollBy({ top: 100, behavior: 'instant' });
+    await waitFor(() => expect(window.scrollY).toBeGreaterThan(lastTop + 100));
+    // Footer hiện ra trọn vẹn (footer ngắn hơn nửa màn hình → trang đã chạm đáy, snap không kéo ngược lại)
+    await expect(canvasElement.querySelector('footer').getBoundingClientRect().bottom).toBeLessThanOrEqual(window.innerHeight + 1);
+
+    window.scrollTo(0, 0);
+    await waitFor(() => expect(root.style.scrollSnapType).toBe('none'));
+  },
+};
+
 /** Override từ ngoài: biến CSS + ::part() */
 export const CustomizeFromOutside = {
   render: () => html`
@@ -464,11 +551,12 @@ export const CustomizeFromOutside = {
         --hui-scroll-steps-dot-active-color: var(--hui-success);
         --hui-scroll-steps-progress-color: var(--hui-success);
         --hui-scroll-steps-progress-height: 5px;
-        --hui-scroll-steps-control-bg: var(--hui-success);
+        /* success-8 (đậm hơn ở theme sáng, nhạt hơn ở theme tối) để chữ đạt tương phản AA */
+        --hui-scroll-steps-control-bg: var(--hui-success-8);
         --hui-scroll-steps-control-color: var(--hui-text-inverse);
         --hui-step-section-max-width: 720px;
       }
-      #steps-custom::part(dot-label) { background: var(--hui-success); font-weight: 600; }
+      #steps-custom::part(dot-label) { background: var(--hui-success-8); color: var(--hui-text-inverse); font-weight: 600; }
       #steps-custom::part(counter) { border-color: transparent; font-weight: 600; }
       #steps-custom hui-step-section::part(content) { text-align: center; }
       #steps-custom hui-step-section:state(active) { --hui-step-section-color: var(--hui-success-8); }

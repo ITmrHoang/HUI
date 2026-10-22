@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Trang sản phẩm mẫu</title>
+  <script>
+    try { const m = localStorage.getItem('hui-theme'); if (m === 'light' || m === 'dark') document.documentElement.dataset.theme = m; } catch {}
+  </script>
+  <style>
+    html, body { margin: 0; }
+    body { font-family: var(--hui-font-family); background: var(--hui-bg); color: var(--hui-text); }
+    :not(:defined) { visibility: hidden; }
+    .logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.1rem; color: var(--hui-text); text-decoration: none; }
+    .logo-mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 14px;
+      background: linear-gradient(135deg, var(--hui-warning), var(--hui-danger)); }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 16px 24px 64px; }
+    .crumbs { margin: 8px 0 20px; }
+
+    .product { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+    .media { display: grid; gap: 12px; position: sticky; top: 80px; }
+    .media hui-image-zoom { --hui-image-zoom-radius: var(--hui-radius-lg); aspect-ratio: 1 / 1; display: block; background: var(--hui-fill-tertiary); border-radius: var(--hui-radius-lg); }
+    /* mode="lens" không dùng khung phóng bên cạnh — ẩn hẳn để khung (absolute, mờ) không gây cuộn ngang trên mobile */
+    .media hui-image-zoom::part(panel) { display: none; }
+    .thumbs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .thumb { padding: 0; border: 2px solid transparent; border-radius: var(--hui-radius-md); background: var(--hui-fill-tertiary); cursor: pointer; overflow: hidden; aspect-ratio: 1 / 1; }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .thumb[aria-current='true'] { border-color: var(--hui-primary); }
+    .thumb:focus-visible { outline: 2px solid var(--hui-primary); outline-offset: 2px; }
+
+    .info { display: grid; gap: 18px; }
+    .brand { color: var(--hui-primary); font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; }
+    .info h1 { margin: 4px 0 0; font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.25; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; color: var(--hui-text-secondary); font-size: 14px; }
+    .meta a { color: inherit; }
+    .buy { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .buy hui-add-to-cart { flex: 1 1 220px; }
+    .perks { display: grid; gap: 10px; margin: 0; padding: 16px; list-style: none; border: 1px solid var(--hui-border-secondary); border-radius: var(--hui-radius-lg); background: var(--hui-bg-container); font-size: 14px; }
+    .perks li { display: flex; gap: 10px; align-items: center; }
+    .perks hui-icon { color: var(--hui-primary); }
+    .size-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .size-row a { font-size: 13px; color: var(--hui-primary); }
+    .stock { font-size: 13px; color: var(--hui-text-secondary); }
+    .stock.low { color: var(--hui-danger); }
+
+    .details { margin-top: 48px; }
+    .details hui-tab-panel { padding-top: 16px; }
+    .desc { max-width: 72ch; line-height: 1.7; color: var(--hui-text-secondary); }
+    .desc h3 { color: var(--hui-text); }
+    section.related { margin-top: 48px; }
+    section.related h2 { font-size: 1.35rem; margin: 0 0 16px; }
+    .related-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(200px, 1fr); gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
+    .related-row > * { scroll-snap-align: start; }
+    footer { padding: 32px 16px; text-align: center; color: var(--hui-text-tertiary); border-top: 1px solid var(--hui-border-secondary); font-size: 14px; }
+
+    @media (max-width: 900px) {
+      .product { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+      .media { position: static; }
+    }
+    @media (max-width: 640px) {
+      .wrap { padding: 12px 16px 48px; }
+      .buy hui-add-to-cart { flex-basis: 100%; }
+    }
+  </style>
+  <script type="module">
+    import { message } from '../src/index.js';
+
+    // ===== Ảnh minh họa: áo thun vẽ bằng SVG (data-URI, không dùng mạng) =====
+    function shirt(fill, view = 0, size = 900) {
+      const bg = ['#eef2ff', '#fef3c7', '#ecfeff', '#fce7f3'][view];
+      const body = 'M300 170 L380 130 Q450 175 520 130 L600 170 L700 260 L640 330 L600 300 L600 720 L300 720 L300 300 L260 330 L200 260 Z';
+      const extra = [
+        '<path d="M380 130 Q450 205 520 130" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="10"/><text x="450" y="420" font-family="system-ui,sans-serif" font-weight="800" font-size="64" text-anchor="middle" fill="rgba(255,255,255,.75)">HUI</text>',
+        '<path d="M380 130 Q450 160 520 130" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="10"/>',
+        '<circle cx="450" cy="420" r="140" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="6" stroke-dasharray="14 10"/><text x="450" y="436" font-family="system-ui,sans-serif" font-size="44" text-anchor="middle" fill="rgba(255,255,255,.85)">100% cotton</text>',
+        '<circle cx="450" cy="90" r="60" fill="#f1c7a3"/><text x="450" y="420" font-family="system-ui,sans-serif" font-weight="800" font-size="64" text-anchor="middle" fill="rgba(255,255,255,.75)">HUI</text>',
+      ][view];
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 900 900"><rect width="900" height="900" fill="${bg}"/>`
+        + `<ellipse cx="450" cy="760" rx="230" ry="26" fill="rgba(0,0,0,.08)"/><path d="${body}" fill="${fill}" stroke="rgba(0,0,0,.12)" stroke-width="4"/>${extra}</svg>`;
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    }
+
+    const COLORS = [
+      { value: 'navy', label: 'Xanh navy', color: '#1e3a8a' },
+      { value: 'black', label: 'Đen', color: '#1f2937' },
+      { value: 'sand', label: 'Be cát', color: '#c8b08a' },
+      { value: 'rose', label: 'Hồng đất', color: '#be6b7b' },
+      { value: 'white', label: 'Trắng', color: '#f8fafc', disabled: true },
+    ];
+    const STOCK = { S: 12, M: 4, L: 18, XL: 2, XXL: 0 };
+    const PRICE = 349000;
+    const ORIGINAL = 459000;
+    const VIEWS = ['Mặt trước', 'Mặt sau', 'Chi tiết vải', 'Người mẫu'];
+
+    const zoom = document.querySelector('#zoom');
+    const thumbs = document.querySelector('#thumbs');
+    const colorPicker = document.querySelector('#color');
+    const sizePicker = document.querySelector('#size');
+    const qty = document.querySelector('#qty');
+    const addBtn = document.querySelector('hui-add-to-cart');
+    const cart = document.querySelector('hui-cart-drawer');
+    const badge = document.querySelector('#cart-badge');
+    const shipBar = document.querySelector('#ship-bar');
+    let view = 0;
+
+    colorPicker.options = COLORS;
+    sizePicker.options = Object.entries(STOCK).map(([value, n]) => ({ value, label: value, disabled: n === 0 }));
+
+    const currentColor = () => COLORS.find((c) => c.value === colorPicker.value) || COLORS[0];
+    function showView(i) {
+      view = i;
+      const c = currentColor();
+      zoom.src = shirt(c.color, i, 900);
+      zoom.zoomSrc = shirt(c.color, i, 1800);
+      zoom.alt = `Áo thun HUI Essential màu ${c.label} — ${VIEWS[i]}`;
+      thumbs.querySelectorAll('.thumb').forEach((b, k) => b.setAttribute('aria-current', String(k === i)));
+    }
+    function renderThumbs() {
+      const c = currentColor();
+      thumbs.replaceChildren(...VIEWS.map((label, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'thumb';
+        b.setAttribute('aria-label', `Xem ${label}`);
+        const img = document.createElement('img');
+        img.src = shirt(c.color, i, 200);
+        img.alt = '';
+        b.append(img);
+        b.addEventListener('click', () => showView(i));
+        return b;
+      }));
+      showView(view);
+    }
+    renderThumbs();
+    colorPicker.addEventListener('change', renderThumbs);
+
+    function syncStock() {
+      const s = sizePicker.value;
+      const el = document.querySelector('#stock');
+      if (!s) { el.textContent = 'Chọn size để xem tồn kho'; el.className = 'stock'; qty.max = undefined; return; }
+      el.textContent = STOCK[s] <= 5 ? `Chỉ còn ${STOCK[s]} sản phẩm size ${s}` : `Còn hàng (${STOCK[s]})`;
+      el.className = STOCK[s] <= 5 ? 'stock low' : 'stock';
+      qty.max = STOCK[s];
+      if (qty.value > STOCK[s]) qty.value = STOCK[s];
+    }
+    sizePicker.addEventListener('change', syncStock);
+    syncStock();
+    qty.addEventListener('change', () => { addBtn.qty = qty.value; });
+
+    // Chưa chọn size → chặn (hui-add cancelable)
+    addBtn.addEventListener('hui-add', (e) => {
+      if (!sizePicker.value) {
+        e.preventDefault();
+        message.warning('Vui lòng chọn size trước khi thêm vào giỏ');
+        sizePicker.focus?.();
+      }
+    });
+    // onAdd: gọi API (giả lập) rồi thêm dòng vào giỏ
+    addBtn.onAdd = async ({ qty: n }) => {
+      await new Promise((r) => setTimeout(r, 450));
+      const c = currentColor();
+      const s = sizePicker.value;
+      cart.addItem({ id: `tee-${c.value}-${s}`, name: 'Áo thun HUI Essential', image: shirt(c.color, 0, 160), price: PRICE, original: ORIGINAL, qty: n, variant: `${c.label} / ${s}`, max: STOCK[s] });
+      return true;
+    };
+    addBtn.addEventListener('hui-added', () => message.success('Đã thêm vào giỏ hàng'));
+
+    // Giỏ hàng: badge + thanh free-ship theo tổng tiền
+    cart.addEventListener('hui-cart-change', (e) => {
+      badge.count = String(e.detail.count);
+      shipBar.total = e.detail.total;
+    });
+    cart.addItem({ id: 'cap-black', name: 'Mũ lưỡi trai HUI', image: shirt('#111827', 1, 160), price: 189000, qty: 1, variant: 'Đen / Free size' });
+    cart.addEventListener('hui-checkout', (e) => { e.preventDefault(); message.info('Đây là trang mẫu — chưa có bước thanh toán'); });
+    document.querySelector('#cart-btn').addEventListener('hui-click', () => cart.show());
+
+    document.querySelector('hui-coupon-input').validate = async (code) => {
+      await new Promise((r) => setTimeout(r, 400));
+      if (code === 'HUI10') return { valid: true, discount: '−10%', message: 'Giảm 10% cho đơn hàng' };
+      if (code === 'FREESHIP') return { valid: true, discount: 'Freeship', message: 'Miễn phí vận chuyển' };
+      return { valid: false, message: 'Mã không tồn tại hoặc đã hết hạn (thử HUI10)' };
+    };
+
+    // ===== Đánh giá =====
+    const NAMES = ['Ngọc Anh', 'Minh Quân', 'Thu Hà', 'Đức Huy', 'Lan Phương', 'Quốc Bảo', 'Hải Yến', 'Tuấn Kiệt', 'Mai Linh', 'Văn Long'];
+    const TEXTS = [
+      'Vải dày dặn, mặc mát, form đứng. Giặt máy 5 lần chưa thấy xù.',
+      'Màu navy đẹp hơn ảnh, size L vừa với mình 1m75 – 70kg.',
+      'Giao nhanh, đóng gói kỹ. Sẽ mua thêm màu be.',
+      'Cổ áo hơi chật một chút nhưng chất vải ổn.',
+      'Đúng mô tả, giá sale rất hợp lý.',
+      'Áo bị lệch đường may ở tay, shop đã đổi cho mình rất nhanh.',
+      'Mặc đi làm hay đi chơi đều được, rất đáng tiền.',
+      'Màu hồng đất lên da đẹp, chất cotton mềm.',
+      'Size chuẩn bảng, nên tham khảo bảng size trước khi mua.',
+      'Lần thứ 3 mua ở shop, chất lượng vẫn ổn định.',
+    ];
+    const RATINGS = [5, 5, 4, 3, 5, 2, 5, 4, 4, 5];
+    const reviews = document.querySelector('hui-review-list');
+    // Số liệu tổng hợp lấy từ server (128 lượt) — danh sách chỉ là trang đánh giá mới nhất
+    reviews.summary = { average: 4.35, total: 128, distribution: { 5: 78, 4: 30, 3: 11, 2: 5, 1: 4 } };
+    reviews.data = NAMES.map((name, i) => ({
+      id: `r${i}`,
+      author: { name },
+      rating: RATINGS[i],
+      date: new Date(Date.UTC(2026, 9, 20 - i * 3, 8)).toISOString(),
+      title: ['Rất đáng mua', 'Hài lòng', undefined, 'Tạm ổn', undefined][i % 5],
+      content: TEXTS[i],
+      images: i === 1 ? [0, 3].map((v) => ({ src: shirt('#1e3a8a', v, 1200), thumb: shirt('#1e3a8a', v, 160), alt: `Ảnh thực tế ${v + 1}` })) : [],
+      helpful: [14, 9, 3, 1, 6, 0, 4, 2, 5, 1][i],
+      verified: i % 3 !== 2,
+    }));
+
+    // Ảnh thực tế: hui-gallery mở lightbox
+    document.querySelector('#ugc').data = COLORS.slice(0, 4).flatMap((c, k) => [0, 3].map((v) => ({
+      src: shirt(c.color, v, 1400), thumb: shirt(c.color, v, 360), alt: `Ảnh khách hàng — ${c.label}`, caption: `${c.label} · ${VIEWS[v]}`,
+    }))).slice(0, 8);
+
+    // Link trong trang mở đúng tab
+    const tabs = document.querySelector('hui-tabs');
+    document.querySelector('#to-reviews').addEventListener('click', () => { tabs.activeKey = 'reviews'; });
+    document.querySelector('#to-specs').addEventListener('click', () => { tabs.activeKey = 'specs'; });
+
+    // Sản phẩm liên quan
+    const related = [
+      ['Áo thun HUI Oversize', '#0f766e', 299000, 399000, 4.6, 312],
+      ['Áo polo HUI Classic', '#7c2d12', 429000, null, 4.8, 128],
+      ['Áo thun HUI Kids', '#ca8a04', 199000, 249000, 4.7, 96],
+      ['Áo thun HUI Raglan', '#4338ca', 359000, null, 4.4, 57],
+      ['Áo thun HUI Tank', '#be123c', 249000, 329000, 4.5, 210],
+    ];
+    document.querySelector('#related').replaceChildren(...related.map(([name, color, price, original, rating, reviews], i) => {
+      const card = document.createElement('hui-product-card');
+      Object.assign(card, { name, image: shirt(color, i % 2, 600), price, rating, reviews, wishlist: true, href: '#' });
+      if (original) card.originalPrice = original;
+      if (i === 0) card.badge = 'Bán chạy';
+      card.addEventListener('hui-add-to-cart', () => {
+        cart.addItem({ id: `rel-${i}`, name, image: shirt(color, 0, 160), price, original: original || undefined, qty: 1, variant: 'M' }, { open: true });
+      });
+      return card;
+    }));
+  </script>
+</head>
+<body>
+  <hui-navbar sticky>
+    <a slot="logo" class="logo" href="./index.html"><span class="logo-mark" aria-hidden="true">H</span>HUI Shop</a>
+    <hui-menu mode="horizontal" selected-keys="men">
+      <hui-menu-item key="new" href="#">Hàng mới</hui-menu-item>
+      <hui-menu-item key="men" href="#">Nam</hui-menu-item>
+      <hui-menu-item key="women" href="#">Nữ</hui-menu-item>
+      <hui-menu-item key="sale" href="#">Khuyến mãi</hui-menu-item>
+    </hui-menu>
+    <hui-space slot="actions">
+      <hui-theme-toggle></hui-theme-toggle>
+      <hui-badge id="cart-badge" count="0">
+        <hui-button id="cart-btn" variant="ghost" shape="circle" icon="cart" aria-label="Giỏ hàng"></hui-button>
+      </hui-badge>
+    </hui-space>
+  </hui-navbar>
+
+  <div class="wrap">
+    <hui-breadcrumb class="crumbs">
+      <hui-breadcrumb-item href="./index.html" icon="home">Trang chủ</hui-breadcrumb-item>
+      <hui-breadcrumb-item href="#">Nam</hui-breadcrumb-item>
+      <hui-breadcrumb-item href="#">Áo thun</hui-breadcrumb-item>
+      <hui-breadcrumb-item>HUI Essential</hui-breadcrumb-item>
+    </hui-breadcrumb>
+
+    <div class="product">
+      <div class="media">
+        <hui-image-zoom id="zoom" mode="lens" zoom="2.2"></hui-image-zoom>
+        <div class="thumbs" id="thumbs" role="group" aria-label="Ảnh sản phẩm"></div>
+      </div>
+
+      <div class="info">
+        <div>
+          <div class="brand">HUI Basics</div>
+          <h1>Áo thun HUI Essential — cotton 100%, form regular</h1>
+        </div>
+        <div class="meta">
+          <hui-rating-display value="4.4" show-value reviews="128" size="sm"></hui-rating-display>
+          <a href="#reviews" id="to-reviews">Xem đánh giá</a>
+          <span>Đã bán 2,1k</span>
+          <hui-tag color="success" size="sm">Còn hàng</hui-tag>
+        </div>
+        <hui-price value="349000" original="459000" size="lg"></hui-price>
+
+        <hui-variant-picker id="color" type="color" label="Màu sắc" value="navy"></hui-variant-picker>
+        <div>
+          <div class="size-row"><hui-variant-picker id="size" label="Size"></hui-variant-picker><a href="#reviews" id="to-specs">Bảng size</a></div>
+          <div class="stock" id="stock" role="status"></div>
+        </div>
+
+        <div class="buy">
+          <hui-quantity id="qty" value="1" min="1" label="Số lượng"></hui-quantity>
+          <hui-add-to-cart fly-to="#cart-badge" source="#zoom" size="lg"></hui-add-to-cart>
+          <hui-wishlist-toggle label="Thêm vào yêu thích"></hui-wishlist-toggle>
+        </div>
+
+        <hui-free-ship-bar id="ship-bar" threshold="500000" total="0"></hui-free-ship-bar>
+
+        <ul class="perks">
+          <li><hui-icon name="truck"></hui-icon>Giao nhanh 2h nội thành Hà Nội, TP. HCM</li>
+          <li><hui-icon name="rotate-cw"></hui-icon>Đổi size miễn phí trong 30 ngày</li>
+          <li><hui-icon name="success"></hui-icon>Hàng chính hãng, kiểm tra trước khi nhận</li>
+        </ul>
+        <hui-share title="Áo thun HUI Essential" networks="facebook,zalo,x,copy" size="sm" variant="outline"></hui-share>
+      </div>
+    </div>
+
+    <hui-tabs class="details" id="reviews">
+      <hui-tab-panel key="desc" label="Mô tả">
+        <div class="desc">
+          <h3>Mặc thoáng cả ngày</h3>
+          <p>Vải cotton compact 220gsm dệt chặt, bề mặt mịn, ít co rút sau khi giặt. Đường may kép ở vai và gấu áo giúp
+            giữ form lâu. Cổ áo bo rib 2 lớp không bai dão.</p>
+          <h3>Hướng dẫn bảo quản</h3>
+          <p>Giặt máy ở 30°C, lộn trái khi giặt, không dùng chất tẩy, phơi nơi thoáng mát.</p>
+        </div>
+      </hui-tab-panel>
+      <hui-tab-panel key="specs" label="Thông số" id="specs">
+        <hui-descriptions bordered column="1" column-md="2">
+          <hui-descriptions-item label="Chất liệu">100% cotton compact</hui-descriptions-item>
+          <hui-descriptions-item label="Định lượng">220 gsm</hui-descriptions-item>
+          <hui-descriptions-item label="Form">Regular fit</hui-descriptions-item>
+          <hui-descriptions-item label="Xuất xứ">Việt Nam</hui-descriptions-item>
+          <hui-descriptions-item label="Size S / M">Ngực 96 / 100 cm · Dài 68 / 70 cm</hui-descriptions-item>
+          <hui-descriptions-item label="Size L / XL">Ngực 104 / 110 cm · Dài 72 / 74 cm</hui-descriptions-item>
+        </hui-descriptions>
+      </hui-tab-panel>
+      <hui-tab-panel key="reviews" label="Đánh giá (128)">
+        <hui-review-list page-size="4"></hui-review-list>
+      </hui-tab-panel>
+      <hui-tab-panel key="photos" label="Ảnh thực tế">
+        <hui-gallery id="ugc" columns="2" columns-sm="3" columns-md="4" gap="sm" loop></hui-gallery>
+      </hui-tab-panel>
+    </hui-tabs>
+
+    <section class="related" aria-labelledby="related-h">
+      <h2 id="related-h">Có thể bạn cũng thích</h2>
+      <div class="related-row" id="related"></div>
+    </section>
+  </div>
+
+  <footer>Trang mẫu H-UI · dữ liệu và ảnh đều là minh họa · <a href="./index.html">Tất cả trang mẫu</a></footer>
+
+  <hui-cart-drawer free-ship-threshold="500000" checkout-href="#checkout">
+    <hui-coupon-input slot="footer-extra" placeholder="Mã giảm giá (thử HUI10)"></hui-coupon-input>
+  </hui-cart-drawer>
+</body>
+</html>

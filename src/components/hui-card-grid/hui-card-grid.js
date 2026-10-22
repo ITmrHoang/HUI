@@ -17,11 +17,10 @@ import { createElement } from '../../utils/dom.js';
 import { inView } from '../../utils/scroll.js';
 import { runAnimation, ANIMATIONS } from '../../utils/animate.js';
 import { prefersReducedMotion } from '../../utils/motion.js';
+import { ensureElement, renderLazyStateView } from '../hui-data-view/lazy-elements.js';
 import '../hui-card/index.js';
 import '../hui-button/index.js';
-import '../hui-pagination/index.js';
-import '../hui-empty/index.js';
-import '../hui-result/index.js';
+// Tải động khi dùng tới: hui-pagination (paging="pagination" và nhiều hơn 1 trang), hui-empty / hui-result (trạng thái)
 
 /** Chuỗi dự phòng khi locale.js chưa có key cardGrid.* */
 const FALLBACK = {
@@ -622,7 +621,7 @@ class HuiCardGrid extends DataController(HuiElement) {
       this._skeleton.hidden = true;
       this._skeleton.replaceChildren();
     }
-    if (state === 'empty' || state === 'error') this.renderStateView(this._state);
+    if (state === 'empty' || state === 'error') renderLazyStateView(this, this._state);
     else {
       this._state.hidden = true;
       this._state.replaceChildren();
@@ -662,8 +661,11 @@ class HuiCardGrid extends DataController(HuiElement) {
 
     this._pagination.hidden = !showPagination;
     if (showPagination) {
+      const size = Math.max(1, this.pageSize || 12);
+      // hide-on-single-page: chỉ 1 trang thì pagination tự ẩn → chưa cần tải
+      if (this._count > size) ensureElement('hui-pagination');
       this._pagination.total = this._count;
-      this._pagination.pageSize = Math.max(1, this.pageSize || 12);
+      this._pagination.pageSize = size;
       this._pagination.current = this._effectivePage || 1;
     }
     this._loadMoreBtn.hidden = !showMore;

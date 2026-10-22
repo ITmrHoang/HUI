@@ -46,7 +46,7 @@
 }
 
 .hui-empty__description {
-  color: var(--hui-empty-color, var(--hui-text-tertiary));
+  color: var(--hui-empty-color, var(--hui-text-secondary));
   font-size: var(--hui-empty-font-size, var(--hui-font-sm));
   line-height: var(--hui-line-height);
 }

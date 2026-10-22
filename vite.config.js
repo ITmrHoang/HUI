@@ -48,6 +48,9 @@ export default defineConfig({
         core: resolve(__dirname, 'src/core/index.js'),
         // Hiệu ứng theo con trỏ (tilt, glow) — entry riêng để bundle chính không phình
         effects: resolve(__dirname, 'src/effects/index.js'),
+        // Tích hợp framework: @itmrhoang/h-ui/vue (plugin) và @itmrhoang/h-ui/react (createComponent cho React 18)
+        vue: resolve(__dirname, 'src/integrations/vue.js'),
+        react: resolve(__dirname, 'src/integrations/react.js'),
         ...componentEntries
       },
       // Định dạng xuất xưởng:

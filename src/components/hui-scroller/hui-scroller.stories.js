@@ -149,9 +149,18 @@ hỗ trợ \`src\` / \`fetchFn\` (DataController) với giao diện loading / em
 | Phím | Tác dụng |
 |------|----------|
 | \`Tab\` | Focus vào vùng cuộn (rồi tới nội dung bên trong) |
-| \`←\` / \`→\` | Item trước / kế |
+| \`←\` / \`→\` | Item trước / kế (RTL: \`←\` = kế, \`→\` = trước) |
 | \`PageUp\` / \`PageDown\` | Trang trước / kế |
 | \`Home\` / \`End\` | Item đầu / cuối |
+
+### RTL
+Đặt \`dir="rtl"\` trên scroller hoặc tổ tiên: item xếp phải → trái, nút "trước" ở bên phải (mũi tên đảo chiều), \`←\` / \`→\`
+và lăn chuột đổi chiều theo hướng đọc, bóng mờ / chấm / thanh vị trí đúng mép. Bên trong tính vị trí từ mép đầu
+(\`scrollLeft\` âm của RTL được đổi dấu). Đổi \`dir\` lúc đang chạy → gọi \`refresh()\`. Property chỉ đọc \`isRtl\`; CSS: \`hui-scroller:state(rtl)\`.
+
+### Danh sách rất dài
+Scroller đo mọi item thật (ổn tới vài trăm item). Hàng nghìn item → dùng \`<hui-virtual-list horizontal item-height="…">\`
+(ảo hóa bằng \`VirtualWindow\` ngang, chỉ render phần nhìn thấy) — đánh đổi: không có scroll-snap / chấm / mũi tên.
 
 ARIA: vùng cuộn \`role="region"\` + \`aria-label\` (attribute \`label\` hoặc locale \`scroller.label\`).
 Mỗi item được gắn \`role="group"\`, \`aria-roledescription\` (\`scroller.itemRole\`) và \`aria-label\` "i / n" (\`scroller.slide\`)
@@ -487,5 +496,79 @@ export const CustomizeFromOutside = {
     const next = partOf(sc, 'next');
     await expect(getComputedStyle(next).width).toBe('44px');
     await expect(getComputedStyle(partOf(sc, 'track')).columnGap).toBe('12px');
+  },
+};
+
+/** RTL: dir="rtl" — mũi tên, bàn phím (← = kế), lăn chuột, chấm đều đảo chiều */
+export const RTL = {
+  render: () => html`
+    <div dir="rtl">
+      <hui-scroller items-per-view="2.5" arrows="always" indicator="dots" no-animation label="RTL">${cards(8)}</hui-scroller>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const sc = scrollerOf(canvasElement);
+    await settle(sc);
+    const viewport = partOf(sc, 'viewport');
+    const prev = partOf(sc, 'prev');
+    const next = partOf(sc, 'next');
+    await waitFor(() => expect(sc.isRtl).toBe(true));
+    await expect(partOf(sc, 'base').classList.contains('scroller--rtl')).toBe(true);
+    // Mép đầu nằm bên phải: nút "trước" ở bên phải nút "kế", bắt đầu ở mép đầu
+    await expect(prev.getBoundingClientRect().left).toBeGreaterThan(next.getBoundingClientRect().left);
+    await waitFor(() => expect(prev.disabled).toBe(true));
+    await expect(next.disabled).toBe(false);
+    // Item đầu nằm sát mép phải
+    const first = sc.items[0].getBoundingClientRect();
+    await expect(Math.abs(first.right - viewport.getBoundingClientRect().right)).toBeLessThan(2);
+
+    // Nút kế → cuộn về bên trái (scrollLeft âm), item 1
+    next.click();
+    await waitFor(() => expect(viewport.scrollLeft).toBeLessThan(-10));
+    await expect(sc.currentIndex).toBe(1);
+    await waitFor(() => expect(prev.disabled).toBe(false));
+
+    // Bàn phím: ← = kế, → = trước
+    viewport.focus();
+    await userEvent.keyboard('{ArrowLeft}');
+    await waitFor(() => expect(sc.currentIndex).toBe(2));
+    await userEvent.keyboard('{ArrowRight}');
+    await waitFor(() => expect(sc.currentIndex).toBe(1));
+    await userEvent.keyboard('{End}');
+    await waitFor(() => expect(next.disabled).toBe(true));
+    await expect(sc.currentPage).toBe(sc.pageCount - 1);
+    await userEvent.keyboard('{Home}');
+    await waitFor(() => expect(Math.abs(viewport.scrollLeft)).toBeLessThan(1));
+    await expect(sc.currentIndex).toBe(0);
+
+    // Chấm cuối → trang cuối
+    const dots = sc.shadowRoot.querySelectorAll('[part~="dot"]');
+    dots[dots.length - 1].click();
+    await waitFor(() => expect(next.disabled).toBe(true));
+    await waitFor(() => expect(dots[dots.length - 1].getAttribute('aria-current')).toBe('true'));
+  },
+};
+
+/** RTL + thanh vị trí + lăn chuột dọc → ngang */
+export const RTLWheelBar = {
+  render: () => html`
+    <div dir="rtl">
+      <hui-scroller item-width="160" gap="sm" wheel indicator="bar" edge-fade scrollbar="hidden" no-animation label="RTL wheel">${cards(10)}</hui-scroller>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const sc = scrollerOf(canvasElement);
+    await settle(sc);
+    const viewport = partOf(sc, 'viewport');
+    // Lăn xuống → tiến về cuối (RTL: scrollLeft âm)
+    viewport.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+    await waitFor(() => expect(viewport.scrollLeft).toBeLessThan(-50));
+    // Thanh vị trí chạy từ phải sang trái
+    await waitFor(() => expect(partOf(sc, 'bar').style.transform).toMatch(/translateX\(-/));
+    // Mép đầu đã bị che → không còn trạng thái at-start (bóng mờ hiện ở mép đầu)
+    await waitFor(() => expect(partOf(sc, 'base').classList.contains('scroller--at-start')).toBe(false));
+    // Lăn lên tới mép đầu → về 0
+    viewport.dispatchEvent(new WheelEvent('wheel', { deltaY: -1000, bubbles: true, cancelable: true }));
+    await waitFor(() => expect(Math.abs(viewport.scrollLeft)).toBeLessThan(1));
   },
 };

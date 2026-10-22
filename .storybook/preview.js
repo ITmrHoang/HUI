@@ -17,6 +17,15 @@ const withTheme = (story, context) => {
 /** @type { import('@storybook/web-components-vite').Preview } */
 const preview = {
   parameters: {
+    // Thứ tự sidebar: trang tài liệu Docs/* lên đầu (Bắt đầu là trang mở mặc định), rồi theo tầng atomic
+    options: {
+      storySort: {
+        order: [
+          'Docs', ['Bắt đầu (Getting started)', 'Theming', 'Override', 'Accessibility & i18n'],
+          'Guide', 'Foundations', 'Atoms', 'Molecules', 'Organisms', 'Components', '*',
+        ],
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

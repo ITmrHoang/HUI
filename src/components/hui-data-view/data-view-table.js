@@ -9,9 +9,7 @@
 import { getPath } from '../../core/template.js';
 import { format, formatCurrency, formatDate, formatNumber, formatPercent, relativeTime } from '../../core/format.js';
 import { createElement } from '../../utils/dom.js';
-import '../hui-avatar/index.js';
-import '../hui-progress/index.js';
-import '../hui-tag/index.js';
+import { ensureElement } from './lazy-elements.js';
 import '../hui-icon/hui-icon.js';
 
 const NUMERIC = new Set(['number', 'currency', 'percent']);
@@ -58,6 +56,7 @@ export function renderCell(column, item, index, ctx = {}) {
   switch (column.type) {
     case 'tag': {
       const wrap = createElement('span', { className: 'cell-tags' });
+      ensureElement('hui-tag'); // thẻ con tải động khi có cột dùng tới
       const values = Array.isArray(value) ? value : value === null || value === undefined || value === '' ? [] : [value];
       for (const v of values) {
         const color = column.colors?.[v] ?? (typeof column.color === 'function' ? column.color(v, item) : column.color);
@@ -72,6 +71,7 @@ export function renderCell(column, item, index, ctx = {}) {
       const obj = value && typeof value === 'object' ? value : null;
       const src = obj?.src ?? (column.srcKey ? getPath(item, column.srcKey) : isUrl(value) ? value : null);
       const name = obj?.name ?? (isUrl(value) ? '' : value);
+      ensureElement('hui-avatar');
       const avatar = createElement('hui-avatar', { size: 'sm' });
       if (name) avatar.setAttribute('name', String(name));
       if (src) avatar.setAttribute('src', String(src));
@@ -79,6 +79,7 @@ export function renderCell(column, item, index, ctx = {}) {
       return createElement('span', { className: 'cell-avatar' }, avatar, name ? createElement('span', { className: 'cell-avatar__name' }, String(name)) : null);
     }
     case 'progress': {
+      ensureElement('hui-progress');
       const p = createElement('hui-progress', { size: 'sm', percent: String(Number(value) || 0) });
       if (column.title) p.setAttribute('label', String(column.title));
       return createElement('span', { className: 'cell-progress' }, p);
