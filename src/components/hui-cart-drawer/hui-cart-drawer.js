@@ -413,6 +413,14 @@ class HuiCartDrawer extends HuiElement {
     row.before(el);
     if (hadFocus) btn.focus({ preventScroll: true });
     row.remove();
+    if (hadFocus) {
+      // Trình duyệt / dialog đôi khi trả focus về nút đầu tiên của drawer ở khung kế tiếp → kéo lại nếu focus
+      // không còn ở nội dung giỏ (người dùng chưa chủ động chuyển đi chỗ khác)
+      requestAnimationFrame(() => {
+        const active = this.shadowRoot.activeElement;
+        if (btn.isConnected && active !== btn && !this._list.contains(active)) btn.focus({ preventScroll: true });
+      });
+    }
     const entry = { item, index, el, timer: null };
     entry.timer = setTimeout(() => this._expireUndo(entry), Math.max(0, this.undoDuration) * 1000);
     btn.addEventListener('click', () => this._undo(entry));

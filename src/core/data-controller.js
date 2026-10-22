@@ -140,7 +140,9 @@ export const DataController = (Base) => class extends Base {
     if (this.dataState === state) return;
     this.dataState = state;
     for (const s of STATES) this.setState(s, s === state);
-    this.toggleAttribute('aria-busy', state === 'loading');
+    // aria-busy="" bị ARIA hiểu là false → ghi rõ 'true'
+    if (state === 'loading') this.setAttribute('aria-busy', 'true');
+    else this.removeAttribute('aria-busy');
     this.requestUpdate('dataState');
   }
 

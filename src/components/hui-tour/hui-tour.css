@@ -1,0 +1,284 @@
+/*
+ * HUI Tour CSS
+ *   --hui-tour-mask-color       Màu lớp phủ (mặc định --hui-overlay)
+ *   --hui-tour-width            Chiều rộng khung (mặc định 320px)
+ *   --hui-tour-bg               Nền khung (type default)
+ *   --hui-tour-color            Màu chữ mô tả
+ *   --hui-tour-title-color      Màu tiêu đề
+ *   --hui-tour-radius           Bo góc khung
+ *   --hui-tour-shadow           Đổ bóng khung
+ *   --hui-tour-padding          Khoảng đệm khung
+ *   --hui-tour-primary-bg       Nền khung khi type="primary"
+ *   --hui-tour-duration         Thời gian chuyển spotlight (mặc định 300ms)
+ *   --hui-tour-spotlight-ring   Viền quanh spotlight (box-shadow, mặc định không có)
+ * Parts: mask, spotlight, panel, arrow, close, cover, title, description, footer, indicator,
+ *        skip-button, prev-button, next-button
+ */
+
+:host {
+  display: contents;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ================== LỚP PHỦ + SPOTLIGHT ================== */
+.mask {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+  pointer-events: none;
+  color: inherit;
+}
+
+/* Lớp chặn click trong suốt, khoét lỗ ở đích bằng clip-path (clip-path ảnh hưởng cả hit-test) */
+.blocker {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+}
+
+/* Ô sáng: box-shadow cực lớn tô tối mọi thứ xung quanh */
+.spotlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+  box-shadow:
+    var(--hui-tour-spotlight-ring, 0 0 0 0 transparent),
+    0 0 0 200vmax var(--hui-tour-mask-color, var(--hui-overlay));
+  will-change: transform;
+}
+
+.mask--moving .spotlight {
+  transition:
+    transform var(--hui-tour-duration, 300ms) var(--hui-motion-ease-in-out),
+    width var(--hui-tour-duration, 300ms) var(--hui-motion-ease-in-out),
+    height var(--hui-tour-duration, 300ms) var(--hui-motion-ease-in-out),
+    border-radius var(--hui-tour-duration, 300ms) var(--hui-motion-ease-in-out);
+}
+
+/* Không phủ tối: ẩn spotlight + bỏ chặn click */
+.mask--off .spotlight,
+.mask--off .blocker {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ================== KHUNG NỘI DUNG ================== */
+.panel {
+  --_tour-fill: var(--hui-tour-bg, var(--hui-bg-elevated));
+
+  box-sizing: border-box;
+  width: min(var(--hui-tour-width, 320px), calc(100vw - 16px));
+  padding: var(--hui-tour-padding, 16px);
+  background: var(--_tour-fill);
+  color: var(--hui-tour-color, var(--hui-text-secondary));
+  border-radius: var(--hui-tour-radius, var(--hui-radius-lg));
+  box-shadow: var(--hui-tour-shadow, var(--hui-shadow-xl));
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+  text-align: start;
+  overflow-wrap: break-word;
+}
+
+.panel:focus {
+  outline: none;
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+.panel--cover {
+  width: min(var(--hui-tour-width, 400px), calc(100vw - 16px));
+}
+
+/* Đang cuộn tới đích → ẩn tạm khung để không "trôi" theo trang */
+.panel--waiting {
+  visibility: hidden;
+}
+
+.close {
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 8px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-text-tertiary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.close:hover {
+  background: var(--hui-fill-secondary);
+  color: var(--hui-text);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 1px;
+}
+
+.cover {
+  margin: calc(var(--hui-tour-padding, 16px) * -1) calc(var(--hui-tour-padding, 16px) * -1) 12px;
+  overflow: hidden;
+  border-radius: var(--hui-tour-radius, var(--hui-radius-lg)) var(--hui-tour-radius, var(--hui-radius-lg)) 0 0;
+}
+
+.cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.body {
+  padding-inline-end: 20px; /* chừa chỗ nút × */
+}
+
+.panel--cover .body {
+  padding-inline-end: 0;
+}
+
+.title {
+  margin-bottom: 6px;
+  font-size: var(--hui-font-base);
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading);
+  color: var(--hui-tour-title-color, var(--hui-text));
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--hui-fill);
+  transition: width var(--hui-transition), background var(--hui-transition);
+}
+
+.dot--active {
+  width: 16px;
+  border-radius: 3px;
+  background: var(--hui-primary);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-inline-start: auto;
+}
+
+/* ================== TYPE PRIMARY ================== */
+.panel--primary {
+  --_tour-fill: var(--hui-tour-primary-bg, var(--hui-primary));
+  color: var(--hui-text-light-solid);
+}
+
+.panel--primary .title,
+.panel--primary .indicator,
+.panel--primary .close {
+  color: var(--hui-text-light-solid);
+}
+
+.panel--primary .close:hover {
+  background: color-mix(in srgb, var(--hui-text-light-solid) 18%, transparent);
+}
+
+.panel--primary .dot {
+  background: color-mix(in srgb, var(--hui-text-light-solid) 40%, transparent);
+}
+
+.panel--primary .dot--active {
+  background: var(--hui-text-light-solid);
+}
+
+.panel--primary .btn-next {
+  --hui-button-bg: var(--hui-text-light-solid);
+  --hui-button-color: var(--hui-tour-primary-bg, var(--hui-primary));
+  --hui-button-border-color: transparent;
+  --hui-button-hover-bg: color-mix(in srgb, var(--hui-text-light-solid) 88%, transparent);
+  --hui-button-hover-color: var(--hui-tour-primary-bg, var(--hui-primary));
+}
+
+.panel--primary .btn-prev,
+.panel--primary .btn-skip {
+  --hui-button-bg: transparent;
+  --hui-button-color: var(--hui-text-light-solid);
+  --hui-button-border-color: color-mix(in srgb, var(--hui-text-light-solid) 60%, transparent);
+  --hui-button-hover-bg: color-mix(in srgb, var(--hui-text-light-solid) 16%, transparent);
+  --hui-button-hover-color: var(--hui-text-light-solid);
+}
+
+.panel--primary .btn-skip {
+  --hui-button-border-color: transparent;
+}
+
+/* ================== ARROW (giống hui-popover) ================== */
+.arrow {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.arrow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--_tour-fill);
+}
+
+.panel[data-side='top'] .arrow { bottom: -6px; left: var(--_arrow-x, calc(50% - 6px)); }
+.panel[data-side='bottom'] .arrow { top: -6px; left: var(--_arrow-x, calc(50% - 6px)); }
+.panel[data-side='left'] .arrow { right: -6px; top: var(--_arrow-y, calc(50% - 6px)); }
+.panel[data-side='right'] .arrow { left: -6px; top: var(--_arrow-y, calc(50% - 6px)); }
+
+.panel[data-side='top'] .arrow::before { clip-path: polygon(0 50%, 100% 50%, 50% 100%); }
+.panel[data-side='bottom'] .arrow::before { clip-path: polygon(0 50%, 50% 0, 100% 50%); }
+.panel[data-side='left'] .arrow::before { clip-path: polygon(50% 0, 100% 50%, 50% 100%); }
+.panel[data-side='right'] .arrow::before { clip-path: polygon(50% 0, 50% 100%, 0 50%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .mask--moving .spotlight,
+  .dot {
+    transition: none;
+  }
+}

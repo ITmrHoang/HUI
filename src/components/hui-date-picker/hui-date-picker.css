@@ -1,0 +1,8 @@
+/*
+ * HUI Date Picker CSS — phần riêng (khung ô nhập + popup dùng chung ở picker-base.css,
+ * lưới lịch ở hui-calendar/calendar-panel.css, cột giờ ở hui-time-picker/time-panel.css)
+ */
+
+.hui-picker__panels > .hui-time {
+  padding-top: 38px; /* thẳng hàng với lưới ngày (dưới header) */
+}

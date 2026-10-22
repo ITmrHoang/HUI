@@ -1,0 +1,12 @@
+/*
+ * HUI Time Picker CSS — phần riêng (khung + popup dùng chung ở hui-date-picker/picker-base.css,
+ * các cột ở time-panel.css)
+ */
+
+.hui-picker--time .hui-picker__popup {
+  padding-top: var(--hui-space-xs);
+}
+
+.hui-picker--time .hui-picker__main > .hui-time {
+  margin: 0 calc(-1 * var(--hui-space-sm));
+}

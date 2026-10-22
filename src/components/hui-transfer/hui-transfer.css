@@ -1,0 +1,400 @@
+/*
+ * HUI Transfer CSS
+ * Override: var(--hui-transfer-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *   --hui-transfer-list-width  --hui-transfer-list-height  --hui-transfer-radius  --hui-transfer-border-color
+ *   --hui-transfer-bg  --hui-transfer-header-bg  --hui-transfer-item-padding  --hui-transfer-item-hover-bg
+ *   --hui-transfer-item-checked-bg  --hui-transfer-checked-bg  --hui-transfer-highlight-color  --hui-transfer-gap
+ * Parts: base, list (+ list-source / list-target), header, select-all, count, title, search, body, item (+ item-checked /
+ *        item-active / item-disabled), checkbox (+ checkbox-checked / checkbox-indeterminate), item-title, item-description,
+ *        item-remove, highlight, empty, pagination, operations, move-button (+ move-right / move-left)
+ * Màn hẹp (khung < 520px): hai danh sách xếp dọc, nút chuyển xoay 90°.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  container-type: inline-size;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.tf {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-transfer-gap, var(--hui-space-sm));
+  color: var(--hui-text);
+  font-size: var(--hui-font-sm);
+}
+
+.tf--disabled {
+  opacity: 0.55;
+}
+
+.tf__slot {
+  display: none;
+}
+
+/* ================== DANH SÁCH ================== */
+.tf__list {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: var(--hui-transfer-list-width, 260px);
+  min-width: 0;
+  height: var(--hui-transfer-list-height, 320px);
+  border: 1px solid var(--hui-transfer-border-color, var(--hui-border));
+  border-radius: var(--hui-transfer-radius, var(--hui-radius-md));
+  background: var(--hui-transfer-bg, var(--hui-bg-container));
+  overflow: hidden;
+}
+
+.tf__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hui-transfer-border-color, var(--hui-border));
+  background: var(--hui-transfer-header-bg, transparent);
+}
+
+.tf__all {
+  display: inline-flex;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tf__all[aria-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.tf__all:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+.tf__count {
+  color: var(--hui-text-secondary);
+  white-space: nowrap;
+}
+
+.tf__title {
+  margin-inline-start: auto;
+  font-weight: var(--hui-font-weight-medium, 500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tf__search-wrap {
+  flex: none;
+  padding: 8px 12px 4px;
+}
+
+.tf__search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-bg);
+  color: var(--hui-text);
+  font: inherit;
+  outline: none;
+}
+
+.tf__search:focus {
+  border-color: var(--hui-primary);
+  box-shadow: 0 0 0 2px var(--hui-primary-light);
+}
+
+.tf__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 4px;
+  overflow-y: auto;
+  outline: none;
+  overscroll-behavior: contain;
+}
+
+.tf__body:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--hui-primary-light);
+}
+
+.tf__body:not(.tf__body--virtual) .tf__spacer {
+  display: none;
+}
+
+.tf__spacer {
+  width: 1px;
+  pointer-events: none;
+}
+
+.tf__body--virtual .tf__items {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  right: 4px;
+}
+
+/* ================== ITEM ================== */
+.tf__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: var(--hui-transfer-item-padding, 6px 8px);
+  border-radius: var(--hui-radius-sm);
+  cursor: pointer;
+  transition: background var(--hui-transition-fast);
+}
+
+.tf__item:hover {
+  background: var(--hui-transfer-item-hover-bg, var(--hui-fill-secondary));
+}
+
+.tf__item--checked,
+.tf__item--checked:hover {
+  background: var(--hui-transfer-item-checked-bg, var(--hui-primary-light));
+}
+
+.tf__body:focus-visible .tf__item--active {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: -2px;
+}
+
+.tf__item--active {
+  background: var(--hui-transfer-item-hover-bg, var(--hui-fill-secondary));
+}
+
+.tf__item--disabled,
+.tf__item--disabled:hover {
+  color: var(--hui-text-disabled);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+.tf__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tf__item-title,
+.tf__item-desc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tf__item-desc {
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-xs);
+}
+
+.tf__mark {
+  background: transparent;
+  color: var(--hui-transfer-highlight-color, var(--hui-danger));
+  font-weight: var(--hui-font-weight-semibold, 600);
+}
+
+.tf__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-text-tertiary);
+  cursor: pointer;
+}
+
+.tf__remove:hover {
+  background: var(--hui-fill);
+  color: var(--hui-danger);
+}
+
+.tf__remove svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ================== Ô CHECK ================== */
+.tf__checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--hui-border);
+  border-radius: 4px;
+  background: var(--hui-surface);
+  color: var(--hui-text-inverse);
+  transition: background var(--hui-transition-fast), border-color var(--hui-transition-fast);
+}
+
+.tf__check {
+  width: 80%;
+  height: 80%;
+  stroke-width: 3;
+  transform: scale(0);
+  transition: transform 0.18s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+}
+
+.tf__checkbox--checked,
+.tf__checkbox--half {
+  background: var(--hui-transfer-checked-bg, var(--hui-primary));
+  border-color: var(--hui-transfer-checked-bg, var(--hui-primary));
+}
+
+.tf__checkbox--checked .tf__check,
+.tf__checkbox--half .tf__check {
+  transform: scale(1);
+}
+
+.tf__item--disabled .tf__checkbox {
+  background: var(--hui-fill-secondary);
+}
+
+/* ================== TRỐNG / PHÂN TRANG ================== */
+.tf__empty {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  color: var(--hui-text-secondary);
+}
+
+.tf__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex: none;
+  padding: 6px 10px;
+  border-top: 1px solid var(--hui-transfer-border-color, var(--hui-border));
+}
+
+.tf__page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-bg);
+  color: var(--hui-text);
+  cursor: pointer;
+}
+
+.tf__page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tf__page-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.tf__page-text {
+  min-width: 3em;
+  text-align: center;
+  color: var(--hui-text-secondary);
+}
+
+/* ================== NÚT CHUYỂN ================== */
+.tf__operations {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: none;
+}
+
+.tf__move {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--hui-primary);
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-primary);
+  color: var(--hui-text-light-solid);
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), opacity var(--hui-transition-fast);
+}
+
+.tf__move:hover:not(:disabled) {
+  background: var(--hui-primary-hover);
+}
+
+.tf__move:disabled {
+  border-color: var(--hui-border);
+  background: var(--hui-fill-secondary);
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.tf__move:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+.tf__move-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.tf__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ================== MÀN HẸP ================== */
+@container (max-width: 520px) {
+  .tf {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tf__list {
+    width: 100%;
+    height: var(--hui-transfer-list-height, 260px);
+  }
+
+  .tf__operations {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .tf__move-icon {
+    transform: rotate(90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tf__item,
+  .tf__check,
+  .tf__move {
+    transition: none;
+  }
+}

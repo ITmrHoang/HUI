@@ -220,28 +220,28 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
 ---
 
 ## G3 — COMPONENT PHỨC TẠP (làm sau khi G0 vững)
-- [ ] **`hui-virtual-list`** (tiện ích nền cho Table/Select/Tree): render phần đang nhìn thấy, chiều cao dòng cố định/động
-- [ ] **`hui-table`**
+- [/] **`hui-virtual-list`** (tiện ích nền cho Table/Select/Tree): render phần đang nhìn thấy, chiều cao dòng cố định/động *(tiện ích `VirtualWindow` trong src/utils/virtual.js đã dùng cho table/tree/transfer; chưa có thẻ riêng)*
+- [x] **`hui-table`**
   - `columns` (property: title, dataIndex, width, align, fixed, ellipsis, render hàm/slot), `data-source`, `row-key`
   - Sắp xếp (đơn/đa cột), lọc (menu checkbox/ô tìm), phân trang tích hợp, `loading`, `empty`
   - Chọn dòng (checkbox/radio, chọn tất cả trang), mở rộng dòng (expandable), dữ liệu dạng cây
   - Header cố định (`scroll-y`), cột cố định trái/phải (`scroll-x`), `sticky`, kéo đổi độ rộng cột
   - Dòng tổng (summary), `size`, `bordered`, virtual scroll cho 10k+ dòng
   - Sự kiện: `hui-change` (pagination/filters/sorter), `hui-row-click`, `hui-selection-change`
-- [ ] **Bộ ngày giờ** (tự viết tiện ích ngày dựa trên `Intl.DateTimeFormat`, không thêm thư viện) `[?]`
-  - [ ] `hui-calendar` — dạng thẻ/toàn màn hình, render ô ngày qua callback/slot, chế độ tháng/năm
-  - [ ] `hui-date-picker` — `picker` (date/week/month/quarter/year), `format`, `disabled-date`, `show-time`, `presets`, locale vi
-  - [ ] `hui-range-picker` — chọn khoảng, 2 bảng lịch, presets ("7 ngày qua"...)
-  - [ ] `hui-time-picker` — giờ/phút/giây, `step`, 12/24h
-- [ ] **`hui-tree`** — `checkable` (cha–con liên kết), `draggable`, tải con bất đồng bộ, `show-line`, tìm kiếm + highlight, virtual; APG tree
-- [ ] **`hui-tree-select`** — Select dạng cây (đơn/đa chọn), dùng `hui-tree` + F7
-- [ ] **`hui-cascader`** — chọn nhiều cấp (tỉnh/huyện/xã), `multiple`, tìm kiếm, tải động
-- [ ] **`hui-transfer`** — 2 danh sách chuyển qua lại, tìm kiếm, chọn tất cả, render tùy chỉnh
-- [ ] **`hui-color-picker`** — bảng màu, HEX/RGB/HSB, alpha, `presets`
-- [ ] **`hui-mentions`** — gõ `@` gợi ý người dùng
-- [ ] **`hui-tour`** — hướng dẫn từng bước, highlight phần tử đích, dùng F7/F8
-- [ ] **`hui-watermark`** — chữ/ảnh chìm, chống xóa bằng MutationObserver
-- [ ] **`hui-qrcode`** — sinh QR (tự viết encoder hoặc chấp nhận 1 thư viện nhỏ) `[?]`
+- [x] **Bộ ngày giờ** (tự viết tiện ích ngày dựa trên `Intl.DateTimeFormat`, không thêm thư viện) `[?]`
+  - [x] `hui-calendar` — dạng thẻ/toàn màn hình, render ô ngày qua callback/slot, chế độ tháng/năm
+  - [x] `hui-date-picker` — `picker` (date/week/month/quarter/year), `format`, `disabled-date`, `show-time`, `presets`, locale vi
+  - [x] `hui-range-picker` — chọn khoảng, 2 bảng lịch, presets ("7 ngày qua"...)
+  - [x] `hui-time-picker` — giờ/phút/giây, `step`, 12/24h
+- [x] **`hui-tree`** — `checkable` (cha–con liên kết), `draggable`, tải con bất đồng bộ, `show-line`, tìm kiếm + highlight, virtual; APG tree
+- [x] **`hui-tree-select`** — Select dạng cây (đơn/đa chọn), dùng `hui-tree` + F7
+- [x] **`hui-cascader`** — chọn nhiều cấp (tỉnh/huyện/xã), `multiple`, tìm kiếm, tải động
+- [x] **`hui-transfer`** — 2 danh sách chuyển qua lại, tìm kiếm, chọn tất cả, render tùy chỉnh
+- [x] **`hui-color-picker`** — bảng màu, HEX/RGB/HSB, alpha, `presets`
+- [x] **`hui-mentions`** — gõ `@` gợi ý người dùng
+- [x] **`hui-tour`** — hướng dẫn từng bước, highlight phần tử đích, dùng F7/F8
+- [x] **`hui-watermark`** — chữ/ảnh chìm, chống xóa bằng MutationObserver
+- [x] **`hui-qrcode`** — sinh QR (tự viết encoder hoặc chấp nhận 1 thư viện nhỏ) `[?]`
 - [x] **`hui-splitter`** — chia panel kéo đổi kích thước, thu gọn panel
 
 ---
@@ -447,7 +447,7 @@ và tự có skeleton – empty – error – thử lại.
 - [x] 🆕 **`hui-kpi-row`** — dải `hui-stat-card` từ mảng `{title, value, delta, trend[]}`
 - [x] 🆕 **Mini chart (SVG, zero-dependency)** — `hui-sparkline` (line/area), `hui-bar-mini`, `hui-donut` (phần trăm/nhiều lát),
   `hui-gauge`; nhận `data` mảng số / `{label, value}`, tooltip khi hover, màu từ palette token
-- [ ] (G3) `hui-table` — bổ sung yêu cầu: `columns` có `type` (text/number/currency/date/tag/avatar/progress/actions)
+- [x] (G3) `hui-table` — bổ sung yêu cầu: `columns` có `type` (text/number/currency/date/tag/avatar/progress/actions)
   để **khai báo là hiển thị đẹp ngay**, sửa trực tiếp trong ô (`editable`), xuất CSV
 - [ ] (G1) `hui-list` — bổ sung `data` + `<template>`
 - [x] 🆕 **`hui-timeline-feed`** — luồng hoạt động từ data (avatar, hành động, thời gian `hui-time`), nhóm theo ngày

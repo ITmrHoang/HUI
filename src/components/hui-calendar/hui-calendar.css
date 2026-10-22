@@ -1,0 +1,113 @@
+/*
+ * HUI Calendar CSS (phần khung; lưới dùng chung ở calendar-panel.css)
+ *
+ *   --hui-calendar-bg             Nền
+ *   --hui-calendar-padding        Khoảng đệm
+ *   --hui-calendar-radius         Bo góc (card)
+ *   --hui-calendar-border-color   Viền (card)
+ *   --hui-calendar-width          Chiều rộng (card)
+ *
+ * Parts: base, footer, today-btn, mode-switch, mode-btn + các part của panel (xem calendar-panel.css)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([variant='card']),
+:host(:not([variant])) {
+  display: inline-block;
+  max-width: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-calendar {
+  box-sizing: border-box;
+  background: var(--hui-calendar-bg, var(--hui-bg-container, var(--hui-bg)));
+  color: var(--hui-text);
+}
+
+.hui-calendar--card {
+  width: var(--hui-calendar-width, 296px);
+  max-width: 100%;
+  padding: var(--hui-calendar-padding, var(--hui-space-md));
+  border: 1px solid var(--hui-calendar-border-color, var(--hui-border-secondary, var(--hui-border)));
+  border-radius: var(--hui-calendar-radius, var(--hui-radius-md));
+}
+
+.hui-calendar--full {
+  width: 100%;
+  padding: var(--hui-calendar-padding, 0);
+}
+
+.hui-calendar__footer {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--hui-space-sm);
+  margin-top: var(--hui-space-xs);
+  border-top: 1px solid var(--hui-border-secondary, var(--hui-border));
+}
+
+.hui-calendar__today,
+.hui-calendar__mode {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--hui-font-sm);
+  color: var(--hui-primary);
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: var(--hui-radius-sm);
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.hui-calendar__today:hover {
+  background: var(--hui-primary-light);
+}
+
+.hui-calendar--full .hui-calendar__today {
+  border: 1px solid var(--hui-border);
+  color: var(--hui-text);
+  padding: 3px 12px;
+}
+
+.hui-calendar--full .hui-calendar__today:hover {
+  border-color: var(--hui-primary);
+  color: var(--hui-primary);
+  background: transparent;
+}
+
+.hui-calendar__modes {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--hui-radius);
+  background: var(--hui-fill-tertiary);
+}
+
+.hui-calendar__mode {
+  color: var(--hui-text-secondary, var(--hui-text-muted));
+  padding: 3px 12px;
+}
+
+.hui-calendar__mode[aria-pressed='true'] {
+  background: var(--hui-bg-container, var(--hui-bg));
+  color: var(--hui-text);
+  box-shadow: var(--hui-shadow-sm);
+}
+
+.hui-calendar__today:focus-visible,
+.hui-calendar__mode:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-calendar__today,
+  .hui-calendar__mode {
+    transition: none;
+  }
+}

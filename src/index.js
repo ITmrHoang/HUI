@@ -215,3 +215,19 @@ export { default as HuiToolbar } from './components/hui-toolbar/index.js';
 export { default as HuiMediaObject } from './components/hui-media-object/index.js';
 export { default as HuiMap } from './components/hui-map/index.js';
 export { default as HuiComparisonTable } from './components/hui-comparison-table/index.js';
+
+// G3 — đợt 3
+export { default as HuiColorPicker, parseColor, formatColor, rgbToHsv, hsvToRgb, rgbToHsl, hslToRgb, hslToHsv, hsvToHsl, rgbToHex, luminance, contrastRatio, readableColor } from './components/hui-color-picker/index.js';
+export { default as HuiMentions, getMentions } from './components/hui-mentions/index.js';
+export { default as HuiTour } from './components/hui-tour/index.js';
+export { default as HuiWatermark, createWatermarkDataUrl } from './components/hui-watermark/index.js';
+export { default as HuiQrcode, encodeQR } from './components/hui-qrcode/index.js';
+export { default as HuiCalendar, CalendarPanel, dateUtils } from './components/hui-calendar/index.js';
+export { default as HuiDatePicker, HuiPickerBase } from './components/hui-date-picker/index.js';
+export { default as HuiRangePicker, rangePresets, normalizeRange } from './components/hui-range-picker/index.js';
+export { default as HuiTimePicker, TimePanel } from './components/hui-time-picker/index.js';
+export { default as HuiTree, buildIndex, flattenTree, findPath, conductCheck, toggleCheck, strategyKeys, filterTree, moveNode } from './components/hui-tree/index.js';
+export { default as HuiTreeSelect } from './components/hui-tree-select/index.js';
+export { default as HuiCascader } from './components/hui-cascader/index.js';
+export { default as HuiTransfer } from './components/hui-transfer/index.js';
+export { default as HuiTable } from './components/hui-table/index.js';

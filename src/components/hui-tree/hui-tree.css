@@ -1,0 +1,387 @@
+/*
+ * HUI Tree CSS
+ * Override: var(--hui-tree-xxx, <mặc định>) — biến KHÔNG khai báo trên :host (đặt ở đâu cũng có hiệu lực).
+ *   --hui-tree-node-height  --hui-tree-indent  --hui-tree-font-size  --hui-tree-color  --hui-tree-bg
+ *   --hui-tree-node-radius  --hui-tree-node-hover-bg  --hui-tree-node-selected-bg  --hui-tree-node-selected-color
+ *   --hui-tree-line-color  --hui-tree-checkbox-size  --hui-tree-checked-bg
+ *   --hui-tree-highlight-color  --hui-tree-highlight-bg  --hui-tree-drop-color  --hui-tree-focus-ring
+ * Parts: base, tree, node (+ node-selected/active/disabled/match/leaf/open/dragging/drop-inside), indent, switcher,
+ *        loading, checkbox (+ checkbox-checked/indeterminate/disabled), content, icon, title, highlight, empty,
+ *        drop-indicator, drag-ghost · Slot: empty · State: :state(dragging)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.tree {
+  --_h: var(--hui-tree-node-height, 28px);
+  --_indent: var(--hui-tree-indent, 24px);
+  --_fs: var(--hui-tree-font-size, var(--hui-font-sm));
+  --_line: var(--hui-tree-line-color, var(--hui-border));
+
+  position: relative;
+  box-sizing: border-box;
+  color: var(--hui-tree-color, var(--hui-text));
+  background: var(--hui-tree-bg, transparent);
+  font-size: var(--_fs);
+  line-height: 1.4;
+}
+
+.tree--sm {
+  --_h: var(--hui-tree-node-height, 24px);
+  --_indent: var(--hui-tree-indent, 20px);
+  --_fs: var(--hui-tree-font-size, var(--hui-font-xs));
+}
+
+.tree--lg {
+  --_h: var(--hui-tree-node-height, 34px);
+  --_indent: var(--hui-tree-indent, 28px);
+  --_fs: var(--hui-tree-font-size, var(--hui-font-base));
+}
+
+.tree--scroll {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.tree:not(.tree--virtual) .tree__spacer {
+  display: none;
+}
+
+.tree__spacer {
+  width: 1px;
+  pointer-events: none;
+}
+
+.tree--virtual .tree__list {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.tree__list {
+  outline: none;
+  min-width: max-content;
+}
+
+.tree__list:focus-visible:not([aria-activedescendant]) {
+  outline: var(--hui-tree-focus-ring, 2px solid var(--hui-primary));
+  outline-offset: 2px;
+  border-radius: var(--hui-radius-sm);
+}
+
+/* ================== DÒNG ================== */
+.tree__node {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--_h);
+  padding-inline: 4px;
+  cursor: default;
+}
+
+.tree--draggable .tree__node {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tree__indent {
+  display: flex;
+  align-self: stretch;
+  flex: none;
+}
+
+.tree__unit {
+  position: relative;
+  flex: none;
+  width: var(--_indent);
+}
+
+/* Đường nối (show-line): dọc qua cả dòng / ├ / └ */
+.tree__unit--line::before,
+.tree__unit--elbow::before,
+.tree__unit--elbow-last::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px solid var(--_line);
+}
+
+.tree__unit--elbow-last::before {
+  bottom: 50%;
+}
+
+.tree__unit--elbow::after,
+.tree__unit--elbow-last::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: 0;
+  border-top: 1px solid var(--_line);
+}
+
+/* ================== NÚT MỞ / ĐÓNG ================== */
+.tree__switcher {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  flex: none;
+  width: var(--_indent);
+  color: var(--hui-text-tertiary);
+}
+
+.tree__switcher[data-switcher] {
+  cursor: pointer;
+}
+
+.tree__switcher[data-switcher]:hover {
+  color: var(--hui-text);
+}
+
+.tree__arrow {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--hui-motion-duration-fast, 150ms) var(--hui-motion-ease-out, ease-out);
+}
+
+.tree__node--open .tree__arrow {
+  transform: rotate(90deg);
+}
+
+.tree--line .tree__node--open .tree__switcher::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 8px);
+  bottom: 0;
+  border-left: 1px solid var(--_line);
+}
+
+.tree--line .tree__switcher--leaf::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 30%;
+  top: 50%;
+  border-top: 1px solid var(--_line);
+}
+
+.tree--line .tree__node[aria-level="1"] .tree__switcher--leaf::after {
+  display: none;
+}
+
+.tree__spinner {
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border: 2px solid var(--hui-border);
+  border-top-color: var(--hui-primary);
+  border-radius: 50%;
+  animation: hui-tree-spin 0.6s linear infinite;
+}
+
+@keyframes hui-tree-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ================== Ô CHECK ================== */
+.tree__checkbox {
+  --_cb: var(--hui-tree-checkbox-size, 16px);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+  width: var(--_cb);
+  height: var(--_cb);
+  margin-inline-end: 6px;
+  border: 1px solid var(--hui-border);
+  border-radius: 4px;
+  background: var(--hui-surface);
+  color: var(--hui-text-inverse);
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), border-color var(--hui-transition-fast);
+}
+
+.tree__checkbox:hover {
+  border-color: var(--hui-tree-checked-bg, var(--hui-primary));
+}
+
+.tree__check {
+  width: 80%;
+  height: 80%;
+  stroke-width: 3;
+  transform: scale(0);
+  transition: transform 0.18s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+}
+
+.tree__checkbox--checked,
+.tree__checkbox--half {
+  background: var(--hui-tree-checked-bg, var(--hui-primary));
+  border-color: var(--hui-tree-checked-bg, var(--hui-primary));
+}
+
+.tree__checkbox--checked .tree__check,
+.tree__checkbox--half .tree__check {
+  transform: scale(1);
+}
+
+.tree__checkbox--disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  background: var(--hui-fill-secondary);
+}
+
+.tree__checkbox--disabled.tree__checkbox--checked,
+.tree__checkbox--disabled.tree__checkbox--half {
+  background: var(--hui-text-disabled);
+  border-color: var(--hui-text-disabled);
+}
+
+/* ================== NỘI DUNG ================== */
+.tree__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  height: calc(var(--_h) - 4px);
+  padding: 0 6px;
+  border-radius: var(--hui-tree-node-radius, var(--hui-radius-sm));
+  cursor: pointer;
+  transition: background var(--hui-transition-fast);
+}
+
+.tree--block .tree__content {
+  flex: 1;
+}
+
+.tree__node:not(.tree__node--disabled) .tree__content:hover {
+  background: var(--hui-tree-node-hover-bg, var(--hui-fill-secondary));
+}
+
+.tree__node--selected .tree__content,
+.tree__node--selected .tree__content:hover {
+  background: var(--hui-tree-node-selected-bg, var(--hui-primary-light));
+  color: var(--hui-tree-node-selected-color, var(--hui-primary));
+}
+
+.tree__node--disabled .tree__content {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.tree__list:focus-visible .tree__node--active .tree__content {
+  outline: var(--hui-tree-focus-ring, 2px solid var(--hui-primary));
+  outline-offset: -2px;
+}
+
+.tree__icon {
+  flex: none;
+  color: var(--hui-text-secondary);
+}
+
+.tree__node--selected .tree__icon {
+  color: inherit;
+}
+
+.tree__title {
+  white-space: nowrap;
+}
+
+.tree__mark {
+  padding: 0 1px;
+  border-radius: 2px;
+  background: var(--hui-tree-highlight-bg, var(--hui-warning-light));
+  color: var(--hui-tree-highlight-color, inherit);
+  font-weight: var(--hui-font-weight-semibold, 600);
+}
+
+/* ================== KÉO THẢ ================== */
+.tree__node--dragging {
+  opacity: 0.45;
+}
+
+.tree__node--drop-inside .tree__content {
+  background: var(--hui-primary-light);
+  box-shadow: inset 0 0 0 1px var(--hui-tree-drop-color, var(--hui-primary));
+}
+
+.tree__indicator {
+  position: absolute;
+  right: 4px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--hui-tree-drop-color, var(--hui-primary));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tree__indicator::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  box-sizing: border-box;
+  border: 2px solid var(--hui-tree-drop-color, var(--hui-primary));
+  border-radius: 50%;
+  background: var(--hui-bg-container);
+}
+
+.tree__ghost {
+  padding: 4px 10px;
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-bg-elevated);
+  color: var(--hui-text);
+  box-shadow: var(--hui-shadow-md);
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-sm);
+  pointer-events: none;
+  opacity: 0.92;
+}
+
+/* ================== TRỐNG / SR ================== */
+.tree__empty {
+  padding: var(--hui-space-md) 0;
+}
+
+.tree__empty hui-empty {
+  --hui-empty-padding: var(--hui-space-sm);
+}
+
+.tree__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.tree--no-animation .tree__arrow,
+.tree--no-animation .tree__check {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tree__arrow,
+  .tree__check,
+  .tree__content {
+    transition: none;
+  }
+}

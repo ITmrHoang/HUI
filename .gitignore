@@ -32,4 +32,5 @@ result.md
 test/__screenshots__/
 __screenshots__/
 .vitest-attachments/
+.vitest/
 .tmp-build-*/

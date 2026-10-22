@@ -1,0 +1,91 @@
+/*
+ * HUI QR Code CSS
+ *   --hui-qrcode-color         Màu ô tối (mặc định --hui-text)
+ *   --hui-qrcode-bg            Màu nền (mặc định --hui-bg-container)
+ *   --hui-qrcode-padding       Khoảng đệm khi bordered (mặc định 12px)
+ *   --hui-qrcode-radius        Bo góc khung
+ *   --hui-qrcode-border-color  Màu viền khi bordered
+ *   --hui-qrcode-mask-bg       Nền lớp phủ trạng thái
+ * Attribute color / bg-color (đặt qua --_qr-color / --_qr-bg) ưu tiên hơn biến CSS.
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.qr {
+  position: relative;
+  display: inline-flex;
+  box-sizing: content-box;
+  width: var(--_qr-size, 160px);
+  height: var(--_qr-size, 160px);
+  border-radius: var(--hui-qrcode-radius, var(--hui-radius));
+  overflow: hidden;
+  background: var(--_qr-bg, var(--hui-qrcode-bg, var(--hui-bg-container)));
+}
+
+.qr--bordered {
+  padding: var(--hui-qrcode-padding, 12px);
+  border: 1px solid var(--hui-qrcode-border-color, var(--hui-border));
+  border-radius: var(--hui-qrcode-radius, var(--hui-radius-lg));
+}
+
+/* holder mang màu → canvas đọc computed style; SVG dùng thẳng qua fill */
+.holder {
+  width: 100%;
+  height: 100%;
+  color: var(--_qr-color, var(--hui-qrcode-color, var(--hui-text)));
+  background-color: var(--_qr-bg, var(--hui-qrcode-bg, var(--hui-bg-container)));
+}
+
+.qr__code {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.qr__bg {
+  fill: var(--_qr-bg, var(--hui-qrcode-bg, var(--hui-bg-container)));
+}
+
+.qr__modules {
+  fill: var(--_qr-color, var(--hui-qrcode-color, var(--hui-text)));
+}
+
+/* Không tạo được mã: khung gạch chéo mờ */
+.qr--error .holder {
+  background-image: repeating-linear-gradient(45deg, var(--hui-fill-secondary) 0 6px, transparent 6px 12px);
+}
+
+/* ================== LỚP PHỦ TRẠNG THÁI ================== */
+.status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  text-align: center;
+  font-size: var(--hui-font-sm);
+  color: var(--hui-text);
+  background: var(--hui-qrcode-mask-bg, color-mix(in srgb, var(--hui-bg-container) 94%, transparent));
+  border-radius: inherit;
+}
+
+.status__icon {
+  font-size: 28px;
+  color: var(--hui-success);
+}
+
+.qr[data-status='expired'] .status__text {
+  color: var(--hui-text-secondary);
+}

@@ -195,7 +195,7 @@ export const RemoveAndUndo = {
     expect(cart.data.length).toBe(2);
     const undo = sr(cart).querySelector('[part="undo-button"]');
     expect(undo).not.toBeNull();
-    expect(sr(cart).activeElement).toBe(undo);
+    await waitFor(() => expect(sr(cart).activeElement).toBe(undo));
     await userEvent.click(undo);
     expect(cart.data.map((it) => it.id)).toEqual(['p1', 'p2', 'p3']);
     expect(sr(cart).querySelector('[part="undo"]')).toBeNull();

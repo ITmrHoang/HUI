@@ -28,6 +28,9 @@ export function createElement(tag, attrs = {}, ...children) {
     } else if (key === 'dataset' && typeof value === 'object') {
       // Hỗ trợ data-* attributes
       Object.assign(el.dataset, value);
+    } else if (value === undefined || value === null) {
+      // Bỏ qua — tránh thuộc tính chuỗi 'undefined' (vd disabled="undefined" vẫn làm option bị vô hiệu)
+      continue;
     } else if (typeof value === 'boolean') {
       // Boolean attributes (disabled, hidden...)
       if (value) el.setAttribute(key, '');

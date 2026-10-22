@@ -51,6 +51,14 @@ function publicFields(decl) {
   return [...fields.values()];
 }
 
+/** Lớp có kế thừa HuiFormElement (trực tiếp hoặc qua lớp trung gian, vd HuiPickerBase) không */
+function isFormElement(decl) {
+  for (let d = decl; d; d = byName.get(d.superclass?.name)) {
+    if (d.superclass?.name === 'HuiFormElement') return true;
+  }
+  return false;
+}
+
 const FORM_BASE_FIELDS = new Set(['name', 'value', 'disabled', 'readonly', 'required', 'status', 'size', 'minlength', 'maxlength', 'pattern']);
 
 const doc = (text, indent = '  ') => (text ? `${indent}/** ${text.replace(/\*\//g, '*\\/').replace(/\n/g, ' ')} */\n` : '');
@@ -60,7 +68,7 @@ let index = `// Sinh tự động bởi scripts/gen-types.mjs — không sửa t
 
 for (const d of elements) {
   const fields = publicFields(d);
-  const base = d.superclass?.name === 'HuiFormElement' ? 'HuiFormElement' : 'HuiElement';
+  const base = isFormElement(d) ? 'HuiFormElement' : 'HuiElement';
   index += `/** <${d.tagName}>${d.description ? ` — ${d.description.split('\n')[0]}` : ''} */\n`;
   index += `export interface ${propsName(d)} {\n`;
   for (const f of fields) index += `${doc(f.description)}  ${f.name}?: ${tsType(f)};\n`;

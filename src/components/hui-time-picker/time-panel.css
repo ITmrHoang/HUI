@@ -1,0 +1,89 @@
+/*
+ * HUI Time panel CSS — cột giờ / phút / giây dùng chung (time-picker, date-picker show-time)
+ *
+ *   --hui-time-picker-column-height   Chiều cao mỗi cột
+ *   --hui-time-picker-column-width    Chiều rộng mỗi cột
+ *   --hui-time-picker-cell-height     Chiều cao mỗi ô
+ *   --hui-time-picker-selected-bg     Nền ô đang chọn
+ *   --hui-time-picker-hover-bg        Nền ô khi hover
+ *
+ * Parts: time-panel, time-column (+ hour-column | minute-column | second-column | meridiem-column),
+ *        time-cell (+ time-cell-selected | time-cell-disabled)
+ */
+
+.hui-time {
+  --_tp-h: var(--hui-time-picker-column-height, 224px);
+  --_tp-cell: var(--hui-time-picker-cell-height, 28px);
+
+  display: flex;
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-sm);
+  color: var(--hui-text);
+}
+
+.hui-time__col {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--hui-time-picker-column-width, 56px);
+  height: var(--_tp-h);
+  margin: 0;
+  padding: 0 0 calc(var(--_tp-h) - var(--_tp-cell));
+  list-style: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  outline: none;
+}
+
+/* Thanh cuộn chỉ hiện khi hover (giống Ant) */
+.hui-time__col:hover {
+  scrollbar-width: thin;
+}
+
+.hui-time__col + .hui-time__col {
+  border-inline-start: 1px solid var(--hui-border-secondary, var(--hui-border));
+}
+
+.hui-time__col:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--hui-primary);
+}
+
+.hui-time__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--_tp-cell);
+  margin: 0 4px;
+  border-radius: var(--hui-radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--hui-transition-fast);
+}
+
+.hui-time__cell:hover {
+  background: var(--hui-time-picker-hover-bg, var(--hui-fill-secondary));
+}
+
+.hui-time__cell--selected,
+.hui-time__cell--selected:hover {
+  background: var(--hui-time-picker-selected-bg, var(--hui-primary-light));
+  font-weight: var(--hui-font-weight-medium, 500);
+}
+
+.hui-time__col:focus-visible .hui-time__cell--selected {
+  outline: 1px solid var(--hui-primary);
+  outline-offset: -1px;
+}
+
+.hui-time__cell--disabled,
+.hui-time__cell--disabled:hover {
+  color: var(--hui-text-disabled, var(--hui-text-muted));
+  background: transparent;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-time__cell {
+    transition: none;
+  }
+}

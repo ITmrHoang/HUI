@@ -188,7 +188,7 @@ export const States = {
     await waitFor(() => expect(empty.dataState).toBe('empty'));
     await expect(empty.shadowRoot.querySelector('[part="state"]').hidden).toBe(false);
     const loading = canvasElement.querySelector('.loading');
-    await expect(loading.getAttribute('aria-busy')).toBe('');
+    await expect(loading.getAttribute('aria-busy')).toBe('true');
   },
 };
 

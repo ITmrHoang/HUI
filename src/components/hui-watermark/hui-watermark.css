@@ -1,0 +1,15 @@
+/*
+ * HUI Watermark CSS
+ *   --hui-watermark-color   Màu chữ watermark (mặc định --hui-fill → đổi theo dark mode)
+ * Lớp phủ (.layer) KHÔNG có part và mọi style của nó ghi inline !important → không ẩn được bằng CSS ngoài.
+ */
+
+:host {
+  position: relative;
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+.content {
+  position: relative;
+}

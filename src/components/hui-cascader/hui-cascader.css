@@ -1,0 +1,431 @@
+/*
+ * HUI Cascader CSS
+ * Override: var(--hui-cascader-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *   --hui-cascader-height  --hui-cascader-radius  --hui-cascader-bg  --hui-cascader-color
+ *   --hui-cascader-border-color  --hui-cascader-hover-border-color  --hui-cascader-focus-border-color
+ *   --hui-cascader-focus-shadow  --hui-cascader-placeholder-color
+ *   --hui-cascader-dropdown-bg  --hui-cascader-dropdown-radius  --hui-cascader-dropdown-shadow
+ *   --hui-cascader-menu-width  --hui-cascader-menu-height  --hui-cascader-option-padding
+ *   --hui-cascader-option-hover-bg  --hui-cascader-option-active-bg  --hui-cascader-option-active-color
+ *   --hui-cascader-tag-bg  --hui-cascader-highlight-color
+ * Parts: base, label, trigger, value, tags, tag (+ tag-rest), tag-remove, clear, arrow, dropdown, search, menus, menu,
+ *        menu-header, option (+ option-active/expanded/selected/disabled), option-label, checkbox (+ checkbox-checked/
+ *        checkbox-indeterminate), expand-icon, loading, results, highlight, empty
+ * State: :state(open), :state(filled), :state(user-invalid)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([disabled]) {
+  pointer-events: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.cas {
+  --_border: var(--hui-cascader-border-color, var(--hui-border));
+  --_focus-border: var(--hui-cascader-focus-border-color, var(--hui-primary));
+  --_focus-shadow: var(--hui-cascader-focus-shadow, 0 0 0 2px var(--hui-primary-light));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+}
+
+.cas--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.cas--sm { --_h: var(--hui-size-sm); --_px: 8px; --_fs: var(--hui-font-xs); --_r: var(--hui-radius-sm); }
+.cas--md { --_h: var(--hui-size-md); --_px: 12px; --_fs: var(--hui-font-sm); --_r: var(--hui-radius); }
+.cas--lg { --_h: var(--hui-size-lg); --_px: 16px; --_fs: var(--hui-font-base); --_r: var(--hui-radius-md); }
+
+.cas--error { --_border: var(--hui-danger); --_focus-border: var(--hui-danger); --_focus-shadow: 0 0 0 2px var(--hui-danger-light); }
+.cas--warning { --_border: var(--hui-warning); --_focus-border: var(--hui-warning); --_focus-shadow: 0 0 0 2px var(--hui-warning-light); }
+
+:host(:state(user-invalid)) .cas {
+  --_border: var(--hui-danger);
+  --_focus-border: var(--hui-danger);
+  --_focus-shadow: 0 0 0 2px var(--hui-danger-light);
+}
+
+.cas__label {
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-text);
+}
+
+.cas__label--required::after {
+  content: ' *';
+  color: var(--hui-danger);
+}
+
+/* ================== TRIGGER ================== */
+.cas__trigger {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: var(--hui-cascader-height, var(--_h));
+  padding: 0 var(--_px);
+  font-size: var(--_fs);
+  border: 1px solid var(--_border);
+  border-radius: var(--hui-cascader-radius, var(--_r));
+  background: var(--hui-cascader-bg, var(--hui-bg));
+  color: var(--hui-cascader-color, var(--hui-text));
+  cursor: pointer;
+  user-select: none;
+  transition: border-color var(--hui-transition), box-shadow var(--hui-transition);
+}
+
+.cas__trigger:hover {
+  border-color: var(--hui-cascader-hover-border-color, var(--hui-border-hover));
+}
+
+.cas--open .cas__trigger {
+  border-color: var(--_focus-border);
+  box-shadow: var(--_focus-shadow);
+}
+
+.cas__trigger:focus-visible {
+  outline: 2px solid var(--_focus-border);
+  outline-offset: 2px;
+}
+
+.cas__value {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cas__value--placeholder {
+  color: var(--hui-cascader-placeholder-color, var(--hui-text-muted));
+}
+
+.cas--multiple .cas__trigger {
+  padding-block: 2px;
+  padding-inline-start: 4px;
+}
+
+.cas--multiple .cas__value {
+  padding-inline-start: calc(var(--_px) - 4px);
+}
+
+.cas__tags {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cas__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: calc(var(--hui-cascader-height, var(--_h)) - 10px);
+  padding: 0 4px 0 8px;
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-cascader-tag-bg, var(--hui-fill-secondary));
+  font-size: var(--hui-font-xs);
+  line-height: 1;
+}
+
+.cas__tag--rest {
+  padding: 0 8px;
+}
+
+.cas__tag-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cas__tag-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-text-muted);
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+
+.cas__tag-remove:hover {
+  color: var(--hui-text);
+  background: var(--hui-fill);
+}
+
+.cas__clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0 var(--hui-space-xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-bg-tertiary);
+  color: var(--hui-text-muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.cas__clear:hover {
+  background: var(--hui-border);
+  color: var(--hui-text);
+}
+
+.cas__arrow {
+  flex-shrink: 0;
+  width: 1.5rem;
+  text-align: center;
+  color: var(--hui-text-muted);
+  font-size: 0.65rem;
+  transition: transform var(--hui-transition);
+}
+
+.cas--open .cas__arrow {
+  transform: rotate(180deg);
+}
+
+/* ================== POPUP ================== */
+.cas__dropdown {
+  box-sizing: border-box;
+  max-width: calc(100vw - 16px);
+  font-size: var(--_fs);
+  background: var(--hui-cascader-dropdown-bg, var(--hui-bg-elevated));
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-cascader-dropdown-radius, var(--hui-radius-md));
+  box-shadow: var(--hui-cascader-dropdown-shadow, var(--hui-shadow-lg));
+  overflow: hidden;
+}
+
+.cas__search-wrap {
+  padding: var(--hui-space-sm);
+  border-bottom: 1px solid var(--hui-border);
+}
+
+.cas__search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--hui-space-xs) var(--hui-space-sm);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-bg);
+  color: var(--hui-text);
+  font: inherit;
+  font-size: var(--hui-font-sm);
+  outline: none;
+}
+
+.cas__search:focus {
+  border-color: var(--hui-primary);
+}
+
+.cas__menus {
+  display: flex;
+  max-width: calc(100vw - 16px);
+  overflow-x: auto;
+}
+
+.cas__menu {
+  box-sizing: border-box;
+  min-width: var(--hui-cascader-menu-width, 140px);
+  height: var(--hui-cascader-menu-height, 220px);
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  flex: none;
+}
+
+.cas__menu + .cas__menu {
+  border-inline-start: 1px solid var(--hui-border-secondary, var(--hui-border));
+}
+
+/* ================== MỤC ================== */
+.cas__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--hui-cascader-option-padding, 5px 10px);
+  border-radius: var(--hui-radius-sm);
+  color: var(--hui-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--hui-transition-fast);
+}
+
+.cas__option:hover,
+.cas__option--active {
+  background: var(--hui-cascader-option-hover-bg, var(--hui-fill-secondary));
+}
+
+.cas__option--expanded {
+  background: var(--hui-cascader-option-active-bg, var(--hui-fill-secondary));
+}
+
+.cas__option--selected,
+.cas__option--selected:hover {
+  background: var(--hui-cascader-option-active-bg, var(--hui-primary-light));
+  color: var(--hui-cascader-option-active-color, var(--hui-primary));
+  font-weight: var(--hui-font-weight-medium, 500);
+}
+
+.cas__option--active {
+  box-shadow: inset 0 0 0 1px var(--hui-primary-4, var(--hui-primary));
+}
+
+.cas__option--disabled,
+.cas__option--disabled:hover {
+  color: var(--hui-text-disabled);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+.cas__option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cas__expand {
+  display: inline-flex;
+  color: var(--hui-text-tertiary);
+}
+
+.cas__expand svg,
+.cas__back-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.cas__spinner {
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border: 2px solid var(--hui-border);
+  border-top-color: var(--hui-primary);
+  border-radius: 50%;
+  animation: hui-cas-spin 0.6s linear infinite;
+}
+
+@keyframes hui-cas-spin {
+  to { transform: rotate(360deg); }
+}
+
+.cas__checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--hui-border);
+  border-radius: 4px;
+  background: var(--hui-surface);
+  color: var(--hui-text-inverse);
+}
+
+.cas__check {
+  width: 80%;
+  height: 80%;
+  stroke-width: 3;
+  transform: scale(0);
+  transition: transform 0.18s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+}
+
+.cas__checkbox--checked,
+.cas__checkbox--half {
+  background: var(--hui-primary);
+  border-color: var(--hui-primary);
+}
+
+.cas__checkbox--checked .cas__check,
+.cas__checkbox--half .cas__check {
+  transform: scale(1);
+}
+
+/* ================== TÌM KIẾM ================== */
+.cas__results {
+  max-height: var(--hui-cascader-menu-height, 220px);
+  min-width: 240px;
+  padding: 4px;
+  overflow-y: auto;
+}
+
+.cas__mark {
+  background: transparent;
+  color: var(--hui-cascader-highlight-color, var(--hui-danger));
+  font-weight: var(--hui-font-weight-semibold, 600);
+}
+
+.cas__empty {
+  padding: 16px;
+  color: var(--hui-text-muted);
+  text-align: center;
+  font-size: var(--hui-font-sm);
+}
+
+/* ================== MÀN HẸP: cột xếp chồng ================== */
+.cas__dropdown--stacked .cas__menus {
+  flex-direction: column;
+}
+
+.cas__dropdown--stacked .cas__menu {
+  width: 100%;
+  min-width: 0;
+  border-inline-start: 0;
+}
+
+.cas__menu-header {
+  border-bottom: 1px solid var(--hui-border);
+}
+
+.cas__back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--hui-text);
+  font: inherit;
+  font-weight: var(--hui-font-weight-medium, 500);
+  cursor: pointer;
+  text-align: start;
+}
+
+.cas__back:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cas__trigger,
+  .cas__arrow,
+  .cas__check {
+    transition: none;
+  }
+}

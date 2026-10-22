@@ -1,0 +1,12 @@
+/*
+ * HUI Range Picker CSS — phần riêng (khung + popup dùng chung ở hui-date-picker/picker-base.css,
+ * lưới lịch + dải khoảng ở hui-calendar/calendar-panel.css)
+ */
+
+.hui-picker--range .hui-picker__input {
+  min-width: 0;
+}
+
+.hui-picker__panels > .hui-time {
+  padding-top: 38px; /* thẳng hàng với lưới ngày (dưới header) */
+}

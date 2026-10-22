@@ -1,0 +1,368 @@
+/*
+ * HUI Picker CSS — khung ô nhập + popup dùng chung (date-picker, range-picker, time-picker)
+ *
+ *   --hui-picker-height               Chiều cao ô nhập
+ *   --hui-picker-width                Chiều rộng ô nhập
+ *   --hui-picker-padding-x            Đệm ngang
+ *   --hui-picker-font-size            Cỡ chữ
+ *   --hui-picker-radius               Bo góc ô nhập
+ *   --hui-picker-bg                   Nền ô nhập
+ *   --hui-picker-color                Chữ
+ *   --hui-picker-placeholder-color    Chữ gợi ý
+ *   --hui-picker-border-color         Viền
+ *   --hui-picker-hover-border-color   Viền khi hover
+ *   --hui-picker-focus-border-color   Viền khi focus / mở
+ *   --hui-picker-focus-shadow         Vòng sáng khi focus
+ *   --hui-picker-icon-color           Màu icon
+ *   --hui-picker-popup-bg             Nền popup
+ *   --hui-picker-popup-radius         Bo góc popup
+ *   --hui-picker-popup-shadow         Đổ bóng popup
+ *   --hui-picker-popup-padding        Đệm popup
+ *   --hui-picker-presets-width        Chiều rộng cột chọn nhanh
+ *
+ * Parts: base, trigger, input, separator, suffix, clear, popup, presets, preset, footer, today-btn, now-btn, ok-btn
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+  max-width: 100%;
+}
+
+:host([inline]) {
+  display: inline-block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hui-picker {
+  --_pk-border: var(--hui-picker-border-color, var(--hui-border));
+  --_pk-hover-border: var(--hui-picker-hover-border-color, var(--hui-border-hover));
+  --_pk-focus-border: var(--hui-picker-focus-border-color, var(--hui-primary));
+  --_pk-focus-shadow: var(--hui-picker-focus-shadow, var(--hui-focus-ring));
+  --_pk-bg: var(--hui-picker-bg, var(--hui-bg-container, var(--hui-bg)));
+
+  position: relative;
+  color: var(--hui-text);
+}
+
+/* ================== KHUNG Ô NHẬP ================== */
+.hui-picker__selector {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  box-sizing: border-box;
+  width: var(--hui-picker-width, var(--_pk-width, 180px));
+  max-width: 100%;
+  height: var(--hui-picker-height, var(--_pk-height));
+  padding: 0 var(--hui-picker-padding-x, var(--_pk-pad));
+  border: 1px solid var(--_pk-border);
+  border-radius: var(--hui-picker-radius, var(--_pk-radius));
+  background: var(--_pk-bg);
+  cursor: text;
+  transition: border-color var(--hui-transition), box-shadow var(--hui-transition), background var(--hui-transition);
+}
+
+.hui-picker__selector:hover {
+  border-color: var(--_pk-hover-border);
+}
+
+.hui-picker__selector:focus-within,
+.hui-picker--open .hui-picker__selector {
+  border-color: var(--_pk-focus-border);
+  box-shadow: var(--_pk-focus-shadow);
+}
+
+.hui-picker--sm { --_pk-height: var(--hui-size-sm); --_pk-radius: var(--hui-radius-sm); --_pk-pad: 8px; --_pk-font: var(--hui-font-xs); }
+.hui-picker--md { --_pk-height: var(--hui-size-md); --_pk-radius: var(--hui-radius); --_pk-pad: 11px; --_pk-font: var(--hui-font-sm); }
+.hui-picker--lg { --_pk-height: var(--hui-size-lg); --_pk-radius: var(--hui-radius-md); --_pk-pad: 14px; --_pk-font: var(--hui-font-base); }
+
+.hui-picker--filled {
+  --_pk-border: transparent;
+  --_pk-hover-border: transparent;
+  --_pk-bg: var(--hui-fill-tertiary);
+}
+
+.hui-picker--filled .hui-picker__selector:focus-within,
+.hui-picker--filled.hui-picker--open .hui-picker__selector {
+  background: var(--hui-picker-bg, var(--hui-bg-container, var(--hui-bg)));
+}
+
+.hui-picker--borderless .hui-picker__selector,
+.hui-picker--borderless .hui-picker__selector:hover,
+.hui-picker--borderless .hui-picker__selector:focus-within,
+.hui-picker--borderless.hui-picker--open .hui-picker__selector {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.hui-picker--error {
+  --_pk-border: var(--hui-danger);
+  --_pk-hover-border: var(--hui-danger);
+  --_pk-focus-border: var(--hui-danger);
+  --_pk-focus-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.hui-picker--warning {
+  --_pk-border: var(--hui-warning);
+  --_pk-hover-border: var(--hui-warning);
+  --_pk-focus-border: var(--hui-warning);
+  --_pk-focus-shadow: 0 0 0 3px var(--hui-warning-light);
+}
+
+:host(:state(user-invalid)) .hui-picker {
+  --_pk-border: var(--hui-danger);
+  --_pk-hover-border: var(--hui-danger);
+  --_pk-focus-border: var(--hui-danger);
+  --_pk-focus-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.hui-picker--disabled .hui-picker__selector {
+  background: var(--hui-fill-tertiary);
+  border-color: var(--hui-border);
+  color: var(--hui-text-disabled, var(--hui-text-muted));
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.hui-picker__input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--hui-picker-font-size, var(--_pk-font));
+  color: var(--hui-picker-color, var(--hui-text));
+}
+
+.hui-picker__input::placeholder {
+  color: var(--hui-picker-placeholder-color, var(--hui-text-muted));
+}
+
+.hui-picker__input:disabled {
+  cursor: not-allowed;
+  color: inherit;
+}
+
+.hui-picker__separator {
+  flex-shrink: 0;
+  color: var(--hui-picker-icon-color, var(--hui-text-muted));
+  font-size: var(--hui-picker-font-size, var(--_pk-font));
+}
+
+.hui-picker__suffix,
+.hui-picker__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--hui-picker-icon-color, var(--hui-text-muted));
+  font-size: calc(var(--hui-picker-font-size, var(--_pk-font)) + 2px);
+}
+
+/* Nút xóa đè lên icon khi hover (giống Ant) */
+.hui-picker__clear {
+  position: absolute;
+  inset-inline-end: var(--hui-picker-padding-x, var(--_pk-pad));
+  padding: 0;
+  border: 0;
+  background: var(--_pk-bg);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.hui-picker__selector:hover .hui-picker__clear,
+.hui-picker__clear:focus-visible {
+  opacity: 1;
+}
+
+.hui-picker__clear:hover {
+  color: var(--hui-text);
+}
+
+.hui-picker--datetime { --_pk-width: 220px; }
+.hui-picker--range { --_pk-width: 290px; }
+.hui-picker--range.hui-picker--datetime { --_pk-width: 380px; }
+.hui-picker--time { --_pk-width: 130px; }
+
+/* Range: thanh chỉ ô đang nhập */
+.hui-picker--range .hui-picker__input--active {
+  box-shadow: inset 0 -2px 0 var(--_pk-focus-border);
+}
+
+/* ================== POPUP ================== */
+.hui-picker__popup {
+  box-sizing: border-box;
+  padding: var(--hui-picker-popup-padding, var(--hui-space-sm) var(--hui-space-md));
+  border-radius: var(--hui-picker-popup-radius, var(--hui-radius-md));
+  background: var(--hui-picker-popup-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-picker-popup-shadow, var(--hui-shadow-lg));
+  color: var(--hui-text);
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-sm);
+}
+
+.hui-picker--inline .hui-picker__popup {
+  border: 1px solid var(--hui-border-secondary, var(--hui-border));
+  box-shadow: none;
+  background: var(--hui-picker-popup-bg, var(--hui-bg-container, var(--hui-bg)));
+}
+
+.hui-picker__layout {
+  display: flex;
+  max-width: calc(100vw - 32px);
+}
+
+.hui-picker__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.hui-picker__panels {
+  display: flex;
+  gap: var(--hui-space-md);
+}
+
+.hui-picker__panels > .hui-cal {
+  width: var(--hui-calendar-panel-width, 252px);
+}
+
+.hui-picker__panels > .hui-time {
+  border-inline-start: 1px solid var(--hui-border-secondary, var(--hui-border));
+  margin-inline-start: calc(-1 * var(--hui-space-xs));
+}
+
+.hui-picker__presets {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+  width: var(--hui-picker-presets-width, 120px);
+  margin: calc(-1 * var(--hui-space-sm)) var(--hui-space-md) calc(-1 * var(--hui-space-sm)) calc(-1 * var(--hui-space-md));
+  padding: var(--hui-space-sm);
+  border-inline-end: 1px solid var(--hui-border-secondary, var(--hui-border));
+  overflow-y: auto;
+  list-style: none;
+}
+
+.hui-picker__preset {
+  padding: 4px 8px;
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.hui-picker__preset:hover {
+  background: var(--hui-primary-light);
+  color: var(--hui-primary);
+}
+
+.hui-picker__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-sm);
+  margin: var(--hui-space-sm) calc(-1 * var(--hui-space-md)) calc(-1 * var(--hui-space-xs));
+  padding: var(--hui-space-xs) var(--hui-space-md) 0;
+  border-top: 1px solid var(--hui-border-secondary, var(--hui-border));
+  min-height: 32px;
+}
+
+.hui-picker__footer--center {
+  justify-content: center;
+}
+
+.hui-picker__link {
+  padding: 2px 4px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--hui-primary);
+  cursor: pointer;
+  border-radius: var(--hui-radius-sm);
+}
+
+.hui-picker__link:hover {
+  color: var(--hui-primary-hover, var(--hui-primary));
+}
+
+.hui-picker__link:disabled {
+  color: var(--hui-text-disabled, var(--hui-text-muted));
+  cursor: not-allowed;
+}
+
+.hui-picker__ok {
+  margin-inline-start: auto;
+  padding: 2px 10px;
+  border: 1px solid var(--hui-primary);
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-primary);
+  color: var(--hui-text-light-solid, #fff);
+  font: inherit;
+  font-size: var(--hui-font-xs);
+  line-height: 20px;
+  cursor: pointer;
+  transition: background var(--hui-transition-fast);
+}
+
+.hui-picker__ok:hover {
+  background: var(--hui-primary-hover, var(--hui-primary));
+}
+
+.hui-picker__ok:disabled {
+  border-color: var(--hui-border);
+  background: var(--hui-fill-tertiary);
+  color: var(--hui-text-disabled, var(--hui-text-muted));
+  cursor: not-allowed;
+}
+
+.hui-picker__link:focus-visible,
+.hui-picker__ok:focus-visible,
+.hui-picker__preset:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 1px;
+}
+
+/* Màn hẹp: cột chọn nhanh nằm trên, chỉ 1 bảng lịch */
+@media (max-width: 639px) {
+  .hui-picker__layout {
+    flex-direction: column;
+  }
+
+  .hui-picker__presets {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: auto;
+    margin: calc(-1 * var(--hui-space-sm)) calc(-1 * var(--hui-space-md)) var(--hui-space-sm);
+    border-inline-end: 0;
+    border-bottom: 1px solid var(--hui-border-secondary, var(--hui-border));
+  }
+
+  .hui-picker__panels > .hui-cal + .hui-cal {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-picker__selector,
+  .hui-picker__clear,
+  .hui-picker__preset,
+  .hui-picker__ok {
+    transition: none;
+  }
+}
