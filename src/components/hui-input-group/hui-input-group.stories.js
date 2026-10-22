@@ -24,7 +24,7 @@ viền giữa gộp làm một, chỉ bo góc 2 đầu, control đang focus nổ
 
 \`\`\`html
 <hui-input-group>
-  <hui-select .options=\${['https://', 'http://']} value="https://"></hui-select>
+  <hui-select aria-label="Giao thức" .options=\${['https://', 'http://']} value="https://"></hui-select>
   <hui-input placeholder="ten-mien"></hui-input>
   <hui-button>Kiểm tra</hui-button>
 </hui-input-group>
@@ -67,7 +67,7 @@ export const Default = {
   render: () => html`
     <div style="max-width:520px">
       <hui-input-group aria-label="Địa chỉ web">
-        <hui-select style="width:110px" .options=${['https://', 'http://']} value="https://"></hui-select>
+        <hui-select aria-label="Giao thức" style="width:110px" .options=${['https://', 'http://']} value="https://"></hui-select>
         <hui-input placeholder="ten-mien-cua-ban"></hui-input>
         <hui-button>Kiểm tra</hui-button>
       </hui-input-group>
@@ -165,7 +165,7 @@ export const MixedControls = {
   render: () => html`
     <div style="display:grid;gap:12px;max-width:520px">
       <hui-input-group aria-label="Tìm thành phố">
-        <hui-select style="width:120px" .options=${['Thành phố', 'Quận']} value="Thành phố"></hui-select>
+        <hui-select aria-label="Cấp hành chính" style="width:120px" .options=${['Thành phố', 'Quận']} value="Thành phố"></hui-select>
         <hui-autocomplete placeholder="Gõ tên..." .options=${['Hà Nội', 'Huế', 'Đà Nẵng', 'Hồ Chí Minh']}></hui-autocomplete>
       </hui-input-group>
       <hui-input-group aria-label="Mã giảm giá"><input placeholder="Mã giảm giá" aria-label="Mã giảm giá" /><button type="button">Áp dụng</button></hui-input-group>

@@ -209,7 +209,8 @@
 
 /* borderless không có viền để tô → báo trạng thái bằng màu chữ */
 .hui-input--borderless.hui-input--error .hui-input__field { color: var(--hui-danger); }
-.hui-input--borderless.hui-input--warning .hui-input__field { color: var(--hui-warning); }
+/* warning/success quá sáng để làm màu chữ → pha với --hui-text cho đủ tương phản AA */
+.hui-input--borderless.hui-input--warning .hui-input__field { color: color-mix(in srgb, var(--hui-warning) 55%, var(--hui-text)); }
 
 /* ================== KÍCH THƯỚC ================== */
 .hui-input--sm {
@@ -302,14 +303,23 @@
   white-space: nowrap;
 }
 
+/*
+ * Addon nhận nguyên --hui-input-radius (có thể là giá trị 4 góc do hui-input-group / hui-space truyền,
+ * vd "8px 0 0 8px") rồi xóa 2 góc phía trong bằng thuộc tính từng góc — KHÔNG ghép biến vào
+ * shorthand (ghép "8px 0 0 8px" vào "x 0 0 x" thành giá trị không hợp lệ → mất bo góc).
+ */
 .hui-input__addon--before {
   border-right: 0;
-  border-radius: var(--hui-input-radius, var(--_input-radius)) 0 0 var(--hui-input-radius, var(--_input-radius));
+  border-radius: var(--hui-input-radius, var(--_input-radius));
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .hui-input__addon--after {
   border-left: 0;
-  border-radius: 0 var(--hui-input-radius, var(--_input-radius)) var(--hui-input-radius, var(--_input-radius)) 0;
+  border-radius: var(--hui-input-radius, var(--_input-radius));
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .hui-input__control--addon-before .hui-input__container {
@@ -402,7 +412,7 @@
 }
 
 .hui-input__message--error { color: var(--hui-danger); }
-.hui-input__message--success { color: var(--hui-success); }
+.hui-input__message--success { color: color-mix(in srgb, var(--hui-success) 55%, var(--hui-text)); }
 .hui-input__message--hint { color: var(--hui-text-muted); }
 
 @media (prefers-reduced-motion: reduce) {

@@ -761,7 +761,7 @@ export const States = {
     await waitFor(() => expect(error.dataState).toBe('error'));
     await settle(error);
     // hui-result tải động → vẽ lại trạng thái lỗi khi định nghĩa xong
-    await waitFor(() => expect(partOf(error, 'state').querySelector('hui-result')).toBeTruthy());
+    await waitFor(() => expect(partOf(error, 'state').querySelector('hui-result')).toBeTruthy(), { timeout: 5000 });
 
     for (const [id, cls] of [['dv-loading-list', 'sk--list'], ['dv-loading-grid', 'sk--grid'], ['dv-loading-table', 'sk--table']]) {
       const el = get(id);

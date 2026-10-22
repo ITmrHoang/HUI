@@ -860,3 +860,39 @@ export const VirtualList = {
     press(search, 'Escape');
   },
 };
+
+/**
+ * Không có `label` — `aria-label` / `aria-labelledby` / `aria-describedby` đặt trên thẻ được chuyển xuống trigger
+ * (role=combobox) và listbox. Đổi attribute lúc chạy cũng được cập nhật. Có `label` thì giữ `aria-labelledby` nội bộ.
+ */
+export const HostAria = {
+  render: () => html`
+    <div style="display: flex; flex-direction: column; gap: 12px; max-width: 320px;">
+      <hui-select id="hs-label" aria-label="Giao thức" .options=${['https://', 'http://']} value="https://"></hui-select>
+      <span id="hs-title">Thành phố</span>
+      <span id="hs-desc">Chọn nơi nhận hàng</span>
+      <hui-select id="hs-ref" aria-labelledby="hs-title" aria-describedby="hs-desc" .options=${['Hà Nội', 'Huế']}></hui-select>
+      <hui-select id="hs-both" label="Quốc gia" aria-label="Bị bỏ qua" .options=${['Việt Nam']}></hui-select>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const trigger = (id) => canvasElement.querySelector(`#${id}`).shadowRoot.querySelector('[part="trigger"]');
+    const listbox = (id) => canvasElement.querySelector(`#${id}`).shadowRoot.querySelector('[part="listbox"]');
+    await waitFor(() => expect(trigger('hs-label').getAttribute('aria-label')).toBe('Giao thức'));
+    await expect(listbox('hs-label').getAttribute('aria-label')).toBe('Giao thức');
+    await expect(trigger('hs-ref').getAttribute('aria-label')).toBe('Thành phố');
+    await expect(trigger('hs-ref').getAttribute('aria-description')).toBe('Chọn nơi nhận hàng');
+    // Có label → aria-labelledby trỏ <label> nội bộ, không gán aria-label
+    await expect(trigger('hs-both').getAttribute('aria-labelledby')).toBe('label');
+    await expect(trigger('hs-both').hasAttribute('aria-label')).toBe(false);
+    await expect(listbox('hs-both').getAttribute('aria-label')).toBe('Quốc gia');
+
+    const host = canvasElement.querySelector('#hs-label');
+    host.setAttribute('aria-label', 'Scheme');
+    await waitFor(() => expect(trigger('hs-label').getAttribute('aria-label')).toBe('Scheme'));
+    host.removeAttribute('aria-label');
+    await waitFor(() => expect(trigger('hs-label').hasAttribute('aria-label')).toBe(false));
+    host.setAttribute('aria-label', 'Giao thức');
+    await waitFor(() => expect(trigger('hs-label').getAttribute('aria-label')).toBe('Giao thức'));
+  },
+};

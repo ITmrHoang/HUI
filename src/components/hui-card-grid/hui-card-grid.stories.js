@@ -532,10 +532,11 @@ export const DataStates = {
     await settle(empty);
     await expect(partOf(empty, 'state').hidden).toBe(false);
     // hui-empty / hui-result tải động → trạng thái được vẽ lại khi định nghĩa xong
-    await waitFor(() => expect(partOf(empty, 'state').querySelector('hui-empty')).toBeTruthy());
+    // hui-empty / hui-result tải động → có thể chậm hơn 1 giây khi chạy cả bộ test
+    await waitFor(() => expect(partOf(empty, 'state').querySelector('hui-empty')).toBeTruthy(), { timeout: 5000 });
     await waitFor(() => expect(error.dataState).toBe('error'));
     await settle(error);
-    await waitFor(() => expect(partOf(error, 'state').querySelector('hui-result')).toBeTruthy());
+    await waitFor(() => expect(partOf(error, 'state').querySelector('hui-result')).toBeTruthy(), { timeout: 5000 });
   },
 };
 

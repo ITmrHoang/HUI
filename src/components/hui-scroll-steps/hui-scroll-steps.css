@@ -21,18 +21,19 @@
 /* ================== HOST ==================
  * self: chính component là vùng cuộn, cao 100dvh (fallback 100vh) hoặc theo attribute height (--_steps-height)
  * window (dọc): cao theo nội dung, mỗi bước 100dvh, trang cuộn + snap
+ * window + horizontal (khối ghim): cao N × 100dvh (JS đặt --_steps-pinned-h / -dh), .steps sticky cao 100dvh
  */
 :host {
   display: block;
   position: relative;
   box-sizing: border-box;
-  height: var(--_steps-height, var(--hui-scroll-steps-height, 100vh));
+  height: var(--_steps-pinned-h, var(--_steps-height, var(--hui-scroll-steps-height, 100vh)));
   font-family: var(--hui-font-family);
   color: var(--hui-text);
 }
 
 @supports (height: 100dvh) {
-  :host { height: var(--_steps-height, var(--hui-scroll-steps-height, 100dvh)); }
+  :host { height: var(--_steps-pinned-dh, var(--_steps-height, var(--hui-scroll-steps-height, 100dvh))); }
 }
 
 :host([container="window"]:not([direction="horizontal"])) { height: auto; }
@@ -239,8 +240,8 @@
 :host([nav="bottom"]) .steps__dot:focus-visible .steps__dot-label,
 :host([nav="bottom"][nav-labels]) .steps__dot-label { transform: translate(-50%, 0); }
 
-/* nav-labels: nhãn thường mờ hơn, nhãn đang xem đậm */
-:host([nav-labels]) .steps__dot:not(.steps__dot--active) .steps__dot-label { opacity: 0.7; }
+/* nav-labels: nhãn đang xem đậm hơn (không làm mờ nhãn thường — chữ mờ không đạt tương phản WCAG AA) */
+:host([nav-labels]) .steps__dot--active .steps__dot-label { font-weight: var(--hui-font-weight-semibold); }
 
 /* ================== CỤM NÚT TRƯỚC/SAU + BỘ ĐẾM ================== */
 .steps__controls {
@@ -331,6 +332,82 @@
 .steps--window:not(.steps--in-view) .steps__progress {
   opacity: 0;
   visibility: hidden;
+}
+
+/* ================== WINDOW + HORIZONTAL: KHỐI GHIM ==================
+ * Khung .steps dính đỉnh màn hình suốt chiều cao host; viewport là dải ngang, JS dịch translateX theo tiến độ cuộn.
+ * Điểm snap nằm ở .steps__mark--step (ngoài khối ghim) nên bỏ snap trên chính các bước.
+ */
+.steps.steps--pinned {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+@supports (height: 100dvh) {
+  .steps.steps--pinned { height: 100dvh; }
+}
+
+.steps.steps--pinned .steps__viewport {
+  display: flex;
+  height: 100%;
+  overflow: visible;
+  scroll-snap-type: none;
+  will-change: transform;
+}
+
+.steps.steps--pinned ::slotted(*) {
+  height: 100%;
+  scroll-snap-align: none;
+}
+
+/* Điều khiển nằm trong khối ghim (absolute) thay vì cố định theo màn hình → luôn đi cùng khối, không cần ẩn/hiện */
+.steps.steps--pinned .steps__nav,
+.steps.steps--pinned .steps__controls,
+.steps.steps--pinned .steps__progress {
+  position: absolute;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ================== ĐIỂM SNAP PHỤ (container="window") ================== */
+.steps__track {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.steps__mark {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+}
+
+/* Lối thoát của mandatory: 1 màn hình phía trên / ngay sau component */
+.steps__mark--before,
+.steps__mark--after { display: none; }
+
+.steps__track--edges .steps__mark--before,
+.steps__track--edges .steps__mark--after {
+  display: block;
+  scroll-snap-align: start;
+}
+
+.steps__mark--before { top: -100vh; }
+.steps__mark--after { top: calc(100% - 1px); }
+
+.steps__mark--step {
+  top: calc(var(--_mark-index, 0) * 100vh);
+  height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+@supports (height: 100dvh) {
+  .steps__mark--before { top: -100dvh; }
+  .steps__mark--step { top: calc(var(--_mark-index, 0) * 100dvh); height: 100dvh; }
 }
 
 /* ================== TẮT CHUYỂN ĐỘNG ================== */

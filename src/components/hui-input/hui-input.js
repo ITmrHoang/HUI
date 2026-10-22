@@ -12,6 +12,7 @@ import { createElement } from '../../utils/dom.js';
 import { debounce } from '../../utils/events.js';
 import '../hui-icon/index.js';
 import { getIcon } from '../hui-icon/icons.js';
+import { HOST_ARIA_ATTRS, hostAriaDescription, hostAriaName, setOrRemove } from './host-aria.js';
 
 /** icon-left / icon-right: tên icon đã đăng ký → <hui-icon>; còn lại (chữ, emoji) giữ dạng chữ như cũ */
 function fillIcon(el, value) {
@@ -115,9 +116,28 @@ class HuiInput extends HuiFormElement {
 
   static styles = styles;
 
+  // Theo dõi thêm aria-label / -labelledby / -describedby của host để chuyển xuống <input>
+  static get observedAttributes() {
+    return [...super.observedAttributes, ...HOST_ARIA_ATTRS];
+  }
+
   constructor() {
     super();
     this._debouncedSearch = debounce((value) => this.emit('hui-search', { value }), 300);
+  }
+
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    if (HOST_ARIA_ATTRS.includes(attrName)) {
+      if (oldVal !== newVal) this.requestUpdate('hostAria');
+      return;
+    }
+    super.attributeChangedCallback(attrName, oldVal, newVal);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    // Phần tử được aria-labelledby trỏ tới có thể nằm SAU host trong DOM → đọc lại ở microtask kế tiếp
+    this.requestUpdate('hostAria');
   }
 
   render() {
@@ -213,6 +233,11 @@ class HuiInput extends HuiFormElement {
       this._label.hidden = !this.label;
     }
     if (changed.has('labelPosition')) this._placeLabel();
+    if (changed.has('label') || changed.has('hostAria')) {
+      // Có label → <label for> đặt tên như cũ; không có → lấy aria-label / aria-labelledby của host
+      setOrRemove(input, 'aria-label', this.label ? '' : hostAriaName(this));
+      setOrRemove(input, 'aria-description', hostAriaDescription(this));
+    }
     if (changed.has('iconLeft') || changed.has('iconRight')) {
       fillIcon(this._iconLeft, this.iconLeft);
       fillIcon(this._iconRight, this.iconRight);

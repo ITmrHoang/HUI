@@ -17,6 +17,7 @@ import { autoUpdate, computePosition, floatingCss, hideFloating, showFloating } 
 import { animateIn, animateOut } from '../../utils/motion.js';
 import { openOverlay } from '../../utils/overlay.js';
 import '../hui-empty/hui-empty.js';
+import { HOST_ARIA_ATTRS, hostAriaDescription, hostAriaName, setOrRemove } from '../hui-input/host-aria.js';
 
 const LABEL_ALIAS = { above: 'top', left: 'inline' };
 const LABEL_POSITIONS = ['top', 'inline', 'inside'];
@@ -118,6 +119,25 @@ class HuiSelect extends HuiFormElement {
   };
 
   static styles = [floatingCss, styles];
+
+  // Theo dõi thêm aria-label / -labelledby / -describedby của host để chuyển xuống trigger (combobox)
+  static get observedAttributes() {
+    return [...super.observedAttributes, ...HOST_ARIA_ATTRS];
+  }
+
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    if (HOST_ARIA_ATTRS.includes(attrName)) {
+      if (oldVal !== newVal) this.requestUpdate('hostAria');
+      return;
+    }
+    super.attributeChangedCallback(attrName, oldVal, newVal);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    // Phần tử được aria-labelledby trỏ tới có thể nằm SAU host trong DOM → đọc lại ở microtask kế tiếp
+    this.requestUpdate('hostAria');
+  }
 
   constructor() {
     super();
@@ -294,6 +314,13 @@ class HuiSelect extends HuiFormElement {
       else this._trigger.removeAttribute('aria-labelledby');
       if (this.label) this._listbox.setAttribute('aria-label', this.label);
       else this._listbox.removeAttribute('aria-label');
+    }
+    if (changed.has('label') || changed.has('hostAria')) {
+      // Có label → aria-labelledby như cũ; không có → lấy aria-label / aria-labelledby của host
+      const hostName = this.label ? '' : hostAriaName(this);
+      setOrRemove(this._trigger, 'aria-label', hostName);
+      if (!this.label) setOrRemove(this._listbox, 'aria-label', hostName);
+      setOrRemove(this._trigger, 'aria-description', hostAriaDescription(this));
     }
     if (changed.has('labelPosition')) this._placeLabel();
     if (changed.has('disabled')) {

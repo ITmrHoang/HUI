@@ -76,11 +76,11 @@ class HuiScrollSteps extends HuiElement {
   static properties = {
     /** self | window — self: chính component là vùng cuộn cao cố định; window: các bước snap theo cuộn trang */
     container: { type: String, default: 'self' },
-    /** vertical | horizontal — horizontal: các bước nằm ngang (luôn cuộn trong chính component) */
+    /** vertical | horizontal — horizontal: các bước nằm ngang (self: cuộn ngang trong component; window: khối ghim, cuộn dọc trang → trượt ngang) */
     direction: { type: String, default: 'vertical' },
     /** Chiều cao khi container="self": số (px) hoặc độ dài CSS; mặc định 100dvh */
     height: { type: String },
-    /** mandatory | proximity — độ "hút" của scroll-snap (window có nội dung khác trên trang nên cân nhắc proximity) */
+    /** mandatory | proximity — độ "hút" của scroll-snap (window + mandatory chỉ "hút" khi component phủ giữa màn hình) */
     snap: { type: String, default: 'mandatory' },
     /** Mỗi lần lăn chuột = đúng 1 bước (khóa trong lúc chuyển); cảm ứng vẫn vuốt tự nhiên */
     wheelStep: { type: Boolean },
@@ -121,6 +121,8 @@ class HuiScrollSteps extends HuiElement {
     this._wheel = { last: 0, used: false, acc: 0, until: 0, prevAbs: 0 };
     this._rootSnapPrev = null;
     this._inView = false;
+    this._stepMarks = []; // điểm snap của từng bước (window + horizontal)
+    this._rtl = false;
   }
 
   // =====================================================
@@ -130,10 +132,12 @@ class HuiScrollSteps extends HuiElement {
   render() {
     this._slot = createElement('slot');
     this._slot.addEventListener('slotchange', () => this._collect());
-    this._viewport = createElement('div', { className: 'steps__viewport', part: 'viewport', role: 'region' }, this._slot);
+    // role đặt trong updated(): region (landmark) chỉ khi host có aria-label riêng, còn lại group (tránh landmark trùng tên)
+    this._viewport = createElement('div', { className: 'steps__viewport', part: 'viewport' }, this._slot);
 
     this._navList = createElement('div', { className: 'steps__dots' });
-    this._nav = createElement('nav', { className: 'steps__nav', part: 'nav' }, this._navList);
+    // Nhóm chấm (role=group, không phải landmark <nav>): nhiều scroll-steps trên một trang không sinh landmark trùng tên
+    this._nav = createElement('div', { className: 'steps__nav', part: 'nav', role: 'group' }, this._navList);
 
     this._prevIcon = createElement('hui-icon', { name: 'chevron-up', 'aria-hidden': 'true' });
     this._nextIcon = createElement('hui-icon', { name: 'chevron-down', 'aria-hidden': 'true' });
@@ -150,8 +154,14 @@ class HuiScrollSteps extends HuiElement {
     this._base = createElement('div', { className: 'steps', part: 'base' },
       this._viewport, this._progress, this._nav, this._controls);
 
+    // Điểm snap phụ cho container="window" (nằm ngoài khối ghim): lối thoát lên/xuống + từng bước khi ngang
+    this._markBefore = createElement('div', { className: 'steps__mark steps__mark--before' });
+    this._markAfter = createElement('div', { className: 'steps__mark steps__mark--after' });
+    this._track = createElement('div', { className: 'steps__track', 'aria-hidden': 'true', hidden: true },
+      this._markBefore, this._markAfter);
+
     this.addEventListener('keydown', (e) => this._onKeydown(e, false));
-    return this._base;
+    return [this._base, this._track];
   }
 
   connectedCallback() {
@@ -193,11 +203,14 @@ class HuiScrollSteps extends HuiElement {
       this._next.setAttribute('aria-label', tr('next'));
     }
     if (changed.has('locale') || changed.has('container') || changed.has('direction')) {
-      this._viewport.setAttribute('aria-label', this.getAttribute('aria-label') || tr('label'));
+      const ownLabel = this.getAttribute('aria-label');
+      this._viewport.setAttribute('role', ownLabel ? 'region' : 'group');
+      this._viewport.setAttribute('aria-label', ownLabel || tr('label'));
       // Chỉ vùng cuộn thật (self) mới cần nhận focus để dùng bàn phím
       if (this._mode === 'self') this._viewport.setAttribute('tabindex', '0');
       else this._viewport.removeAttribute('tabindex');
       this._base.classList.toggle('steps--window', this._mode === 'window');
+      this._base.classList.toggle('steps--pinned', this._pinned);
     }
 
     if (changed.has('locale') && this._sections.length) this._labelSections();
@@ -233,13 +246,17 @@ class HuiScrollSteps extends HuiElement {
     if (index < 0) return false;
     const el = this._sections[index];
     const scroller = this._scroller;
-    const horizontal = this.direction === 'horizontal';
+    const horizontal = this._scrollX;
 
     // Vị trí đích tính từ khung hình (offsetTop không dùng được với phần tử slot qua shadow)
     const rect = el.getBoundingClientRect();
     let top;
     let left;
-    if (this._mode === 'window') {
+    if (this._pinned) {
+      // Khối ghim: bước i ứng với vị trí cuộn dọc của điểm snap thứ i
+      const mark = this._stepMarks[index];
+      top = window.scrollY + (mark ? mark.getBoundingClientRect().top : this.getBoundingClientRect().top);
+    } else if (this._mode === 'window') {
       top = window.scrollY + rect.top;
     } else {
       const box = this._viewport.getBoundingClientRect();
@@ -270,13 +287,29 @@ class HuiScrollSteps extends HuiElement {
   // THIẾT LẬP / GỠ
   // =====================================================
 
-  /** window chỉ áp cho chiều dọc; ngang luôn cuộn trong chính component */
   get _mode() {
-    return this.container === 'window' && this.direction !== 'horizontal' ? 'window' : 'self';
+    return this.container === 'window' ? 'window' : 'self';
+  }
+
+  /**
+   * window + horizontal ("horizontal scroll section"): host cao N × 100dvh, khối .steps ghim (sticky) cao 100dvh,
+   * trang cuộn dọc → các bước trượt ngang theo tiến độ cuộn.
+   */
+  get _pinned() {
+    return this._mode === 'window' && this.direction === 'horizontal';
+  }
+
+  /** Vùng cuộn thật theo trục x (chỉ self + horizontal) */
+  get _scrollX() {
+    return this._mode === 'self' && this.direction === 'horizontal';
   }
 
   get _scroller() {
     return this._mode === 'window' ? window : this._viewport;
+  }
+
+  get _mandatoryWindow() {
+    return this._mode === 'window' && this.snap !== 'proximity';
   }
 
   _setup() {
@@ -286,12 +319,16 @@ class HuiScrollSteps extends HuiElement {
     this._setupAbort = new AbortController();
     const signal = this._setupAbort.signal;
     const win = this._mode === 'window';
+    this._rtl = getComputedStyle(this).direction === 'rtl';
+    this._track.hidden = !win;
+    this._track.classList.toggle('steps__track--edges', this._mandatoryWindow);
 
     if (win) {
-      // Snap theo trang: gắn scroll-snap-type lên vùng cuộn gốc, trả lại giá trị cũ khi gỡ
+      // Snap theo trang: gắn scroll-snap-type lên vùng cuộn gốc, trả lại giá trị cũ khi gỡ.
+      // mandatory: chỉ bật khi component phủ giữa màn hình (xem _syncRootSnap) → header/footer vẫn cuộn tới được
       const root = document.scrollingElement || document.documentElement;
       this._rootSnapPrev = root.style.scrollSnapType;
-      root.style.scrollSnapType = `y ${this.snap === 'proximity' ? 'proximity' : 'mandatory'}`;
+      root.style.scrollSnapType = this._mandatoryWindow ? 'none' : 'y proximity';
       document.addEventListener('keydown', (e) => this._onKeydown(e, true), { signal });
       // Thanh chấm / tiến độ (position: fixed) chỉ hiện khi component đang trong màn hình
       if (typeof IntersectionObserver === 'function') {
@@ -304,8 +341,8 @@ class HuiScrollSteps extends HuiElement {
       }
     }
 
-    // Ngang: lăn chuột dọc luôn được đổi thành bước (không thì chuột không cuộn ngang được)
-    if (this.wheelStep || this.direction === 'horizontal') {
+    // Ngang (self): lăn chuột dọc luôn được đổi thành bước (không thì chuột không cuộn ngang được)
+    if (this.wheelStep || this._scrollX) {
       (win ? window : this._viewport).addEventListener('wheel', (e) => this._onWheel(e), { passive: false, signal });
     }
 
@@ -315,22 +352,69 @@ class HuiScrollSteps extends HuiElement {
       window.addEventListener('popstate', apply, { signal });
     }
 
-    if (this.progress) {
+    if (this.progress || win) {
       this._stopScroll = onScroll(this._scroller, (info) => {
-        let p;
         if (win) {
-          const rect = this.getBoundingClientRect();
-          const range = rect.height - window.innerHeight;
-          p = range > 0 ? Math.min(1, Math.max(0, -rect.top / range)) : 0;
-        } else {
-          p = this.direction === 'horizontal' ? info.progressX : info.progress;
+          if (this._mandatoryWindow) this._syncRootSnap();
+          if (this._pinned) this._syncPinned();
         }
+        if (!this.progress) return;
+        const p = win ? this._windowProgress() : this._scrollX ? info.progressX : info.progress;
         this._bar.style.transform = `scaleX(${p})`;
       });
     }
 
     this._observe();
     this._collect();
+  }
+
+  /** Tiến độ cuộn trang qua component (0 → 1) — window */
+  _windowProgress() {
+    const rect = this.getBoundingClientRect();
+    const range = rect.height - window.innerHeight;
+    return range > 0 ? Math.min(1, Math.max(0, -rect.top / range)) : 0;
+  }
+
+  /**
+   * window + mandatory: scroll-snap-type của trang = mandatory chỉ khi component phủ đường giữa màn hình,
+   * ngoài ra = none → nội dung trước/sau cuộn tự do. Điểm snap "lối thoát" (.steps__mark--before/after) cho phép
+   * lăn từ bước đầu/cuối ra ngoài (mandatory không có điểm snap theo hướng lăn thì trình duyệt đứng yên).
+   */
+  _syncRootSnap() {
+    const rect = this.getBoundingClientRect();
+    const mid = window.innerHeight / 2;
+    const value = rect.top < mid && rect.bottom > mid ? 'y mandatory' : 'none';
+    const root = document.scrollingElement || document.documentElement;
+    if (root.style.scrollSnapType !== value) root.style.scrollSnapType = value;
+  }
+
+  /** Khối ghim: dịch các bước theo tiến độ cuộn dọc + nhận diện bước đang xem */
+  _syncPinned() {
+    const n = this._sections.length;
+    if (!n) return;
+    const pos = this._windowProgress() * (n - 1);
+    this._viewport.style.transform = `translate3d(${(this._rtl ? 1 : -1) * pos * 100}%, 0, 0)`;
+    if (!this._locked) this._setActive(Math.round(pos), 'scroll');
+  }
+
+  /** Dựng điểm snap cho từng bước của khối ghim (vị trí k × 100dvh trong host) */
+  _buildMarks() {
+    this._stepMarks.forEach((m) => m.remove());
+    this._stepMarks = [];
+    const n = this._pinned ? this._sections.length : 0;
+    if (n) {
+      this.style.setProperty('--_steps-pinned-h', `calc(${n} * 100vh)`);
+      this.style.setProperty('--_steps-pinned-dh', `calc(${n} * 100dvh)`);
+    } else {
+      this.style.removeProperty('--_steps-pinned-h');
+      this.style.removeProperty('--_steps-pinned-dh');
+    }
+    for (let i = 0; i < n; i++) {
+      const mark = createElement('div', { className: 'steps__mark steps__mark--step' });
+      mark.style.setProperty('--_mark-index', String(i));
+      this._track.append(mark);
+      this._stepMarks.push(mark);
+    }
   }
 
   _teardown() {
@@ -350,6 +434,7 @@ class HuiScrollSteps extends HuiElement {
       root.style.scrollSnapType = this._rootSnapPrev;
       this._rootSnapPrev = null;
     }
+    if (this._viewport) this._viewport.style.transform = '';
   }
 
   // =====================================================
@@ -366,6 +451,7 @@ class HuiScrollSteps extends HuiElement {
 
     this._labelSections();
     this._buildDots();
+    this._buildMarks();
 
     // Theo dõi IO + đổi nhãn khi `label` của bước thay đổi
     this._io?.disconnect();
@@ -394,7 +480,10 @@ class HuiScrollSteps extends HuiElement {
     if (index > 0 && first) {
       // Chờ layout xong rồi nhảy thẳng tới bước (goTo không phát sự kiện vì bước đã là current)
       requestAnimationFrame(() => this.goTo(index, { smooth: false, _source: 'hash' }));
+    } else if (this._pinned) {
+      this._syncPinned();
     }
+    if (this._mandatoryWindow) this._syncRootSnap();
   }
 
   _labelSections() {
@@ -497,6 +586,7 @@ class HuiScrollSteps extends HuiElement {
   }
 
   _pickVisible() {
+    if (this._pinned) return; // khối ghim: bước tính theo tiến độ cuộn (_syncPinned)
     let best = -1;
     let bestRatio = ACTIVE_RATIO - 0.01;
     this._sections.forEach((el, i) => {
@@ -508,10 +598,14 @@ class HuiScrollSteps extends HuiElement {
 
   /** Đo trực tiếp (dùng khi vừa mở khóa — IO có thể chưa báo lại nếu tỉ lệ không vượt ngưỡng) */
   _syncFromGeometry() {
+    if (this._pinned) {
+      this._syncPinned();
+      return;
+    }
     const box = this._mode === 'window'
       ? { top: 0, left: 0, bottom: window.innerHeight, right: window.innerWidth }
       : this._viewport.getBoundingClientRect();
-    const horizontal = this.direction === 'horizontal';
+    const horizontal = this._scrollX;
     let best = -1;
     let bestRatio = 0.5;
     this._sections.forEach((el, i) => {
@@ -593,7 +687,9 @@ class HuiScrollSteps extends HuiElement {
     if (isEditable(target)) return;
 
     if (win) {
-      if (!this._inView) return;
+      // Đo trực tiếp (IntersectionObserver báo trễ → phím đầu tiên sau khi cuộn tới có thể bị bỏ qua)
+      const r = this.getBoundingClientRect();
+      if (r.bottom <= 0 || r.top >= window.innerHeight) return;
       const active = document.activeElement;
       if (active && active !== document.body && active !== document.documentElement && !this.contains(active) && active !== this) return;
     }
@@ -632,7 +728,8 @@ class HuiScrollSteps extends HuiElement {
    */
   _onWheel(e) {
     if (e.ctrlKey || !this._sections.length) return; // ctrl + lăn = zoom
-    const horizontal = this.direction === 'horizontal';
+    // Khối ghim (window + horizontal) nhận lăn dọc như chế độ dọc
+    const horizontal = this._scrollX;
     const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? (horizontal ? this.clientWidth : window.innerHeight) : 1;
     const useX = Math.abs(e.deltaX) > Math.abs(e.deltaY);
     // Dọc: bỏ vuốt ngang trên trackpad. Ngang không bật wheel-step: vuốt ngang để snap tự nhiên,

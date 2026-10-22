@@ -37,11 +37,13 @@
 .hui-tag {
   /*
    * --_c   : màu chủ đạo (JS gán --_tag-color theo attribute color), mặc định secondary
-   * --_text: màu chữ cho soft/outlined — trộn với màu chữ chính để đọc được cả màu sáng (warning)
+   * --_text: màu chữ cho soft/outlined — trộn 55% với màu chữ chính để đạt WCAG AA (≥4,5:1) cả với màu sáng (warning)
+   * --_on  : màu chữ trên nền đặc (filled / checked / selected) — tự chọn theo độ chói nền (xem @supports bên dưới)
    * --_bg/--_fg/--_bd: nền/chữ/viền do variant + trạng thái đặt; biến công khai luôn thắng
    */
   --_c: var(--_tag-color, var(--hui-secondary));
-  --_text: color-mix(in srgb, var(--_c) 75%, var(--hui-text));
+  --_text: color-mix(in srgb, var(--_c) 55%, var(--hui-text));
+  --_on: var(--hui-text-inverse);
   --_bg: transparent;
   --_fg: var(--_text);
   --_bd: transparent;
@@ -69,6 +71,20 @@
     color var(--hui-transition-fast),
     border-color var(--hui-transition-fast),
     box-shadow var(--hui-transition-fast);
+}
+
+/*
+ * Chữ trên nền đặc tự tương phản (như hui-avatar): độ chói Y của nền trong srgb-linear,
+ * Y > ~0,2 (warning, success, info...) → chữ tối #0f172a, ngược lại → chữ trắng.
+ * Nền gradient/ảnh qua --hui-tag-bg thì tự đặt --hui-tag-color.
+ */
+@supports (color: color(from red srgb-linear r g b)) {
+  .hui-tag {
+    --_on: color(from var(--hui-tag-bg, var(--_bg)) srgb-linear
+      clamp(0.0048, (0.198 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1)
+      clamp(0.008, (0.198 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1)
+      clamp(0.0232, (0.198 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) / 1);
+  }
 }
 
 /* ================== SIZES ================== */
@@ -106,7 +122,7 @@
 .hui-tag--filled {
   --_bg: var(--_c);
   --_bd: var(--_c);
-  --_fg: var(--hui-text-inverse);
+  --_fg: var(--_on);
 }
 
 .hui-tag--outlined {
@@ -162,19 +178,22 @@
   --_bg: color-mix(in srgb, var(--_c) 8%, transparent);
 }
 
-/* Đã chọn: luôn dạng filled bất kể variant */
-.hui-tag--checked {
+/* Đã chọn (checkable checked / chip selected): luôn dạng filled bất kể variant */
+.hui-tag--checked,
+.hui-tag--selected {
   --_bg: var(--_c);
   --_bd: var(--_c);
-  --_fg: var(--hui-text-inverse);
+  --_fg: var(--_on);
 }
 
-.hui-tag--checked:hover {
+.hui-tag--checked:hover,
+.hui-tag--selected.hui-tag--clickable:hover {
   --_bg: color-mix(in oklab, var(--_c) 85%, var(--hui-bg));
   --_bd: var(--_bg);
 }
 
-.hui-tag--checked:active {
+.hui-tag--checked:active,
+.hui-tag--selected.hui-tag--clickable:active {
   --_bg: color-mix(in oklab, var(--_c) 85%, var(--hui-shade-mix));
 }
 
@@ -221,6 +240,16 @@
 .hui-tag--lg .hui-tag__avatar ::slotted(*) {
   width: 24px;
   height: 24px;
+}
+
+/* Avatar theo attribute (hui-avatar dự phòng trong slot) */
+.hui-tag__avatar hui-avatar {
+  --hui-avatar-size: 1.4em;
+  display: block;
+}
+
+.hui-tag--lg .hui-tag__avatar hui-avatar {
+  --hui-avatar-size: 24px;
 }
 
 /* ================== NÚT ĐÓNG ================== */
