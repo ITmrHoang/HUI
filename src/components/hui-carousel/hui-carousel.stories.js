@@ -176,9 +176,13 @@ export const Autoplay = {
     await expect(pause.hidden).toBe(false);
     await expect(part(c, 'progress').hidden).toBe(false);
     await expect(part(c, 'viewport').getAttribute('aria-live')).toBe('off');
-    // Con trỏ thật/ảo còn đè lên vùng story (từ story trước) sẽ tạm dừng autoplay → rời con trỏ trước khi chờ
+    // Trên CI con trỏ thật có thể nằm sẵn trên vùng story: slide trượt dưới con trỏ đứng yên → Chrome phát lại
+    // pointerenter → autoplay dừng (đúng hành vi với người dùng thật). Chặn pointerenter lạc trong test này.
+    const blockHover = (e) => e.stopImmediatePropagation();
+    c.addEventListener('pointerenter', blockHover, { capture: true });
     c.dispatchEvent(new PointerEvent('pointerleave'));
-    await waitFor(() => expect(c.currentIndex, `playing=${c.playing} visibility=${document.visibilityState}`).toBeGreaterThan(0), { timeout: 6000 });
+    await waitFor(() => expect(c.currentIndex, `playing=${c.playing} running=${c.matches(':state(playing)')} visibility=${document.visibilityState}`).toBeGreaterThan(0), { timeout: 6000 });
+    c.removeEventListener('pointerenter', blockHover, { capture: true });
     pause.click();
     await expect(c.playing).toBe(false);
     await expect(pause.getAttribute('aria-label')).toMatch(/autoplay|tự chạy/i);
