@@ -1,0 +1,203 @@
+/*
+ * HUI CTA Banner CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiCtaBanner.
+ * Biến nội bộ có tiền tố --_cta- (--_cta-color do JS đặt theo attribute color).
+ */
+
+:host {
+  display: block;
+  container-type: inline-size;
+  font-family: var(--hui-font-family);
+}
+
+:host([dismissed]),
+[hidden] {
+  display: none !important;
+}
+
+.cta {
+  --_cta-pad: clamp(24px, 4cqi, 48px);
+  --_cta-title: clamp(1.35rem, 1rem + 1.6cqi, 2rem);
+  --_cta-c: var(--_cta-color, var(--hui-primary));
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-xl);
+  box-sizing: border-box;
+  padding: var(--hui-cta-banner-padding, var(--_cta-pad));
+  border-radius: var(--hui-cta-banner-radius, var(--hui-radius-xl));
+  box-shadow: var(--hui-cta-banner-shadow, none);
+}
+
+.cta--sm {
+  --_cta-pad: clamp(16px, 3cqi, 28px);
+  --_cta-title: var(--hui-font-lg);
+}
+
+.cta--lg {
+  --_cta-pad: clamp(32px, 6cqi, 72px);
+  --_cta-title: clamp(1.6rem, 1.1rem + 2.4cqi, 2.6rem);
+}
+
+/* ================== VARIANT ================== */
+.cta--filled {
+  background: var(--hui-cta-banner-bg, var(--_cta-c));
+  color: var(--hui-cta-banner-color, var(--hui-text-light-solid));
+}
+
+.cta--gradient {
+  background: var(--hui-cta-banner-bg, var(--hui-cta-banner-gradient,
+    linear-gradient(120deg, var(--_cta-c), color-mix(in srgb, var(--_cta-c) 55%, var(--hui-secondary)))));
+  color: var(--hui-cta-banner-color, var(--hui-text-light-solid));
+}
+
+/* 2 vòng tròn mờ trang trí cho nền gradient */
+.cta--gradient::before,
+.cta--gradient::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.cta--gradient::before {
+  top: -40%;
+  right: -6%;
+  width: 45cqi;
+  aspect-ratio: 1;
+}
+
+.cta--gradient::after {
+  bottom: -55%;
+  left: 18%;
+  width: 30cqi;
+  aspect-ratio: 1;
+}
+
+.cta--outline {
+  border: 2px solid var(--hui-cta-banner-border-color, var(--_cta-c));
+  background: var(--hui-cta-banner-bg, color-mix(in srgb, var(--_cta-c) 6%, var(--hui-bg-container)));
+  color: var(--hui-cta-banner-color, var(--hui-text));
+}
+
+/* ================== BỐ CỤC ================== */
+.cta__icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--hui-radius-lg);
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  --hui-icon-size: 1.75rem;
+}
+
+.cta--outline .cta__icon {
+  color: var(--_cta-c);
+}
+
+.cta__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.cta__title {
+  font-size: var(--hui-cta-banner-title-font-size, var(--_cta-title));
+  font-weight: var(--hui-font-weight-bold);
+  line-height: var(--hui-line-height-heading);
+  letter-spacing: -0.01em;
+}
+
+.cta__desc {
+  color: var(--hui-cta-banner-description-color, inherit);
+  line-height: var(--hui-line-height);
+  opacity: 0.88;
+}
+
+.cta--outline .cta__desc {
+  color: var(--hui-cta-banner-description-color, var(--hui-text-secondary));
+  opacity: 1;
+}
+
+.cta__extra {
+  margin-top: var(--hui-space-xs);
+}
+
+.cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hui-space-sm);
+  flex: none;
+}
+
+/* stacked: xếp chồng, căn giữa */
+.cta--stacked {
+  flex-direction: column;
+  text-align: center;
+}
+
+.cta--stacked .cta__content {
+  align-items: center;
+  max-width: 680px;
+}
+
+.cta--stacked .cta__actions {
+  justify-content: center;
+}
+
+/* Khung hẹp: inline tự xếp dọc */
+@container (max-width: 640px) {
+  .cta--inline {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Chừa chỗ cho nút đóng */
+.cta--dismissible {
+  padding-inline-end: calc(var(--_cta-pad) + 24px);
+}
+
+.cta__close {
+  position: absolute;
+  top: var(--hui-space-sm);
+  right: var(--hui-space-sm);
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: background-color var(--hui-transition), opacity var(--hui-transition);
+  --hui-icon-size: 18px;
+}
+
+.cta__close:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  opacity: 1;
+}
+
+.cta__close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta__close {
+    transition: none;
+  }
+}

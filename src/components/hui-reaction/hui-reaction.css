@@ -1,0 +1,211 @@
+/*
+ * HUI Reaction CSS
+ * Override (KHÔNG khai báo trên :host): --hui-reaction-color, --hui-reaction-button-bg, --hui-reaction-button-hover-bg,
+ *   --hui-reaction-radius, --hui-reaction-picker-bg, --hui-reaction-picker-shadow, --hui-reaction-option-size,
+ *   --hui-reaction-summary-color
+ * Biến nội bộ: --_rx-color (màu theo cảm xúc đang chọn), --_rx-i (thứ tự option, cho stagger)
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+.rx {
+  --_rx-h: var(--hui-control-height-md, 32px);
+  --_rx-font: var(--hui-font-base);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+}
+
+.rx[data-size='sm'] { --_rx-h: var(--hui-control-height-sm, 24px); --_rx-font: var(--hui-font-sm); }
+.rx[data-size='lg'] { --_rx-h: var(--hui-control-height-lg, 40px); --_rx-font: var(--hui-font-lg); }
+
+.rx__main {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  height: var(--_rx-h);
+  padding: 0 var(--hui-space-md);
+  border: 0;
+  border-radius: var(--hui-reaction-radius, var(--hui-radius));
+  background: var(--hui-reaction-button-bg, transparent);
+  color: var(--hui-text-secondary);
+  font: inherit;
+  font-size: var(--_rx-font);
+  font-weight: var(--hui-font-weight-medium);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  transition: background var(--hui-transition-fast, 0.15s), color var(--hui-transition-fast, 0.15s);
+}
+
+.rx__main:hover:not(:disabled) {
+  background: var(--hui-reaction-button-hover-bg, var(--hui-fill-tertiary));
+}
+
+.rx__main:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+.rx__main:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.rx__emoji {
+  display: inline-block;
+  font-size: 1.15em;
+  line-height: 1;
+  filter: grayscale(1);
+  opacity: 0.75;
+  transition: filter var(--hui-transition-fast, 0.15s), opacity var(--hui-transition-fast, 0.15s);
+}
+
+.rx--active .rx__main {
+  color: var(--hui-reaction-color, var(--_rx-color, var(--hui-primary)));
+}
+
+.rx--active .rx__emoji {
+  filter: none;
+  opacity: 1;
+}
+
+.rx__label[hidden] { display: none; }
+
+/* ================== TỔNG HỢP ================== */
+.rx__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  color: var(--hui-reaction-summary-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+}
+
+.rx__summary[hidden] { display: none; }
+
+.rx__summary-emojis {
+  display: inline-flex;
+}
+
+.rx__summary-emoji {
+  display: inline-grid;
+  place-items: center;
+  width: 1.375em;
+  height: 1.375em;
+  margin-inline-start: -0.3em;
+  border-radius: 50%;
+  background: var(--hui-bg-container);
+  box-shadow: 0 0 0 2px var(--hui-bg-container);
+  font-size: 0.875em;
+  line-height: 1;
+}
+
+.rx__summary-emoji:first-child { margin-inline-start: 0; }
+
+/* ================== BẢNG CHỌN ================== */
+.rx__picker {
+  display: flex;
+  gap: 2px;
+  padding: 4px 6px;
+  border-radius: var(--hui-radius-full, 999px);
+  background: var(--hui-reaction-picker-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-reaction-picker-shadow, var(--hui-shadow-lg));
+}
+
+.rx__option {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: calc(var(--hui-reaction-option-size, 32px) + 8px);
+  height: calc(var(--hui-reaction-option-size, 32px) + 8px);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.rx__option-emoji {
+  display: block;
+  font-size: calc(var(--hui-reaction-option-size, 32px) * 0.8);
+  line-height: 1;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.rx__option:hover .rx__option-emoji,
+.rx__option:focus-visible .rx__option-emoji {
+  transform: translateY(-6px) scale(1.3);
+}
+
+.rx__option:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 0;
+}
+
+.rx__option[aria-checked='true'] {
+  background: var(--hui-fill-tertiary);
+}
+
+/* Nhãn nổi trên option khi hover/focus */
+.rx__option::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  padding: 2px 8px;
+  border-radius: var(--hui-radius-full, 999px);
+  background: var(--hui-bg-spotlight, rgba(0, 0, 0, 0.85));
+  color: var(--hui-text-light-solid, #fff);
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-medium);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.12s, transform 0.12s;
+}
+
+.rx__option:hover::after,
+.rx__option:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Bung từng biểu tượng lần lượt khi mở */
+.rx__picker--animate.rx__picker--open .rx__option {
+  animation: rx-pop-in 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: calc(var(--_rx-i, 0) * 35ms);
+}
+
+@keyframes rx-pop-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx__option-emoji,
+  .rx__emoji { transition: none; }
+  .rx__option:hover .rx__option-emoji,
+  .rx__option:focus-visible .rx__option-emoji { transform: none; }
+  .rx__picker--open .rx__option { animation: none !important; }
+}
+
+:host([no-animation]) .rx__option-emoji { transition: none; }
+:host([no-animation]) .rx__option:hover .rx__option-emoji,
+:host([no-animation]) .rx__option:focus-visible .rx__option-emoji { transform: none; }
+
+.rx__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

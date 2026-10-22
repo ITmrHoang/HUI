@@ -1,0 +1,366 @@
+/*
+ * HUI Comparison Table CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của class.
+ * Lưu ý: header dính theo trang chỉ khi bảng không phải cuộn ngang (vùng cuộn ngang là scroll container
+ * nên header chỉ dính trong vùng đó) — đặt --hui-comparison-table-max-height để cuộn dọc bên trong.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.ct {
+  --_ct-bg: var(--hui-comparison-table-bg, var(--hui-bg-container));
+  --_ct-line: var(--hui-comparison-table-border-color, var(--hui-border-secondary));
+  --_ct-accent: var(--hui-comparison-table-highlight-color, var(--hui-primary));
+  --_ct-pad: var(--hui-comparison-table-cell-padding, var(--hui-space-md) var(--hui-space-lg));
+
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+.ct__sr {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ================== CHỌN GÓI (màn hẹp) ================== */
+.ct__picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+  margin-bottom: var(--hui-space-md);
+}
+
+.ct__picker-label {
+  color: var(--hui-text);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.ct__select-wrap {
+  position: relative;
+  display: flex;
+}
+
+.ct__select {
+  flex: 1 1 auto;
+  height: var(--hui-size-lg);
+  padding: 0 2.25rem 0 var(--hui-space-md);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius);
+  background: var(--hui-bg-container);
+  color: var(--hui-text);
+  font: inherit;
+  appearance: none;
+  cursor: pointer;
+}
+
+.ct__select:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 1px;
+}
+
+.ct__select-arrow {
+  position: absolute;
+  right: var(--hui-space-md);
+  top: 50%;
+  color: var(--hui-text-tertiary);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* ================== BẢNG ================== */
+.ct__scroller {
+  max-height: var(--hui-comparison-table-max-height, none);
+  border: 1px solid var(--_ct-line);
+  border-radius: var(--hui-comparison-table-radius, var(--hui-radius-lg));
+  background: var(--_ct-bg);
+}
+
+/* Không cuộn: để header dính theo trang (overflow: clip không tạo vùng cuộn) */
+.ct__scroller:not(.ct__scroller--scroll) {
+  overflow: clip;
+}
+
+.ct__scroller--scroll {
+  overflow: auto;
+  overscroll-behavior-x: contain;
+}
+
+.ct__scroller:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+}
+
+/* Bố cục tự động: cột co theo nội dung nhưng không nhỏ hơn min-width → khung hẹp thì tràn ngang (cuộn) */
+.ct__table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ct__caption {
+  padding: var(--hui-space-md) var(--hui-space-lg);
+  color: var(--hui-text);
+  font-size: var(--hui-font-base);
+  font-weight: var(--hui-font-weight-semibold);
+  text-align: start;
+}
+
+.ct__table th,
+.ct__table td {
+  box-sizing: border-box;
+  padding: var(--_ct-pad);
+  border-bottom: 1px solid var(--_ct-line);
+  background: var(--_ct-bg);
+  vertical-align: middle;
+}
+
+.ct__corner,
+.ct__row-head {
+  width: var(--hui-comparison-table-first-col-width, 32%);
+  min-width: 160px;
+  text-align: start;
+}
+
+.ct__corner {
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: bottom;
+}
+
+/* ================== TIÊU ĐỀ CỘT ================== */
+.ct__col-head {
+  min-width: var(--hui-comparison-table-col-min-width, 150px);
+  text-align: center;
+  vertical-align: top;
+}
+
+.ct__col-head > * {
+  display: block;
+}
+
+.ct__col-head > * + * {
+  margin-top: var(--hui-space-xs);
+}
+
+.ct__badge {
+  display: inline-block !important;
+  padding: 1px var(--hui-space-sm);
+  border-radius: var(--hui-radius-full);
+  background: var(--_ct-accent);
+  color: var(--hui-text-inverse);
+  font-size: 0.6875rem;
+  font-weight: var(--hui-font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ct__col-title {
+  color: var(--hui-text);
+  font-size: var(--hui-font-base);
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.ct__price {
+  color: var(--hui-text);
+  font-size: var(--hui-font-xl);
+  font-weight: var(--hui-font-weight-bold);
+  line-height: 1.2;
+}
+
+.ct__period {
+  margin-inline-start: 2px;
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-normal);
+}
+
+.ct__col-desc {
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-normal);
+}
+
+.ct__cta {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: var(--hui-size-sm);
+  margin-top: var(--hui-space-sm) !important;
+  padding: 0 var(--hui-space-md);
+  border: 1px solid var(--_ct-accent);
+  border-radius: var(--hui-radius);
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium);
+  text-decoration: none;
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.ct__cta--primary {
+  background: var(--_ct-accent);
+  color: var(--hui-text-inverse);
+}
+
+.ct__cta--outline {
+  background: transparent;
+  color: var(--_ct-accent);
+}
+
+.ct__cta--outline:hover {
+  background: color-mix(in srgb, var(--_ct-accent) 10%, transparent);
+}
+
+.ct__cta:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+}
+
+.ct__cta-btn {
+  margin-top: var(--hui-space-sm) !important;
+}
+
+/* ================== CỘT NỔI BẬT ================== */
+.ct__table .ct__col--highlight {
+  background: var(--hui-comparison-table-highlight-bg, color-mix(in srgb, var(--_ct-accent) 6%, var(--_ct-bg)));
+  box-shadow: inset 2px 0 0 var(--_ct-accent), inset -2px 0 0 var(--_ct-accent);
+}
+
+.ct__table .ct__col-head.ct__col--highlight {
+  box-shadow: inset 2px 0 0 var(--_ct-accent), inset -2px 0 0 var(--_ct-accent), inset 0 3px 0 var(--_ct-accent);
+}
+
+.ct__table tbody:last-of-type tr:last-child .ct__col--highlight {
+  box-shadow: inset 2px 0 0 var(--_ct-accent), inset -2px 0 0 var(--_ct-accent), inset 0 -2px 0 var(--_ct-accent);
+}
+
+.ct__col--hidden {
+  display: none;
+}
+
+/* ================== NHÓM & DÒNG ================== */
+.ct__table .ct__group-title {
+  padding-block: var(--hui-space-sm);
+  background: var(--hui-comparison-table-group-bg, var(--hui-fill-tertiary));
+  color: var(--hui-text);
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-align: start;
+  text-transform: uppercase;
+}
+
+/* Chữ tiêu đề nhóm dính trái khi cuộn ngang */
+.ct__group-label {
+  position: sticky;
+  left: var(--hui-space-lg);
+}
+
+.ct__row-head {
+  color: var(--hui-text);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.ct__row-desc {
+  display: block;
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-normal);
+}
+
+.ct__cell {
+  text-align: center;
+}
+
+.ct__row:hover > * {
+  background-color: var(--hui-comparison-table-row-hover-bg, color-mix(in srgb, var(--hui-text) 3%, var(--_ct-bg)));
+}
+
+.ct__table tbody:last-of-type tr:last-child > * {
+  border-bottom: 0;
+}
+
+.ct__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  font-size: 0.95rem;
+}
+
+.ct__mark--yes {
+  background: color-mix(in srgb, var(--hui-comparison-table-yes-color, var(--hui-success)) 14%, transparent);
+  color: var(--hui-comparison-table-yes-color, var(--hui-success));
+}
+
+.ct__mark--yes hui-icon {
+  --hui-icon-stroke-width: 2.6;
+}
+
+.ct__mark--no {
+  color: var(--hui-comparison-table-no-color, var(--hui-text-disabled));
+}
+
+.ct__text {
+  color: var(--hui-text);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+/* ================== DÍNH ================== */
+.ct--sticky-header .ct__head th {
+  position: sticky;
+  top: var(--hui-comparison-table-sticky-top, 0px);
+  z-index: 2;
+}
+
+.ct--sticky-column .ct__row-head,
+.ct--sticky-column .ct__corner {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  box-shadow: inset -1px 0 0 var(--_ct-line);
+}
+
+.ct--sticky-header.ct--sticky-column .ct__corner {
+  z-index: 3;
+}
+
+/* Màn hẹp */
+.ct--mobile {
+  --_ct-pad: var(--hui-comparison-table-cell-padding, var(--hui-space-sm) var(--hui-space-md));
+}
+
+.ct--mobile .ct__corner,
+.ct--mobile .ct__row-head {
+  min-width: 120px;
+}
+
+.ct--select .ct__corner,
+.ct--select .ct__row-head {
+  width: 55%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct__cta {
+    transition: none;
+  }
+}

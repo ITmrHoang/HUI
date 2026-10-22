@@ -1,0 +1,144 @@
+/*
+ * HUI Timeline Feed CSS
+ * Override (KHÔNG khai báo trên :host): --hui-timeline-feed-line-color, --hui-timeline-feed-gap,
+ *   --hui-timeline-feed-avatar-size, --hui-timeline-feed-group-color, --hui-timeline-feed-group-bg,
+ *   --hui-timeline-feed-content-bg, --hui-timeline-feed-icon-color
+ * Biến nội bộ: --_tf-icon-color (màu theo từng mục), --_tf-av
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-base);
+  line-height: var(--hui-line-height, 1.5);
+  color: var(--hui-text);
+}
+
+.tf {
+  --_tf-av: var(--hui-timeline-feed-avatar-size, 32px);
+  --_tf-gap: var(--hui-timeline-feed-gap, var(--hui-space-lg));
+}
+
+.tf__groups[hidden],
+.tf__state[hidden],
+.tf__footer[hidden] { display: none; }
+
+.tf__group + .tf__group { margin-top: var(--hui-space-lg); }
+
+.tf__group-label {
+  margin: 0 0 var(--hui-space-sm);
+  padding: var(--hui-space-xs) 0;
+  color: var(--hui-timeline-feed-group-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-semibold);
+  text-transform: none;
+}
+
+.tf--sticky .tf__group-label {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--hui-timeline-feed-group-bg, var(--hui-bg-container));
+}
+
+.tf__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tf__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--_tf-av) minmax(0, 1fr);
+  column-gap: var(--hui-space-md);
+  padding-bottom: var(--_tf-gap);
+}
+
+/* Đường nối giữa các avatar trong cùng nhóm */
+.tf__item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--_tf-av) + 4px);
+  bottom: 4px;
+  left: calc(var(--_tf-av) / 2 - 1px);
+  width: 2px;
+  border-radius: 1px;
+  background: var(--hui-timeline-feed-line-color, var(--hui-border-secondary));
+}
+
+.tf__item:last-child { padding-bottom: 0; }
+
+.tf__aside {
+  position: relative;
+  width: var(--_tf-av);
+  height: var(--_tf-av);
+}
+
+.tf__aside hui-avatar {
+  --hui-avatar-size: var(--_tf-av);
+}
+
+.tf__icon {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--_tf-icon-color, var(--hui-timeline-feed-icon-color, var(--hui-primary)));
+  color: var(--hui-text-light-solid, #fff);
+  font-size: 11px;
+  box-shadow: 0 0 0 2px var(--hui-bg-container);
+}
+
+.tf__main { min-width: 0; padding-top: 4px; }
+
+.tf__text {
+  margin: 0;
+  color: var(--hui-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.tf__user,
+.tf__target {
+  color: var(--hui-text);
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+a.tf__target {
+  color: var(--hui-primary);
+  text-decoration: none;
+}
+
+a.tf__target:hover { text-decoration: underline; }
+
+a.tf__target:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+  border-radius: var(--hui-radius-sm);
+}
+
+.tf__time {
+  display: block;
+  margin-top: 2px;
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-xs);
+}
+
+.tf__content {
+  margin-top: var(--hui-space-sm);
+  padding: var(--hui-space-sm) var(--hui-space-md);
+  border-radius: var(--hui-radius);
+  background: var(--hui-timeline-feed-content-bg, var(--hui-fill-tertiary));
+  color: var(--hui-text);
+  overflow-wrap: anywhere;
+}
+
+.tf__footer {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--hui-space-lg);
+}

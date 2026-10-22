@@ -1,0 +1,107 @@
+/*
+ * HUI Filter Bar CSS
+ * Override: var(--hui-filter-bar-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-filter-bar-gap            Khoảng cách giữa các phần tử
+ *   --hui-filter-bar-search-width   Bề rộng ô tìm (màn hình rộng)
+ *   --hui-filter-bar-bg             Nền thanh
+ *   --hui-filter-bar-padding        Đệm thanh
+ *   --hui-filter-bar-radius         Bo góc thanh
+ *   --hui-filter-bar-count-bg       Nền số đếm
+ *   --hui-filter-bar-count-color    Màu số đếm
+ *
+ * Parts: base, row, search, filters, toggle, count, reset, chips, drawer · Slots: (mặc định), actions
+ * State: :state(active) (đang có bộ lọc), :state(narrow) (đã gom control vào drawer)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.fb {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-filter-bar-gap, 10px);
+  padding: var(--hui-filter-bar-padding, 0);
+  border-radius: var(--hui-filter-bar-radius, 0);
+  background: var(--hui-filter-bar-bg, transparent);
+}
+
+.fb__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-filter-bar-gap, 10px);
+  min-width: 0;
+}
+
+.fb__search {
+  flex: 1 1 220px;
+  min-width: 0;
+  max-width: var(--hui-filter-bar-search-width, 360px);
+}
+
+.fb--narrow .fb__search {
+  max-width: none;
+}
+
+.fb__filters {
+  display: contents;
+}
+
+/* Control trong slot: không giãn quá, chừa chỗ cho nút */
+.fb__filters ::slotted(*) {
+  flex: 0 1 auto;
+  min-width: 140px;
+}
+
+.fb__reset {
+  flex-shrink: 0;
+}
+
+.fb__toggle {
+  flex-shrink: 0;
+}
+
+.fb__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  margin-inline-start: 6px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-filter-bar-count-bg, var(--hui-primary));
+  color: var(--hui-filter-bar-count-color, var(--hui-text-inverse));
+  font-size: var(--hui-font-xs);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+::slotted([slot='actions']) {
+  margin-inline-start: auto;
+}
+
+/* ===== Drawer (màn hình hẹp) ===== */
+.fb__drawer-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-md, 16px);
+}
+
+.fb__drawer-body ::slotted(*) {
+  width: 100%;
+}
+
+.fb__drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

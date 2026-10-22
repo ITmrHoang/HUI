@@ -1,0 +1,94 @@
+/*
+ * HUI Search CSS — nối sau hui-autocomplete.css (dùng chung khung ô nhập + popup gợi ý)
+ *
+ *   --hui-search-height               Chiều cao ô
+ *   --hui-search-radius               Bo góc ô
+ *   --hui-search-bg                   Nền ô
+ *   --hui-search-border-color         Viền
+ *   --hui-search-focus-border-color   Viền khi focus
+ *   --hui-search-icon-color           Màu icon kính lúp
+ *   --hui-search-button-bg            Nền nút tìm
+ *   --hui-search-button-color         Màu chữ nút tìm
+ *
+ * Parts thêm: icon, shortcut, submit (xem các part còn lại ở hui-autocomplete)
+ */
+
+.ac {
+  --_ac-radius: var(--hui-search-radius, var(--hui-autocomplete-radius, var(--_ac-size-radius)));
+  --_ac-height: var(--hui-search-height, var(--hui-autocomplete-height, var(--_ac-size-height)));
+  --_ac-bg: var(--hui-search-bg, var(--hui-autocomplete-bg, var(--hui-bg)));
+  --_ac-border: var(--hui-search-border-color, var(--hui-autocomplete-border-color, var(--hui-border)));
+  --_ac-focus-border: var(--hui-search-focus-border-color, var(--hui-autocomplete-focus-border-color, var(--hui-primary)));
+}
+
+.ac__search-icon {
+  color: var(--hui-search-icon-color, var(--hui-text-muted));
+  font-size: 1.1em;
+  transition: color var(--hui-transition-fast);
+}
+
+.ac__container:focus-within .ac__search-icon {
+  color: var(--_ac-focus-border);
+}
+
+/* Gợi ý phím tắt: ẩn khi đang focus / đã có chữ */
+.ac__kbd {
+  flex-shrink: 0;
+  margin-right: 8px;
+  padding: 1px 6px;
+  border: 1px solid var(--hui-border);
+  border-bottom-width: 2px;
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-fill-tertiary);
+  color: var(--hui-text-tertiary);
+  font-family: var(--hui-font-mono, monospace);
+  font-size: 0.75em;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.ac--has-value .ac__kbd,
+.ac__container:focus-within .ac__kbd {
+  display: none;
+}
+
+/* ===== Nút tìm gắn bên phải (enter-button) ===== */
+.ac--enter-button .ac__container {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.ac__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-width: var(--_ac-height);
+  height: var(--_ac-height);
+  margin-left: -1px;
+  padding: 0 var(--_ac-px);
+  border: 1px solid var(--hui-search-button-bg, var(--hui-primary));
+  border-radius: 0 var(--_ac-radius) var(--_ac-radius) 0;
+  background: var(--hui-search-button-bg, var(--hui-primary));
+  color: var(--hui-search-button-color, var(--hui-text-inverse));
+  font-family: inherit;
+  font-size: var(--_ac-font-size);
+  cursor: pointer;
+  transition: filter var(--hui-transition-fast);
+}
+
+.ac__submit:hover {
+  filter: brightness(1.08);
+}
+
+.ac__submit:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+.ac__submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}

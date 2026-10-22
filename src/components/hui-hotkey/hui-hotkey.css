@@ -1,0 +1,7 @@
+/*
+ * HUI Hotkey — phần tử không hiển thị: display: contents để bọc nội dung mà không đổi bố cục.
+ */
+
+:host {
+  display: contents;
+}

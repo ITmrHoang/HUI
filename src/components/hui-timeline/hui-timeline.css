@@ -1,0 +1,54 @@
+/*
+ * HUI Timeline CSS
+ * Biến CSS của mốc (--hui-timeline-dot-size, --hui-timeline-tail-color…) đặt trên <hui-timeline> → kế thừa xuống mọi mốc.
+ * Override riêng (KHÔNG khai báo trên :host): --hui-timeline-item-min-width (orientation="horizontal")
+ */
+
+:host {
+  display: block;
+}
+
+.tl__list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mốc trượt vào từ 2 bên lúc hiện → không làm trang bị cuộn ngang */
+.tl[data-orientation='vertical'] {
+  overflow-x: clip;
+}
+
+/* Mốc tự dồn về 1 bên khi danh sách hẹp (@container trong hui-timeline-item.css) */
+.tl[data-orientation='vertical'] .tl__list {
+  container-type: inline-size;
+}
+
+.tl--reverse .tl__list {
+  flex-direction: column-reverse;
+}
+
+/* ================== NGANG ================== */
+.tl[data-orientation='horizontal'] .tl__list {
+  flex-direction: row;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: var(--hui-space-xs);
+  scrollbar-width: thin;
+}
+
+/* Vùng cuộn ngang nhận focus → cuộn được bằng phím mũi tên */
+.tl[data-orientation='horizontal'] .tl__list:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+  border-radius: var(--hui-radius);
+}
+
+.tl[data-orientation='horizontal'].tl--reverse .tl__list {
+  flex-direction: row-reverse;
+}
+
+.tl[data-orientation='horizontal'] ::slotted(hui-timeline-item),
+.tl[data-orientation='horizontal'] hui-timeline-item {
+  flex: 1 0 var(--hui-timeline-item-min-width, 160px);
+  min-width: var(--hui-timeline-item-min-width, 160px);
+}

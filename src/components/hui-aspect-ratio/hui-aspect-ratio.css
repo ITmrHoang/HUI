@@ -1,0 +1,45 @@
+/*
+ * HUI Aspect Ratio CSS
+ * Override: --hui-aspect-ratio-radius, --hui-aspect-ratio-bg (KHÔNG khai báo trên :host)
+ * Biến nội bộ: --_ar-ratio, --_ar-fit, --_ar-position (do JS ghi lên .ar)
+ */
+
+:host {
+  display: block;
+}
+
+.ar {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--_ar-ratio, 1.7778);
+  overflow: hidden;
+  background: var(--hui-aspect-ratio-bg, var(--hui-fill-tertiary));
+}
+
+:host([rounded]) .ar {
+  border-radius: var(--hui-aspect-ratio-radius, var(--hui-radius-lg));
+}
+
+/* Mọi con trực tiếp phủ kín khung */
+::slotted(*) {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+::slotted(img),
+::slotted(video),
+::slotted(picture),
+::slotted(canvas),
+::slotted(svg) {
+  object-fit: var(--_ar-fit, cover);
+  object-position: var(--_ar-position, center);
+  display: block;
+}
+
+::slotted(iframe) {
+  border: 0;
+}

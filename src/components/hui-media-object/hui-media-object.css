@@ -1,0 +1,112 @@
+/*
+ * HUI Media Object CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của class. --_mo-gap do attribute gap đặt.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.mo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hui-media-object-gap, var(--_mo-gap, var(--hui-space-md)));
+  box-sizing: border-box;
+  padding: var(--hui-media-object-padding, 0);
+}
+
+.mo--center {
+  align-items: center;
+}
+
+.mo--end {
+  flex-direction: row-reverse;
+}
+
+.mo__media {
+  display: flex;
+  flex: none;
+  width: var(--hui-media-object-media-size, auto);
+  max-width: 100%;
+}
+
+.mo__media ::slotted(img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--hui-radius);
+}
+
+.mo__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+  min-width: 0;
+}
+
+.mo__title {
+  color: var(--hui-media-object-title-color, var(--hui-text));
+  font-size: var(--hui-media-object-title-size, var(--hui-font-base));
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading);
+  overflow-wrap: break-word;
+}
+
+.mo__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.mo__link:hover {
+  color: var(--hui-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mo__link:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.mo__desc {
+  color: var(--hui-media-object-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+  overflow-wrap: break-word;
+}
+
+.mo__meta {
+  color: var(--hui-media-object-meta-color, var(--hui-text-tertiary));
+  font-size: var(--hui-font-xs);
+}
+
+.mo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  margin-top: var(--hui-space-xs);
+}
+
+/* Thẻ hẹp: media lên trên, nội dung xuống dưới */
+.mo--stacked,
+.mo--stacked.mo--end {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.mo--stacked.mo--center {
+  align-items: center;
+  text-align: center;
+}
+
+.mo--stacked.mo--center .mo__actions {
+  justify-content: center;
+}

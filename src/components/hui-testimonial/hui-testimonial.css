@@ -1,0 +1,175 @@
+/*
+ * HUI Testimonial CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiTestimonial.
+ * Biến nội bộ có tiền tố --_tm-.
+ */
+
+/* container: bố cục horizontal tự chuyển dọc khi thẻ hẹp */
+:host {
+  display: block;
+  container-type: inline-size;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.tm__card {
+  height: 100%;
+}
+
+/* plain / bubble: bỏ đệm của hui-card (ghost) để bong bóng / chữ thẳng lề */
+.tm__card--flat::part(body) {
+  padding: 0;
+}
+
+.tm {
+  --_tm-quote-size: var(--hui-font-lg);
+  --_tm-mark-size: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-testimonial-gap, var(--hui-space-lg));
+  height: 100%;
+  margin: 0;
+}
+
+.tm--sm {
+  --_tm-quote-size: var(--hui-font-base);
+  --_tm-mark-size: 2.5rem;
+}
+
+.tm--lg {
+  --_tm-quote-size: var(--hui-font-xl);
+  --_tm-mark-size: 4.5rem;
+}
+
+.tm--center {
+  align-items: center;
+  text-align: center;
+}
+
+/* ================== KHỐI TRÍCH DẪN ================== */
+.tm__bubble {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: var(--hui-space-sm);
+  flex: 1;
+}
+
+.tm__mark {
+  display: block;
+  height: calc(var(--hui-testimonial-mark-size, var(--_tm-mark-size)) * 0.5);
+  color: var(--hui-testimonial-mark-color, color-mix(in srgb, var(--hui-primary) 45%, transparent));
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: var(--hui-testimonial-mark-size, var(--_tm-mark-size));
+  font-weight: var(--hui-font-weight-bold);
+  line-height: 1;
+}
+
+.tm__quote {
+  margin: 0;
+  color: var(--hui-testimonial-quote-color, var(--hui-text));
+  font-size: var(--hui-testimonial-quote-font-size, var(--_tm-quote-size));
+  line-height: var(--hui-line-height);
+}
+
+.tm__quote-text,
+::slotted(p) {
+  margin: 0;
+}
+
+/* ================== TÁC GIẢ ================== */
+.tm__author {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-md);
+  min-width: 0;
+  text-align: start;
+}
+
+.tm--center .tm__author {
+  justify-content: center;
+}
+
+.tm__avatar-wrap {
+  display: inline-flex;
+  flex: none;
+}
+
+.tm__who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tm__name {
+  color: var(--hui-testimonial-name-color, var(--hui-text));
+  font-style: normal;
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.tm__meta {
+  color: var(--hui-testimonial-meta-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+}
+
+/* ================== BUBBLE: bong bóng có đuôi chỉ xuống avatar ================== */
+.tm--bubble .tm__bubble {
+  padding: var(--hui-space-xl);
+  border: 1px solid var(--hui-border-secondary);
+  border-radius: var(--hui-testimonial-bubble-radius, var(--hui-radius-xl));
+  background: var(--hui-testimonial-bubble-bg, var(--hui-bg-container));
+  box-shadow: var(--hui-shadow-sm);
+}
+
+.tm--bubble .tm__bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: var(--hui-space-xl);
+  width: 16px;
+  height: 16px;
+  border-right: 1px solid var(--hui-border-secondary);
+  border-bottom: 1px solid var(--hui-border-secondary);
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.tm--bubble.tm--center .tm__bubble::after {
+  left: calc(50% - 8px);
+}
+
+.tm--bubble .tm__author {
+  padding-inline: var(--hui-space-md);
+}
+
+/* ================== HORIZONTAL: tác giả trái, trích dẫn phải ================== */
+.tm--horizontal {
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  text-align: start;
+}
+
+.tm--horizontal .tm__author {
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 0 0 auto;
+  max-width: 32%;
+}
+
+.tm--horizontal.tm--bubble .tm__bubble::after {
+  top: var(--hui-space-xl);
+  bottom: auto;
+  left: -9px;
+  transform: rotate(135deg);
+}
+
+@container (max-width: 480px) {
+  .tm--horizontal {
+    flex-direction: column;
+  }
+}

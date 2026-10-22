@@ -1,0 +1,85 @@
+/*
+ * HUI Dot CSS
+ * Override (KHÔNG khai báo trên :host): --hui-dot-size, --hui-dot-color, --hui-dot-gap, --hui-dot-label-color,
+ *   --hui-dot-font-size, --hui-dot-pulse-duration, --hui-dot-ring-width
+ * Biến nội bộ: --_dot-size (attribute size), --_dot-custom (attribute color), --_dot-color (màu theo status)
+ */
+
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+  line-height: 1;
+}
+
+.dot {
+  --_dot-color: var(--hui-text-tertiary);
+  --_dot-d: var(--_dot-size, var(--hui-dot-size, 8px));
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-dot-gap, var(--hui-space-sm));
+}
+
+.dot[data-status='success'],
+.dot[data-status='online'] { --_dot-color: var(--hui-success); }
+.dot[data-status='processing'] { --_dot-color: var(--hui-primary); }
+.dot[data-status='error'],
+.dot[data-status='busy'] { --_dot-color: var(--hui-danger); }
+.dot[data-status='warning'] { --_dot-color: var(--hui-warning); }
+.dot[data-status='offline'] { --_dot-color: var(--hui-text-disabled); }
+
+.dot__dot {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--_dot-d);
+  height: var(--_dot-d);
+  border-radius: 50%;
+  background: var(--_dot-custom, var(--hui-dot-color, var(--_dot-color)));
+  box-shadow: 0 0 0 var(--hui-dot-ring-width, 0) var(--hui-bg-container);
+}
+
+/* Ngoại tuyến: vòng rỗng giúp phân biệt không chỉ bằng màu */
+.dot[data-status='offline'] .dot__dot {
+  background: transparent;
+  box-shadow: inset 0 0 0 max(1.5px, calc(var(--_dot-d) / 4)) var(--_dot-custom, var(--hui-dot-color, var(--_dot-color))),
+    0 0 0 var(--hui-dot-ring-width, 0) var(--hui-bg-container);
+}
+
+.dot__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dot--pulse .dot__ring {
+  animation: hui-dot-pulse var(--hui-dot-pulse-duration, 1.6s) var(--hui-motion-ease-out, ease-out) infinite;
+}
+
+@keyframes hui-dot-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+.dot__label {
+  color: var(--hui-dot-label-color, var(--hui-text));
+  font-size: var(--hui-dot-font-size, var(--hui-font-sm));
+  line-height: var(--hui-line-height, 1.5);
+}
+
+.dot__label[hidden] {
+  display: none;
+}
+
+.dot--static .dot__ring {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot__ring {
+    animation: none !important;
+  }
+}

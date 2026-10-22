@@ -1,0 +1,61 @@
+/*
+ * HUI Hover Card CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của class.
+ */
+
+:host {
+  display: inline-block; /* Ôm sát trigger để đo vị trí chính xác */
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.trigger {
+  display: inline-block;
+}
+
+.card {
+  --_hc-fill: var(--hui-hover-card-bg, var(--hui-bg-elevated));
+
+  box-sizing: border-box;
+  width: min(var(--hui-hover-card-width, 320px), calc(100vw - 16px));
+  padding: var(--hui-hover-card-padding, var(--hui-space-lg));
+  border: 1px solid var(--hui-hover-card-border-color, var(--hui-border-secondary));
+  border-radius: var(--hui-hover-card-radius, var(--hui-radius-xl));
+  background: var(--_hc-fill);
+  color: var(--hui-hover-card-color, var(--hui-text-secondary));
+  box-shadow: var(--hui-hover-card-shadow, var(--hui-shadow-xl));
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+  text-align: start;
+  overflow-wrap: break-word;
+}
+
+/* ================== MŨI TÊN ================== */
+.arrow {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.arrow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--_hc-fill);
+  border: 1px solid var(--hui-hover-card-border-color, var(--hui-border-secondary));
+  transform: rotate(45deg);
+}
+
+.card[data-side='bottom'] .arrow { top: -7px; left: var(--_hc-arrow-x, calc(50% - 6px)); }
+.card[data-side='bottom'] .arrow::before { border-right: 0; border-bottom: 0; }
+.card[data-side='top'] .arrow { bottom: -7px; left: var(--_hc-arrow-x, calc(50% - 6px)); }
+.card[data-side='top'] .arrow::before { border-left: 0; border-top: 0; }
+.card[data-side='right'] .arrow { left: -7px; top: var(--_hc-arrow-y, calc(50% - 6px)); }
+.card[data-side='right'] .arrow::before { border-right: 0; border-top: 0; }
+.card[data-side='left'] .arrow { right: -7px; top: var(--_hc-arrow-y, calc(50% - 6px)); }
+.card[data-side='left'] .arrow::before { border-left: 0; border-bottom: 0; }

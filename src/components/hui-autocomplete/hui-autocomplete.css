@@ -1,0 +1,323 @@
+/*
+ * HUI Autocomplete CSS (hui-search dùng chung file này, nối thêm hui-search.css)
+ * Override: var(--hui-autocomplete-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ * Popup nằm ở top-layer nhưng vẫn trong shadow root → vẫn kế thừa biến từ thẻ.
+ *
+ *   --hui-autocomplete-height                Chiều cao ô
+ *   --hui-autocomplete-radius                Bo góc ô
+ *   --hui-autocomplete-bg                    Nền ô
+ *   --hui-autocomplete-color                 Màu chữ
+ *   --hui-autocomplete-border-color          Viền
+ *   --hui-autocomplete-hover-border-color    Viền khi hover
+ *   --hui-autocomplete-focus-border-color    Viền khi focus
+ *   --hui-autocomplete-focus-shadow          Vòng sáng khi focus
+ *   --hui-autocomplete-font-size             Cỡ chữ
+ *   --hui-autocomplete-dropdown-bg           Nền popup
+ *   --hui-autocomplete-dropdown-shadow       Đổ bóng popup
+ *   --hui-autocomplete-dropdown-radius       Bo góc popup
+ *   --hui-autocomplete-dropdown-max-height   Chiều cao tối đa danh sách
+ *   --hui-autocomplete-option-padding        Đệm mỗi gợi ý
+ *   --hui-autocomplete-option-active-bg      Nền gợi ý đang highlight
+ *   --hui-autocomplete-highlight-color       Màu chữ phần khớp
+ *   --hui-autocomplete-highlight-bg          Nền phần khớp
+ *
+ * Parts: base, label, control, container, prefix, suffix, input, clear, loading, dropdown, listbox, group-label,
+ *        option (+ option-active, option-selected, option-disabled), option-icon, option-description, highlight,
+ *        empty (+ loading), message
+ * State: :state(open), :state(filled), :state(user-invalid), :state(disabled)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.ac {
+  /* Biến nội bộ — lớp con (hui-search) đổi nguồn override bằng cách đặt lại các biến này */
+  --_ac-radius: var(--hui-autocomplete-radius, var(--_ac-size-radius));
+  --_ac-height: var(--hui-autocomplete-height, var(--_ac-size-height));
+  --_ac-bg: var(--hui-autocomplete-bg, var(--hui-bg));
+  --_ac-color: var(--hui-autocomplete-color, var(--hui-text));
+  --_ac-border: var(--hui-autocomplete-border-color, var(--hui-border));
+  --_ac-hover-border: var(--hui-autocomplete-hover-border-color, var(--hui-border-hover));
+  --_ac-focus-border: var(--hui-autocomplete-focus-border-color, var(--hui-primary));
+  --_ac-focus-shadow: var(--hui-autocomplete-focus-shadow, var(--hui-focus-ring));
+  --_ac-font-size: var(--hui-autocomplete-font-size, var(--_ac-size-font));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+}
+
+.ac--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.ac--sm {
+  --_ac-size-height: var(--hui-size-sm);
+  --_ac-size-radius: var(--hui-radius-sm);
+  --_ac-size-font: var(--hui-font-xs);
+  --_ac-px: 8px;
+}
+
+.ac--md {
+  --_ac-size-height: var(--hui-size-md);
+  --_ac-size-radius: var(--hui-radius);
+  --_ac-size-font: var(--hui-font-sm);
+  --_ac-px: 11px;
+}
+
+.ac--lg {
+  --_ac-size-height: var(--hui-size-lg);
+  --_ac-size-radius: var(--hui-radius-md);
+  --_ac-size-font: var(--hui-font-base);
+  --_ac-px: 15px;
+}
+
+.ac--error,
+:host(:state(user-invalid)) .ac {
+  --_ac-border: var(--hui-danger);
+  --_ac-hover-border: var(--hui-danger);
+  --_ac-focus-border: var(--hui-danger);
+  --_ac-focus-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.ac--warning {
+  --_ac-border: var(--hui-warning);
+  --_ac-hover-border: var(--hui-warning);
+  --_ac-focus-border: var(--hui-warning);
+  --_ac-focus-shadow: 0 0 0 3px var(--hui-warning-light);
+}
+
+.ac__label {
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-text);
+}
+
+:host([required]) .ac__label::after {
+  content: ' *';
+  color: var(--hui-danger);
+}
+
+/* ================== KHUNG Ô NHẬP ================== */
+.ac__control {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.ac__container {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  box-sizing: border-box;
+  height: var(--_ac-height);
+  border: 1px solid var(--_ac-border);
+  border-radius: var(--_ac-radius);
+  background: var(--_ac-bg);
+  cursor: text;
+  transition: border-color var(--hui-transition), box-shadow var(--hui-transition);
+}
+
+.ac__container:hover {
+  border-color: var(--_ac-hover-border);
+}
+
+.ac__container:focus-within {
+  border-color: var(--_ac-focus-border);
+  box-shadow: var(--_ac-focus-shadow);
+}
+
+.ac__input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 var(--_ac-px);
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--_ac-color);
+  font-family: inherit;
+  font-size: var(--_ac-font-size);
+}
+
+.ac__input::placeholder {
+  color: var(--hui-text-muted);
+}
+
+/* Bỏ nút ✕ mặc định của input type=search (đã có nút xóa riêng) */
+.ac__input::-webkit-search-cancel-button,
+.ac__input::-webkit-search-decoration {
+  appearance: none;
+}
+
+.ac__affix {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0 var(--hui-space-sm);
+  color: var(--hui-text-muted);
+}
+
+.ac__prefix + .ac__input {
+  padding-left: 0;
+}
+
+.ac__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-fill-secondary);
+  color: var(--hui-text-muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.ac__clear:hover {
+  background: var(--hui-fill);
+  color: var(--hui-text);
+}
+
+.ac__spinner {
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  margin-right: 8px;
+  box-sizing: border-box;
+  border: 2px solid var(--hui-border);
+  border-top-color: var(--hui-primary);
+  border-radius: 50%;
+  animation: ac-spin 0.7s linear infinite;
+}
+
+@keyframes ac-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ================== POPUP ================== */
+.ac__dropdown {
+  box-sizing: border-box;
+  max-width: calc(100vw - 16px);
+  padding: 4px;
+  border: 1px solid var(--hui-border-secondary, var(--hui-border));
+  border-radius: var(--hui-autocomplete-dropdown-radius, var(--hui-radius-md));
+  background: var(--hui-autocomplete-dropdown-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-autocomplete-dropdown-shadow, var(--hui-shadow-lg));
+  font-size: var(--_ac-font-size);
+  color: var(--hui-text);
+}
+
+.ac__listbox {
+  position: relative;
+  max-height: var(--hui-autocomplete-dropdown-max-height, 264px);
+  overflow-y: auto;
+}
+
+.ac__listbox:empty {
+  display: none;
+}
+
+.ac__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--hui-autocomplete-option-padding, 6px 10px);
+  border-radius: var(--hui-radius-sm);
+  cursor: pointer;
+}
+
+.ac__option--active {
+  background: var(--hui-autocomplete-option-active-bg, var(--hui-fill-secondary));
+}
+
+.ac__option--selected {
+  color: var(--hui-primary);
+  font-weight: var(--hui-font-weight-medium, 500);
+}
+
+.ac__option[aria-disabled='true'] {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.ac__option-icon {
+  flex-shrink: 0;
+  color: var(--hui-text-muted);
+}
+
+.ac__option-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ac__option-label,
+.ac__option-desc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ac__option-desc {
+  color: var(--hui-text-tertiary);
+  font-size: 0.85em;
+}
+
+.ac__mark {
+  padding: 0;
+  background: var(--hui-autocomplete-highlight-bg, transparent);
+  color: var(--hui-autocomplete-highlight-color, var(--hui-primary));
+  font-weight: var(--hui-font-weight-semibold, 600);
+}
+
+.ac__group-label {
+  padding: 6px 10px 2px;
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-xs);
+}
+
+.ac__status {
+  padding: 8px 10px;
+  color: var(--hui-text-muted);
+  text-align: center;
+}
+
+/* Vùng chỉ dành cho trình đọc màn hình */
+.ac__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ================== THÔNG BÁO ================== */
+.ac__message {
+  font-size: var(--hui-font-xs);
+}
+
+.ac__message--error { color: var(--hui-danger); }
+.ac__message--hint { color: var(--hui-text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ac__container { transition: none; }
+  .ac__spinner { animation-duration: 2s; }
+}

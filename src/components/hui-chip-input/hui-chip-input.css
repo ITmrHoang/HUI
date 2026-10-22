@@ -1,0 +1,141 @@
+/*
+ * HUI Chip Input CSS
+ * Override: var(--hui-chip-input-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-chip-input-min-height           Chiều cao tối thiểu khung
+ *   --hui-chip-input-radius               Bo góc khung
+ *   --hui-chip-input-bg                   Nền khung
+ *   --hui-chip-input-border-color         Viền
+ *   --hui-chip-input-focus-border-color   Viền khi focus
+ *   --hui-chip-input-gap                  Khoảng cách giữa các chip
+ *
+ * Parts: base, label, container, chip (<hui-tag>, dùng ::part(chip)), input, message
+ * State: :state(filled), :state(user-invalid), :state(rejected) (vừa từ chối 1 giá trị), :state(disabled)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.ci {
+  --_ci-border: var(--hui-chip-input-border-color, var(--hui-border));
+  --_ci-focus: var(--hui-chip-input-focus-border-color, var(--hui-primary));
+  --_ci-shadow: var(--hui-focus-ring);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+}
+
+.ci--sm { --_ci-h: var(--hui-size-sm); --_ci-fs: var(--hui-font-xs); --_ci-r: var(--hui-radius-sm); }
+.ci--md { --_ci-h: var(--hui-size-md); --_ci-fs: var(--hui-font-sm); --_ci-r: var(--hui-radius); }
+.ci--lg { --_ci-h: var(--hui-size-lg); --_ci-fs: var(--hui-font-base); --_ci-r: var(--hui-radius-md); }
+
+.ci--error,
+:host(:state(user-invalid)) .ci,
+:host(:state(rejected)) .ci {
+  --_ci-border: var(--hui-danger);
+  --_ci-focus: var(--hui-danger);
+  --_ci-shadow: 0 0 0 3px var(--hui-danger-light);
+}
+
+.ci--warning {
+  --_ci-border: var(--hui-warning);
+  --_ci-focus: var(--hui-warning);
+}
+
+.ci--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.ci__label {
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium, 500);
+  color: var(--hui-text);
+}
+
+:host([required]) .ci__label::after {
+  content: ' *';
+  color: var(--hui-danger);
+}
+
+.ci__container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-chip-input-gap, 4px);
+  box-sizing: border-box;
+  min-height: var(--hui-chip-input-min-height, var(--_ci-h));
+  padding: 3px 8px 3px 4px;
+  border: 1px solid var(--_ci-border);
+  border-radius: var(--hui-chip-input-radius, var(--_ci-r));
+  background: var(--hui-chip-input-bg, var(--hui-bg));
+  cursor: text;
+  transition: border-color var(--hui-transition), box-shadow var(--hui-transition);
+}
+
+.ci__container:hover {
+  border-color: var(--hui-border-hover);
+}
+
+.ci__container:focus-within {
+  border-color: var(--_ci-focus);
+  box-shadow: var(--_ci-shadow);
+}
+
+.ci__chips {
+  display: contents;
+}
+
+.ci__chips hui-tag {
+  max-width: 100%;
+  animation: ci-in var(--hui-motion-duration-fast, 150ms) var(--hui-motion-ease-out, ease-out);
+}
+
+@keyframes ci-in {
+  from { transform: scale(0.8); opacity: 0; }
+}
+
+.ci__input {
+  flex: 1 0 6ch;
+  min-width: 6ch;
+  height: calc(var(--_ci-h) - 8px);
+  padding: 0 4px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--hui-text);
+  font-family: inherit;
+  font-size: var(--_ci-fs);
+}
+
+.ci__input::placeholder {
+  color: var(--hui-text-muted);
+}
+
+.ci__message {
+  font-size: var(--hui-font-xs);
+}
+
+.ci__message--error { color: var(--hui-danger); }
+.ci__message--hint { color: var(--hui-text-muted); }
+
+.ci__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ci__chips hui-tag { animation: none; }
+  .ci__container { transition: none; }
+}

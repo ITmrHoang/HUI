@@ -1,0 +1,103 @@
+/*
+ * HUI Button Group CSS (dùng chung cho hui-button-group và hui-toggle-button-group)
+ * Gộp viền các nút con: nút sau đè lên viền nút trước 1px, chỉ bo góc 2 đầu nhóm.
+ * Bo góc của <hui-button> con được điều khiển qua biến --hui-button-radius (4 giá trị góc).
+ *
+ *   --hui-button-group-radius   Bo góc 2 đầu nhóm (mặc định theo size)
+ *
+ * Parts: base · Slot: (mặc định) các nút
+ */
+
+:host {
+  --_bgroup-r: var(--hui-button-group-radius, var(--hui-radius));
+
+  display: inline-flex;
+  vertical-align: middle;
+  max-width: 100%;
+  font-family: var(--hui-font-family);
+}
+
+:host([size='sm']) {
+  --_bgroup-r: var(--hui-button-group-radius, var(--hui-radius-sm));
+}
+
+:host([size='lg']) {
+  --_bgroup-r: var(--hui-button-group-radius, var(--hui-radius-md));
+}
+
+:host([block]) {
+  display: flex;
+}
+
+.bgroup {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+}
+
+:host([orientation='vertical']) .bgroup {
+  flex-direction: column;
+}
+
+/* ===== Gộp viền: mặc định mọi nút con vuông góc, nút đầu/cuối bo phía ngoài ===== */
+::slotted(*) {
+  position: relative;
+  margin: 0;
+  --hui-button-radius: 0;
+  border-radius: 0;
+}
+
+::slotted(:not(:first-child)) {
+  margin-inline-start: -1px;
+}
+
+/* Nút đang hover / focus / được chọn nổi lên trên để viền không bị nút kế bên che */
+::slotted(:hover),
+::slotted(:focus-within),
+::slotted(:focus-visible),
+::slotted([pressed]) {
+  z-index: 1;
+}
+
+::slotted(:first-child) {
+  --hui-button-radius: var(--_bgroup-r) 0 0 var(--_bgroup-r);
+  border-radius: var(--_bgroup-r) 0 0 var(--_bgroup-r);
+}
+
+::slotted(:last-child) {
+  --hui-button-radius: 0 var(--_bgroup-r) var(--_bgroup-r) 0;
+  border-radius: 0 var(--_bgroup-r) var(--_bgroup-r) 0;
+}
+
+::slotted(:only-child) {
+  --hui-button-radius: var(--_bgroup-r);
+  border-radius: var(--_bgroup-r);
+}
+
+/* ===== Dọc ===== */
+:host([orientation='vertical']) ::slotted(:not(:first-child)) {
+  margin-inline-start: 0;
+  margin-top: -1px;
+}
+
+:host([orientation='vertical']) ::slotted(:first-child) {
+  --hui-button-radius: var(--_bgroup-r) var(--_bgroup-r) 0 0;
+  border-radius: var(--_bgroup-r) var(--_bgroup-r) 0 0;
+}
+
+:host([orientation='vertical']) ::slotted(:last-child) {
+  --hui-button-radius: 0 0 var(--_bgroup-r) var(--_bgroup-r);
+  border-radius: 0 0 var(--_bgroup-r) var(--_bgroup-r);
+}
+
+:host([orientation='vertical']) ::slotted(:only-child) {
+  --hui-button-radius: var(--_bgroup-r);
+  border-radius: var(--_bgroup-r);
+}
+
+/* block: các nút chia đều chiều ngang */
+:host([block]) ::slotted(*) {
+  flex: 1 1 0;
+  min-width: 0;
+}

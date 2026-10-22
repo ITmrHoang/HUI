@@ -1,0 +1,239 @@
+/*
+ * HUI Team Grid CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiTeamGrid.
+ * Biến nội bộ: --_tg-cols, --_tg-gap (JS đặt theo attribute).
+ */
+
+:host {
+  display: block;
+  container-type: inline-size;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+.tg {
+  --_tg-radius: var(--hui-team-grid-radius, var(--hui-radius-xl));
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--hui-team-grid-min-width, 200px)), 1fr));
+  gap: var(--_tg-gap, var(--hui-team-grid-gap, var(--hui-space-xl)));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tg--fixed {
+  grid-template-columns: repeat(var(--_tg-cols), minmax(0, 1fr));
+}
+
+@container (max-width: 640px) {
+  .tg--fixed-many {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 400px) {
+  .tg--fixed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ================== THÀNH VIÊN ================== */
+.tg__member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hui-space-md);
+  min-width: 0;
+  text-align: center;
+  transition: transform var(--hui-transition), box-shadow var(--hui-transition);
+}
+
+.tg--start .tg__member {
+  align-items: flex-start;
+  text-align: start;
+}
+
+.tg--card .tg__member {
+  padding: var(--hui-space-lg);
+  border: 1px solid var(--hui-border-secondary);
+  border-radius: var(--_tg-radius);
+  background: var(--hui-team-grid-card-bg, var(--hui-bg-container));
+  box-shadow: var(--hui-shadow-sm);
+}
+
+.tg--card .tg__member:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--hui-shadow-lg);
+}
+
+.tg__media {
+  position: relative;
+  overflow: hidden;
+}
+
+.tg--photo .tg__media {
+  width: 100%;
+  border-radius: var(--_tg-radius);
+}
+
+.tg__photo {
+  display: block;
+  width: 100%;
+}
+
+.tg__photo::part(img) {
+  transition: transform 600ms var(--hui-motion-ease-out);
+}
+
+.tg--photo .tg__member:hover .tg__photo::part(img) {
+  transform: scale(1.05);
+}
+
+.tg__avatar {
+  --hui-avatar-size: var(--hui-team-grid-avatar-size, 96px);
+}
+
+/* ================== CHỮ ================== */
+.tg__info {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: 2px;
+  min-width: 0;
+  width: 100%;
+}
+
+.tg__name {
+  color: var(--hui-team-grid-name-color, var(--hui-text));
+  font-size: var(--hui-font-lg);
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading);
+}
+
+.tg__name-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.tg__name-link:hover {
+  color: var(--hui-primary);
+}
+
+.tg__name-link:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--hui-radius-sm);
+}
+
+.tg__role {
+  color: var(--hui-team-grid-role-color, var(--hui-primary));
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.tg__bio {
+  margin: var(--hui-space-xs) 0 0;
+  color: var(--hui-team-grid-bio-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+/* ================== MẠNG XÃ HỘI ================== */
+.tg__socials {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--hui-space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: opacity var(--hui-transition), transform var(--hui-transition);
+}
+
+.tg--start .tg__socials {
+  justify-content: flex-start;
+}
+
+/* photo: hàng nút phủ dưới chân ảnh */
+.tg--photo .tg__socials {
+  position: absolute;
+  inset: auto 0 0;
+  justify-content: center;
+  padding: var(--hui-space-xl) var(--hui-space-sm) var(--hui-space-sm);
+  background: var(--hui-team-grid-overlay, linear-gradient(transparent, color-mix(in srgb, var(--hui-bg-spotlight) 70%, transparent)));
+}
+
+.tg--avatar .tg__socials {
+  margin-top: var(--hui-space-sm);
+}
+
+.tg__social {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--hui-team-grid-social-bg, var(--hui-bg-container));
+  color: var(--hui-team-grid-social-color, var(--hui-text));
+  box-shadow: var(--hui-shadow-sm);
+  transition: background-color var(--hui-transition), color var(--hui-transition), transform var(--hui-transition);
+  --hui-icon-size: 16px;
+}
+
+.tg__social:hover {
+  background: var(--hui-team-grid-social-hover-bg, var(--hui-primary));
+  color: var(--hui-text-light-solid);
+  transform: translateY(-2px);
+}
+
+.tg__social:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+}
+
+/* hover: ẩn (vẫn focus được bằng Tab) → hiện khi rê chuột / focus vào thành viên */
+.tg--reveal-hover .tg__socials {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.tg--reveal-hover .tg__member:hover .tg__socials,
+.tg--reveal-hover .tg__member:focus-within .tg__socials {
+  opacity: 1;
+  transform: none;
+}
+
+/* Thiết bị cảm ứng không có hover → luôn hiện */
+@media (hover: none) {
+  .tg--reveal-hover .tg__socials {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ================== GIẢM CHUYỂN ĐỘNG ================== */
+.tg--static .tg__member,
+.tg--static .tg__socials,
+.tg--static .tg__social,
+.tg--static .tg__photo::part(img) {
+  transition: none;
+}
+
+.tg--static .tg__member:hover,
+.tg--static .tg__member:hover .tg__photo::part(img) {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tg__member,
+  .tg__socials,
+  .tg__social,
+  .tg__photo::part(img) {
+    transition: none;
+  }
+
+  .tg__member:hover,
+  .tg--photo .tg__member:hover .tg__photo::part(img) {
+    transform: none;
+  }
+}

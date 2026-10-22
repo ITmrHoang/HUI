@@ -1,0 +1,33 @@
+/*
+ * HUI Feature Grid CSS
+ * Biến công khai (KHÔNG khai báo ở đây): --hui-feature-grid-gap, --hui-feature-grid-min-width.
+ * Biến nội bộ: --_fg-cols, --_fg-gap (JS đặt theo attribute columns / gap).
+ */
+
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.fg {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--hui-feature-grid-min-width, 240px)), 1fr));
+  gap: var(--_fg-gap, var(--hui-feature-grid-gap, var(--hui-space-xl)));
+}
+
+/* columns cố định → khung hẹp tự giảm còn 2 rồi 1 cột */
+.fg--fixed {
+  grid-template-columns: repeat(var(--_fg-cols), minmax(0, 1fr));
+}
+
+@container (max-width: 640px) {
+  .fg--fixed-many {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 400px) {
+  .fg--fixed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,246 @@
+/*
+ * HUI Review List CSS
+ * Override (KHÔNG khai báo trên :host): --hui-review-list-gap, --hui-review-list-divider, --hui-review-list-thumb-size,
+ *   --hui-review-list-thumb-radius, --hui-review-list-verified-color, --hui-review-list-helpful-active-color
+ * Khối tổng hợp là <hui-rating-summary> → chỉnh bằng --hui-rating-summary-* hoặc ::part(summary).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-base);
+  line-height: var(--hui-line-height, 1.5);
+  color: var(--hui-text);
+}
+
+[hidden] { display: none !important; }
+
+.rl {
+  --_rl-gap: var(--hui-review-list-gap, var(--hui-space-lg));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-lg);
+}
+
+/* ================== TOOLBAR ================== */
+.rl__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-sm) var(--hui-space-lg);
+  padding-bottom: var(--hui-space-md);
+  border-bottom: 1px solid var(--hui-review-list-divider, var(--hui-border-secondary));
+}
+
+.rl__count-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+}
+
+.rl__count {
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.rl__clear {
+  padding: 0 var(--hui-space-sm);
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-primary);
+  font: inherit;
+  font-size: var(--hui-font-sm);
+  cursor: pointer;
+}
+
+.rl__clear:hover { background: var(--hui-fill-tertiary); }
+
+.rl__sort-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  font-size: var(--hui-font-sm);
+  color: var(--hui-text-secondary);
+}
+
+.rl__sort {
+  height: var(--hui-control-height-sm, 28px);
+  padding: 0 var(--hui-space-sm);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius);
+  background: var(--hui-bg-container);
+  color: var(--hui-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.rl__sort:hover { border-color: var(--hui-border-hover, var(--hui-primary)); }
+
+:is(.rl__clear, .rl__sort, .rl__thumb, .rl__helpful):focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+/* ================== DANH SÁCH ================== */
+.rl__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rl__item {
+  padding: var(--_rl-gap) 0;
+  border-bottom: 1px solid var(--hui-review-list-divider, var(--hui-border-secondary));
+}
+
+.rl__item:first-child { padding-top: 0; }
+.rl__item:last-child { border-bottom: 0; }
+
+.rl__empty {
+  padding: var(--hui-space-xl) 0;
+  color: var(--hui-text-secondary);
+  text-align: center;
+}
+
+.rl__head {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-md);
+}
+
+.rl__head-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rl__who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-space-xs) var(--hui-space-sm);
+}
+
+.rl__author { font-weight: var(--hui-font-weight-semibold); }
+
+.rl__verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-xs);
+}
+
+/* Chữ giữ màu phụ (đủ tương phản), chỉ dấu ✓ mang màu thành công */
+.rl__verified hui-icon {
+  color: var(--hui-review-list-verified-color, var(--hui-success));
+}
+
+.rl__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-space-xs) var(--hui-space-sm);
+}
+
+.rl__date {
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-xs);
+}
+
+.rl__title {
+  margin-top: var(--hui-space-sm);
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.rl__content {
+  margin: var(--hui-space-xs) 0 0;
+  color: var(--hui-text-secondary);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.rl__images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hui-space-sm);
+  margin: var(--hui-space-sm) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rl__thumb {
+  display: block;
+  width: var(--hui-review-list-thumb-size, 64px);
+  height: var(--hui-review-list-thumb-size, 64px);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--hui-border-secondary);
+  border-radius: var(--hui-review-list-thumb-radius, var(--hui-radius));
+  background: var(--hui-fill-tertiary);
+  cursor: zoom-in;
+}
+
+.rl__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--hui-transition, 0.2s);
+}
+
+.rl__thumb:hover img { transform: scale(1.06); }
+
+.rl__actions {
+  margin-top: var(--hui-space-sm);
+}
+
+.rl__helpful {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  height: var(--hui-control-height-sm, 28px);
+  padding: 0 var(--hui-space-sm);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius-full, 999px);
+  background: var(--hui-bg-container);
+  color: var(--hui-text-secondary);
+  font: inherit;
+  font-size: var(--hui-font-sm);
+  cursor: pointer;
+  transition: color var(--hui-transition-fast, 0.15s), border-color var(--hui-transition-fast, 0.15s), background var(--hui-transition-fast, 0.15s);
+}
+
+.rl__helpful:hover {
+  border-color: var(--hui-review-list-helpful-active-color, var(--hui-primary));
+  color: var(--hui-review-list-helpful-active-color, var(--hui-primary));
+}
+
+.rl__helpful--active {
+  border-color: var(--hui-review-list-helpful-active-color, var(--hui-primary));
+  background: var(--hui-primary-1, var(--hui-fill-tertiary));
+  color: var(--hui-review-list-helpful-active-color, var(--hui-primary));
+}
+
+.rl__helpful--pop hui-icon {
+  animation: rl-pop 0.35s var(--hui-motion-ease-out, ease-out);
+}
+
+@keyframes rl-pop {
+  50% { transform: scale(1.35) rotate(-12deg); }
+}
+
+.rl__footer {
+  display: flex;
+  justify-content: center;
+}
+
+:host([no-animation]) .rl__helpful--pop hui-icon,
+:host([no-animation]) .rl__thumb img { animation: none; transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rl__helpful--pop hui-icon { animation: none; }
+  .rl__thumb img { transition: none; }
+}

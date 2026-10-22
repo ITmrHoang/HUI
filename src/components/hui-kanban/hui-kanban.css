@@ -1,0 +1,203 @@
+/*
+ * HUI Kanban — biến override:
+ *   --hui-kanban-gap                Khoảng cách giữa các cột
+ *   --hui-kanban-column-width       Bề rộng cột tối thiểu (mặc định 272px)
+ *   --hui-kanban-column-max-width   Bề rộng cột tối đa (mặc định 360px)
+ *   --hui-kanban-column-bg          Nền cột
+ *   --hui-kanban-column-radius      Bo góc cột
+ *   --hui-kanban-column-max-height  Chiều cao tối đa vùng thẻ (cuộn dọc)
+ *   --hui-kanban-card-gap           Khoảng cách giữa các thẻ
+ *   --hui-kanban-over-color         Màu cảnh báo vượt WIP
+ *   --hui-kanban-focus-color        Màu viền focus thẻ
+ *   --hui-kanban-card-*             Thẻ mặc định: bg, border-color, radius, shadow, padding (xem hui-kanban.js)
+ * Parts: board, column, column-over, column-header, column-dot, column-title, column-count, column-body,
+ *        column-empty, column-footer
+ * Thẻ là light DOM: [data-hui-sort-placeholder] (chỗ trống khi kéo), [data-hui-sort-grabbed] (nhấc bằng phím).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.board {
+  display: flex;
+  align-items: stretch;
+  gap: var(--hui-kanban-gap, 12px);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-bottom: 8px;
+  scroll-padding-inline: 4px;
+}
+
+.column {
+  --_kb-color: var(--hui-text-tertiary);
+
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 var(--hui-kanban-column-width, 272px);
+  max-width: var(--hui-kanban-column-max-width, 360px);
+  min-width: 0;
+  box-sizing: border-box;
+  border-radius: var(--hui-kanban-column-radius, var(--hui-radius-lg));
+  background: var(--hui-kanban-column-bg, var(--hui-fill-tertiary));
+  border-top: 3px solid var(--_kb-color);
+  transition: box-shadow var(--hui-motion-duration-fast, 120ms) ease;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 6px;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--_kb-color);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-semibold, 600);
+  color: var(--hui-text);
+}
+
+.count {
+  flex-shrink: 0;
+  min-width: 1.5em;
+  padding: 0 6px;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-fill-secondary);
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-xs);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.warn {
+  flex-shrink: 0;
+  color: var(--hui-kanban-over-color, var(--hui-warning));
+}
+
+/* Vượt giới hạn WIP */
+.column--over {
+  box-shadow: inset 0 0 0 1px var(--hui-kanban-over-color, var(--hui-warning));
+}
+
+.column--over .count {
+  background: var(--hui-kanban-over-color, var(--hui-warning));
+  color: var(--hui-text-light-solid);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--hui-kanban-card-gap, 8px);
+  min-height: 72px;
+  max-height: var(--hui-kanban-column-max-height, none);
+  padding: 6px 8px 10px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  border: 1px dashed var(--hui-border);
+  border-radius: var(--hui-radius-md);
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-xs);
+}
+
+.footer {
+  padding: 0 8px;
+}
+
+/* ===== Thẻ (light DOM) ===== */
+::slotted(*) {
+  cursor: grab;
+  touch-action: manipulation;
+  transition: box-shadow var(--hui-motion-duration-fast, 120ms) ease;
+}
+
+:host([disabled]) ::slotted(*) {
+  cursor: default;
+}
+
+::slotted(:hover) {
+  box-shadow: var(--hui-shadow-md);
+}
+
+::slotted(:focus-visible) {
+  outline: 2px solid var(--hui-kanban-focus-color, var(--hui-primary));
+  outline-offset: 2px;
+}
+
+::slotted([data-hui-sort-placeholder]) {
+  opacity: 0.4;
+  outline: 2px dashed var(--hui-kanban-focus-color, var(--hui-primary));
+  outline-offset: 2px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+::slotted([data-hui-sort-grabbed]) {
+  outline: 2px solid var(--hui-kanban-focus-color, var(--hui-primary));
+  outline-offset: 2px;
+  box-shadow: var(--hui-shadow-lg);
+  cursor: grabbing;
+}
+
+:host(:state(dragging)) .column {
+  transition: box-shadow var(--hui-motion-duration-fast, 120ms) ease;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Màn hình hẹp: mỗi cột gần bằng chiều ngang, cuộn ngang có điểm dừng */
+@media (max-width: 640px) {
+  .board {
+    scroll-snap-type: x mandatory;
+  }
+
+  .column {
+    flex: 0 0 min(86vw, var(--hui-kanban-column-max-width, 360px));
+    scroll-snap-align: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .column,
+  ::slotted(*) {
+    transition: none;
+  }
+}

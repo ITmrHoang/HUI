@@ -1,0 +1,73 @@
+/*
+ * HUI Toggle Button Group CSS (nối sau hui-button-group.css)
+ *
+ *   --hui-toggle-button-group-pressed-bg             Nền nút đang bật
+ *   --hui-toggle-button-group-pressed-color          Màu chữ nút đang bật
+ *   --hui-toggle-button-group-pressed-border-color   Viền nút đang bật
+ *
+ * Nút đang bật có attribute `pressed` → tự style thêm được: `hui-toggle-button-group [pressed] { … }`
+ * State: :state(filled), :state(disabled)
+ */
+
+/* <hui-button> đang bật: đổi màu qua biến của hui-button */
+::slotted([pressed]) {
+  --hui-button-bg: var(--hui-toggle-button-group-pressed-bg, var(--hui-primary-light));
+  --hui-button-color: var(--hui-toggle-button-group-pressed-color, var(--hui-primary));
+  --hui-button-border-color: var(--hui-toggle-button-group-pressed-border-color, var(--hui-primary));
+  --hui-button-hover-bg: var(--hui-toggle-button-group-pressed-bg, var(--hui-primary-light));
+  --hui-button-hover-color: var(--hui-toggle-button-group-pressed-color, var(--hui-primary));
+  --hui-button-hover-border-color: var(--hui-toggle-button-group-pressed-border-color, var(--hui-primary));
+}
+
+/* <button> native làm nút bật/tắt */
+::slotted(button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-height: var(--_tbg-h, var(--hui-size-md));
+  padding: 0 12px;
+  border: 1px solid var(--hui-border);
+  background: var(--hui-bg);
+  color: var(--hui-text);
+  font: inherit;
+  font-size: var(--hui-font-sm);
+  cursor: pointer;
+  transition: color var(--hui-transition-fast), background-color var(--hui-transition-fast), border-color var(--hui-transition-fast);
+}
+
+::slotted(button:hover) {
+  border-color: var(--hui-primary);
+  color: var(--hui-primary);
+}
+
+::slotted(button[pressed]) {
+  border-color: var(--hui-toggle-button-group-pressed-border-color, var(--hui-primary));
+  background: var(--hui-toggle-button-group-pressed-bg, var(--hui-primary-light));
+  color: var(--hui-toggle-button-group-pressed-color, var(--hui-primary));
+}
+
+::slotted(button:focus-visible) {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 1px;
+}
+
+::slotted(button:disabled) {
+  color: var(--hui-text-disabled);
+  background: var(--hui-fill-tertiary);
+  cursor: not-allowed;
+}
+
+:host([size='sm']) {
+  --_tbg-h: var(--hui-size-sm);
+}
+
+:host([size='lg']) {
+  --_tbg-h: var(--hui-size-lg);
+}
+
+:host(:state(disabled)) {
+  opacity: 0.5;
+  pointer-events: none;
+}

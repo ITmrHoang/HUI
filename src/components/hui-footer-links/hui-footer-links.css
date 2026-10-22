@@ -1,0 +1,226 @@
+/*
+ * HUI Footer Links CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiFooterLinks.
+ * Biến nội bộ: --_fl-cols (JS đặt theo attribute columns).
+ * Chế độ accordion: .fl--always luôn bật; .fl--auto bật khi container < 600px; .fl--never không bao giờ.
+ */
+
+:host {
+  display: block;
+  container-type: inline-size;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.fl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-2xl);
+}
+
+.fl__top {
+  display: grid;
+  gap: var(--hui-footer-links-gap, var(--hui-space-2xl));
+}
+
+.fl__top--brand {
+  grid-template-columns: minmax(0, var(--hui-footer-links-brand-width, 280px)) minmax(0, 1fr);
+}
+
+.fl__brand {
+  min-width: 0;
+  color: var(--hui-text-secondary);
+  line-height: var(--hui-line-height);
+}
+
+/* ================== CỘT ================== */
+.fl__nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--hui-footer-links-min-width, 160px)), 1fr));
+  gap: var(--hui-footer-links-gap, var(--hui-space-xl));
+}
+
+.fl__nav--fixed {
+  grid-template-columns: repeat(var(--_fl-cols), minmax(0, 1fr));
+}
+
+.fl__col {
+  min-width: 0;
+}
+
+.fl__heading {
+  margin-bottom: var(--hui-space-md);
+  color: var(--hui-footer-links-heading-color, var(--hui-text));
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.fl__toggle {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-sm);
+  width: 100%;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.fl__toggle:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--hui-radius-sm);
+}
+
+.fl__toggle-icon {
+  flex: none;
+  transition: transform var(--hui-transition);
+}
+
+.fl__col--open .fl__toggle-icon {
+  transform: rotate(180deg);
+}
+
+.fl__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fl__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--hui-footer-links-link-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+  text-decoration: none;
+  border-radius: var(--hui-radius-sm);
+  transition: color var(--hui-transition-fast);
+}
+
+.fl__link:hover {
+  color: var(--hui-footer-links-link-hover-color, var(--hui-primary));
+}
+
+.fl__link:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+}
+
+.fl__badge {
+  padding: 0 6px;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-primary-light);
+  color: var(--hui-primary);
+  font-size: 11px;
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: 18px;
+}
+
+/* ================== THANH DƯỚI ================== */
+.fl__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-md);
+  padding-top: var(--hui-space-xl);
+  border-top: 1px solid var(--hui-footer-links-divider-color, var(--hui-border-secondary));
+  color: var(--hui-footer-links-bottom-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+}
+
+/* ================== ACCORDION ==================
+ * Viết 2 lần (always + container query cho auto) vì @container không gộp được với class ở ngoài */
+.fl--always .fl__nav {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.fl--always .fl__col {
+  border-bottom: 1px solid var(--hui-footer-links-divider-color, var(--hui-border-secondary));
+}
+
+.fl--always .fl__heading {
+  margin: 0;
+}
+
+.fl--always .fl__heading-text {
+  display: none;
+}
+
+.fl--always .fl__toggle {
+  display: flex;
+}
+
+.fl--always .fl__list {
+  padding-bottom: var(--hui-space-md);
+}
+
+.fl--always .fl__col:not(.fl__col--open) .fl__list {
+  display: none;
+}
+
+@container (max-width: 599px) {
+  .fl__top--brand {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fl--auto .fl__nav {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .fl--auto .fl__col {
+    border-bottom: 1px solid var(--hui-footer-links-divider-color, var(--hui-border-secondary));
+  }
+
+  .fl--auto .fl__heading {
+    margin: 0;
+  }
+
+  .fl--auto .fl__heading-text {
+    display: none;
+  }
+
+  .fl--auto .fl__toggle {
+    display: flex;
+  }
+
+  .fl--auto .fl__list {
+    padding-bottom: var(--hui-space-md);
+  }
+
+  .fl--auto .fl__col:not(.fl__col--open) .fl__list {
+    display: none;
+  }
+
+  .fl__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+:host([no-animation]) .fl__toggle-icon,
+:host([no-animation]) .fl__link {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fl__toggle-icon,
+  .fl__link {
+    transition: none;
+  }
+}

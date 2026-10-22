@@ -1,0 +1,165 @@
+/*
+ * HUI Filter Chips CSS
+ * Override: var(--hui-filter-chips-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-filter-chips-gap                     Khoảng cách giữa chip
+ *   --hui-filter-chips-height                  Chiều cao chip
+ *   --hui-filter-chips-radius                  Bo góc chip
+ *   --hui-filter-chips-bg                      Nền chip
+ *   --hui-filter-chips-color                   Màu chữ chip
+ *   --hui-filter-chips-border-color            Viền chip
+ *   --hui-filter-chips-hover-bg                Nền chip khi hover
+ *   --hui-filter-chips-selected-bg             Nền chip đang chọn
+ *   --hui-filter-chips-selected-color          Màu chữ chip đang chọn
+ *   --hui-filter-chips-selected-border-color   Viền chip đang chọn
+ *   --hui-filter-chips-count-bg                Nền số đếm
+ *   --hui-filter-chips-fade                    Độ rộng vùng mờ ở mép khi tràn
+ *
+ * Parts: base, chip (+ chip-selected, chip-disabled, chip-all), icon, check, label, count, clear
+ * State: :state(filled), :state(disabled)
+ */
+
+:host {
+  display: block;
+  min-width: 0;
+  font-family: var(--hui-font-family);
+}
+
+.fc {
+  --_fc-fade: var(--hui-filter-chips-fade, 24px);
+
+  display: flex;
+  align-items: center;
+  gap: var(--hui-filter-chips-gap, 8px);
+  padding: 2px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.fc::-webkit-scrollbar {
+  display: none;
+}
+
+.fc--wrap {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+/* Mờ dần ở mép còn chip bị che */
+.fc--fade-start {
+  mask-image: linear-gradient(to right, transparent, #000 var(--_fc-fade));
+}
+
+.fc--fade-end {
+  mask-image: linear-gradient(to left, transparent, #000 var(--_fc-fade));
+}
+
+.fc--fade-start.fc--fade-end {
+  mask-image: linear-gradient(to right, transparent, #000 var(--_fc-fade), #000 calc(100% - var(--_fc-fade)), transparent);
+}
+
+.fc--disabled {
+  opacity: 0.5;
+}
+
+.fc--sm { --_fc-h: 24px; --_fc-fs: var(--hui-font-xs); --_fc-px: 8px; }
+.fc--md { --_fc-h: 30px; --_fc-fs: var(--hui-font-sm); --_fc-px: 12px; }
+.fc--lg { --_fc-h: 38px; --_fc-fs: var(--hui-font-base); --_fc-px: 16px; }
+
+.fc__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: var(--hui-filter-chips-height, var(--_fc-h));
+  padding: 0 var(--_fc-px);
+  border: 1px solid var(--hui-filter-chips-border-color, var(--hui-border));
+  border-radius: var(--hui-filter-chips-radius, var(--hui-radius-full));
+  background: var(--hui-filter-chips-bg, var(--hui-bg));
+  color: var(--hui-filter-chips-color, var(--hui-text));
+  font-family: inherit;
+  font-size: var(--_fc-fs);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--hui-transition-fast), color var(--hui-transition-fast),
+    border-color var(--hui-transition-fast), transform var(--hui-transition-fast);
+}
+
+.fc__chip:hover:not(:disabled) {
+  background: var(--hui-filter-chips-hover-bg, var(--hui-fill-tertiary));
+}
+
+.fc__chip:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.fc__chip:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+}
+
+.fc__chip--selected,
+.fc__chip--selected:hover:not(:disabled) {
+  border-color: var(--hui-filter-chips-selected-border-color, var(--hui-primary));
+  background: var(--hui-filter-chips-selected-bg, var(--hui-primary-light));
+  color: var(--hui-filter-chips-selected-color, var(--hui-primary));
+  font-weight: var(--hui-font-weight-medium, 500);
+}
+
+.fc__chip:disabled {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Chip "Xóa lọc": dạng chữ, không viền */
+.fc__chip[data-action='clear'] {
+  border-style: dashed;
+  color: var(--hui-text-secondary);
+}
+
+.fc__chip[data-action='clear']:hover {
+  color: var(--hui-danger);
+  border-color: var(--hui-danger);
+}
+
+.fc__icon,
+.fc__check {
+  flex-shrink: 0;
+  font-size: 1.05em;
+}
+
+.fc__check {
+  animation: fc-pop var(--hui-motion-duration-fast, 150ms) var(--hui-motion-ease-out, ease-out);
+}
+
+@keyframes fc-pop {
+  from { transform: scale(0); opacity: 0; }
+}
+
+.fc__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5em;
+  height: 1.5em;
+  padding: 0 0.4em;
+  box-sizing: border-box;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-filter-chips-count-bg, var(--hui-fill-secondary));
+  color: inherit;
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+}
+
+.fc__chip--selected .fc__count {
+  background: var(--hui-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc__chip { transition: none; }
+  .fc__check { animation: none; }
+}

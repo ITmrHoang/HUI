@@ -158,3 +158,60 @@ export { default as HuiCodeBlock, tokenize } from './components/hui-code-block/i
 export { default as HuiProse } from './components/hui-prose/index.js';
 export { default as HuiShare, buildShareUrl } from './components/hui-share/index.js';
 export { default as HuiToc, slugify } from './components/hui-toc/index.js';
+
+// Hiển thị (A1 / A4 / A6 — đợt 2)
+export { default as HuiAspectRatio } from './components/hui-aspect-ratio/index.js';
+export { default as HuiDot } from './components/hui-dot/index.js';
+export { default as HuiColorSwatch } from './components/hui-color-swatch/index.js';
+export { default as HuiTimeline, HuiTimelineItem } from './components/hui-timeline/index.js';
+export { default as HuiTimelineFeed } from './components/hui-timeline-feed/index.js';
+export { default as HuiReviewList } from './components/hui-review-list/index.js';
+export { default as HuiReaction } from './components/hui-reaction/index.js';
+export { default as HuiDescriptionCard } from './components/hui-description-card/index.js';
+export { default as HuiImageHotspot } from './components/hui-image-hotspot/index.js';
+
+// Tương tác (A4 — đợt 2)
+export { default as HuiHotkey, registerHotkey, parseHotkey } from './components/hui-hotkey/index.js';
+export { default as HuiEditable } from './components/hui-editable/index.js';
+export { default as HuiSortable } from './components/hui-sortable/index.js';
+export { default as HuiConfirmAction } from './components/hui-confirm-action/index.js';
+export { default as HuiCommandPalette, fuzzyMatch } from './components/hui-command-palette/index.js';
+export { default as HuiKanban } from './components/hui-kanban/index.js';
+
+// Landing (A2 / A6 — đợt 2)
+export { default as HuiFeatureCard } from './components/hui-feature-card/index.js';
+export { default as HuiTestimonial } from './components/hui-testimonial/index.js';
+export { default as HuiProfileCard } from './components/hui-profile-card/index.js';
+export { default as HuiMediaCard } from './components/hui-media-card/index.js';
+export { default as HuiHero } from './components/hui-hero/index.js';
+export { default as HuiFeatureGrid } from './components/hui-feature-grid/index.js';
+export { default as HuiPricingTable, maxYearlySaving } from './components/hui-pricing-table/index.js';
+export { default as HuiLogoCloud } from './components/hui-logo-cloud/index.js';
+export { default as HuiCtaBanner } from './components/hui-cta-banner/index.js';
+export { default as HuiTestimonialSlider } from './components/hui-testimonial-slider/index.js';
+export { default as HuiFooterLinks } from './components/hui-footer-links/index.js';
+export { default as HuiTeamGrid } from './components/hui-team-grid/index.js';
+
+// Nhập liệu (G2 / A2 / A4 — đợt 2)
+export { default as HuiSegmented } from './components/hui-segmented/index.js';
+export { default as HuiButtonGroup, HuiToggleButtonGroup } from './components/hui-button-group/index.js';
+export { default as HuiAutocomplete, matchRange, highlight, fold } from './components/hui-autocomplete/index.js';
+export { default as HuiSearch } from './components/hui-search/index.js';
+export { default as HuiInputGroup } from './components/hui-input-group/index.js';
+export { default as HuiFilterChips } from './components/hui-filter-chips/index.js';
+export { default as HuiFilterBar } from './components/hui-filter-bar/index.js';
+export { default as HuiUpload, parseSize, formatBytes, acceptsFile } from './components/hui-upload/index.js';
+export { default as HuiChipInput } from './components/hui-chip-input/index.js';
+
+// Trang web / điều hướng (A5 / A6 — đợt 2)
+export { default as HuiCookieConsent, readConsent } from './components/hui-cookie-consent/index.js';
+export { default as HuiLanguageSwitch, DEFAULT_LANGUAGES } from './components/hui-language-switch/index.js';
+export { default as HuiPageLoader } from './components/hui-page-loader/index.js';
+export { default as HuiMegaMenu } from './components/hui-mega-menu/index.js';
+export { default as HuiBottomNav } from './components/hui-bottom-nav/index.js';
+export { default as HuiSearchOverlay } from './components/hui-search-overlay/index.js';
+export { default as HuiHoverCard } from './components/hui-hover-card/index.js';
+export { default as HuiToolbar } from './components/hui-toolbar/index.js';
+export { default as HuiMediaObject } from './components/hui-media-object/index.js';
+export { default as HuiMap } from './components/hui-map/index.js';
+export { default as HuiComparisonTable } from './components/hui-comparison-table/index.js';

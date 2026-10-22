@@ -1,0 +1,142 @@
+/*
+ * HUI Image Hotspot CSS
+ * Override (KHÔNG khai báo trên :host): --hui-image-hotspot-size, --hui-image-hotspot-color, --hui-image-hotspot-ring,
+ *   --hui-image-hotspot-pulse-duration, --hui-image-hotspot-radius
+ * Popover là <hui-popover> → chỉnh bằng --hui-popover-* (kế thừa xuyên shadow).
+ * Biến nội bộ: --_ih-color (attribute color), --_ih-spot-color (spot.color)
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+.ih {
+  position: relative;
+  line-height: 0;
+}
+
+.ih--rounded {
+  border-radius: var(--hui-image-hotspot-radius, var(--hui-radius-lg));
+}
+
+.ih--rounded .ih__image,
+.ih--rounded ::slotted(*) {
+  overflow: hidden;
+  border-radius: var(--hui-image-hotspot-radius, var(--hui-radius-lg));
+}
+
+.ih__image { display: block; }
+.ih__image[hidden],
+slot[hidden] { display: none; }
+
+::slotted(img),
+::slotted(picture),
+::slotted(hui-image) {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ih__spots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  line-height: var(--hui-line-height, 1.5);
+}
+
+.ih__popover {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+.ih__popover--open { z-index: 1; }
+
+.ih__spot {
+  --_ih-s: var(--hui-image-hotspot-size, 24px);
+  --_ih-c: var(--_ih-spot-color, var(--_ih-color, var(--hui-image-hotspot-color, var(--hui-primary))));
+
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--_ih-s);
+  height: var(--_ih-s);
+  padding: 0;
+  border: 3px solid var(--hui-image-hotspot-ring, var(--hui-text-light-solid, #fff));
+  border-radius: 50%;
+  background: var(--_ih-c);
+  box-shadow: var(--hui-shadow-md);
+  color: var(--hui-text-light-solid, #fff);
+  font: inherit;
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-bold);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform var(--hui-transition-fast, 0.15s);
+}
+
+:host([numbered]) .ih__spot {
+  --_ih-s: var(--hui-image-hotspot-size, 28px);
+}
+
+.ih__spot:hover,
+.ih__spot[aria-expanded='true'] {
+  transform: scale(1.15);
+}
+
+.ih__spot:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 3px;
+}
+
+/* Vòng lan tỏa nhấp nháy */
+.ih__spot::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: var(--_ih-c);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.ih--pulse .ih__spot::before {
+  animation: ih-pulse var(--hui-image-hotspot-pulse-duration, 2s) var(--hui-motion-ease-out, ease-out) infinite;
+}
+
+.ih--pulse .ih__spot[aria-expanded='true']::before { animation: none; }
+
+@keyframes ih-pulse {
+  0% { transform: scale(1); opacity: 0.55; }
+  80%,
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.ih--static .ih__spot::before { animation: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ih__spot::before { animation: none !important; }
+  .ih__spot { transition: none; }
+}
+
+/* ================== NỘI DUNG POPOVER (light DOM của hui-popover, nằm trong shadow này) ================== */
+.ih__pop-title {
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.ih__pop-content {
+  margin: 0;
+  max-width: 280px;
+}
+
+.ih__pop-link {
+  display: inline-block;
+  margin-top: var(--hui-space-xs);
+  color: var(--hui-primary);
+  font-weight: var(--hui-font-weight-medium);
+  text-decoration: none;
+}
+
+.ih__pop-link:hover { text-decoration: underline; }

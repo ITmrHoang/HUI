@@ -108,7 +108,8 @@ trạng thái trống (\`hui-empty\`). Gán \`data\` một lần, sau đó compo
 ### Bàn phím / A11y
 Drawer modal: focus trap, \`Esc\` đóng, trả focus khi đóng (\`hui-drawer\`). Mỗi dòng: \`Tab\` tới ô số lượng (↑/↓) và nút xóa
 (\`aria-label\` "Xóa … khỏi giỏ"). Xóa → focus chuyển sang nút **Hoàn tác** (dòng \`role="status"\`). Khi drawer có mask,
-thông báo \`message\` bị trang modal làm inert nên nút Hoàn tác nằm ngay trong drawer; \`mask="false"\` thì thông báo có thêm nút Hoàn tác.
+chỉ dùng dòng hoàn tác trong drawer (không hiện thêm \`message\`); \`mask="false"\` thì thông báo có thêm nút Hoàn tác;
+\`undo-duration="0"\` → chỉ hiện \`message\`.
         `,
       },
     },

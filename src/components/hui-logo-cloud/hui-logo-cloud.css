@@ -1,0 +1,129 @@
+/*
+ * HUI Logo Cloud CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiLogoCloud.
+ * Biến nội bộ: --_lc-height, --_lc-gap, --_lc-cols (JS đặt theo attribute).
+ */
+
+:host {
+  display: block;
+  container-type: inline-size;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.lc {
+  --_lc-h: var(--_lc-height, var(--hui-logo-cloud-logo-height, 40px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xl);
+}
+
+.lc__title {
+  color: var(--hui-logo-cloud-title-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium);
+  text-align: center;
+}
+
+/* ================== LƯỚI ================== */
+.lc__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--hui-logo-cloud-min-width, 140px)), 1fr));
+  align-items: center;
+  gap: var(--_lc-gap, var(--hui-logo-cloud-gap, var(--hui-space-xl)));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc--fixed .lc__list {
+  grid-template-columns: repeat(var(--_lc-cols), minmax(0, 1fr));
+}
+
+@container (max-width: 640px) {
+  .lc--fixed-many .lc__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 400px) {
+  .lc--fixed .lc__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ================== Ô LOGO ================== */
+.lc__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: var(--hui-logo-cloud-item-padding, var(--hui-space-sm));
+  border-radius: var(--hui-logo-cloud-item-radius, var(--hui-radius));
+  background: var(--hui-logo-cloud-item-bg, transparent);
+}
+
+.lc--marquee .lc__item {
+  flex: none;
+}
+
+.lc__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  border-radius: var(--hui-radius-sm);
+  color: inherit;
+  text-decoration: none;
+}
+
+.lc__link:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 4px;
+}
+
+.lc__logo {
+  display: block;
+  max-width: 100%;
+  height: var(--_lc-h);
+  object-fit: contain;
+  transition: filter var(--hui-transition), opacity var(--hui-transition);
+}
+
+/* Logo dạng chữ (chỉ có name) */
+.lc__logo--text {
+  display: inline-flex;
+  align-items: center;
+  height: var(--_lc-h);
+  color: var(--hui-logo-cloud-text-color, var(--hui-text-secondary));
+  font-size: calc(var(--_lc-h) * 0.5);
+  font-weight: var(--hui-font-weight-bold);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* grayscale: xám + mờ, rê vào / focus hiện màu thật */
+.lc--grayscale .lc__logo {
+  filter: grayscale(1);
+  opacity: var(--hui-logo-cloud-opacity, 0.6);
+}
+
+.lc--grayscale .lc__item:hover .lc__logo,
+.lc--grayscale .lc__item:focus-within .lc__logo {
+  filter: none;
+  opacity: 1;
+}
+
+:host([no-animation]) .lc__logo {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc__logo {
+    transition: none;
+  }
+}

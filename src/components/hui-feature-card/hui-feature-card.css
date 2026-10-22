@@ -1,0 +1,185 @@
+/*
+ * HUI Feature Card CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiFeatureCard.
+ * Biến nội bộ có tiền tố --_fc- (--_fc-accent do JS đặt theo attribute color).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.fc__card {
+  height: 100%;
+}
+
+/* plain: chữ trơn, không đệm (thẳng lề với nội dung trang) */
+.fc__card--plain::part(body) {
+  padding: 0;
+}
+
+.fc {
+  --_fc-icon-size: 56px;
+  --_fc-icon-font: 1.6rem;
+  --_fc-accent-final: var(--hui-feature-card-accent, var(--_fc-accent, var(--hui-primary)));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hui-feature-card-gap, var(--hui-space-lg));
+  height: 100%;
+}
+
+.fc--sm {
+  --_fc-icon-size: 40px;
+  --_fc-icon-font: 1.15rem;
+}
+
+.fc--lg {
+  --_fc-icon-size: 72px;
+  --_fc-icon-font: 2rem;
+}
+
+.fc--center {
+  align-items: center;
+  text-align: center;
+}
+
+.fc--horizontal {
+  flex-direction: row;
+  align-items: flex-start;
+  text-align: start;
+}
+
+/* ================== ICON ================== */
+.fc__icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--hui-feature-card-icon-size, var(--_fc-icon-size));
+  height: var(--hui-feature-card-icon-size, var(--_fc-icon-size));
+  border-radius: var(--hui-feature-card-icon-radius, 50%);
+  background: var(--hui-feature-card-icon-bg, color-mix(in srgb, var(--_fc-accent-final) 14%, transparent));
+  color: var(--_fc-accent-final);
+  font-size: var(--_fc-icon-font);
+  --hui-icon-size: var(--_fc-icon-font);
+  transition: transform var(--hui-transition), background-color var(--hui-transition);
+}
+
+.fc--shape-rounded .fc__icon {
+  border-radius: var(--hui-feature-card-icon-radius, var(--hui-radius-lg));
+}
+
+.fc--shape-square .fc__icon {
+  border-radius: var(--hui-feature-card-icon-radius, var(--hui-radius-sm));
+}
+
+::slotted([slot='icon']) {
+  max-width: 70%;
+  max-height: 70%;
+}
+
+/* Rê vào thẻ → icon nhún nhẹ */
+:host(:hover) .fc__icon {
+  transform: translateY(-2px) scale(1.06);
+}
+
+/* ================== NỘI DUNG ================== */
+.fc__content {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: var(--hui-space-sm);
+  min-width: 0;
+  flex: 1;
+}
+
+.fc--center .fc__content {
+  align-items: center;
+}
+
+.fc--start .fc__content,
+.fc--horizontal .fc__content {
+  align-items: flex-start;
+}
+
+.fc__heading {
+  color: var(--hui-feature-card-title-color, var(--hui-text));
+  font-size: var(--hui-feature-card-title-font-size, var(--hui-font-lg));
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading);
+}
+
+.fc--sm .fc__heading {
+  font-size: var(--hui-feature-card-title-font-size, var(--hui-font-base));
+}
+
+.fc--lg .fc__heading {
+  font-size: var(--hui-feature-card-title-font-size, var(--hui-font-xl));
+}
+
+.fc__desc {
+  margin: 0;
+  color: var(--hui-feature-card-description-color, var(--hui-text-secondary));
+  line-height: var(--hui-line-height);
+}
+
+.fc--sm .fc__desc {
+  font-size: var(--hui-font-sm);
+}
+
+.fc__extra {
+  width: 100%;
+}
+
+/* Link đẩy xuống đáy thẻ để các thẻ trong lưới thẳng hàng */
+.fc__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: var(--hui-space-xs);
+  color: var(--_fc-accent-final);
+  font-weight: var(--hui-font-weight-medium);
+  text-decoration: none;
+  border-radius: var(--hui-radius-sm);
+}
+
+.fc__link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.fc__link:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+}
+
+.fc__link-icon {
+  --hui-icon-size: 1em;
+  transition: transform var(--hui-transition);
+}
+
+:host(:hover) .fc__link-icon,
+.fc__link:focus-visible .fc__link-icon {
+  transform: translateX(4px);
+}
+
+/* ================== GIẢM CHUYỂN ĐỘNG ================== */
+:host([no-animation]) .fc__icon,
+:host([no-animation]) .fc__link-icon {
+  transition: none;
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc__icon,
+  .fc__link-icon {
+    transition: none;
+    transform: none !important;
+  }
+}

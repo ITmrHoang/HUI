@@ -1,0 +1,162 @@
+/*
+ * HUI Input Group CSS
+ * Gộp viền: control sau đè 1px lên control trước; chỉ bo góc 2 đầu khối.
+ * Bo góc của control con điều khiển qua biến của chính nó (--hui-input-radius, --hui-select-radius,
+ * --hui-button-radius, --hui-autocomplete-radius, --hui-search-radius, --hui-input-number-radius).
+ *
+ *   --hui-input-group-radius         Bo góc 2 đầu khối (mặc định theo size)
+ *   --hui-input-group-addon-bg       Nền hộp addon
+ *   --hui-input-group-addon-color    Màu chữ addon
+ *   --hui-input-group-border-color   Viền hộp addon
+ *
+ * Parts: base, addon-before, addon-after · Slots: (mặc định), before, after
+ */
+
+:host {
+  display: flex;
+  min-width: 0;
+  font-family: var(--hui-font-family);
+}
+
+:host([compact]) {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.ig {
+  --_ig-r: var(--hui-input-group-radius, var(--_ig-size-r));
+
+  display: flex;
+  flex: 1;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.ig--sm { --_ig-size-r: var(--hui-radius-sm); --_ig-h: var(--hui-size-sm); --_ig-fs: var(--hui-font-xs); --_ig-px: 8px; }
+.ig--md { --_ig-size-r: var(--hui-radius); --_ig-h: var(--hui-size-md); --_ig-fs: var(--hui-font-sm); --_ig-px: 11px; }
+.ig--lg { --_ig-size-r: var(--hui-radius-md); --_ig-h: var(--hui-size-lg); --_ig-fs: var(--hui-font-base); --_ig-px: 15px; }
+
+/* ===== Control con ===== */
+::slotted(*) {
+  --_ig-cr: 0;
+  --hui-input-radius: var(--_ig-cr);
+  --hui-select-radius: var(--_ig-cr);
+  --hui-button-radius: var(--_ig-cr);
+  --hui-autocomplete-radius: var(--_ig-cr);
+  --hui-search-radius: var(--_ig-cr);
+  --hui-input-number-radius: var(--_ig-cr);
+
+  position: relative;
+  flex: none;
+  margin: 0;
+  border-radius: var(--_ig-cr);
+}
+
+/* Ô nhập giãn chiếm phần còn lại */
+::slotted(hui-input),
+::slotted(hui-autocomplete),
+::slotted(hui-search),
+::slotted(hui-input-number),
+::slotted(input) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+:host([compact]) ::slotted(*) {
+  flex: none;
+}
+
+::slotted(:not(:first-child)) {
+  margin-inline-start: -1px;
+}
+
+/* Control đang hover / focus nổi lên để viền màu không bị control kế bên che */
+::slotted(:hover) {
+  z-index: 1;
+}
+
+::slotted(:focus-within),
+::slotted(:focus) {
+  z-index: 2;
+}
+
+::slotted(:first-child) {
+  --_ig-cr: var(--_ig-r) 0 0 var(--_ig-r);
+}
+
+::slotted(:last-child) {
+  --_ig-cr: 0 var(--_ig-r) var(--_ig-r) 0;
+}
+
+::slotted(:only-child) {
+  --_ig-cr: var(--_ig-r);
+}
+
+/* Có addon trước/sau → control đầu/cuối không bo phía đó nữa */
+.ig--has-before ::slotted(:first-child) {
+  --_ig-cr: 0;
+}
+
+.ig--has-before ::slotted(:only-child) {
+  --_ig-cr: 0 var(--_ig-r) var(--_ig-r) 0;
+}
+
+.ig--has-after ::slotted(:last-child) {
+  --_ig-cr: 0;
+}
+
+.ig--has-after ::slotted(:only-child) {
+  --_ig-cr: var(--_ig-r) 0 0 var(--_ig-r);
+}
+
+.ig--has-before.ig--has-after ::slotted(:only-child) {
+  --_ig-cr: 0;
+}
+
+/* <input> / <button> native đặt trực tiếp */
+::slotted(input),
+::slotted(button) {
+  box-sizing: border-box;
+  height: var(--_ig-h);
+  padding: 0 var(--_ig-px);
+  border: 1px solid var(--hui-border);
+  background: var(--hui-bg);
+  color: var(--hui-text);
+  font: inherit;
+  font-size: var(--_ig-fs);
+}
+
+::slotted(input:focus) {
+  outline: none;
+  border-color: var(--hui-primary);
+  box-shadow: var(--hui-focus-ring);
+}
+
+/* ===== Addon ===== */
+.ig__addon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: var(--_ig-h);
+  padding: 0 var(--_ig-px);
+  border: 1px solid var(--hui-input-group-border-color, var(--hui-border));
+  background: var(--hui-input-group-addon-bg, var(--hui-fill-tertiary));
+  color: var(--hui-input-group-addon-color, var(--hui-text-secondary));
+  font-size: var(--_ig-fs);
+  white-space: nowrap;
+}
+
+.ig__addon--before {
+  margin-inline-end: -1px;
+  border-radius: var(--_ig-r) 0 0 var(--_ig-r);
+}
+
+.ig__addon--after {
+  margin-inline-start: -1px;
+  border-radius: 0 var(--_ig-r) var(--_ig-r) 0;
+}

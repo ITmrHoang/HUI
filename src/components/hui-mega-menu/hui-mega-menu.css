@@ -1,0 +1,343 @@
+/*
+ * HUI Mega Menu CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của class.
+ * .mm--horizontal: hàng ngang + panel nổi; .mm--accordion: xếp dọc, panel mở ngay bên dưới nút.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.mm {
+  position: relative;
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+.mm__collector {
+  display: none;
+}
+
+.mm__list {
+  display: flex;
+  align-items: stretch;
+  gap: var(--hui-space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mm__item {
+  display: flex;
+  align-items: stretch;
+}
+
+/* ================== MỤC TRÊN CÙNG ================== */
+.mm__trigger,
+.mm__top-link,
+::slotted(a.mm-top-link) {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  box-sizing: border-box;
+  min-height: var(--hui-mega-menu-item-height, var(--hui-size-lg));
+  padding: var(--hui-mega-menu-item-padding, 0 var(--hui-space-md));
+  border: 0;
+  border-radius: var(--hui-radius);
+  background: transparent;
+  color: var(--hui-mega-menu-color, var(--hui-text));
+  font: inherit;
+  font-weight: var(--hui-font-weight-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--hui-transition-fast), background var(--hui-transition-fast);
+}
+
+.mm__trigger:hover,
+.mm__top-link:hover,
+::slotted(a.mm-top-link:hover),
+.mm__item--open > .mm__trigger {
+  color: var(--hui-mega-menu-hover-color, var(--hui-primary));
+}
+
+.mm__trigger:focus-visible,
+.mm__top-link:focus-visible,
+::slotted(a.mm-top-link:focus-visible) {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: -2px;
+}
+
+.mm__arrow {
+  font-size: 0.9em;
+  transition: transform var(--hui-transition);
+}
+
+.mm__trigger[aria-expanded='true'] .mm__arrow {
+  transform: rotate(180deg);
+}
+
+/* ================== PANEL ================== */
+.mm__panel {
+  box-sizing: border-box;
+  color: var(--hui-text-secondary);
+}
+
+.mm--horizontal .mm__panel {
+  position: absolute;
+  top: 100%;
+  inset-inline: 0;
+  z-index: var(--hui-mega-menu-z-index, var(--hui-z-dropdown));
+  width: var(--hui-mega-menu-panel-width, auto);
+  margin-inline: auto;
+  padding-top: var(--hui-space-xs);
+}
+
+/* Vùng đệm trong suốt phía trên panel giữ hover khi rê chuột từ nút xuống */
+.mm--horizontal .mm__panel-inner {
+  max-width: var(--hui-mega-menu-panel-max-width, none);
+  margin-inline: auto;
+  padding: var(--hui-mega-menu-panel-padding, var(--hui-space-xl));
+  border: 1px solid var(--hui-border-secondary);
+  border-radius: var(--hui-mega-menu-panel-radius, var(--hui-radius-xl));
+  background: var(--hui-mega-menu-panel-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-mega-menu-panel-shadow, var(--hui-shadow-xl));
+}
+
+/* full-width: dính mép dưới menu, phủ cả bề ngang màn hình */
+.mm--horizontal.mm--full .mm__panel {
+  position: fixed;
+  top: var(--_mm-top, 0);
+  inset-inline: 0;
+  width: auto;
+  padding-top: 0;
+}
+
+.mm--horizontal.mm--full .mm__panel-inner {
+  border-width: 1px 0;
+  border-radius: 0;
+}
+
+.mm--horizontal.mm--full .mm__body {
+  max-width: var(--hui-mega-menu-panel-max-width, 1200px);
+  margin-inline: auto;
+}
+
+.mm__body {
+  display: flex;
+  gap: var(--hui-mega-menu-gap, var(--hui-space-xl));
+}
+
+.mm__columns {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(auto-fit, minmax(var(--hui-mega-menu-column-min-width, 200px), 1fr));
+  gap: var(--hui-mega-menu-gap, var(--hui-space-xl));
+  min-width: 0;
+}
+
+.mm__group-title {
+  margin: 0 0 var(--hui-space-sm);
+  padding-inline: var(--hui-space-sm);
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mm__links {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mm__link {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hui-space-md);
+  padding: var(--hui-space-sm);
+  border-radius: var(--hui-radius-lg);
+  color: inherit;
+  text-decoration: none;
+  transition: background var(--hui-transition-fast);
+}
+
+.mm__link:hover {
+  background: var(--hui-mega-menu-link-hover-bg, var(--hui-fill-secondary));
+}
+
+.mm__link:focus-visible,
+.mm__featured-card:focus-visible,
+.mm__footer-link:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 1px;
+}
+
+.mm__link-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--hui-radius-lg);
+  background: var(--hui-mega-menu-icon-bg, var(--hui-primary-1));
+  color: var(--hui-mega-menu-icon-color, var(--hui-primary));
+  font-size: 1.125rem;
+  transition: transform var(--hui-transition);
+}
+
+.mm__link:hover .mm__link-icon {
+  transform: scale(1.08);
+}
+
+.mm__link-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mm__link-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+  color: var(--hui-text);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.mm__link-desc {
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-xs);
+}
+
+.mm__badge {
+  padding: 0 6px;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-primary-1);
+  color: var(--hui-primary-7);
+  font-size: 0.6875rem;
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: 1.6;
+}
+
+/* ================== KHỐI NỔI BẬT ================== */
+.mm__featured {
+  flex: 0 0 var(--hui-mega-menu-featured-width, 280px);
+  min-width: 0;
+}
+
+.mm__featured-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--hui-space-md);
+  border-radius: var(--hui-radius-lg);
+  background: var(--hui-mega-menu-featured-bg, var(--hui-fill-tertiary));
+  color: var(--hui-text-secondary);
+  text-decoration: none;
+}
+
+.mm__featured-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-bottom: var(--hui-space-xs);
+  border-radius: var(--hui-radius);
+  object-fit: cover;
+  transition: transform var(--hui-transition-slow);
+}
+
+a.mm__featured-card {
+  overflow: hidden;
+}
+
+a.mm__featured-card:hover .mm__featured-image {
+  transform: scale(1.03);
+}
+
+.mm__featured-title {
+  color: var(--hui-text);
+  font-size: var(--hui-font-base);
+}
+
+.mm__featured-desc {
+  font-size: var(--hui-font-xs);
+}
+
+.mm__featured-cta,
+.mm__footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: auto;
+  color: var(--hui-primary);
+  font-weight: var(--hui-font-weight-medium);
+  text-decoration: none;
+}
+
+.mm__footer {
+  margin-top: var(--hui-space-lg);
+  padding-top: var(--hui-space-md);
+  border-top: 1px solid var(--hui-border-secondary);
+}
+
+/* ================== ACCORDION ================== */
+.mm--accordion .mm__list {
+  flex-direction: column;
+  gap: 0;
+}
+
+.mm--accordion .mm__item {
+  flex-direction: column;
+  border-bottom: 1px solid var(--hui-border-secondary);
+}
+
+.mm--accordion .mm__trigger,
+.mm--accordion .mm__top-link,
+.mm--accordion ::slotted(a.mm-top-link) {
+  justify-content: space-between;
+  width: 100%;
+  border-radius: 0;
+}
+
+.mm--accordion .mm__arrow {
+  margin-inline-start: auto;
+}
+
+.mm--accordion .mm__panel-inner {
+  padding: 0 var(--hui-space-sm) var(--hui-space-md);
+}
+
+.mm--accordion .mm__body {
+  flex-direction: column;
+}
+
+.mm--accordion .mm__columns {
+  grid-template-columns: 1fr;
+  gap: var(--hui-space-md);
+}
+
+.mm--accordion .mm__featured {
+  flex-basis: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm__trigger,
+  .mm__arrow,
+  .mm__link,
+  .mm__link-icon,
+  .mm__featured-image {
+    transition: none;
+  }
+}

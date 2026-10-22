@@ -1,0 +1,105 @@
+/*
+ * HUI Page Loader CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của class.
+ */
+
+:host {
+  display: contents;
+  font-family: var(--hui-font-family);
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.pl {
+  position: fixed;
+  inset: 0;
+  z-index: var(--hui-page-loader-z-index, calc(var(--hui-z-notification) + 10));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hui-page-loader-bg, var(--hui-bg));
+  color: var(--hui-page-loader-color, var(--hui-text-secondary));
+  /* Chặn thao tác với trang phía sau trong lúc chờ */
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.pl__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hui-page-loader-gap, var(--hui-space-xl));
+  padding: var(--hui-space-xl);
+  text-align: center;
+}
+
+.pl__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pl-breathe 1.8s var(--hui-motion-ease-in-out) infinite;
+}
+
+.pl__spinner {
+  color: var(--hui-page-loader-accent, var(--hui-primary));
+}
+
+.pl__text {
+  font-size: var(--hui-font-sm);
+}
+
+/* ================== THANH TIẾN ĐỘ ================== */
+.pl__bar {
+  position: relative;
+  width: var(--hui-page-loader-bar-width, min(220px, 60vw));
+  height: var(--hui-page-loader-bar-height, 4px);
+  overflow: hidden;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-fill-secondary);
+}
+
+.pl__fill {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--hui-page-loader-accent, var(--hui-primary));
+  transition: width var(--hui-transition-slow);
+}
+
+/* Chưa biết tiến độ: một đoạn chạy qua lại */
+.pl__bar--indeterminate .pl__fill {
+  width: 40%;
+  animation: pl-slide 1.2s var(--hui-motion-ease-in-out) infinite;
+}
+
+@keyframes pl-slide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+
+@keyframes pl-breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(0.96); }
+}
+
+:host([no-animation]) .pl__logo,
+:host([no-animation]) .pl__bar--indeterminate .pl__fill {
+  animation-duration: 0s;
+  animation-iteration-count: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pl__logo { animation: none; }
+  .pl__fill { transition: none; }
+  .pl__bar--indeterminate .pl__fill {
+    width: 100%;
+    animation: none;
+    opacity: 0.6;
+  }
+}

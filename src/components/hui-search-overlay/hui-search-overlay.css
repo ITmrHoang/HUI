@@ -1,0 +1,373 @@
+/*
+ * HUI Search Overlay CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của class.
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+  vertical-align: middle;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.so__kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5em;
+  padding: 1px 5px;
+  border: 1px solid var(--hui-border);
+  border-bottom-width: 2px;
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-bg-container);
+  color: var(--hui-text-secondary);
+  font-family: var(--hui-font-family);
+  font-size: 0.75em;
+  font-weight: var(--hui-font-weight-medium);
+  line-height: 1.4;
+}
+
+/* ================== TRIGGER MẶC ĐỊNH ================== */
+.so__trigger-wrap {
+  display: inline-flex;
+}
+
+.so__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  height: var(--hui-size-md);
+  padding: 0 var(--hui-space-sm);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius);
+  background: var(--hui-bg-container);
+  color: var(--hui-text-secondary);
+  font: inherit;
+  font-size: var(--hui-font-base);
+  cursor: pointer;
+  transition: border-color var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.so__trigger:hover {
+  border-color: var(--hui-border-hover);
+  color: var(--hui-text);
+}
+
+.so__trigger:focus-visible,
+.so__icon-btn:focus-visible,
+.so__close:focus-visible,
+.so__link-btn:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 1px;
+}
+
+/* ================== LỚP PHỦ ================== */
+.so__dialog {
+  position: fixed;
+  inset: 0;
+  z-index: var(--hui-search-overlay-z-index, var(--hui-z-modal));
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: var(--hui-search-overlay-top, min(12vh, 96px)) var(--hui-space-lg) var(--hui-space-lg);
+  border: 0;
+  background: var(--hui-search-overlay-bg, color-mix(in srgb, var(--hui-bg) 92%, transparent));
+  -webkit-backdrop-filter: var(--hui-search-overlay-backdrop-filter, blur(8px));
+  backdrop-filter: var(--hui-search-overlay-backdrop-filter, blur(8px));
+  color: var(--hui-text);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.so__dialog:not([open]) {
+  display: none;
+}
+
+.so__dialog::backdrop {
+  background: transparent;
+}
+
+.so__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-lg);
+  max-width: var(--hui-search-overlay-max-width, 720px);
+  margin: 0 auto;
+}
+
+.so__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-md);
+  padding-bottom: var(--hui-space-sm);
+  border-bottom: 2px solid var(--hui-search-overlay-border-color, var(--hui-border));
+  transition: border-color var(--hui-transition);
+}
+
+.so__bar:focus-within {
+  border-color: var(--hui-search-overlay-accent, var(--hui-primary));
+}
+
+.so__bar-icon {
+  flex: none;
+  color: var(--hui-text-tertiary);
+  font-size: calc(var(--hui-search-overlay-input-size, 1.75rem) * 0.85);
+}
+
+.so__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--hui-space-xs) 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--hui-search-overlay-input-color, var(--hui-text));
+  font: inherit;
+  font-size: var(--hui-search-overlay-input-size, 1.75rem);
+  font-weight: var(--hui-font-weight-medium);
+  line-height: 1.3;
+}
+
+.so__input::placeholder {
+  color: var(--hui-text-tertiary);
+  font-weight: var(--hui-font-weight-normal);
+}
+
+/* Bỏ nút xóa mặc định của type="search" (đã có nút riêng) */
+.so__input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.so__spinner {
+  flex: none;
+  color: var(--hui-search-overlay-accent, var(--hui-primary));
+}
+
+.so__icon-btn,
+.so__close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--hui-space-xs);
+  border: 0;
+  border-radius: var(--hui-radius);
+  background: transparent;
+  color: var(--hui-text-secondary);
+  font: inherit;
+  font-size: var(--hui-font-lg);
+  cursor: pointer;
+}
+
+.so__icon-btn:hover,
+.so__close:hover {
+  background: var(--hui-fill-secondary);
+  color: var(--hui-text);
+}
+
+.so__close .so__kbd {
+  font-size: var(--hui-font-xs);
+}
+
+/* ================== KẾT QUẢ ================== */
+.so__results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-xs);
+}
+
+.so__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-sm);
+}
+
+.so__section-title,
+.so__group {
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.so__group {
+  padding: var(--hui-space-sm) var(--hui-space-md) var(--hui-space-xs);
+  list-style: none;
+}
+
+.so__link-btn {
+  padding: 2px var(--hui-space-xs);
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-primary);
+  font: inherit;
+  font-size: var(--hui-font-xs);
+  cursor: pointer;
+}
+
+.so__listbox {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.so__option {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-md);
+  padding: var(--hui-space-sm) var(--hui-space-md);
+  border-radius: var(--hui-radius-lg);
+  color: var(--hui-text);
+  font-size: var(--hui-font-base);
+  cursor: pointer;
+  scroll-margin: var(--hui-space-lg);
+}
+
+.so__option:hover {
+  background: var(--hui-fill-tertiary);
+}
+
+.so__option[aria-selected='true'] {
+  background: var(--hui-search-overlay-option-active-bg, var(--hui-fill-secondary));
+  box-shadow: inset 3px 0 0 var(--hui-search-overlay-accent, var(--hui-primary));
+}
+
+.so__option-icon {
+  flex: none;
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-lg);
+}
+
+.so__option-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.so__option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.so__option-desc {
+  overflow: hidden;
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.so__mark {
+  padding: 0 1px;
+  border-radius: 2px;
+  background: var(--hui-search-overlay-mark-bg, var(--hui-primary-1));
+  color: var(--hui-search-overlay-accent, var(--hui-primary-7));
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.so__option-go {
+  flex: none;
+  color: var(--hui-text-tertiary);
+  opacity: 0;
+  transition: opacity var(--hui-transition-fast), transform var(--hui-transition-fast);
+}
+
+.so__option[aria-selected='true'] .so__option-go,
+.so__option:hover .so__option-go {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.so__option-remove {
+  display: inline-flex;
+  flex: none;
+  padding: var(--hui-space-xs);
+  border: 0;
+  border-radius: var(--hui-radius-sm);
+  background: transparent;
+  color: var(--hui-text-tertiary);
+  cursor: pointer;
+}
+
+.so__option-remove:hover {
+  background: var(--hui-fill-secondary);
+  color: var(--hui-text);
+}
+
+/* Trạng thái: chỉ cho trình đọc màn hình, trừ khi cần hiện (đang tìm / không có kết quả / lỗi) */
+.so__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.so__status--visible {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  padding: var(--hui-space-xl) var(--hui-space-md);
+  color: var(--hui-text-secondary);
+  text-align: center;
+  white-space: normal;
+}
+
+.so__status--error {
+  color: var(--hui-danger);
+}
+
+.so__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hui-space-lg);
+  margin-top: var(--hui-space-sm);
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-xs);
+}
+
+.so__footer > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Màn hình cảm ứng nhỏ: bỏ gợi ý phím tắt, ô tìm nhỏ lại */
+@media (max-width: 640px) {
+  .so__dialog {
+    padding-top: var(--hui-space-lg);
+  }
+
+  .so__input {
+    font-size: var(--hui-search-overlay-input-size, 1.25rem);
+  }
+
+  .so__footer {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .so__trigger,
+  .so__bar,
+  .so__option-go {
+    transition: none;
+  }
+}

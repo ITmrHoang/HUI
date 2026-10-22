@@ -1,0 +1,78 @@
+/*
+ * HUI Sortable — biến override:
+ *   --hui-sortable-gap                    Khoảng cách giữa các item
+ *   --hui-sortable-placeholder-opacity    Độ mờ của chỗ trống khi kéo
+ *   --hui-sortable-placeholder-outline    Viền chỗ trống
+ *   --hui-sortable-grabbed-outline        Viền item đang nhấc bằng bàn phím
+ *   --hui-sortable-focus-color            Màu viền focus của item
+ * Item là light DOM → CSS của trang áp dụng trực tiếp; trạng thái: [data-hui-sort-placeholder],
+ * [data-hui-sort-grabbed]; host: hui-sortable:state(dragging).
+ */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-sortable-gap, 8px);
+  position: relative;
+}
+
+:host([direction='horizontal']) {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+:host([direction='grid']) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--hui-sortable-min-item-width, 140px), 1fr));
+}
+
+/* Không có tay nắm → cả item kéo được */
+:host(:not([data-handle]):not([disabled])) ::slotted(*) {
+  cursor: grab;
+}
+
+::slotted(*) {
+  touch-action: manipulation;
+}
+
+::slotted(:focus-visible) {
+  outline: 2px solid var(--hui-sortable-focus-color, var(--hui-primary));
+  outline-offset: 2px;
+}
+
+/* Chỗ trống: item thật nằm lại trong danh sách, mờ đi, viền nét đứt */
+::slotted([data-hui-sort-placeholder]) {
+  opacity: var(--hui-sortable-placeholder-opacity, 0.45);
+  outline: var(--hui-sortable-placeholder-outline, 2px dashed var(--hui-primary));
+  outline-offset: 2px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Đang nhấc bằng bàn phím */
+::slotted([data-hui-sort-grabbed]) {
+  outline: var(--hui-sortable-grabbed-outline, 2px solid var(--hui-primary));
+  outline-offset: 2px;
+  box-shadow: var(--hui-shadow-lg);
+  cursor: grabbing;
+}
+
+:host(:state(dragging)) {
+  cursor: grabbing;
+}
+
+:host([disabled]) ::slotted(*) {
+  cursor: default;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

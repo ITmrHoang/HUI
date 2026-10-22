@@ -408,8 +408,11 @@ class HuiCartDrawer extends HuiElement {
     const el = createElement('li', { className: 'cd__undo', part: 'undo', role: 'status' },
       createElement('span', { className: 'cd__undo-text' }, msg('cart.removed', { name: item.name ?? '' })), btn);
     const hadFocus = row.contains(this.shadowRoot.activeElement);
-    row.replaceWith(el);
+    // Focus sang "Hoàn tác" TRƯỚC khi gỡ dòng: gỡ phần tử đang focus trong <dialog> modal sẽ kích hoạt
+    // "focus fixup" của trình duyệt (trễ, không phát sự kiện) và kéo focus về nút đóng của drawer
+    row.before(el);
     if (hadFocus) btn.focus({ preventScroll: true });
+    row.remove();
     const entry = { item, index, el, timer: null };
     entry.timer = setTimeout(() => this._expireUndo(entry), Math.max(0, this.undoDuration) * 1000);
     btn.addEventListener('click', () => this._undo(entry));
@@ -428,9 +431,11 @@ class HuiCartDrawer extends HuiElement {
     this._items.splice(Math.min(entry.index, this._items.length), 0, item);
     const row = this._createRow(item);
     this._rows.set(item.id, row);
-    entry.el.replaceWith(row);
+    // Cùng lý do như _showUndo: chuyển focus xong mới gỡ dòng "Hoàn tác" đang giữ focus
+    entry.el.before(row);
     this._renderList();
-    row.querySelector('.cd__remove')?.focus({ preventScroll: true });
+    if (entry.el.contains(this.shadowRoot.activeElement)) row.querySelector('.cd__remove')?.focus({ preventScroll: true });
+    entry.el.remove();
     if (this._motion) row.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
     this._emitChange('undo', item);
   }
@@ -454,6 +459,8 @@ class HuiCartDrawer extends HuiElement {
   /**
    * Thông báo bằng message API. Drawer modal làm mọi thứ ngoài nó bị inert (kể cả message) →
    * chỉ gắn nút Hoàn tác vào thông báo khi drawer không có mask; còn lại dùng dòng hoàn tác trong drawer.
+   * Đã có dòng hoàn tác (role=status, tự đọc cho trình đọc màn hình) thì không hiện thêm thông báo: việc đưa
+   * container thông báo lên top-layer trên dialog modal còn làm trình duyệt giật focus khỏi nút Hoàn tác.
    */
   _toast(item) {
     const text = msg('cart.removed', { name: item.name ?? '' });
@@ -470,7 +477,7 @@ class HuiCartDrawer extends HuiElement {
         if (entry) this._undo(entry);
         close();
       });
-    } else {
+    } else if (!(this.undoDuration > 0)) {
       message.info(text, { duration: 2 });
     }
   }

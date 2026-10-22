@@ -1,0 +1,149 @@
+/*
+ * HUI Confirm Action — biến override:
+ *   --hui-confirm-action-progress-bg   Màu thanh tiến độ khi giữ
+ *   --hui-confirm-action-input-width   Bề rộng ô nhập (mode="type")
+ *   --hui-confirm-action-gap           Khoảng cách trong panel
+ * Nút bên trong là hui-button → mọi biến --hui-button-* cũng dùng được.
+ * Parts: button, button-base, button-label, button-icon, progress, panel, prompt, confirm-text, input,
+ *        confirm-button, cancel-button
+ * States: :state(holding) :state(confirmed) :state(open)
+ */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+}
+
+:host([block]) {
+  display: block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+hui-button {
+  display: inline-block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+:host([block]) hui-button {
+  display: block;
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+}
+
+/* Thanh tiến độ phủ cả nút (nằm trong slot của hui-button → bị cắt theo góc bo của nút) */
+.fill-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: var(--hui-confirm-action-progress-bg, var(--_ca-fill));
+}
+
+:host-context([dir='rtl']) .fill {
+  transform-origin: right center;
+}
+
+/* Nút nền đặc → vệt sáng; nút viền / chữ → vệt màu nhạt */
+hui-button {
+  --_ca-fill: color-mix(in srgb, var(--hui-text-light-solid) 32%, transparent);
+}
+
+:host(:is([variant='outline'], [variant='dashed'], [variant='ghost'], [variant='text'], [variant='link'])) hui-button {
+  --_ca-fill: color-mix(in srgb, var(--hui-danger) 18%, transparent);
+}
+
+:host(:state(confirmed)) hui-button {
+  --_ca-fill: color-mix(in srgb, var(--hui-success) 55%, transparent);
+}
+
+/* ===== mode="type" ===== */
+.panel {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-confirm-action-gap, 8px);
+  font-size: var(--hui-font-sm);
+  color: var(--hui-text);
+}
+
+:host([size='sm']) .panel {
+  font-size: var(--hui-font-xs);
+}
+
+.prompt {
+  color: var(--hui-text-secondary);
+}
+
+.prompt strong {
+  color: var(--hui-danger);
+  font-family: var(--hui-font-mono);
+  font-weight: var(--hui-font-weight-semibold, 600);
+}
+
+.input {
+  box-sizing: border-box;
+  width: var(--hui-confirm-action-input-width, 10em);
+  min-height: var(--hui-size-md);
+  padding: 0 10px;
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius);
+  background: var(--hui-bg-container);
+  color: var(--hui-text);
+  font: inherit;
+  outline: none;
+  transition: border-color var(--hui-motion-duration-fast, 120ms) ease, box-shadow var(--hui-motion-duration-fast, 120ms) ease;
+}
+
+:host([size='sm']) .input {
+  min-height: var(--hui-size-sm);
+  padding: 0 8px;
+}
+
+:host([size='lg']) .input {
+  min-height: var(--hui-size-lg);
+}
+
+.input:focus {
+  border-color: var(--hui-danger);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--hui-danger) 20%, transparent);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--hui-warning);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input {
+    transition: none;
+  }
+}

@@ -1,0 +1,137 @@
+/*
+ * HUI Description Card CSS
+ * Override (KHÔNG khai báo trên :host): --hui-description-card-bg, --hui-description-card-border,
+ *   --hui-description-card-radius, --hui-description-card-shadow, --hui-description-card-padding,
+ *   --hui-description-card-title-size, --hui-description-card-empty-color
+ * Lưới nhãn/giá trị là <hui-descriptions> → chỉnh thêm bằng --hui-descriptions-* (kế thừa xuyên shadow).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-base);
+  line-height: var(--hui-line-height, 1.5);
+  color: var(--hui-text);
+}
+
+[hidden] { display: none !important; }
+
+.dc {
+  --_dc-pad: var(--hui-description-card-padding, var(--hui-space-lg));
+
+  border: var(--hui-description-card-border, 1px solid var(--hui-border-secondary));
+  border-radius: var(--hui-description-card-radius, var(--hui-radius-lg));
+  background: var(--hui-description-card-bg, var(--hui-bg-container));
+  box-shadow: var(--hui-description-card-shadow, none);
+  overflow: hidden;
+}
+
+.dc--flat {
+  --_dc-pad: 0px;
+
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.dc__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hui-space-sm) var(--hui-space-md);
+  padding: var(--_dc-pad) var(--_dc-pad) 0;
+}
+
+.dc__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--hui-description-card-title-size, var(--hui-font-lg));
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading, 1.35);
+}
+
+.dc__extra {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-space-sm);
+}
+
+.dc__body {
+  padding: var(--_dc-pad);
+}
+
+.dc__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--hui-space-sm);
+  padding: var(--hui-space-md) var(--_dc-pad);
+  border-top: 1px solid var(--hui-border-secondary);
+  background: var(--hui-fill-tertiary);
+}
+
+.dc--flat .dc__footer {
+  padding-inline: 0;
+  background: transparent;
+}
+
+/* ================== GIÁ TRỊ ================== */
+.dc__value {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hui-space-xs) var(--hui-space-sm);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dc__value--empty {
+  color: var(--hui-description-card-empty-color, var(--hui-text-secondary));
+}
+
+.dc__tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--hui-space-xs);
+}
+
+.dc__avatar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+}
+
+.dc__link {
+  color: var(--hui-primary);
+  text-decoration: none;
+}
+
+.dc__link:hover { text-decoration: underline; }
+
+.dc__link:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: 2px;
+  border-radius: var(--hui-radius-sm);
+}
+
+.dc__bool {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-space-xs);
+}
+
+.dc__bool--yes hui-icon { color: var(--hui-success); }
+.dc__bool--no hui-icon { color: var(--hui-text-tertiary); }
+
+.dc__copy {
+  opacity: 0.6;
+  transition: opacity var(--hui-transition-fast, 0.15s);
+}
+
+.dc__value:hover .dc__copy,
+.dc__copy:focus-within {
+  opacity: 1;
+}

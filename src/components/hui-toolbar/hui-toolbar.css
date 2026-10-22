@@ -1,0 +1,160 @@
+/*
+ * HUI Toolbar CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của class.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+:host([orientation='vertical']) {
+  display: inline-block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.tb {
+  box-sizing: border-box;
+  padding: var(--hui-toolbar-padding, 0);
+  border-radius: var(--hui-toolbar-radius, var(--hui-radius-lg));
+}
+
+.tb--outlined {
+  --_tb-pad: var(--hui-space-xs);
+
+  padding: var(--hui-toolbar-padding, var(--_tb-pad));
+  border: 1px solid var(--hui-toolbar-border-color, var(--hui-border));
+  background: var(--hui-toolbar-bg, var(--hui-bg-container));
+}
+
+.tb--filled {
+  padding: var(--hui-toolbar-padding, var(--hui-space-xs));
+  background: var(--hui-toolbar-bg, var(--hui-fill-tertiary));
+}
+
+.tb__row {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-toolbar-gap, var(--hui-space-xs));
+  min-width: 0;
+}
+
+/* Chế độ menu: không xuống dòng, phần thừa được dồn vào nút "…" */
+.tb--horizontal.tb--menu .tb__row {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.tb--horizontal.tb--wrap .tb__row {
+  flex-wrap: wrap;
+}
+
+.tb--vertical .tb__row {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.tb__row > ::slotted(*) {
+  flex: none;
+}
+
+/* ================== DẤU PHÂN CÁCH ================== */
+.tb__row > ::slotted(hr),
+.tb__row > ::slotted([role='separator']),
+.tb__row > ::slotted([data-separator]) {
+  align-self: stretch;
+  width: 1px;
+  height: auto;
+  min-height: 1.25rem;
+  margin: var(--hui-space-xs) var(--hui-space-xs);
+  padding: 0;
+  border: 0;
+  background: var(--hui-toolbar-separator-color, var(--hui-border));
+}
+
+.tb--vertical .tb__row > ::slotted(hr),
+.tb--vertical .tb__row > ::slotted([role='separator']),
+.tb--vertical .tb__row > ::slotted([data-separator]) {
+  width: auto;
+  height: 1px;
+  min-height: 0;
+  margin: var(--hui-space-xs) 0;
+}
+
+/* ================== NÚT "…" ================== */
+.tb__more {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--hui-size-md);
+  height: var(--hui-size-md);
+  margin-inline-start: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hui-radius);
+  background: transparent;
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-lg);
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.tb__more:hover,
+.tb__more[aria-expanded='true'] {
+  background: var(--hui-fill-secondary);
+  color: var(--hui-text);
+}
+
+.tb__more:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 1px;
+}
+
+/* ================== MENU TRÀN ================== */
+.tb__popup {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  min-width: 180px;
+  max-width: min(320px, calc(100vw - 16px));
+  max-height: 70vh;
+  overflow: auto;
+  padding: var(--hui-space-xs);
+  border: 1px solid var(--hui-border-secondary);
+  border-radius: var(--hui-radius-lg);
+  background: var(--hui-toolbar-popup-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-toolbar-popup-shadow, var(--hui-shadow-lg));
+  color: var(--hui-text);
+  font-family: var(--hui-font-family);
+}
+
+.tb__popup[hidden] {
+  display: none;
+}
+
+.tb__popup > ::slotted(*) {
+  justify-content: flex-start;
+}
+
+.tb__popup > ::slotted(hr),
+.tb__popup > ::slotted([role='separator']),
+.tb__popup > ::slotted([data-separator]) {
+  width: auto;
+  height: 1px;
+  margin: var(--hui-space-xs) 0;
+  padding: 0;
+  border: 0;
+  background: var(--hui-toolbar-separator-color, var(--hui-border));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tb__more {
+    transition: none;
+  }
+}

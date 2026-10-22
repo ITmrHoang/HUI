@@ -1,0 +1,192 @@
+/*
+ * HUI Editable — biến override:
+ *   --hui-editable-hover-bg            Nền khi hover chế độ xem
+ *   --hui-editable-radius              Bo góc
+ *   --hui-editable-padding             Padding vùng xem / ô nhập
+ *   --hui-editable-placeholder-color   Màu placeholder
+ *   --hui-editable-border-color        Viền ô nhập
+ *   --hui-editable-focus-color         Màu viền focus
+ *   --hui-editable-error-color         Màu lỗi
+ *   --hui-editable-icon-color          Màu icon bút chì
+ *   --hui-editable-min-width           Bề rộng tối thiểu ô nhập
+ * Parts: view, text, icon, spinner, editor, control, message
+ * States: :state(editing) :state(saving) :state(error) :state(empty)
+ * Chữ kế thừa font của phần tử cha (dùng được trong tiêu đề, ô bảng…).
+ */
+
+:host {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  vertical-align: baseline;
+  font: inherit;
+  color: inherit;
+}
+
+:host([type='textarea']) {
+  display: flex;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.view {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35em;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: calc(-1 * var(--_editable-pad-y, 2px)) calc(-1 * var(--_editable-pad-x, 6px));
+  padding: var(--hui-editable-padding, var(--_editable-pad-y, 2px) var(--_editable-pad-x, 6px));
+  border-radius: var(--hui-editable-radius, var(--hui-radius-sm));
+  cursor: text;
+  outline: none;
+  transition: background-color var(--hui-motion-duration-fast, 120ms) ease, box-shadow var(--hui-motion-duration-fast, 120ms) ease;
+  overflow-wrap: anywhere;
+}
+
+:host([type='textarea']) .view {
+  white-space: pre-wrap;
+}
+
+.view:hover {
+  background: var(--hui-editable-hover-bg, var(--hui-fill-tertiary));
+}
+
+.view:focus-visible {
+  box-shadow: 0 0 0 2px var(--hui-editable-focus-color, var(--hui-primary));
+}
+
+.text--placeholder {
+  color: var(--hui-editable-placeholder-color, var(--hui-text-tertiary));
+  font-style: italic;
+}
+
+.icon {
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 0.85em;
+  color: var(--hui-editable-icon-color, var(--hui-text-tertiary));
+  opacity: 0.6;
+  transition: opacity var(--hui-motion-duration-fast, 120ms) ease, color var(--hui-motion-duration-fast, 120ms) ease;
+}
+
+.view:hover .icon,
+.view:focus-visible .icon {
+  opacity: 1;
+  color: var(--hui-editable-focus-color, var(--hui-primary));
+}
+
+/* Đang lưu: chữ mờ + vòng xoay */
+:host(:state(saving)) .view {
+  cursor: progress;
+}
+
+:host(:state(saving)) .text {
+  opacity: 0.6;
+}
+
+:host(:state(saving)) .icon {
+  display: none;
+}
+
+.spinner {
+  flex-shrink: 0;
+  align-self: center;
+  width: 0.8em;
+  height: 0.8em;
+  border: 2px solid var(--hui-fill);
+  border-top-color: var(--hui-editable-focus-color, var(--hui-primary));
+  border-radius: 50%;
+  animation: hui-editable-spin 0.7s linear infinite;
+}
+
+@keyframes hui-editable-spin {
+  to { transform: rotate(360deg); }
+}
+
+:host([disabled]) .view {
+  cursor: not-allowed;
+  color: var(--hui-text-disabled);
+}
+
+:host([disabled]) .view:hover {
+  background: transparent;
+}
+
+:host([disabled]) .icon {
+  display: none;
+}
+
+/* Lỗi: gạch chân đỏ + dòng thông báo */
+:host(:state(error)) .view {
+  box-shadow: inset 0 -2px 0 var(--hui-editable-error-color, var(--hui-danger));
+}
+
+.editor {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+:host([type='textarea']) .editor {
+  display: flex;
+  width: 100%;
+}
+
+.control {
+  box-sizing: border-box;
+  min-width: var(--hui-editable-min-width, 6em);
+  max-width: 100%;
+  margin: calc(-1 * var(--_editable-pad-y, 2px) - 1px) calc(-1 * var(--_editable-pad-x, 6px) - 1px);
+  padding: var(--hui-editable-padding, var(--_editable-pad-y, 2px) var(--_editable-pad-x, 6px));
+  border: 1px solid var(--hui-editable-border-color, var(--hui-border));
+  border-radius: var(--hui-editable-radius, var(--hui-radius-sm));
+  background: var(--hui-bg-container);
+  color: var(--hui-text);
+  font: inherit;
+  line-height: inherit;
+  outline: none;
+  transition: border-color var(--hui-motion-duration-fast, 120ms) ease, box-shadow var(--hui-motion-duration-fast, 120ms) ease;
+}
+
+input.control {
+  width: calc(var(--_editable-ch, 8) * 1ch);
+}
+
+textarea.control {
+  width: 100%;
+  resize: vertical;
+}
+
+.control:focus {
+  border-color: var(--hui-editable-focus-color, var(--hui-primary));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--hui-editable-focus-color, var(--hui-primary)) 22%, transparent);
+}
+
+.control[aria-invalid='true'] {
+  border-color: var(--hui-editable-error-color, var(--hui-danger));
+}
+
+.message {
+  font-size: 0.8em;
+  line-height: 1.4;
+  color: var(--hui-editable-error-color, var(--hui-danger));
+}
+
+.message:empty {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view,
+  .icon,
+  .control {
+    transition: none;
+  }
+
+  .spinner {
+    animation-duration: 2s;
+  }
+}

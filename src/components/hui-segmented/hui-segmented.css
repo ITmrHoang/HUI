@@ -1,0 +1,180 @@
+/*
+ * HUI Segmented CSS
+ * Override: var(--hui-segmented-xxx, <mặc định>) — biến KHÔNG khai báo trên :host.
+ *
+ *   --hui-segmented-bg                 Nền khung
+ *   --hui-segmented-padding            Đệm quanh các lựa chọn
+ *   --hui-segmented-radius             Bo góc khung
+ *   --hui-segmented-item-radius        Bo góc lựa chọn / indicator
+ *   --hui-segmented-item-height        Chiều cao lựa chọn
+ *   --hui-segmented-item-padding-x     Đệm ngang lựa chọn
+ *   --hui-segmented-font-size          Cỡ chữ
+ *   --hui-segmented-color              Màu chữ lựa chọn thường
+ *   --hui-segmented-hover-color        Màu chữ khi hover
+ *   --hui-segmented-item-hover-bg      Nền lựa chọn khi hover
+ *   --hui-segmented-selected-color     Màu chữ lựa chọn đang chọn
+ *   --hui-segmented-indicator-bg       Nền indicator
+ *   --hui-segmented-indicator-shadow   Đổ bóng indicator
+ *   --hui-segmented-duration           Thời gian trượt
+ *
+ * Parts: base, indicator, item (+ item-selected, item-disabled), icon, label
+ * State: :state(filled), :state(disabled), :state(user-invalid)
+ */
+
+:host {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+}
+
+:host([block]) {
+  display: block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.seg {
+  --_seg-pad: var(--hui-segmented-padding, 2px);
+
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: var(--_seg-pad);
+  border-radius: var(--hui-segmented-radius, var(--_seg-radius));
+  background: var(--hui-segmented-bg, var(--hui-fill-secondary));
+  color: var(--hui-segmented-color, var(--hui-text-secondary));
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.seg::-webkit-scrollbar {
+  display: none;
+}
+
+:host([block]) .seg {
+  display: flex;
+  width: 100%;
+}
+
+.seg--disabled {
+  opacity: 0.5;
+}
+
+/* ================== KÍCH THƯỚC ================== */
+.seg--sm {
+  --_seg-h: calc(var(--hui-size-sm) - 4px);
+  --_seg-px: 7px;
+  --_seg-fs: var(--hui-font-xs);
+  --_seg-radius: var(--hui-radius-sm);
+  --_seg-item-radius: calc(var(--hui-radius-sm) - 1px);
+}
+
+.seg--md {
+  --_seg-h: calc(var(--hui-size-md) - 4px);
+  --_seg-px: 11px;
+  --_seg-fs: var(--hui-font-sm);
+  --_seg-radius: var(--hui-radius);
+  --_seg-item-radius: var(--hui-radius-sm);
+}
+
+.seg--lg {
+  --_seg-h: calc(var(--hui-size-lg) - 4px);
+  --_seg-px: 14px;
+  --_seg-fs: var(--hui-font-base);
+  --_seg-radius: var(--hui-radius-md);
+  --_seg-item-radius: var(--hui-radius);
+}
+
+/* ================== INDICATOR (vệt trượt) ================== */
+.seg__indicator {
+  position: absolute;
+  top: var(--_seg-pad);
+  bottom: var(--_seg-pad);
+  left: 0;
+  border-radius: var(--hui-segmented-item-radius, var(--_seg-item-radius));
+  background: var(--hui-segmented-indicator-bg, var(--hui-bg-elevated));
+  box-shadow: var(--hui-segmented-indicator-shadow, var(--hui-shadow-sm));
+  pointer-events: none;
+}
+
+.seg--animate .seg__indicator {
+  transition:
+    transform var(--hui-segmented-duration, var(--hui-motion-duration, 200ms)) var(--hui-motion-ease-in-out, ease),
+    width var(--hui-segmented-duration, var(--hui-motion-duration, 200ms)) var(--hui-motion-ease-in-out, ease);
+}
+
+/* ================== LỰA CHỌN ================== */
+.seg__item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-height: var(--hui-segmented-item-height, var(--_seg-h));
+  padding: 0 var(--hui-segmented-item-padding-x, var(--_seg-px));
+  border: 0;
+  border-radius: var(--hui-segmented-item-radius, var(--_seg-item-radius));
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--hui-segmented-font-size, var(--_seg-fs));
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--hui-transition-fast), background-color var(--hui-transition-fast);
+}
+
+:host([block]) .seg__item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.seg__item:hover:not(:disabled):not(.seg__item--selected) {
+  color: var(--hui-segmented-hover-color, var(--hui-text));
+  background: var(--hui-segmented-item-hover-bg, var(--hui-fill));
+}
+
+.seg__item--selected {
+  color: var(--hui-segmented-selected-color, var(--hui-text));
+  font-weight: var(--hui-font-weight-medium, 500);
+}
+
+.seg__item:disabled {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.seg__item:focus-visible {
+  outline: 2px solid var(--hui-primary);
+  outline-offset: -2px;
+}
+
+.seg__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seg__icon {
+  flex-shrink: 0;
+  font-size: 1.1em;
+}
+
+:host(:state(user-invalid)) .seg {
+  box-shadow: inset 0 0 0 1px var(--hui-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seg__indicator,
+  .seg__item {
+    transition: none !important;
+  }
+}

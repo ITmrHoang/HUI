@@ -1,0 +1,13 @@
+/*
+ * HUI Testimonial Slider CSS
+ * Không có biến riêng — dùng biến của hui-scroller (--hui-scroller-padding, --hui-scroller-dot-*…)
+ * và hui-testimonial (--hui-testimonial-*), đặt ở đâu cũng được.
+ */
+
+:host {
+  display: block;
+}
+
+.ts__scroller {
+  display: block;
+}

@@ -1,0 +1,173 @@
+/*
+ * HUI Media Card CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiMediaCard.
+ * Biến nội bộ có tiền tố --_mc- (--_mc-lines do JS đặt theo description-lines).
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.mc__card {
+  height: 100%;
+}
+
+.mc__card--no-media::part(cover) {
+  display: none;
+}
+
+/* ================== MEDIA ================== */
+.mc__media {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+:host([orientation='horizontal']) .mc__media {
+  min-height: var(--hui-media-card-media-min-height, 160px);
+}
+
+.mc__image,
+.mc__video,
+::slotted([slot='media']) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Media không bo góc riêng — khung card đã cắt góc */
+.mc__video::part(base) {
+  border-radius: 0;
+}
+
+.mc__image::part(img) {
+  transition: transform 600ms var(--hui-motion-ease-out);
+}
+
+/* effect zoom-media: ảnh trong hui-image phóng nhẹ khi rê vào thẻ */
+:host(:hover) .mc__media--zoom .mc__image::part(img) {
+  transform: scale(var(--hui-card-media-zoom, 1.06));
+}
+
+.mc__badge {
+  position: absolute;
+  top: var(--hui-space-sm);
+  right: var(--hui-space-sm);
+  z-index: 2;
+  padding: 2px 8px;
+  border-radius: var(--hui-radius-sm);
+  background: var(--hui-media-card-badge-bg, color-mix(in srgb, var(--hui-bg-spotlight) 85%, transparent));
+  color: var(--hui-media-card-badge-color, var(--hui-text-light-solid));
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-medium);
+  line-height: 1.6;
+  pointer-events: none;
+}
+
+/* ================== NỘI DUNG ================== */
+.mc__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hui-space-sm);
+}
+
+.mc__heading {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--hui-media-card-title-lines, 2);
+  overflow: hidden;
+  color: var(--hui-media-card-title-color, var(--hui-text));
+  font-size: var(--hui-media-card-title-font-size, var(--hui-font-lg));
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading);
+}
+
+:host([size='sm']) .mc__heading {
+  font-size: var(--hui-media-card-title-font-size, var(--hui-font-base));
+}
+
+:host([size='lg']) .mc__heading {
+  font-size: var(--hui-media-card-title-font-size, var(--hui-font-xl));
+}
+
+.mc__title-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--hui-transition-fast);
+}
+
+.mc__title-link[href]:hover {
+  color: var(--hui-primary);
+}
+
+.mc__title-link:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--hui-radius-sm);
+}
+
+.mc__desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--_mc-lines, 3);
+  overflow: hidden;
+  margin: 0;
+  color: var(--hui-media-card-description-color, var(--hui-text-secondary));
+  line-height: var(--hui-line-height);
+}
+
+.mc__extra {
+  width: 100%;
+}
+
+/* ================== META ================== */
+.mc__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+  padding-top: var(--hui-space-xs);
+  color: var(--hui-media-card-meta-color, var(--hui-text-muted));
+  font-size: var(--hui-font-xs);
+  line-height: var(--hui-line-height);
+}
+
+.mc__meta-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-width: 0;
+}
+
+.mc__author {
+  color: var(--hui-text);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.mc__author:not([hidden]) + .mc__time:not([hidden])::before {
+  content: '·';
+  margin: 0 var(--hui-space-xs);
+}
+
+/* ================== GIẢM CHUYỂN ĐỘNG ================== */
+:host([no-animation]) .mc__image::part(img),
+:host([no-animation]) .mc__title-link {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mc__image::part(img),
+  .mc__title-link {
+    transition: none;
+  }
+
+  :host(:hover) .mc__media--zoom .mc__image::part(img) {
+    transform: none;
+  }
+}

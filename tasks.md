@@ -202,12 +202,12 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
 ## G2 — BỔ SUNG PHONG PHÚ (ưu tiên trung bình)
 - [ ] **`hui-steps` + `hui-step`** — `current`, `direction`, `status` (wait/process/finish/error), `type` (default/navigation/dot), `clickable`
 - [/] **`hui-timeline` + item** — `mode` (left/right/alternate), màu/icon từng mốc, `pending`, `reverse` *(→ chuyển sang A6.2)*
-- [ ] **`hui-segmented`** — chọn 1 trong nhiều (dạng thanh trượt), `options`, `block`, icon
-- [ ] **`hui-button-group`** + **`hui-toggle-button-group`** (MUI ToggleButton) — chọn đơn/nhiều
+- [x] **`hui-segmented`** — chọn 1 trong nhiều (dạng thanh trượt), `options`, `block`, icon
+- [x] **`hui-button-group`** + **`hui-toggle-button-group`** (MUI ToggleButton) — chọn đơn/nhiều
 - [/] **`hui-rate`** — `count`, `allow-half`, `allow-clear`, ký tự tùy chỉnh (slot), `readonly`, tooltip từng sao *(→ chuyển sang A6.3)*
-- [ ] **`hui-upload`** — kéo thả (`hui-upload-dragger`), `list-type` (text/picture/picture-card), progress, `accept`, `max-count`,
+- [x] **`hui-upload`** — kéo thả (`hui-upload-dragger`), `list-type` (text/picture/picture-card), progress, `accept`, `max-count`,
   `multiple`, `before-upload` (hàm), `custom-request`, xem trước ảnh, xóa file; sự kiện `change`
-- [ ] **`hui-autocomplete`** — gợi ý theo `options`, lọc, async (`hui-search` + `loading`), dùng F7
+- [x] **`hui-autocomplete`** — gợi ý theo `options`, lọc, async (`hui-search` + `loading`), dùng F7
 - [/] **`hui-image`** — `preview` (phóng to, xoay, lật, zoom bằng cuộn), `hui-image-group` xem dạng album, `fallback`, `lazy`, `placeholder` *(→ gộp vào A1 `hui-image` + A6.2 `hui-lightbox`)*
 - [/] **`hui-carousel`** — `autoplay`, `dots`, `arrows`, `effect` (scroll/fade), vuốt trên mobile, `slides-per-view` *(→ chuyển sang A6.2 (xây trên `hui-scroller`))*
 - [/] **`hui-float-button`** + **`-group`** (MUI SpeedDial) + **`hui-back-top`** *(→ chuyển sang A6.1)*
@@ -277,6 +277,13 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
   `hui-faq` 58 KB, `hui-kpi-row` 50 KB (kéo theo nhiều component con). Hướng: tải động (import()) phần table/pagination/
   select khi chế độ đó được dùng; CI đang chặn ở ngưỡng 100 KB/entry (`SIZE_LIMIT_KB`), component đơn lẻ đều < 40 KB.
 - [ ] **Bảo vệ nhánh main** — bắt buộc CI xanh trước khi merge (bạn bật trong Settings → Branches).
+- [ ] **Bản CDN trọn gói quá lớn** — `dist/cdn/h-ui.min.js` ~437 KB gzip (≈205 thẻ). Hướng: tách bản CDN theo nhóm
+  (core / form / marketing / shop) hoặc khuyến nghị import lẻ từng `hui-*.esm.js` qua jsDelivr.
+- [ ] **Độ tương phản `--hui-primary`** ~4,46:1 trên nền trắng (axe báo ở hui-button primary/outline) — chỉnh token đậm hơn
+  một bậc; tương tự chữ viết tắt hui-avatar và màu warning của hui-tag.
+- [ ] **hui-modal** có thể bị race giống command-palette: sự kiện `close` trễ của `<dialog>` đóng lại modal vừa mở lại nhanh.
+- [ ] **hui-descriptions**: axe báo aria-required-parent/children vì `role=row` gán qua ElementInternals.
+- [ ] **hui-input** `addon-before/after` hiển thị sai trong `hui-input-group` (bán kính gộp trong shorthand) — dùng slot của group.
 
 **Đã chốt / đã làm (2026-10-20):**
 - Repo GitHub đổi tên `HUI` → **`ITmrHoang/h-ui`** (remote đã set-url; GitHub tự chuyển hướng link cũ).
@@ -354,14 +361,14 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
 | `hui-button`, `hui-icon`, `hui-input`, `hui-checkbox`, `hui-switch`, `hui-tag`, `hui-badge`, `hui-avatar`, `hui-spinner`, `hui-divider`, `hui-tooltip` | ✅ | đã chuyển sang HuiElement |
 | `hui-text`, `hui-title`, `hui-link`, `hui-paragraph`, `hui-radio`, `hui-textarea`, `hui-input-number`, `hui-slider`, `hui-progress`, `hui-skeleton`, `hui-empty` | 🔄 / ✅ | G1 |
 - [x] 🆕 **`hui-image`** — `src`, `ratio` (16/9, 1/1…), `fit` cover/contain, `lazy` (mặc định), `placeholder` (blur/skeleton), `fallback` khi lỗi, `rounded`
-- [ ] 🆕 **`hui-aspect-ratio`** — khung giữ tỉ lệ cho video/ảnh/iframe
+- [x] 🆕 **`hui-aspect-ratio`** — khung giữ tỉ lệ cho video/ảnh/iframe
 - [x] 🆕 **`hui-kbd`** — phím tắt (`Ctrl` + `K`)
-- [ ] 🆕 **`hui-dot`** — chấm trạng thái (online/offline/processing nhấp nháy)
+- [x] 🆕 **`hui-dot`** — chấm trạng thái (online/offline/processing nhấp nháy)
 - [x] 🆕 **`hui-number`** — hiển thị số đã format (`value`, `format` currency/percent/compact "1,2 tr"), **đếm chạy** khi đổi giá trị
 - [x] 🆕 **`hui-time`** — `datetime` → "3 phút trước" tự cập nhật, tooltip ngày đầy đủ
 - [x] 🆕 **`hui-copy`** — nút copy bất kỳ chuỗi (`value`), đổi icon ✓ khi xong
-- [ ] 🆕 **`hui-chip-input`** (atom phức hợp nhẹ) — nhập nhiều tag bằng Enter/phẩy
-- [ ] 🆕 **`hui-color-swatch`**, **`hui-rating-display`** (chỉ hiển thị sao, nhẹ hơn `hui-rate`)
+- [x] 🆕 **`hui-chip-input`** (atom phức hợp nhẹ) — nhập nhiều tag bằng Enter/phẩy
+- [x] 🆕 **`hui-color-swatch`**, **`hui-rating-display`** (chỉ hiển thị sao, nhẹ hơn `hui-rate`)
 
 ---
 
@@ -371,13 +378,13 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
 - [x] 🆕 **Biến thể `hui-card`** (nâng cấp, không tạo thẻ mới): `variant` elevated | outlined | filled | ghost,
   `orientation` vertical | horizontal (ảnh trái – nội dung phải), `clickable` (cả thẻ là link: `href`), `selectable` + `selected` (chọn nhiều thẻ),
   `media` slot tràn viền, `badge`/ribbon góc
-- [ ] 🆕 **`hui-media-card`** — ảnh/video + tiêu đề + mô tả + meta (tác giả, thời gian) + actions; dùng cho bài viết, sản phẩm
+- [x] 🆕 **`hui-media-card`** — ảnh/video + tiêu đề + mô tả + meta (tác giả, thời gian) + actions; dùng cho bài viết, sản phẩm
 - [x] 🆕 **`hui-product-card`** — ảnh, tên, giá (giá gốc gạch ngang + % giảm), rating, nút thêm giỏ, nhãn "Mới"/"Hết hàng"
-- [ ] 🆕 **`hui-profile-card`** — avatar, tên, chức danh, chỉ số (followers…), nút liên hệ
+- [x] 🆕 **`hui-profile-card`** — avatar, tên, chức danh, chỉ số (followers…), nút liên hệ
 - [x] 🆕 **`hui-stat-card`** (KPI tile) — tiêu đề, `hui-number`, chênh lệch ▲/▼ % (màu theo dấu), sparkline nhỏ, icon
-- [ ] 🆕 **`hui-feature-card`** — icon lớn + tiêu đề + mô tả (landing page)
+- [x] 🆕 **`hui-feature-card`** — icon lớn + tiêu đề + mô tả (landing page)
 - [x] 🆕 **`hui-pricing-card`** — tên gói, giá/kỳ, danh sách tính năng (✓/✗), nút CTA, `highlighted` (gói đề xuất)
-- [ ] 🆕 **`hui-testimonial`** — trích dẫn, avatar, tên, công ty, rating
+- [x] 🆕 **`hui-testimonial`** — trích dẫn, avatar, tên, công ty, rating
 
 ### A2.2 Tiến trình & các bước
 - [ ] 🔄 `hui-progress` (G1) — line / circle / dashboard / steps
@@ -388,14 +395,14 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
 
 ### A2.3 Nhập liệu ghép
 - [ ] 🔄 `hui-form-item` (G1)
-- [ ] 🆕 **`hui-search`** — input + icon + nút/Enter, debounce, gợi ý (dùng `hui-autocomplete` khi có), phím tắt `/` để focus
-- [ ] 🆕 **`hui-input-group`** — gộp viền nhiều control liền nhau (select + input + button)
-- [ ] 🆕 **`hui-filter-chips`** — hàng chip lọc nhanh (chọn 1 / nhiều), "Xóa lọc", nhận `options` data
+- [x] 🆕 **`hui-search`** — input + icon + nút/Enter, debounce, gợi ý (dùng `hui-autocomplete` khi có), phím tắt `/` để focus
+- [x] 🆕 **`hui-input-group`** — gộp viền nhiều control liền nhau (select + input + button)
+- [x] 🆕 **`hui-filter-chips`** — hàng chip lọc nhanh (chọn 1 / nhiều), "Xóa lọc", nhận `options` data
 - [x] 🆕 **`hui-quantity`** — − [số] + cho giỏ hàng (bọc input-number)
 
 ### A2.4 Khác
-- [ ] 🆕 **`hui-media-object`** — avatar/ảnh trái + nội dung phải (giống list-item-meta, dùng độc lập)
-- [ ] 🆕 **`hui-toolbar`** — hàng nút công cụ, tự gom phần tràn vào menu "…" khi hẹp
+- [x] 🆕 **`hui-media-object`** — avatar/ảnh trái + nội dung phải (giống list-item-meta, dùng độc lập)
+- [x] 🆕 **`hui-toolbar`** — hàng nút công cụ, tự gom phần tràn vào menu "…" khi hẹp
 - [ ] 🆕 **`hui-empty-state`**? → dùng `hui-empty` + slot action (đã đủ, không tạo mới)
 
 ---
@@ -443,16 +450,16 @@ và tự có skeleton – empty – error – thử lại.
 - [ ] (G3) `hui-table` — bổ sung yêu cầu: `columns` có `type` (text/number/currency/date/tag/avatar/progress/actions)
   để **khai báo là hiển thị đẹp ngay**, sửa trực tiếp trong ô (`editable`), xuất CSV
 - [ ] (G1) `hui-list` — bổ sung `data` + `<template>`
-- [ ] 🆕 **`hui-timeline-feed`** — luồng hoạt động từ data (avatar, hành động, thời gian `hui-time`), nhóm theo ngày
-- [ ] 🆕 **`hui-kanban`** — cột trạng thái + kéo thả card giữa cột (`hui-change` {item, from, to}), dữ liệu `columns` + `items`
-- [ ] 🆕 **`hui-filter-bar`** — thanh lọc tổng hợp (search + filter-chips + select + date range) phát `params` cho DataController
-- [ ] 🆕 **`hui-command-palette`** — Ctrl+K mở hộp tìm lệnh/trang, data `commands` (nhóm, icon, phím tắt), điều hướng bàn phím
-- [ ] 🆕 **Tương tác nhanh dùng chung:**
-  - [ ] `hui-editable` — bấm vào chữ → sửa tại chỗ (input/select), Enter lưu / Esc hủy, sự kiện `hui-save` (có thể async)
-  - [ ] `hui-sortable` — kéo thả sắp xếp phần tử con (pointer + bàn phím), sự kiện `hui-sort` {oldIndex, newIndex}
-  - [ ] `hui-hotkey` — đăng ký phím tắt khai báo (`keys="ctrl+s"` → `hui-hotkey`)
-  - [ ] `hui-confirm-action` — nút nguy hiểm cần giữ 1 giây / gõ xác nhận
-- [ ] Landing organisms: `hui-hero` (tiêu đề lớn, mô tả, CTA, media; layout centered | split), `hui-feature-grid` (data → feature-card),
+- [x] 🆕 **`hui-timeline-feed`** — luồng hoạt động từ data (avatar, hành động, thời gian `hui-time`), nhóm theo ngày
+- [x] 🆕 **`hui-kanban`** — cột trạng thái + kéo thả card giữa cột (`hui-change` {item, from, to}), dữ liệu `columns` + `items`
+- [x] 🆕 **`hui-filter-bar`** — thanh lọc tổng hợp (search + filter-chips + select + date range) phát `params` cho DataController
+- [x] 🆕 **`hui-command-palette`** — Ctrl+K mở hộp tìm lệnh/trang, data `commands` (nhóm, icon, phím tắt), điều hướng bàn phím
+- [x] 🆕 **Tương tác nhanh dùng chung:**
+  - [x] `hui-editable` — bấm vào chữ → sửa tại chỗ (input/select), Enter lưu / Esc hủy, sự kiện `hui-save` (có thể async)
+  - [x] `hui-sortable` — kéo thả sắp xếp phần tử con (pointer + bàn phím), sự kiện `hui-sort` {oldIndex, newIndex}
+  - [x] `hui-hotkey` — đăng ký phím tắt khai báo (`keys="ctrl+s"` → `hui-hotkey`)
+  - [x] `hui-confirm-action` — nút nguy hiểm cần giữ 1 giây / gõ xác nhận
+- [x] Landing organisms: `hui-hero` (tiêu đề lớn, mô tả, CTA, media; layout centered | split), `hui-feature-grid` (data → feature-card),
   `hui-pricing-table` (data → pricing-card, bật/tắt tháng/năm), `hui-logo-cloud` (marquee/grid logo), `hui-cta-banner`, `hui-faq` (data → collapse),
   `hui-testimonial-slider` (scroller + testimonial), `hui-footer-links` (cột link từ data)
 
@@ -487,14 +494,14 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
     (tắt được), tự ẩn trên trang in; gộp chung cụm với back-top
 - [x] 🆕 **`hui-announcement-bar`** — dải thông báo đầu trang (khuyến mãi, sự kiện), đóng được + nhớ trạng thái
   (localStorage theo `id`), chữ chạy (`marquee`) hoặc xoay nhiều thông báo, countdown kèm theo
-- [ ] 🆕 **`hui-cookie-consent`** — banner đồng ý cookie (Chấp nhận / Từ chối / Tùy chỉnh theo nhóm), phát `hui-consent` {categories}, lưu lựa chọn
+- [x] 🆕 **`hui-cookie-consent`** — banner đồng ý cookie (Chấp nhận / Từ chối / Tùy chỉnh theo nhóm), phát `hui-consent` {categories}, lưu lựa chọn
 - [x] 🆕 **`hui-theme-toggle`** — nút sáng / tối / theo hệ thống, nhớ lựa chọn, hiệu ứng **lan vòng tròn** khi đổi theme (View Transitions API, fallback fade)
-- [ ] 🆕 **`hui-language-switch`** — chọn ngôn ngữ (cờ + tên), gọi `setLocale`, phát `hui-language-change`
+- [x] 🆕 **`hui-language-switch`** — chọn ngôn ngữ (cờ + tên), gọi `setLocale`, phát `hui-language-change`
 - [x] 🆕 **`hui-loading-bar`** — thanh tải mảnh ở mép trên khi chuyển trang / gọi API (kiểu NProgress): `start()`, `done()`, `error()`
-- [ ] 🆕 **`hui-page-loader`** — màn chờ lần đầu tải trang (logo + spinner), tự ẩn khi `load`
-- [ ] 🆕 **`hui-mega-menu`** — menu xổ lớn nhiều cột (ảnh + nhóm link) cho navbar, mở theo hover có trễ, mobile chuyển thành accordion
-- [ ] 🆕 **`hui-bottom-nav`** (kéo từ G2) — thanh điều hướng đáy cho mobile, icon nhún khi chọn, badge
-- [ ] 🆕 **`hui-search-overlay`** — bấm icon kính lúp → lớp phủ toàn màn hình với ô tìm + gợi ý + lịch sử tìm (phím `/` hoặc Ctrl+K)
+- [x] 🆕 **`hui-page-loader`** — màn chờ lần đầu tải trang (logo + spinner), tự ẩn khi `load`
+- [x] 🆕 **`hui-mega-menu`** — menu xổ lớn nhiều cột (ảnh + nhóm link) cho navbar, mở theo hover có trễ, mobile chuyển thành accordion
+- [x] 🆕 **`hui-bottom-nav`** (kéo từ G2) — thanh điều hướng đáy cho mobile, icon nhún khi chọn, badge
+- [x] 🆕 **`hui-search-overlay`** — bấm icon kính lúp → lớp phủ toàn màn hình với ô tìm + gợi ý + lịch sử tìm (phím `/` hoặc Ctrl+K)
 - [x] **`hui-anchor` / table of contents** (kéo từ G2) — `hui-toc`: tự sinh mục lục từ các heading (`h2,h3`) trong `target`,
   highlight mục đang đọc (scroll-spy), thanh chỉ báo trượt theo, sticky
 
@@ -510,18 +517,18 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
 - [x] 🆕 **`hui-video`** — nhúng YouTube/Vimeo/MP4 dạng **facade** (chỉ hiện ảnh bìa + nút play, bấm mới tải iframe → web nhanh hơn),
   `ratio`, `autoplay-on-view`, popup video trong modal (`mode="popup"`)
 - [x] 🆕 **`hui-compare-slider`** — so sánh ảnh trước/sau bằng thanh kéo (bàn phím được)
-- [ ] 🆕 **`hui-image-hotspot`** — ảnh có các điểm chấm nhấp nháy, bấm/hover hiện popover thông tin (giới thiệu sản phẩm, sơ đồ)
-- [ ] **`hui-timeline`** (kéo từ G2) — thêm `data`, mốc hiện dần khi cuộn tới (stagger), kiểu "lịch sử công ty" 2 bên xen kẽ
+- [x] 🆕 **`hui-image-hotspot`** — ảnh có các điểm chấm nhấp nháy, bấm/hover hiện popover thông tin (giới thiệu sản phẩm, sơ đồ)
+- [x] **`hui-timeline`** (kéo từ G2) — thêm `data`, mốc hiện dần khi cuộn tới (stagger), kiểu "lịch sử công ty" 2 bên xen kẽ
 - [x] 🆕 **`hui-countdown`** — đếm ngược sự kiện/flash sale dạng ô số lật (flip) hoặc chữ thường, `target`, `hui-finish`
   (dùng lõi `hui-statistic-countdown` G1)
 - [x] 🆕 **`hui-stats-counter`** — dải số liệu ("10.000+ khách hàng") **đếm chạy khi cuộn tới**, nhận `data`
-- [ ] 🆕 **`hui-team-grid`** — lưới thành viên (ảnh, tên, chức vụ, mạng xã hội hiện khi hover), nhận `data`
+- [x] 🆕 **`hui-team-grid`** — lưới thành viên (ảnh, tên, chức vụ, mạng xã hội hiện khi hover), nhận `data`
 - [x] 🆕 **`hui-blog-card`** + **`hui-post-list`** — ảnh bìa, chuyên mục, tiêu đề, trích đoạn, tác giả, `hui-time`, thời gian đọc ước tính
 - [x] 🆕 **`hui-prose`** — bọc nội dung HTML từ CMS/Markdown để có typography đẹp sẵn (heading, list, bảng, trích dẫn, ảnh, code)
 - [x] 🆕 **`hui-code-block`** — khối code có nút copy, tên file, đánh số dòng, highlight dòng (tô màu cú pháp đơn giản, không thư viện)
 - [x] 🆕 **`hui-share`** — nút chia sẻ Facebook / Zalo / X / LinkedIn / copy link; dùng Web Share API trên mobile
-- [ ] 🆕 **`hui-map`** — nhúng Google Maps dạng facade (ảnh tĩnh + nút mở) để không làm chậm trang
-- [ ] 🆕 **`hui-comparison-table`** — bảng so sánh gói/sản phẩm (✓/✗, cột nổi bật, header dính)
+- [x] 🆕 **`hui-map`** — nhúng Google Maps dạng facade (ảnh tĩnh + nút mở) để không làm chậm trang
+- [x] 🆕 **`hui-comparison-table`** — bảng so sánh gói/sản phẩm (✓/✗, cột nổi bật, header dính)
 
 ### A6.3 Đánh giá (star rating)
 - [x] **`hui-rate`** (kéo từ G2, nâng thành ưu tiên) — chấm sao nhập liệu
@@ -532,8 +539,8 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
 - [x] **`hui-rating-display`** (A1) — hiển thị chỉ đọc, hỗ trợ số lẻ chính xác (4,3 sao = tô 30% sao thứ 5), kèm "(128 đánh giá)"
 - [x] 🆕 **`hui-rating-summary`** — khối tổng hợp đánh giá trang sản phẩm: điểm trung bình lớn + số sao + **thanh phân bố 5★…1★**
   (bấm vào thanh để lọc), nhận `data` {average, total, distribution}
-- [ ] 🆕 **`hui-review-list`** — danh sách đánh giá (avatar, sao, ngày, nội dung, ảnh đính kèm, "Hữu ích (12)"), lọc theo số sao, phân trang
-- [ ] 🆕 **`hui-reaction`** — nút cảm xúc (👍❤️😂…) kiểu mạng xã hội, giữ để chọn, đếm số
+- [x] 🆕 **`hui-review-list`** — danh sách đánh giá (avatar, sao, ngày, nội dung, ảnh đính kèm, "Hữu ích (12)"), lọc theo số sao, phân trang
+- [x] 🆕 **`hui-reaction`** — nút cảm xúc (👍❤️😂…) kiểu mạng xã hội, giữ để chọn, đếm số
 
 ### A6.4 Data view (hiển thị danh sách dữ liệu)
 - [x] 🆕 **`hui-data-view`** (organism trung tâm cho trang danh sách) — một nguồn `data` (DataController A0.1), **nhiều cách xem**:
@@ -543,13 +550,13 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
   - Đồng bộ trạng thái (trang, lọc, sắp xếp, chế độ xem) lên **URL query** → F5 / chia sẻ link giữ nguyên
   - Hiệu ứng: item xuất hiện so le (stagger) khi tải, **chuyển list ↔ grid mượt** (FLIP animation), skeleton đúng hình dạng từng chế độ
 - [ ] **`hui-list`** (🔄 G1) — bổ sung `data` + template, item hover nổi nhẹ, swipe-actions trên mobile (vuốt để hiện nút xóa/sửa)
-- [ ] 🆕 **`hui-description-card`** — thẻ chi tiết 1 bản ghi từ `data` + `fields` (label, type format) — trang xem chi tiết nhanh
+- [x] 🆕 **`hui-description-card`** — thẻ chi tiết 1 bản ghi từ `data` + `fields` (label, type format) — trang xem chi tiết nhanh
 
 ### A6.5 Card (bổ sung hiệu ứng cho A2.1)
 - [x] Thuộc tính `effect` dùng chung cho mọi card: `lift` (nổi lên + bóng), `tilt` (nghiêng 3D theo chuột), `glow` (viền sáng theo con trỏ),
   `zoom-media` (ảnh phóng nhẹ khi hover), `reveal` (lớp phủ + nút hiện khi hover), `border-gradient` (viền chuyển màu chạy)
 - [x] 🆕 **`hui-flip-card`** — lật mặt trước/sau (hover hoặc click), slot `front` / `back`
-- [ ] 🆕 **`hui-hover-card`** — rê vào tên/avatar hiện thẻ thông tin chi tiết (kiểu GitHub/Twitter), có trễ mở/đóng
+- [x] 🆕 **`hui-hover-card`** — rê vào tên/avatar hiện thẻ thông tin chi tiết (kiểu GitHub/Twitter), có trễ mở/đóng
 
 ### A6.6 Thương mại điện tử
 - [x] 🆕 **`hui-price`** — giá bán, giá gốc gạch ngang, % giảm, đơn vị (₫ mặc định), cỡ `sm | md | lg`

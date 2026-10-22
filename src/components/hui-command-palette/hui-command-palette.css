@@ -1,0 +1,259 @@
+/*
+ * HUI Command Palette — biến override:
+ *   --hui-command-palette-width         Bề rộng bảng (mặc định 640px)
+ *   --hui-command-palette-top           Khoảng cách tới mép trên (mặc định 12vh)
+ *   --hui-command-palette-max-height    Chiều cao tối đa vùng kết quả
+ *   --hui-command-palette-bg            Nền bảng
+ *   --hui-command-palette-radius        Bo góc
+ *   --hui-command-palette-shadow        Đổ bóng
+ *   --hui-command-palette-mask-bg       Nền lớp phủ
+ *   --hui-command-palette-active-bg     Nền lệnh đang chọn
+ *   --hui-command-palette-match-color   Màu ký tự khớp
+ *   --hui-command-palette-font-size     Cỡ chữ ô tìm
+ * Parts: dialog, mask, panel, search, search-icon, input, list, group, group-label, option, option-active,
+ *        option-icon, option-label, option-description, option-shortcut, match, empty, footer
+ * Lệnh đang chọn có thêm part option-active: hui-command-palette::part(option-active) { … }
+ */
+
+:host {
+  display: contents;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--hui-text);
+  overflow: hidden;
+  z-index: var(--hui-z-modal);
+}
+
+.dialog:not([open]) {
+  display: none;
+}
+
+.dialog::backdrop {
+  background: transparent;
+}
+
+.dialog:focus {
+  outline: none;
+}
+
+.mask {
+  position: absolute;
+  inset: 0;
+  background: var(--hui-command-palette-mask-bg, var(--hui-overlay));
+  backdrop-filter: blur(2px);
+}
+
+.wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  box-sizing: border-box;
+  height: 100%;
+  padding: var(--hui-command-palette-top, 12vh) 12px 12px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: var(--hui-command-palette-width, 640px);
+  max-width: 100%;
+  max-height: 100%;
+  background: var(--hui-command-palette-bg, var(--hui-bg-elevated));
+  border: 1px solid var(--hui-border-secondary);
+  border-radius: var(--hui-command-palette-radius, var(--hui-radius-lg));
+  box-shadow: var(--hui-command-palette-shadow, var(--hui-shadow-xl));
+  overflow: hidden;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--hui-border-secondary);
+}
+
+.search-icon {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: var(--hui-text-tertiary);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--hui-text);
+  font: inherit;
+  font-size: var(--hui-command-palette-font-size, var(--hui-font-base));
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--hui-text-tertiary);
+}
+
+.esc {
+  flex-shrink: 0;
+}
+
+.body {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.list {
+  max-height: var(--hui-command-palette-max-height, min(400px, 56vh));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  scroll-padding: 6px;
+}
+
+.group + .group {
+  margin-top: 4px;
+}
+
+.group-label {
+  padding: 8px 10px 4px;
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-semibold, 600);
+  letter-spacing: 0.02em;
+  color: var(--hui-text-tertiary);
+  text-transform: uppercase;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: var(--hui-radius);
+  color: var(--hui-text);
+  font-size: var(--hui-font-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+.option--active {
+  background: var(--hui-command-palette-active-bg, var(--hui-primary-light));
+}
+
+.option--active .option-icon {
+  color: var(--hui-primary);
+}
+
+.option[aria-disabled='true'] {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.option-icon {
+  display: inline-flex;
+  flex: 0 0 20px;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--hui-text-secondary);
+}
+
+.option-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.option-label,
+.option-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option-description {
+  font-size: var(--hui-font-xs);
+  color: var(--hui-text-tertiary);
+}
+
+.option-shortcut {
+  flex-shrink: 0;
+}
+
+mark {
+  background: transparent;
+  color: var(--hui-command-palette-match-color, var(--hui-primary));
+  font-weight: var(--hui-font-weight-semibold, 600);
+}
+
+.empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--hui-text-tertiary);
+  font-size: var(--hui-font-sm);
+}
+
+.footer {
+  padding: 8px 14px;
+  border-top: 1px solid var(--hui-border-secondary);
+  background: var(--hui-bg-secondary);
+  font-size: var(--hui-font-xs);
+  color: var(--hui-text-tertiary);
+}
+
+.hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    padding-top: 12px;
+  }
+
+  .footer {
+    display: none;
+  }
+}

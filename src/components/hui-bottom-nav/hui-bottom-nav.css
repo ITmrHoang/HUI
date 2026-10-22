@@ -1,0 +1,163 @@
+/*
+ * HUI Bottom Nav CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của class.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.bn {
+  box-sizing: border-box;
+  background: var(--hui-bottom-nav-bg, var(--hui-bg-elevated));
+  border-top: 1px solid var(--hui-bottom-nav-border-color, var(--hui-border-secondary));
+  box-shadow: var(--hui-bottom-nav-shadow, 0 -4px 16px rgb(0 0 0 / 0.06));
+  /* Vùng an toàn: thanh home iOS + tai thỏ khi xoay ngang */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+  transition: transform var(--hui-transition-slow), visibility var(--hui-transition-slow);
+}
+
+.bn--fixed {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: var(--hui-bottom-nav-z-index, var(--hui-z-sticky));
+}
+
+.bn--scroll-hidden {
+  transform: translateY(calc(100% + 2px));
+  visibility: hidden;
+}
+
+.bn--no-motion,
+.bn--desktop-hidden {
+  transition: none;
+}
+
+.bn--desktop-hidden {
+  display: none;
+}
+
+.bn__list {
+  display: grid;
+  grid-template-columns: repeat(var(--_bn-count, 4), minmax(0, 1fr));
+  max-width: var(--hui-bottom-nav-max-width, 640px);
+  height: var(--hui-bottom-nav-height, 64px);
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.bn__cell {
+  display: flex;
+  min-width: 0;
+}
+
+.bn__item {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--hui-space-xs) 2px;
+  border: 0;
+  background: transparent;
+  color: var(--hui-bottom-nav-color, var(--hui-text-secondary));
+  font: inherit;
+  font-size: var(--hui-bottom-nav-font-size, var(--hui-font-xs));
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--hui-transition-fast);
+}
+
+.bn__item:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: -4px;
+  border-radius: var(--hui-radius-lg);
+}
+
+.bn__item:disabled,
+.bn__item[aria-disabled='true'] {
+  color: var(--hui-text-disabled);
+  cursor: not-allowed;
+}
+
+.bn__item--active {
+  color: var(--hui-bottom-nav-active-color, var(--hui-primary));
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.bn__icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 2rem;
+}
+
+/* Viên thuốc sau icon (Material 3): giãn ngang khi được chọn */
+.bn__indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-bottom-nav-indicator-bg, var(--hui-primary-1));
+  opacity: 0;
+  transform: scaleX(0.4);
+  transition: transform var(--hui-transition-slow), opacity var(--hui-transition);
+}
+
+.bn__item--active .bn__indicator {
+  opacity: 1;
+  transform: none;
+}
+
+.bn__icon,
+.bn__badge {
+  position: relative;
+}
+
+.bn__icon {
+  font-size: var(--hui-bottom-nav-icon-size, 1.375rem);
+}
+
+.bn__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* labels="selected": mục không chọn chỉ có icon (nhãn vẫn đọc được bằng trình đọc màn hình) */
+.bn--labels-selected .bn__item:not(.bn__item--active) .bn__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bn,
+  .bn__item,
+  .bn__indicator {
+    transition: none;
+  }
+}
+
+@media print {
+  .bn--fixed {
+    display: none;
+  }
+}

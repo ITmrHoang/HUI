@@ -1,0 +1,136 @@
+/*
+ * HUI Pricing Table CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiPricingTable.
+ * Biến nội bộ: --_pt-cols, --_pt-gap (JS đặt theo attribute).
+ */
+
+:host {
+  display: block;
+  container-type: inline-size;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.pt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hui-space-2xl);
+}
+
+/* ================== CÔNG TẮC THÁNG / NĂM ================== */
+.pt__toggle {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-pricing-table-toggle-bg, var(--hui-fill-secondary));
+}
+
+/* Nền trượt: nửa trái (tháng) → nửa phải (năm) */
+.pt__thumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-pricing-table-toggle-thumb-bg, var(--hui-bg-container));
+  box-shadow: var(--hui-shadow-sm);
+  transition: transform var(--hui-motion-duration-slow, 300ms) var(--hui-motion-ease-out);
+}
+
+.pt__toggle[data-billing='yearly'] .pt__thumb {
+  transform: translateX(100%);
+}
+
+.pt__option {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--hui-control-height-md);
+  padding: 0 var(--hui-space-xl);
+  border: 0;
+  border-radius: var(--hui-radius-full);
+  background: transparent;
+  color: var(--hui-pricing-table-toggle-color, var(--hui-text-secondary));
+  font: inherit;
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--hui-transition);
+}
+
+.pt__option[aria-checked='true'] {
+  color: var(--hui-pricing-table-toggle-active-color, var(--hui-text));
+}
+
+.pt__option:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+}
+
+.pt__discount {
+  padding: 1px 6px;
+  border-radius: var(--hui-radius-full);
+  background: var(--hui-pricing-table-discount-bg, var(--hui-success-light));
+  color: var(--hui-pricing-table-discount-color, var(--hui-success));
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+/* ================== LƯỚI GÓI ================== */
+.pt__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--hui-pricing-table-min-width, 260px)), 1fr));
+  align-items: stretch;
+  gap: var(--_pt-gap, var(--hui-pricing-table-gap, var(--hui-space-xl)));
+  box-sizing: border-box;
+  width: 100%;
+  /* Chừa chỗ cho gói nổi bật phóng to + góc ruy-băng không tràn ra ngoài trang */
+  padding: var(--hui-space-md) var(--hui-space-sm);
+}
+
+.pt__grid--fixed {
+  grid-template-columns: repeat(var(--_pt-cols), minmax(0, 1fr));
+}
+
+@container (max-width: 720px) {
+  .pt__grid--fixed-many {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 480px) {
+  .pt__grid--fixed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pt__footer {
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+  text-align: center;
+}
+
+/* ================== GIẢM CHUYỂN ĐỘNG ================== */
+.pt--static .pt__thumb,
+.pt--static .pt__option {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt__thumb,
+  .pt__option {
+    transition: none;
+  }
+}

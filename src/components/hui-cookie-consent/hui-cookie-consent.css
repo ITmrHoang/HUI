@@ -1,0 +1,168 @@
+/*
+ * HUI Cookie Consent CSS
+ * Biến công khai (KHÔNG khai báo ở đây — đặt ở thẻ / thẻ cha / :root): xem JSDoc của class.
+ */
+
+:host {
+  display: contents;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ================== BANNER ================== */
+.cc {
+  position: fixed;
+  z-index: var(--hui-cookie-consent-z-index, var(--hui-z-modal));
+  box-sizing: border-box;
+  background: var(--hui-cookie-consent-bg, var(--hui-bg-elevated));
+  color: var(--hui-cookie-consent-color, var(--hui-text-secondary));
+  border: 1px solid var(--hui-cookie-consent-border-color, var(--hui-border));
+  box-shadow: var(--hui-cookie-consent-shadow, var(--hui-shadow-xl));
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+/* bottom: dải ngang sát mép dưới, chừa vùng an toàn (tai thỏ / thanh home iOS) */
+.cc--bottom {
+  inset-inline: 0;
+  bottom: 0;
+  border-width: 1px 0 0;
+  border-radius: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.cc--bottom .cc__inner {
+  max-width: var(--hui-cookie-consent-max-width, 1200px);
+  margin-inline: auto;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* Hộp nhỏ ở góc */
+.cc--bottom-left,
+.cc--bottom-right {
+  bottom: calc(var(--hui-cookie-consent-offset, var(--hui-space-lg)) + env(safe-area-inset-bottom, 0px));
+  width: min(var(--hui-cookie-consent-max-width, 400px), calc(100% - 2 * var(--hui-cookie-consent-offset, var(--hui-space-lg))));
+  border-radius: var(--hui-cookie-consent-radius, var(--hui-radius-xl));
+}
+
+.cc--bottom-left { inset-inline-start: var(--hui-cookie-consent-offset, var(--hui-space-lg)); }
+.cc--bottom-right { inset-inline-end: var(--hui-cookie-consent-offset, var(--hui-space-lg)); }
+
+.cc__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-lg);
+  box-sizing: border-box;
+  padding: var(--hui-cookie-consent-padding, var(--hui-space-lg) var(--hui-space-xl));
+}
+
+.cc__icon {
+  display: flex;
+  flex: none;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.cc__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cc__title {
+  margin: 0 0 var(--hui-space-xs);
+  color: var(--hui-cookie-consent-title-color, var(--hui-text));
+  font-size: var(--hui-font-base);
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading);
+}
+
+.cc__message {
+  margin: 0;
+}
+
+.cc__policy {
+  color: var(--hui-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.cc__policy:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.cc__actions {
+  display: flex;
+  flex-wrap: wrap;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--hui-space-sm);
+}
+
+/* Hộp góc: nút giãn đều cả hàng */
+.cc--bottom-left .cc__actions,
+.cc--bottom-right .cc__actions {
+  justify-content: stretch;
+}
+
+.cc--bottom-left .cc__actions > hui-button,
+.cc--bottom-right .cc__actions > hui-button {
+  flex: 1 1 auto;
+}
+
+/* Màn hẹp: dải bottom xếp dọc */
+@media (max-width: 720px) {
+  .cc--bottom .cc__inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cc--bottom .cc__actions > hui-button {
+    flex: 1 1 auto;
+  }
+}
+
+/* ================== HỘP TÙY CHỈNH ================== */
+.cc__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-md);
+}
+
+.cc__cat {
+  padding: var(--hui-space-md);
+  border: 1px solid var(--hui-border-secondary);
+  border-radius: var(--hui-radius-lg);
+  background: var(--hui-fill-tertiary);
+}
+
+.cc__cat-head {
+  display: flex;
+  align-items: center;
+  gap: var(--hui-space-sm);
+}
+
+.cc__cat-label {
+  flex: 1 1 auto;
+  color: var(--hui-text);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.cc__cat-required {
+  color: var(--hui-success);
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.cc__cat-desc {
+  margin: var(--hui-space-xs) 0 0;
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+}

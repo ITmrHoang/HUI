@@ -1,0 +1,170 @@
+/*
+ * HUI Hero CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiHero.
+ * Biến nội bộ có tiền tố --_hero- (--_hero-min-height do JS đặt theo attribute min-height).
+ */
+
+:host {
+  display: block;
+  container-type: inline-size;
+  font-family: var(--hui-font-family);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hero {
+  --_hero-title-size: clamp(2rem, 1.2rem + 4cqi, 3.5rem);
+  --_hero-pad-block: clamp(48px, 8cqi, 112px);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: var(--_hero-min-height, auto);
+  padding: var(--hui-hero-padding, var(--_hero-pad-block) var(--hui-space-lg));
+  background: var(--hui-hero-bg, transparent);
+  color: var(--hui-hero-color, var(--hui-text));
+}
+
+.hero--sm {
+  --_hero-title-size: clamp(1.6rem, 1rem + 3cqi, 2.5rem);
+  --_hero-pad-block: clamp(32px, 6cqi, 72px);
+}
+
+.hero--lg {
+  --_hero-title-size: clamp(2.4rem, 1.4rem + 5.5cqi, 4.5rem);
+  --_hero-pad-block: clamp(64px, 10cqi, 144px);
+}
+
+/* ================== NỀN ================== */
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* Nền slot phủ kín khối; hui-gradient-bg / hui-pattern cần min-height để lớp nền có chiều cao */
+::slotted([slot='background']) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  --hui-gradient-bg-min-height: 100%;
+  --hui-pattern-min-height: 100%;
+}
+
+/* ================== KHUNG ================== */
+.hero__container {
+  display: grid;
+  gap: var(--hui-hero-gap, clamp(32px, 5cqi, 64px));
+  width: 100%;
+  max-width: var(--hui-hero-max-width, 1200px);
+  margin-inline: auto;
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hui-space-lg);
+  min-width: 0;
+}
+
+/* centered: chữ giữa, media bên dưới */
+.hero--centered .hero__content {
+  align-items: center;
+  max-width: var(--hui-hero-content-width, 760px);
+  margin-inline: auto;
+  text-align: center;
+}
+
+/* split: 2 cột; media-position="start" → media bên trái */
+.hero--split.hero--has-media .hero__container {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+}
+
+.hero--split.hero--media-start .hero__media {
+  order: -1;
+}
+
+@container (max-width: 767px) {
+  .hero--split.hero--has-media .hero__container {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero--split.hero--media-start .hero__media {
+    order: 0;
+  }
+}
+
+/* ================== CHỮ ================== */
+.hero__eyebrow {
+  color: var(--hui-hero-eyebrow-color, var(--hui-primary));
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Eyebrow là phần tử (tag, badge…) → giữ nguyên chữ của nó */
+.hero__eyebrow--custom {
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.hero__title {
+  margin: 0;
+  color: var(--hui-hero-title-color, inherit);
+  font-size: var(--hui-hero-title-font-size, var(--_hero-title-size));
+  font-weight: var(--hui-font-weight-bold);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.hero__desc {
+  max-width: 62ch;
+  color: var(--hui-hero-description-color, var(--hui-text-secondary));
+  font-size: var(--hui-hero-description-font-size, clamp(1rem, 0.9rem + 0.5cqi, 1.25rem));
+  line-height: var(--hui-line-height);
+  text-wrap: pretty;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hui-space-md);
+  margin-top: var(--hui-space-sm);
+}
+
+.hero--centered .hero__actions {
+  justify-content: center;
+}
+
+.hero__extra {
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+}
+
+/* ================== MEDIA ================== */
+.hero__media {
+  min-width: 0;
+}
+
+::slotted([slot='media']) {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--hui-hero-media-radius, var(--hui-radius-xl));
+  box-shadow: var(--hui-hero-media-shadow, var(--hui-shadow-lg));
+}
+
+.hero--centered .hero__media {
+  justify-self: center;
+  width: 100%;
+  max-width: 1000px;
+}

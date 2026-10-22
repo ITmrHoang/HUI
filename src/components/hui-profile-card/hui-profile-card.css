@@ -1,0 +1,275 @@
+/*
+ * HUI Profile Card CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của HuiProfileCard.
+ * Biến nội bộ có tiền tố --_pf-.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.pf__card {
+  height: 100%;
+}
+
+/* Bìa tràn viền: bỏ đệm body của hui-card, tự đệm phần nội dung */
+.pf__card::part(body) {
+  padding: 0;
+}
+
+.pf {
+  --_pf-pad: var(--hui-space-xl);
+  --_pf-avatar-size: 80px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pf--sm {
+  --_pf-pad: var(--hui-space-lg);
+  --_pf-avatar-size: 64px;
+}
+
+.pf--lg {
+  --_pf-pad: var(--hui-space-2xl);
+  --_pf-avatar-size: 112px;
+}
+
+/* ================== BÌA ================== */
+.pf__cover {
+  height: var(--hui-profile-card-cover-height, 96px);
+  overflow: hidden;
+  background: var(--hui-profile-card-cover-bg, linear-gradient(135deg, var(--hui-primary-3), var(--hui-primary-6)));
+}
+
+.pf__cover-img,
+::slotted([slot='cover']) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pf__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hui-space-md);
+  flex: 1;
+  padding: var(--_pf-pad);
+  text-align: center;
+}
+
+.pf--start .pf__inner {
+  align-items: flex-start;
+  text-align: start;
+}
+
+/* ================== AVATAR (đè lên bìa) ================== */
+.pf__avatar {
+  display: inline-flex;
+  flex: none;
+}
+
+.pf--has-cover .pf__avatar {
+  margin-top: calc(var(--_pf-pad) * -1 - var(--_pf-avatar-size) / 2);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--hui-profile-card-avatar-ring, var(--hui-bg-container));
+}
+
+.pf__main {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: var(--hui-space-md);
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+}
+
+/* ================== THÔNG TIN ================== */
+.pf__info {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: 2px;
+  width: 100%;
+}
+
+.pf__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--hui-profile-card-name-color, var(--hui-text));
+  font-size: var(--hui-profile-card-name-font-size, var(--hui-font-lg));
+  font-weight: var(--hui-font-weight-semibold);
+  line-height: var(--hui-line-height-heading);
+}
+
+.pf--lg .pf__name {
+  font-size: var(--hui-profile-card-name-font-size, var(--hui-font-xl));
+}
+
+.pf__verified {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--hui-primary);
+  color: var(--hui-text-light-solid);
+  --hui-icon-size: 12px;
+}
+
+.pf__job {
+  color: var(--hui-profile-card-title-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+}
+
+.pf__bio {
+  margin: var(--hui-space-xs) 0 0;
+  color: var(--hui-profile-card-bio-color, var(--hui-text-secondary));
+  line-height: var(--hui-line-height);
+}
+
+.pf__extra {
+  width: 100%;
+}
+
+/* ================== CHỈ SỐ ================== */
+.pf__stats {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 0;
+  padding: var(--hui-space-sm) 0;
+  border-block: 1px solid var(--hui-border-secondary);
+}
+
+.pf--start .pf__stats {
+  justify-content: flex-start;
+}
+
+.pf__stat {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--hui-space-sm);
+}
+
+.pf__stat + .pf__stat {
+  border-inline-start: 1px solid var(--hui-profile-card-divider-color, var(--hui-border-secondary));
+}
+
+.pf__stat-value {
+  margin: 0;
+  color: var(--hui-profile-card-stat-value-color, var(--hui-text));
+  font-size: var(--hui-font-lg);
+  font-weight: var(--hui-font-weight-bold);
+  line-height: 1.3;
+}
+
+.pf__stat-label {
+  color: var(--hui-profile-card-stat-label-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-xs);
+}
+
+/* ================== NÚT LIÊN HỆ + MẠNG XÃ HỘI ================== */
+.pf__actions,
+.pf__social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--hui-space-sm);
+  width: 100%;
+}
+
+.pf--start .pf__actions,
+.pf--start .pf__social {
+  justify-content: flex-start;
+}
+
+.pf__actions {
+  margin-top: auto;
+}
+
+.pf__contact {
+  --_pf-accent: var(--hui-profile-card-accent, var(--hui-primary));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: max-content;
+  height: var(--hui-control-height-md);
+  padding: 0 var(--hui-space-lg);
+  border: 1px solid var(--hui-border);
+  border-radius: var(--hui-radius);
+  color: var(--hui-text);
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium);
+  text-decoration: none;
+  transition: background-color var(--hui-transition), border-color var(--hui-transition), color var(--hui-transition);
+  --hui-icon-size: 1em;
+}
+
+.pf__contact:hover {
+  border-color: var(--_pf-accent);
+  color: var(--_pf-accent);
+}
+
+.pf__contact--primary {
+  border-color: var(--_pf-accent);
+  background: var(--_pf-accent);
+  color: var(--hui-text-light-solid);
+}
+
+.pf__contact--primary:hover {
+  background: color-mix(in srgb, var(--_pf-accent) 85%, var(--hui-shade-mix, #000));
+  color: var(--hui-text-light-solid);
+}
+
+.pf__contact:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 2px;
+}
+
+/* ================== HORIZONTAL: avatar trái ================== */
+.pf--horizontal .pf__inner {
+  flex-direction: row;
+  align-items: flex-start;
+  text-align: start;
+}
+
+.pf--horizontal .pf__main,
+.pf--horizontal .pf__info {
+  align-items: flex-start;
+}
+
+.pf--horizontal .pf__stats,
+.pf--horizontal .pf__actions,
+.pf--horizontal .pf__social {
+  justify-content: flex-start;
+}
+
+.pf--horizontal.pf--has-cover .pf__avatar {
+  margin-top: calc(var(--_pf-pad) * -1 - var(--_pf-avatar-size) / 3);
+}
+
+:host([no-animation]) .pf__contact {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf__contact {
+    transition: none;
+  }
+}

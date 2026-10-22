@@ -1,0 +1,126 @@
+/*
+ * HUI Color Swatch CSS
+ * Override (KHÔNG khai báo trên :host): --hui-color-swatch-size, --hui-color-swatch-radius, --hui-color-swatch-border,
+ *   --hui-color-swatch-ring-color, --hui-color-swatch-checker, --hui-color-swatch-label-color
+ * Biến nội bộ: --_cs-size (attribute size), --_cs-color (màu)
+ */
+
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+  font-family: var(--hui-font-family);
+}
+
+.cs {
+  --_cs-s: var(--_cs-size, var(--hui-color-swatch-size, 28px));
+  --_cs-checker: var(--hui-color-swatch-checker, var(--hui-fill-secondary));
+
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hui-space-xs);
+}
+
+.cs__swatch {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: var(--_cs-s);
+  height: var(--_cs-s);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font: inherit;
+  color: inherit;
+  border: 0;
+  border-radius: var(--hui-color-swatch-radius, var(--hui-radius-sm));
+  /* Ô cờ phía sau: màu trong suốt vẫn nhìn ra */
+  background-color: var(--hui-bg-container);
+  background-image: conic-gradient(var(--_cs-checker) 25%, transparent 0 50%, var(--_cs-checker) 0 75%, transparent 0);
+  background-size: 10px 10px;
+  box-shadow: inset 0 0 0 1px var(--hui-color-swatch-border, var(--hui-border-secondary));
+  transition: transform var(--hui-transition-fast, 0.15s), box-shadow var(--hui-transition-fast, 0.15s);
+}
+
+.cs[data-shape='circle'] .cs__swatch { border-radius: 50%; }
+.cs[data-shape='square'] .cs__swatch { border-radius: 0; }
+
+.cs__color {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--_cs-color, transparent);
+  /* viền mờ nằm trên màu → ô trắng trên nền trắng vẫn thấy mép */
+  box-shadow: inset 0 0 0 1px var(--hui-color-swatch-border, var(--hui-border-secondary));
+}
+
+.cs__check {
+  position: relative;
+  font-size: calc(var(--_cs-s) * 0.55);
+  color: var(--hui-text);
+  stroke-width: 3;
+}
+
+.cs[data-contrast='light'] .cs__check { color: var(--hui-text-light-solid, #fff); }
+.cs__check[hidden] { display: none; }
+
+button.cs__swatch {
+  cursor: pointer;
+}
+
+button.cs__swatch:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+
+button.cs__swatch:focus-visible {
+  outline: 2px solid var(--hui-color-swatch-ring-color, var(--hui-primary));
+  outline-offset: 2px;
+}
+
+button.cs__swatch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.cs--selected .cs__swatch {
+  box-shadow: 0 0 0 2px var(--hui-bg-container), 0 0 0 4px var(--hui-color-swatch-ring-color, var(--hui-primary));
+}
+
+.cs__caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.cs__caption[hidden],
+.cs__value[hidden] { display: none; }
+
+.cs__label {
+  color: var(--hui-color-swatch-label-color, var(--hui-text));
+  font-size: var(--hui-font-sm);
+  font-weight: var(--hui-font-weight-medium);
+}
+
+.cs__value {
+  color: var(--hui-text-secondary);
+  font-family: var(--hui-font-mono);
+  font-size: var(--hui-font-xs);
+  text-transform: uppercase;
+}
+
+.cs__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs__swatch { transition: none; }
+  button.cs__swatch:hover:not(:disabled) { transform: none; }
+}

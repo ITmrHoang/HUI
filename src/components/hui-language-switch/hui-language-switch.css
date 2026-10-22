@@ -1,0 +1,142 @@
+/*
+ * HUI Language Switch CSS
+ * Biến công khai (KHÔNG khai báo ở đây): xem JSDoc của class. Biến nội bộ --_ls-* đổi theo size.
+ */
+
+:host {
+  display: inline-block;
+  font-family: var(--hui-font-family);
+  vertical-align: middle;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.ls {
+  --_ls-height: var(--hui-size-md);
+  --_ls-pad: var(--hui-space-sm);
+  --_ls-font: var(--hui-font-sm);
+}
+
+.ls--sm { --_ls-height: var(--hui-size-sm); --_ls-pad: var(--hui-space-xs); --_ls-font: var(--hui-font-xs); }
+.ls--lg { --_ls-height: var(--hui-size-lg); --_ls-pad: var(--hui-space-md); --_ls-font: var(--hui-font-base); }
+
+/* Chỉ cho trình đọc màn hình */
+.ls__sr {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ls__flag {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--hui-language-switch-flag-size, 1.15em);
+  line-height: 1;
+}
+
+.ls__flag :is(svg, img) {
+  width: var(--hui-language-switch-flag-size, 1.25em);
+  height: auto;
+  max-height: 1em;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.ls__label {
+  white-space: nowrap;
+}
+
+/* ================== NÚT (dropdown + inline) ================== */
+.ls__trigger,
+.ls__option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-language-switch-gap, var(--hui-space-xs));
+  box-sizing: border-box;
+  min-height: var(--_ls-height);
+  padding: 0 var(--_ls-pad);
+  border: 1px solid transparent;
+  border-radius: var(--hui-language-switch-radius, var(--hui-radius));
+  background: var(--hui-language-switch-bg, transparent);
+  color: var(--hui-language-switch-color, var(--hui-text));
+  font: inherit;
+  font-size: var(--_ls-font);
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--hui-transition-fast), border-color var(--hui-transition-fast), color var(--hui-transition-fast);
+}
+
+.ls__trigger {
+  border-color: var(--hui-language-switch-border-color, var(--hui-border));
+}
+
+.ls__trigger:hover:not(:disabled),
+.ls__option:hover:not(:disabled):not([aria-checked='true']) {
+  background: var(--hui-language-switch-hover-bg, var(--hui-fill-secondary));
+}
+
+.ls__trigger:focus-visible,
+.ls__option:focus-visible {
+  outline: 2px solid var(--hui-border-focus);
+  outline-offset: 1px;
+}
+
+.ls__trigger:disabled,
+.ls__option:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ls__current {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hui-language-switch-gap, var(--hui-space-xs));
+}
+
+.ls__arrow {
+  color: var(--hui-text-tertiary);
+  transition: transform var(--hui-transition);
+}
+
+hui-dropdown:state(open) .ls__arrow {
+  transform: rotate(180deg);
+}
+
+.ls__check {
+  color: var(--hui-primary);
+}
+
+/* ================== INLINE ================== */
+.ls__group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--hui-language-switch-border-color, var(--hui-border));
+  border-radius: calc(var(--hui-language-switch-radius, var(--hui-radius)) + 2px);
+}
+
+.ls__option[aria-checked='true'] {
+  background: var(--hui-language-switch-active-bg, var(--hui-primary-1));
+  color: var(--hui-language-switch-active-color, var(--hui-primary-7));
+  font-weight: var(--hui-font-weight-medium);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls__trigger,
+  .ls__option,
+  .ls__arrow {
+    transition: none;
+  }
+}

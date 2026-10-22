@@ -1,0 +1,224 @@
+/*
+ * HUI Timeline Item CSS
+ * Override (KHÔNG khai báo trên :host): --hui-timeline-dot-size, --hui-timeline-dot-color, --hui-timeline-dot-bg,
+ *   --hui-timeline-tail-color, --hui-timeline-tail-width, --hui-timeline-gap, --hui-timeline-item-spacing,
+ *   --hui-timeline-axis-width, --hui-timeline-label-color, --hui-timeline-heading-color, --hui-timeline-content-color
+ * Vị trí do <hui-timeline> ghi trên host: data-side (right = nội dung bên phải trục | left), data-centered
+ * (có cột nhãn hoặc alternate → trục ở giữa), data-last, data-dashed, data-orientation, data-reveal.
+ * Biến nội bộ: --_tli-color (attribute color), --_tli-dot, --_tli-dot-top
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  font-size: var(--hui-font-base);
+  line-height: var(--hui-line-height, 1.5);
+  color: var(--hui-text);
+}
+
+:host([data-reveal='pending']) {
+  opacity: 0;
+}
+
+.tli {
+  --_tli-c: var(--_tli-color, var(--hui-timeline-dot-color, var(--hui-primary)));
+  --_tli-dot: var(--hui-timeline-dot-size, 10px);
+  --_tli-dot-top: calc((1.5em - var(--_tli-dot)) / 2);
+  --_tli-space: var(--hui-timeline-item-spacing, var(--hui-space-xl));
+
+  display: grid;
+  grid-template-columns: var(--hui-timeline-axis-width, 20px) minmax(0, 1fr);
+  grid-template-areas: 'axis body';
+  column-gap: var(--hui-timeline-gap, var(--hui-space-md));
+}
+
+/* ================== BỐ CỤC DỌC ================== */
+.tli__label { grid-area: label; display: none; }
+.tli__axis { grid-area: axis; }
+.tli__body { grid-area: body; min-width: 0; }
+
+.tli__label,
+.tli__body {
+  padding-bottom: var(--_tli-space);
+}
+
+:host([data-side='left']) .tli {
+  grid-template-columns: minmax(0, 1fr) var(--hui-timeline-axis-width, 20px);
+  grid-template-areas: 'body axis';
+}
+
+:host([data-side='left']) .tli__body { text-align: end; }
+
+:host([data-centered]) .tli {
+  grid-template-columns: minmax(0, 1fr) var(--hui-timeline-axis-width, 20px) minmax(0, 1fr);
+  grid-template-areas: 'label axis body';
+}
+
+:host([data-centered]) .tli__label {
+  display: block;
+  text-align: end;
+}
+
+:host([data-centered][data-side='left']) .tli {
+  grid-template-areas: 'body axis label';
+}
+
+:host([data-centered][data-side='left']) .tli__label { text-align: start; }
+
+:host([data-last]) .tli__label,
+:host([data-last]) .tli__body {
+  padding-bottom: 0;
+}
+
+/* ================== TRỤC: CHẤM + ĐƯỜNG NỐI ================== */
+.tli__axis {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tli__dot {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: var(--_tli-dot);
+  height: var(--_tli-dot);
+  margin-top: var(--_tli-dot-top);
+  border: 2px solid var(--_tli-c);
+  border-radius: 50%;
+  background: var(--hui-timeline-dot-bg, var(--hui-bg-container));
+  color: var(--_tli-c);
+}
+
+.tli__icon { display: none; }
+
+/* Chấm là icon: bỏ viền tròn, icon cao bằng 1 dòng chữ */
+.tli__dot--icon,
+.tli__dot--custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 1.5em;
+  min-width: var(--_tli-dot);
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--hui-timeline-dot-bg, var(--hui-bg-container));
+}
+
+.tli__dot--icon .tli__icon {
+  display: inline-flex;
+  font-size: 1.125em;
+}
+
+.tli__tail {
+  position: absolute;
+  top: calc(var(--_tli-dot-top) + var(--_tli-dot) / 2);
+  bottom: calc(-1 * (var(--_tli-dot-top) + var(--_tli-dot) / 2));
+  left: 50%;
+  width: 0;
+  border-left: var(--hui-timeline-tail-width, 2px) solid var(--hui-timeline-tail-color, var(--hui-border-secondary));
+  transform: translateX(-50%);
+}
+
+:host([data-dashed]) .tli__tail { border-left-style: dashed; }
+:host([data-last]) .tli__tail { display: none; }
+
+/* ================== NỘI DUNG ================== */
+.tli__label {
+  color: var(--hui-timeline-label-color, var(--hui-text-secondary));
+  font-size: var(--hui-font-sm);
+  line-height: 1.5rem;
+}
+
+.tli__heading {
+  color: var(--hui-timeline-heading-color, var(--hui-text));
+  font-weight: var(--hui-font-weight-semibold);
+}
+
+.tli__content {
+  color: var(--hui-timeline-content-color, var(--hui-text-secondary));
+}
+
+.tli__heading + .tli__content { margin-top: 2px; }
+
+.tli__heading[hidden],
+.tli__content[hidden] { display: none; }
+
+:host([pending]) .tli__content,
+:host([pending]) .tli__heading {
+  color: var(--hui-text-secondary);
+  font-weight: var(--hui-font-weight-normal);
+}
+
+/* ================== NGANG ================== */
+:host([data-orientation='horizontal']) {
+  text-align: center;
+}
+
+:host([data-orientation='horizontal']) .tli {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  grid-template-areas: 'label' 'axis' 'body';
+  row-gap: var(--hui-space-sm);
+}
+
+:host([data-orientation='horizontal'][data-side='left']) .tli {
+  grid-template-areas: 'body' 'axis' 'label';
+}
+
+:host([data-orientation='horizontal']) .tli__label {
+  display: block;
+  text-align: center;
+  min-height: 1.5rem;
+}
+
+:host([data-orientation='horizontal']) .tli__label,
+:host([data-orientation='horizontal']) .tli__body {
+  padding: 0 var(--hui-space-sm);
+  text-align: center;
+}
+
+:host([data-orientation='horizontal']) .tli__label--empty {
+  visibility: hidden;
+}
+
+:host([data-orientation='horizontal']) .tli__axis {
+  flex-direction: row;
+  justify-content: center;
+  height: 1.5em;
+}
+
+:host([data-orientation='horizontal']) .tli__dot { margin-top: 0; }
+
+:host([data-orientation='horizontal']) .tli__tail {
+  top: 50%;
+  bottom: auto;
+  left: 50%;
+  width: 100%;
+  height: 0;
+  border-left: 0;
+  border-top: var(--hui-timeline-tail-width, 2px) solid var(--hui-timeline-tail-color, var(--hui-border-secondary));
+  transform: translateY(-50%);
+}
+
+:host([data-orientation='horizontal'][data-dashed]) .tli__tail { border-top-style: dashed; }
+
+/* ================== HẸP (< 480px): alternate / có nhãn → dồn về 1 bên, nhãn nằm trên nội dung ================== */
+@container (max-width: 480px) {
+  :host([data-centered]:not([data-orientation='horizontal'])) .tli {
+    grid-template-columns: var(--hui-timeline-axis-width, 20px) minmax(0, 1fr);
+    grid-template-areas: 'axis label' 'axis body';
+  }
+
+  :host([data-centered]:not([data-orientation='horizontal'])) .tli__label {
+    padding-bottom: 0;
+    text-align: start;
+  }
+
+  :host([data-centered]:not([data-orientation='horizontal'])) .tli__body {
+    text-align: start;
+  }
+}
