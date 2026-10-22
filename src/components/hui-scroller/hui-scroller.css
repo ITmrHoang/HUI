@@ -133,6 +133,12 @@
   mask-image: linear-gradient(to right, transparent 0, black var(--_scroller-fade-start), black calc(100% - var(--_scroller-fade-end)), transparent 100%);
 }
 
+/* RTL: mép đầu nằm bên phải */
+.scroller--rtl.scroller--fade .scroller__viewport {
+  -webkit-mask-image: linear-gradient(to left, transparent 0, black var(--_scroller-fade-start), black calc(100% - var(--_scroller-fade-end)), transparent 100%);
+  mask-image: linear-gradient(to left, transparent 0, black var(--_scroller-fade-start), black calc(100% - var(--_scroller-fade-end)), transparent 100%);
+}
+
 .scroller--fade.scroller--at-start .scroller__viewport {
   --_scroller-fade-start: 0px;
 }
@@ -169,12 +175,18 @@
   transition: opacity var(--hui-transition), color var(--hui-transition-fast), border-color var(--hui-transition-fast);
 }
 
+/* Mép đầu / cuối theo hướng chữ (RTL: nút "trước" ở bên phải) */
 .scroller__arrow--prev {
-  left: var(--hui-scroller-arrow-offset, var(--hui-space-sm));
+  inset-inline-start: var(--hui-scroller-arrow-offset, var(--hui-space-sm));
 }
 
 .scroller__arrow--next {
-  right: var(--hui-scroller-arrow-offset, var(--hui-space-sm));
+  inset-inline-end: var(--hui-scroller-arrow-offset, var(--hui-space-sm));
+}
+
+/* RTL: mũi tên đảo chiều (nút trước chỉ sang phải) */
+.scroller--rtl .scroller__arrow hui-icon {
+  transform: scaleX(-1);
 }
 
 .scroller__arrow:hover:not(:disabled) {

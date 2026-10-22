@@ -22,6 +22,12 @@ export default {
 Container \`<hui-message-container>\` tự gắn vào \`<body>\` ở lần gọi đầu, nằm trên **top-layer** (Popover API,
 \`popover="manual"\`) nên luôn nằm trên Modal / Drawer — kể cả Modal mở sau message. Vùng chứa có \`aria-live="polite"\`.
 
+**Khi đang mở Modal / Drawer** (\`showModal()\` làm mọi thứ ngoài dialog bị inert): container tự chuyển vào trong
+\`<dialog>\` của modal trên cùng nên message vẫn bấm được (\`onClick\`, nút trên notification) và không lấy focus của modal;
+modal đóng → container trở về \`<body>\`. Lúc nằm trong modal, selector \`hui-message-container::part(...)\` viết ở trang
+không chạm tới (container ở trong Shadow DOM của modal) → nên tùy biến bằng biến CSS trên \`:root\`.
+Modal mở SAU khi message đã hiện → message đó bị inert cho tới khi có message mới.
+
 ### Cách sử dụng
 \`\`\`js
 import { message } from '@itmrhoang/h-ui/hui-message';
@@ -60,7 +66,8 @@ await message.info('Chờ tôi đóng');   // resolve khi đã đóng hẳn
 | \`onClick\` | function | — | Click vào message |
 
 ### Override giao diện từ bên ngoài
-Container nằm trong \`<body>\` → đặt biến trên \`:root\` (hoặc \`body\`); style sâu bằng \`hui-message-container::part(...)\`.
+Container nằm trong \`<body>\` (hoặc trong modal đang mở) → đặt biến trên \`:root\` (hoặc \`body\`); style sâu bằng
+\`hui-message-container::part(...)\` (không áp khi container đang nằm trong modal).
 | Biến CSS | Mô tả |
 |----------|-------|
 | \`--hui-message-top\` | Khoảng cách tới mép trên (8px; \`config({ top })\` ưu tiên hơn) |
@@ -173,29 +180,74 @@ export const AboveModal = {
       <p>Bấm OK để hiện message (modal giữ nguyên).</p>
     </hui-modal>
   `,
-  // Kiểm thử: message mở khi Modal đang mở vẫn nằm trên; click lên message (rơi xuống mask) không đóng Modal
+  // Kiểm thử: message mở khi Modal đang mở nằm TRONG dialog (không bị inert → bấm được), vẫn trên cùng;
+  // click lên message không đóng Modal; Modal đóng → container trở về <body>
   play: async ({ canvasElement }) => {
     message.destroy();
     const modalEl = canvasElement.querySelector('#msg-modal');
     const dialog = modalEl.shadowRoot.querySelector('dialog');
     modalEl.open();
     await waitFor(() => expect(dialog.open).toBe(true));
+    // Modal tự focus control đầu tiên (nút X) sau 1 frame
+    const focusedBefore = modalEl.shadowRoot.querySelector('[part="close"]');
+    await waitFor(() => expect(modalEl.shadowRoot.activeElement).toBe(focusedBefore));
 
-    message.info('Trên modal', { duration: 0, key: 'above' });
-    const container = document.querySelector('hui-message-container');
+    let clicked = 0;
+    message.info('Trên modal', { duration: 0, key: 'above', onClick: () => clicked++ });
+    const container = dialog.querySelector('hui-message-container');
+    await expect(container).toBeTruthy();
     await waitFor(() => expect(container.shadowRoot.querySelectorAll('.notice').length).toBe(1));
     await expect(container.matches(':popover-open')).toBe(true);
+    // Hiện message không cướp focus của nội dung modal
+    await expect(modalEl.shadowRoot.activeElement).toBe(focusedBefore);
 
     await new Promise((r) => setTimeout(r, 300)); // chờ animation vào xong để đo đúng vị trí
-    const rect = container.shadowRoot.querySelector('.notice').getBoundingClientRect();
-    const point = { clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2, bubbles: true, composed: true };
-    modalEl.shadowRoot.querySelector('.wrap').dispatchEvent(new PointerEvent('pointerdown', point));
+    const notice = container.shadowRoot.querySelector('.notice');
+    const rect = notice.getBoundingClientRect();
+    const [x, y] = [rect.left + rect.width / 2, rect.top + rect.height / 2];
+    // Hit-test thật của trình duyệt (phần tử inert bị bỏ qua) phải trúng message
+    await expect(notice.contains(container.shadowRoot.elementFromPoint(x, y))).toBe(true);
+    notice.click();
+    await expect(clicked).toBe(1);
+
+    const point = { clientX: x, clientY: y, bubbles: true, composed: true };
+    notice.dispatchEvent(new PointerEvent('pointerdown', point));
     await new Promise((r) => setTimeout(r, 100));
     await expect(modalEl.isOpen).toBe(true);
 
-    message.destroy('above');
     modalEl.close();
     await waitFor(() => expect(dialog.open).toBe(false), { timeout: 2000 });
+    // Modal đóng → message còn hiển thị chuyển ra <body>, vẫn trên top-layer
+    await waitFor(() => expect(container.parentNode).toBe(document.body));
+    await expect(container.matches(':popover-open')).toBe(true);
+    message.destroy('above');
+    await waitFor(() => expect(container.matches(':popover-open')).toBe(false), { timeout: 3000 });
+  },
+};
+
+/** Modal chứa message bị gỡ khỏi trang khi message còn hiển thị → message được gắn lại vào <body> */
+export const ModalRemovedWhileShowing = {
+  render: () => html`
+    <hui-modal id="msg-modal-removed" title="Modal sẽ bị gỡ"><p>Nội dung</p></hui-modal>
+  `,
+  play: async ({ canvasElement }) => {
+    message.destroy();
+    const modalEl = canvasElement.querySelector('#msg-modal-removed');
+    const dialog = modalEl.shadowRoot.querySelector('dialog');
+    modalEl.open();
+    await waitFor(() => expect(dialog.open).toBe(true));
+
+    message.info('Còn hiển thị', { duration: 0, key: 'removed' });
+    const container = dialog.querySelector('hui-message-container');
+    await expect(container).toBeTruthy();
+
+    modalEl.remove();
+    await waitFor(() => expect(container.parentNode).toBe(document.body));
+    await expect(container.matches(':popover-open')).toBe(true);
+    await expect(container.shadowRoot.querySelectorAll('.notice').length).toBe(1);
+    await expect(document.querySelectorAll('hui-message-container').length).toBe(1);
+    message.destroy('removed');
+    await waitFor(() => expect(container.matches(':popover-open')).toBe(false), { timeout: 3000 });
   },
 };
 

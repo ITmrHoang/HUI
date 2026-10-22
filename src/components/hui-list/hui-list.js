@@ -18,10 +18,17 @@ const hasContent = (slot) => slot.assignedNodes().some((n) =>
 /** Số trơn → px, còn lại giữ nguyên chuỗi CSS */
 const toLength = (v) => (/^\d+(\.\d+)?$/.test(String(v).trim()) ? `${v}px` : String(v));
 
-/** renderItem mặc định: object { title, description, content } → hui-list-item + meta; giá trị khác → chữ */
+/** renderItem mặc định: object { title, description, content, actions } → hui-list-item + meta; giá trị khác → chữ */
 function defaultRenderItem(item) {
   const li = document.createElement('hui-list-item');
   if (item && typeof item === 'object') {
+    // actions: mảng (hiện ở phía cuối — vuốt về phía đầu) hoặc { start, end }
+    const acts = item.actions;
+    if (Array.isArray(acts)) li.swipeEnd = acts;
+    else if (acts && typeof acts === 'object') {
+      if (Array.isArray(acts.start)) li.swipeStart = acts.start;
+      if (Array.isArray(acts.end)) li.swipeEnd = acts.end;
+    }
     if (item.title !== undefined || item.description !== undefined) {
       const meta = document.createElement('hui-list-item-meta');
       if (item.title !== undefined) meta.setAttribute('title', String(item.title));
@@ -39,7 +46,9 @@ function defaultRenderItem(item) {
  * Danh sách các <hui-list-item>: header/footer, đường kẻ, loading, trạng thái rỗng (<hui-empty>),
  * chế độ lưới (grid-column) hiển thị item dạng thẻ, slot "pagination" cho phân trang.
  * Chế độ dữ liệu: gán `dataSource` (mảng) + `renderItem(item, index)` trả về Node / chuỗi.
+ * Item vuốt được (swipe actions) — xem hui-list-item; `hoverable` cho item nổi nhẹ khi rê chuột.
  *
+ * @fires hui-swipe-action - (từ hui-list-item, nổi bọt) bấm nút thao tác vuốt / vuốt hết. detail: { action, item, element, side, full }
  * @slot - Các <hui-list-item>
  * @slot header - Đầu danh sách (thay attribute header)
  * @slot footer - Chân danh sách (thay attribute footer)
@@ -64,6 +73,9 @@ function defaultRenderItem(item) {
  * @cssprop --hui-list-card-radius - Bo góc item ở chế độ lưới
  * @cssprop --hui-list-loading-bg - Nền lớp phủ loading
  * @cssprop --hui-list-pagination-justify - Canh vùng phân trang (flex-end)
+ * @cssprop --hui-list-hover-bg - Nền item khi hover (hoverable)
+ * @cssprop --hui-list-hover-shadow - Bóng item khi hover (hoverable)
+ * @cssprop --hui-list-hover-lift - Độ nhấc item khi hover (hoverable, mặc định -2px)
  */
 class HuiList extends HuiElement {
   static properties = {
@@ -79,6 +91,10 @@ class HuiList extends HuiElement {
     size: { type: String, default: 'md' },
     /** Phủ spinner lên danh sách */
     loading: { type: Boolean },
+    /** Item nổi nhẹ (nền + bóng + nhấc lên) khi rê chuột */
+    hoverable: { type: Boolean },
+    /** Vuốt hết chiều ngang item → chạy thao tác chính (áp cho mọi hui-list-item con) */
+    fullSwipe: { type: Boolean },
     /** horizontal | vertical — vertical: actions nằm dưới nội dung, extra là vùng lớn bên phải */
     itemLayout: { type: String, default: 'horizontal' },
     /** Mô tả của trạng thái rỗng (mặc định chuỗi locale của hui-empty) */
@@ -143,7 +159,7 @@ class HuiList extends HuiElement {
   updated(changed) {
     const gridKeys = ['gridColumn', ...BREAKPOINTS.map((b) => `gridColumn${b[0].toUpperCase()}${b.slice(1)}`)];
 
-    if (['bordered', 'split', 'size', 'itemLayout', ...gridKeys].some((k) => changed.has(k))) {
+    if (['bordered', 'split', 'size', 'itemLayout', 'hoverable', ...gridKeys].some((k) => changed.has(k))) {
       const size = SIZES.includes(this.size) ? this.size : 'md';
       const split = this.split !== 'false' && this.split !== false;
       this._base.className = [
@@ -153,6 +169,7 @@ class HuiList extends HuiElement {
         split ? 'hui-list--split' : '',
         this.itemLayout === 'vertical' ? 'hui-list--vertical' : 'hui-list--horizontal',
         this._isGrid() ? 'hui-list--grid' : '',
+        this.hoverable ? 'hui-list--hoverable' : '',
       ].filter(Boolean).join(' ');
     }
 
@@ -197,6 +214,8 @@ class HuiList extends HuiElement {
     const render = typeof this.renderItem === 'function' ? this.renderItem : defaultRenderItem;
     const nodes = list.map((item, index) => {
       const out = render(item, index);
+      // Item dựng từ dữ liệu → hui-swipe-action trả về đúng object dữ liệu
+      if (out instanceof Element && out.localName === 'hui-list-item' && out.rowData == null) out.rowData = item;
       return out instanceof Node ? out : document.createTextNode(String(out ?? ''));
     });
     this._data.replaceChildren(...nodes);

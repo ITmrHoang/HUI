@@ -4,23 +4,87 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>H-UI — kiểm tra bản CDN (script thường)</title>
-  <!-- Giống hệt cách dùng qua jsDelivr, chỉ đổi đường dẫn sang file build cục bộ:
-       <script src="https://cdn.jsdelivr.net/npm/@itmrhoang/h-ui@0/dist/cdn/h-ui.min.js"></script> -->
-  <script src="../dist/cdn/h-ui.min.js"></script>
+  <!-- Ghi lại mọi thẻ được đăng ký + lỗi khi chạy (đặt TRƯỚC bundle) -->
+  <script>
+    window.__defined = [];
+    window.__errors = [];
+    const define = customElements.define.bind(customElements);
+    customElements.define = (name, ...rest) => { window.__defined.push(name); return define(name, ...rest); };
+    window.addEventListener('error', (e) => window.__errors.push(String(e.message || e.error)));
+  </script>
+  <!-- Giống hệt cách dùng qua jsDelivr, chỉ đổi đường dẫn sang file build cục bộ.
+       ?bundle=all (mặc định) — một file trọn gói:
+         <script src="https://cdn.jsdelivr.net/npm/@itmrhoang/h-ui@0/dist/cdn/h-ui.min.js"></script>
+       ?bundle=core,data — core trước, rồi các nhóm cần dùng:
+         <script src="https://cdn.jsdelivr.net/npm/@itmrhoang/h-ui@0/dist/cdn/h-ui-core.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/@itmrhoang/h-ui@0/dist/cdn/h-ui-data.min.js"></script>
+       ?bundle=groups — core + cả 4 nhóm (kiểm tra không thẻ nào bị đăng ký 2 lần)
+       ?bundle=core — chỉ core (thẻ của nhóm khác phải CHƯA được định nghĩa) -->
+  <script>
+    window.__bundle = new URLSearchParams(location.search).get('bundle') || 'all';
+    /** Nhóm đã tải (null = bản trọn gói) */
+    window.__groups = window.__bundle === 'all' ? null
+      : window.__bundle === 'groups' ? ['core', 'form', 'data', 'marketing', 'shop']
+        : ['core', ...window.__bundle.split(',').filter((g) => g && g !== 'core')];
+    const FILES = window.__groups ? window.__groups.map((g) => `h-ui-${g}.min.js`) : ['h-ui.min.js'];
+    // document.write → script thường, chạy tuần tự đúng như khi viết tay các thẻ <script>
+    for (const f of FILES) document.write(`<script src="../dist/cdn/${f}"><\/script>`);
+  </script>
   <style>body { font-family: system-ui, sans-serif; margin: 24px; }</style>
 </head>
 <body>
-  <h1>Bản CDN một file</h1>
+  <h1>Bản CDN</h1>
+  <p>
+    Đang thử: <strong id="mode"></strong> —
+    <a href="?bundle=all">trọn gói</a> · <a href="?bundle=groups">core + 4 nhóm</a> · <a href="?bundle=core">chỉ core</a> ·
+    <a href="?bundle=core,form">core + form</a> · <a href="?bundle=core,data">core + data</a> ·
+    <a href="?bundle=core,marketing">core + marketing</a> · <a href="?bundle=core,shop">core + shop</a>
+  </p>
   <hui-button icon="check" id="btn">Bấm thử</hui-button>
-  <hui-rate value="4" allow-half></hui-rate>
   <hui-card title="Card" effect="lift tilt" style="max-width: 240px; margin-top: 16px">window.HUI có sẵn</hui-card>
+  <!-- form / data / marketing / shop -->
+  <hui-rate value="4" allow-half></hui-rate>
+  <hui-date-picker></hui-date-picker>
+  <hui-data-view id="dv" search style="margin-top: 16px"></hui-data-view>
+  <hui-sparkline data="[3,5,2,8,6]"></hui-sparkline>
+  <hui-faq id="faq" search></hui-faq>
+  <hui-quantity value="2"></hui-quantity>
   <script>
+    document.getElementById('mode').textContent = window.__bundle;
     document.getElementById('btn').addEventListener('hui-click', () => HUI.message.success('Bản CDN hoạt động'));
-    window.__cdnCheck = () => ({
-      hasHUI: typeof window.HUI === 'object',
-      apis: ['message', 'notification', 'modal', 'setLocale', 'formatCurrency'].filter((k) => k in window.HUI),
-      defined: ['hui-button', 'hui-rate', 'hui-card', 'hui-data-view', 'hui-sparkline'].filter((t) => customElements.get(t)),
-    });
+    const dv = document.getElementById('dv');
+    dv.data = [{ id: 1, title: 'Một' }, { id: 2, title: 'Hai' }];
+    document.getElementById('faq').data = [{ question: 'Hỏi?', answer: 'Đáp.' }];
+
+    /** Thẻ đại diện cho từng nhóm (không bị đẩy vào core) */
+    const GROUP_TAGS = { form: ['hui-rate', 'hui-date-picker'], data: ['hui-data-view', 'hui-sparkline'], marketing: ['hui-faq'], shop: ['hui-quantity'] };
+    window.__cdnCheck = async () => {
+      const used = [...new Set([...document.querySelectorAll('*')].map((e) => e.localName).filter((t) => t.startsWith('hui-')))];
+      // Thẻ của nhóm KHÔNG được tải → phải chưa được định nghĩa
+      const absent = Object.entries(GROUP_TAGS).filter(([g]) => window.__groups && !window.__groups.includes(g)).flatMap(([, tags]) => tags);
+      const expected = used.filter((t) => !absent.includes(t));
+      await Promise.all(expected.map((t) => customElements.whenDefined(t)));
+      await customElements.whenDefined('hui-input');
+      await new Promise((r) => setTimeout(r, 50)); // thẻ con tải động (Promise) kịp upgrade
+      const counts = {};
+      for (const t of window.__defined) counts[t] = (counts[t] || 0) + 1;
+      const Base = window.HUI?.HuiElement;
+      const groupTags = Object.values(GROUP_TAGS).flat().filter((t) => customElements.get(t));
+      return {
+        bundle: window.__bundle,
+        hasHUI: typeof window.HUI === 'object',
+        apis: ['message', 'notification', 'modal', 'setLocale', 'formatCurrency', 'HuiElement'].filter((k) => window.HUI && k in window.HUI),
+        defined: [...new Set(window.__defined)],
+        duplicateDefines: Object.keys(counts).filter((t) => counts[t] > 1),
+        undefinedTags: expected.filter((t) => !customElements.get(t)),
+        leakedTags: absent.filter((t) => customElements.get(t)),
+        // Thẻ của nhóm dùng CHUNG HuiElement với core (không có bản sao lớp nền)
+        sharedBase: groupTags.every((t) => Base && customElements.get(t).prototype instanceof Base),
+        // Thẻ con tải động của data-view (hui-input khi bật search) đã dựng xong (null: chưa tải nhóm data)
+        dataViewSearch: customElements.get('hui-data-view') ? Boolean(dv.shadowRoot?.querySelector('hui-input')?.shadowRoot) : null,
+        errors: window.__errors,
+      };
+    };
   </script>
 </body>
 </html>

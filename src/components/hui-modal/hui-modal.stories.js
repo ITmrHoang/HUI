@@ -543,3 +543,37 @@ export const DestroyOnClose = {
     await waitFor(() => expect(dialog.open).toBe(false), { timeout: 2000 });
   },
 };
+
+/**
+ * Đóng rồi mở lại ngay (vd: bấm liên tục) — sự kiện `close` đến trễ của <dialog> không được đóng nhầm modal vừa mở lại.
+ */
+export const ReopenImmediately = {
+  render: () => html`
+    <div style="padding: 16px;">
+      <hui-button @hui-click=${() => openModal('modal-reopen')}>Mở modal</hui-button>
+    </div>
+    <hui-modal id="modal-reopen" title="Mở lại ngay" no-animation>
+      <p>Đóng xong mở lại ngay lập tức vẫn giữ trạng thái mở.</p>
+    </hui-modal>
+  `,
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('#modal-reopen');
+    const dialog = el.shadowRoot.querySelector('dialog');
+    el.open();
+    await waitFor(() => expect(dialog.open).toBe(true));
+
+    // Mở lại ngay khi vừa đóng xong (dialog.close() đã chạy, sự kiện 'close' native còn trong hàng đợi)
+    const reopened = new Promise((resolve) => {
+      el.addEventListener('hui-after-close', () => { el.open(); resolve(); }, { once: true });
+    });
+    el.close();
+    await reopened;
+    // Chờ qua vài task để sự kiện 'close' trễ chắc chắn đã tới
+    await new Promise((r) => setTimeout(r, 100));
+    await expect(el.isOpen).toBe(true);
+    await expect(dialog.open).toBe(true);
+
+    el.close();
+    await waitFor(() => expect(dialog.open).toBe(false), { timeout: 2000 });
+  },
+};

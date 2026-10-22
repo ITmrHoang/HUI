@@ -14,10 +14,9 @@ import { t, getLocaleName } from '../../core/locale.js';
 import { createElement } from '../../utils/dom.js';
 import { runAnimation } from '../../utils/animate.js';
 import { prefersReducedMotion } from '../../utils/motion.js';
+import { renderLazyStateView } from '../hui-data-view/lazy-elements.js';
 import '../hui-stat-card/index.js';
-import '../hui-empty/index.js';
-import '../hui-result/index.js';
-import '../hui-button/index.js';
+// Tải động khi dùng tới: hui-empty (rỗng), hui-result + hui-button (lỗi + nút Thử lại)
 
 /** Chuỗi dự phòng khi locale.js chưa có key kpiRow.* */
 const FALLBACK = {
@@ -315,7 +314,7 @@ class HuiKpiRow extends DataController(HuiElement) {
       this._skeleton.hidden = true;
       this._skeleton.replaceChildren();
     }
-    if (state === 'empty' || state === 'error') this.renderStateView(this._state);
+    if (state === 'empty' || state === 'error') renderLazyStateView(this, this._state);
     else {
       this._state.hidden = true;
       this._state.replaceChildren();

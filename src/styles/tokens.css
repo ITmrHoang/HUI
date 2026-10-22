@@ -17,7 +17,8 @@
 :where(:root),
 :where([data-theme="light"]) {
   /* === Bảng màu chính === */
-  --hui-primary: #6366f1;
+  /* Indigo-600: chữ trắng trên nền primary và chữ primary trên nền trắng đều đạt WCAG AA (≈6,3:1) */
+  --hui-primary: #4f46e5;
 
   --hui-secondary: #64748b;
 
@@ -25,7 +26,7 @@
 
   --hui-warning: #f59e0b;
 
-  --hui-danger: #ef4444;
+  --hui-danger: #dc2626; /* Red-600: chữ trắng trên nền danger / chữ lỗi trên nền trắng đạt AA */
 
   --hui-info: #3b82f6;
 
@@ -38,7 +39,7 @@
 
   --hui-text: #0f172a;
   --hui-text-secondary: #475569;
-  --hui-text-muted: #94a3b8;
+  --hui-text-muted: #617188; /* ≥4,5:1 trên --hui-bg / -secondary / -tertiary và nền input filled (placeholder, chú thích) */
   --hui-text-inverse: #ffffff;
   --hui-text-light-solid: #ffffff; /* Chữ trắng ở MỌI theme — dùng trên nền tối cố định (tooltip, mask) */
 
@@ -156,8 +157,9 @@
    ============================================ */
 
 :where([data-theme="dark"]) {
-  /* === Bảng màu chính (sáng hơn một bậc để đủ tương phản trên nền tối) === */
-  --hui-primary: #818cf8;
+  /* === Bảng màu chính (sáng hơn để đủ tương phản trên nền tối; primary = indigo-300 để chữ primary
+     trên nền chọn --hui-primary-light của lớp nổi vẫn đạt AA) === */
+  --hui-primary: #a5b4fc;
 
   --hui-secondary: #94a3b8;
 
@@ -178,7 +180,7 @@
 
   --hui-text: #f1f5f9;
   --hui-text-secondary: #cbd5e1;
-  --hui-text-muted: #64748b;
+  --hui-text-muted: #a0adc0; /* ≥4,5:1 trên mọi nền tối (kể cả --hui-bg-tertiary) */
   /* Chữ trên nền màu (nút primary, badge...) → tối để tương phản với màu sáng hơn */
   --hui-text-inverse: #0f172a;
 
@@ -211,7 +213,7 @@
 
 @media (prefers-color-scheme: dark) {
   :where(:root:not([data-theme])) {
-    --hui-primary: #818cf8;
+    --hui-primary: #a5b4fc;
 
     --hui-secondary: #94a3b8;
 
@@ -231,7 +233,7 @@
 
     --hui-text: #f1f5f9;
     --hui-text-secondary: #cbd5e1;
-    --hui-text-muted: #64748b;
+    --hui-text-muted: #a0adc0;
     --hui-text-inverse: #0f172a;
 
     /* === Token ngữ nghĩa === */

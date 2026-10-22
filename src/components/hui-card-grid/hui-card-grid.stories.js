@@ -442,6 +442,7 @@ export const Pagination = {
     await expect(grid.pageCount).toBe(5);
     const pager = partOf(grid, 'pagination');
     await expect(pager.hidden).toBe(false);
+    await customElements.whenDefined('hui-pagination'); // tải động khi có nhiều hơn 1 trang
     await pager.updateComplete;
 
     let page = null;
@@ -530,10 +531,11 @@ export const DataStates = {
     await waitFor(() => expect(empty.dataState).toBe('empty'));
     await settle(empty);
     await expect(partOf(empty, 'state').hidden).toBe(false);
-    await expect(partOf(empty, 'state').querySelector('hui-empty')).toBeTruthy();
+    // hui-empty / hui-result tải động → trạng thái được vẽ lại khi định nghĩa xong
+    await waitFor(() => expect(partOf(empty, 'state').querySelector('hui-empty')).toBeTruthy());
     await waitFor(() => expect(error.dataState).toBe('error'));
     await settle(error);
-    await expect(partOf(error, 'state').querySelector('hui-result')).toBeTruthy();
+    await waitFor(() => expect(partOf(error, 'state').querySelector('hui-result')).toBeTruthy());
   },
 };
 

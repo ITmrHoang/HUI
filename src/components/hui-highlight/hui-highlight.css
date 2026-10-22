@@ -1,0 +1,31 @@
+/*
+ * HUI Highlight — biến override: --hui-highlight-bg, --hui-highlight-color, --hui-highlight-font-weight,
+ *   --hui-highlight-radius, --hui-highlight-padding
+ * Parts: base, mark
+ */
+
+:host {
+  display: inline;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.hl__mark {
+  background: var(--hui-highlight-bg, color-mix(in srgb, var(--hui-warning) 35%, transparent));
+  color: var(--hui-highlight-color, inherit);
+  font-weight: var(--hui-highlight-font-weight, inherit);
+  border-radius: var(--hui-highlight-radius, 2px);
+  padding: var(--hui-highlight-padding, 0 1px);
+  /* Đoạn khớp xuống dòng vẫn giữ nền + bo góc từng dòng */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+@media (forced-colors: active) {
+  .hl__mark {
+    background: Mark;
+    color: MarkText;
+  }
+}

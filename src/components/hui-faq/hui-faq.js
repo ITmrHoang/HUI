@@ -12,14 +12,12 @@ import { createElement } from '../../utils/dom.js';
 import { prefersReducedMotion } from '../../utils/motion.js';
 import { inView } from '../../utils/scroll.js';
 import { ANIMATIONS } from '../../utils/animate.js';
+import { ensureElement, renderLazyStateView } from '../hui-data-view/lazy-elements.js';
 import '../hui-collapse/index.js';
-import '../hui-input/index.js';
 import '../hui-button/index.js';
 import '../hui-icon/index.js';
 import '../hui-empty/index.js';
-import '../hui-tabs/index.js';
-import '../hui-skeleton/hui-skeleton.js';
-import '../hui-result/index.js';
+// Tải động khi dùng tới: hui-input (search), hui-tabs (group-by-category="tabs"), hui-skeleton / hui-result (trạng thái)
 
 /** Chuỗi chưa có trong locale.js → chuỗi dự phòng theo ngôn ngữ hiện tại */
 const FALLBACK = {
@@ -355,6 +353,7 @@ class HuiFaq extends DataController(HuiElement) {
     super.updated(changed);
 
     if (changed.has('search')) this._input.hidden = !this.search;
+    if (this.search) ensureElement('hui-input');
     if (changed.has('searchPlaceholder') || changed.has('locale')) {
       this._input.placeholder = this.searchPlaceholder || tx('faq.searchPlaceholder');
     }
@@ -377,7 +376,7 @@ class HuiFaq extends DataController(HuiElement) {
     if (changed.has('noAnimation') && this.noAnimation) this._reveal(false);
 
     if (['data', 'dataState', 'loading', 'emptyText', 'src', 'fetchFn', 'locale'].some((k) => changed.has(k))) {
-      if (this._isDataMode) this.renderStateView(this._state);
+      if (this._isDataMode) renderLazyStateView(this, this._state);
       else {
         this._state.hidden = true;
         this._state.replaceChildren();
@@ -537,6 +536,7 @@ class HuiFaq extends DataController(HuiElement) {
       if (this._body.parentNode !== this._base) this._base.append(this._body);
       return;
     }
+    ensureElement('hui-tabs');
     const all = createElement('hui-tab-panel', { key: ALL_KEY, label: tx('faq.all') });
     const panels = this._categories.map((c) => createElement('hui-tab-panel', { key: c.key, label: c.label }));
     this._tabs.replaceChildren(all, ...panels);

@@ -11,11 +11,10 @@ import { t, getLocaleName } from '../../core/locale.js';
 import { animationsDisabled } from '../../utils/animate.js';
 import { animateIn } from '../../utils/motion.js';
 import { createElement } from '../../utils/dom.js';
+import { ensureElements } from '../hui-data-view/lazy-elements.js';
 import '../hui-form/index.js';
 import '../hui-input/index.js';
 import '../hui-textarea/index.js';
-import '../hui-select/index.js';
-import '../hui-checkbox/index.js';
 import '../hui-button/index.js';
 import '../hui-alert/index.js';
 import '../hui-result/index.js';
@@ -50,6 +49,8 @@ function msg(key, vars) {
 
 const KNOWN_FIELDS = ['name', 'email', 'phone', 'subject', 'message', 'consent'];
 const csv = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
+/** Control chỉ cần khi bật tùy chọn tương ứng → tải động */
+const LAZY_CONTROLS = ['hui-select', 'hui-checkbox'];
 
 /**
  * Form liên hệ dựng sẵn.
@@ -127,6 +128,8 @@ class HuiContactForm extends HuiElement {
     this._pending = null;
     /** name → { item, control } */
     this._fieldMap = new Map();
+    /** Promise tải control động (hui-select / hui-checkbox) đang chờ, null khi đã xong */
+    this._lazyReady = null;
   }
 
   /** Trạng thái: idle | loading | success | error */
@@ -240,6 +243,17 @@ class HuiContactForm extends HuiElement {
     });
     this._fieldsEl.replaceChildren(...items);
     if (prev) this._form.setValues(prev);
+    // hui-select (có subjects) / hui-checkbox (field consent) tải động → định nghĩa xong thì gán lại placeholder / nhãn
+    const lazy = [...this._fieldMap.values()].map(({ control }) => control.localName)
+      .filter((tag, i, arr) => LAZY_CONTROLS.includes(tag) && arr.indexOf(tag) === i && !customElements.get(tag));
+    // submit() / setValues() đợi promise này: control chưa định nghĩa thì hui-form chưa thấy (bỏ qua validate / giá trị)
+    const ready = lazy.length
+      ? ensureElements(lazy).then(() => {
+        this._syncTexts();
+        if (this._lazyReady === ready) this._lazyReady = null;
+      })
+      : null;
+    this._lazyReady = ready;
   }
 
   _syncTexts() {
@@ -351,6 +365,7 @@ class HuiContactForm extends HuiElement {
   /** Validate + gửi. Trả về true khi gửi thành công */
   async submit() {
     if (this._busy || this.disabled) return false;
+    if (this._lazyReady) await this._lazyReady;
     const result = await this._form.submit();
     if (!result?.valid) return false;
     await this._pending;
@@ -365,6 +380,13 @@ class HuiContactForm extends HuiElement {
   /** Gán giá trị theo tên field */
   setValues(values) {
     this._form.setValues(values);
+    // Field dùng control tải động chưa định nghĩa → hui-form chưa thấy → gán lại riêng các field đó khi định nghĩa xong
+    if (!this._lazyReady || !values) return;
+    const late = Object.fromEntries(Object.entries(values).filter(([name]) => {
+      const tag = this._fieldMap.get(name)?.control.localName;
+      return tag && !customElements.get(tag);
+    }));
+    if (Object.keys(late).length) this._lazyReady.then(() => this._form.setValues(late));
   }
 
   /** Xóa form về ban đầu, ẩn thông báo; focusFirst = focus field đầu tiên */

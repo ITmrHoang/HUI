@@ -195,12 +195,12 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
 - [x] `hui-card` slot `actions`: `hui-button block` chưa giãn hết chiều ngang
 - [x] `hui-statistic`: thuộc tính `align` (start | center) để căn giữa trong dải số liệu
 - [ ] Modal mặc định không còn căn giữa dọc (cách đỉnh `min(100px, 10vh)` như Ant) — cân nhắc giữ hay đổi mặc định `centered`
-- [ ] Nút trên toast (message/notification) chưa bấm được khi đang mở modal (giới hạn của top-layer + inert)
+- [x] Nút trên toast (message/notification) chưa bấm được khi đang mở modal (giới hạn của top-layer + inert)
 
 ---
 
 ## G2 — BỔ SUNG PHONG PHÚ (ưu tiên trung bình)
-- [ ] **`hui-steps` + `hui-step`** — `current`, `direction`, `status` (wait/process/finish/error), `type` (default/navigation/dot), `clickable`
+- [x] **`hui-steps` + `hui-step`** — `current`, `direction`, `status` (wait/process/finish/error), `type` (default/navigation/dot), `clickable`
 - [/] **`hui-timeline` + item** — `mode` (left/right/alternate), màu/icon từng mốc, `pending`, `reverse` *(→ chuyển sang A6.2)*
 - [x] **`hui-segmented`** — chọn 1 trong nhiều (dạng thanh trượt), `options`, `block`, icon
 - [x] **`hui-button-group`** + **`hui-toggle-button-group`** (MUI ToggleButton) — chọn đơn/nhiều
@@ -212,15 +212,15 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
 - [/] **`hui-carousel`** — `autoplay`, `dots`, `arrows`, `effect` (scroll/fade), vuốt trên mobile, `slides-per-view` *(→ chuyển sang A6.2 (xây trên `hui-scroller`))*
 - [/] **`hui-float-button`** + **`-group`** (MUI SpeedDial) + **`hui-back-top`** *(→ chuyển sang A6.1)*
 - [/] **`hui-anchor`** — mục lục bám theo cuộn trang, `offset-top`, highlight mục hiện tại *(→ chuyển sang A6.1 (`hui-toc`))*
-- [ ] **`hui-affix`** — ghim phần tử khi cuộn (`offset-top`/`offset-bottom`)
+- [x] **`hui-affix`** — ghim phần tử khi cuộn (`offset-top`/`offset-bottom`) *(→ thay bằng `hui-sticky` (A3.7))*
 - [/] **`hui-bottom-navigation`** (MUI) — thanh điều hướng đáy cho mobile *(→ chuyển sang A6.1 (`hui-bottom-nav`))*
-- [ ] **`hui-chip`** — xem xét gộp vào `hui-tag` (thêm avatar/icon, `variant` filled/outlined) thay vì component riêng `[?]`
-- [/] **`hui-kbd`**, **`hui-highlight`** (đánh dấu từ khóa tìm kiếm) — tiện ích nhỏ cho tài liệu/tìm kiếm *(kbd ✓, highlight còn lại)*
+- [x] **`hui-chip`** — xem xét gộp vào `hui-tag` (thêm avatar/icon, `variant` filled/outlined) thay vì component riêng `[?]` *(→ gộp vào `hui-tag`: avatar, variant, clickable + toggle/selected, closable)*
+- [x] **`hui-kbd`**, **`hui-highlight`** (đánh dấu từ khóa tìm kiếm) — tiện ích nhỏ cho tài liệu/tìm kiếm
 
 ---
 
 ## G3 — COMPONENT PHỨC TẠP (làm sau khi G0 vững)
-- [/] **`hui-virtual-list`** (tiện ích nền cho Table/Select/Tree): render phần đang nhìn thấy, chiều cao dòng cố định/động *(tiện ích `VirtualWindow` trong src/utils/virtual.js đã dùng cho table/tree/transfer; chưa có thẻ riêng)*
+- [x] **`hui-virtual-list`** (tiện ích nền cho Table/Select/Tree): render phần đang nhìn thấy, chiều cao dòng cố định/động *(tiện ích `VirtualWindow` trong src/utils/virtual.js đã dùng cho table/tree/transfer; chưa có thẻ riêng)*
 - [x] **`hui-table`**
   - `columns` (property: title, dataIndex, width, align, fixed, ellipsis, render hàm/slot), `data-source`, `row-key`
   - Sắp xếp (đơn/đa cột), lọc (menu checkbox/ô tìm), phân trang tích hợp, `loading`, `empty`
@@ -247,11 +247,11 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
 ---
 
 ## G4 — TÍCH HỢP, TÀI LIỆU & PHÁT HÀNH
-- [ ] **Vue plugin** `@itmrhoang/h-ui/vue` — tự cấu hình `isCustomElement`, hỗ trợ `v-model` (`value` + `input`/`change`), types `GlobalComponents`
-- [ ] **React** — types JSX cho React 19 (dùng trực tiếp được); tùy chọn wrapper cho React 18
-- [ ] **Nuxt** — hướng dẫn client-only + CSS `hui-*:not(:defined)` chống nháy layout khi SSR
-- [ ] **Trang tài liệu** — deploy Storybook; trang "Getting started", "Theming", "Override" (lấy từ hui-demo)
-- [ ] **Template mẫu** — landing page, admin dashboard, trang đăng nhập (từ mốc G1, hoàn thiện thêm G2/G3)
+- [x] **Vue plugin** `@itmrhoang/h-ui/vue` — tự cấu hình `isCustomElement`, hỗ trợ `v-model` (`value` + `input`/`change`), types `GlobalComponents`
+- [x] **React** — types JSX cho React 19 (dùng trực tiếp được); tùy chọn wrapper cho React 18
+- [x] **Nuxt** — hướng dẫn client-only + CSS `hui-*:not(:defined)` chống nháy layout khi SSR
+- [x] **Trang tài liệu** — deploy Storybook; trang "Getting started", "Theming", "Override" (lấy từ hui-demo)
+- [x] **Template mẫu** — landing page, admin dashboard, trang đăng nhập (từ mốc G1, hoàn thiện thêm G2/G3) *(examples: landing, admin, auth, dashboard, kanban, ecommerce, blog, table…)*
 - [ ] **Phát hành npm** — semver, CHANGELOG, kiểm tra kích thước bundle từng component (giới hạn ~10KB gzip/component thường)
 
 ### G4.CI — CI/CD: kiểm tra tự động, Storybook lên GitHub Pages, phát hành npm + CDN
@@ -273,17 +273,17 @@ Thiếu gì khi dựng → bổ sung vào backlog trước khi sang G2.
   ghi URL mẫu từng component vào README + Storybook "Getting started"; trường `jsdelivr`/`unpkg` trong package.json.
 - [x] **Quản lý phiên bản** — Changesets (hoặc release-please): mỗi PR ghi thay đổi → tự tạo PR "Version packages" + CHANGELOG
   → merge thì tự tag + publish. Dependabot cập nhật devDependencies hằng tuần.
-- [ ] **Tối ưu kích thước organism** — import lẻ hiện tại (gzip): `hui-data-view` 91,6 KB, `hui-card-grid` 68 KB,
+- [x] **Tối ưu kích thước organism** — import lẻ hiện tại (gzip): `hui-data-view` 91,6 KB, `hui-card-grid` 68 KB,
   `hui-faq` 58 KB, `hui-kpi-row` 50 KB (kéo theo nhiều component con). Hướng: tải động (import()) phần table/pagination/
   select khi chế độ đó được dùng; CI đang chặn ở ngưỡng 100 KB/entry (`SIZE_LIMIT_KB`), component đơn lẻ đều < 40 KB.
 - [ ] **Bảo vệ nhánh main** — bắt buộc CI xanh trước khi merge (bạn bật trong Settings → Branches).
-- [ ] **Bản CDN trọn gói quá lớn** — `dist/cdn/h-ui.min.js` ~437 KB gzip (≈205 thẻ). Hướng: tách bản CDN theo nhóm
+- [x] **Bản CDN trọn gói quá lớn** — `dist/cdn/h-ui.min.js` ~437 KB gzip (≈205 thẻ). Hướng: tách bản CDN theo nhóm
   (core / form / marketing / shop) hoặc khuyến nghị import lẻ từng `hui-*.esm.js` qua jsDelivr.
-- [ ] **Độ tương phản `--hui-primary`** ~4,46:1 trên nền trắng (axe báo ở hui-button primary/outline) — chỉnh token đậm hơn
+- [x] **Độ tương phản `--hui-primary`** ~4,46:1 trên nền trắng (axe báo ở hui-button primary/outline) — chỉnh token đậm hơn
   một bậc; tương tự chữ viết tắt hui-avatar và màu warning của hui-tag.
-- [ ] **hui-modal** có thể bị race giống command-palette: sự kiện `close` trễ của `<dialog>` đóng lại modal vừa mở lại nhanh.
-- [ ] **hui-descriptions**: axe báo aria-required-parent/children vì `role=row` gán qua ElementInternals.
-- [ ] **hui-input** `addon-before/after` hiển thị sai trong `hui-input-group` (bán kính gộp trong shorthand) — dùng slot của group.
+- [x] **hui-modal** có thể bị race giống command-palette: sự kiện `close` trễ của `<dialog>` đóng lại modal vừa mở lại nhanh.
+- [x] **hui-descriptions**: axe báo aria-required-parent/children vì `role=row` gán qua ElementInternals.
+- [x] **hui-input** `addon-before/after` hiển thị sai trong `hui-input-group` (bán kính gộp trong shorthand) — dùng slot của group.
 
 **Đã chốt / đã làm (2026-10-20):**
 - Repo GitHub đổi tên `HUI` → **`ITmrHoang/h-ui`** (remote đã set-url; GitHub tự chuyển hướng link cũ).
@@ -387,14 +387,14 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
 - [x] 🆕 **`hui-testimonial`** — trích dẫn, avatar, tên, công ty, rating
 
 ### A2.2 Tiến trình & các bước
-- [ ] 🔄 `hui-progress` (G1) — line / circle / dashboard / steps
+- [x] 🔄 `hui-progress` (G1) — line / circle / dashboard / steps
 - [x] 🆕 **`hui-progress-card`** — tiêu đề + progress + "12/20 việc" + hạn chót
 - [x] 🆕 **`hui-scroll-progress`** — thanh tiến độ đọc trang ở mép trên (theo cuộn của window hoặc một vùng cuộn)
 - [x] (G2) `hui-steps` → kéo lên **A2** vì dùng chung với `hui-scroll-steps`: `current`, `direction`, `status`, `type` default | dot | navigation, `clickable`, **`data`** (mảng bước)
 - [x] 🆕 **`hui-step-progress`** — thanh bước dạng "Bước 2/5" + tên bước + nút Trước/Sau (wizard nhỏ)
 
 ### A2.3 Nhập liệu ghép
-- [ ] 🔄 `hui-form-item` (G1)
+- [x] 🔄 `hui-form-item` (G1)
 - [x] 🆕 **`hui-search`** — input + icon + nút/Enter, debounce, gợi ý (dùng `hui-autocomplete` khi có), phím tắt `/` để focus
 - [x] 🆕 **`hui-input-group`** — gộp viền nhiều control liền nhau (select + input + button)
 - [x] 🆕 **`hui-filter-chips`** — hàng chip lọc nhanh (chọn 1 / nhiều), "Xóa lọc", nhận `options` data
@@ -403,7 +403,7 @@ Ký hiệu: ✅ đã có · 🔄 đang làm (G1) · 🆕 mới trong kế hoạc
 ### A2.4 Khác
 - [x] 🆕 **`hui-media-object`** — avatar/ảnh trái + nội dung phải (giống list-item-meta, dùng độc lập)
 - [x] 🆕 **`hui-toolbar`** — hàng nút công cụ, tự gom phần tràn vào menu "…" khi hẹp
-- [ ] 🆕 **`hui-empty-state`**? → dùng `hui-empty` + slot action (đã đủ, không tạo mới)
+- [x] 🆕 **`hui-empty-state`**? → dùng `hui-empty` + slot action (đã đủ, không tạo mới)
 
 ---
 
@@ -449,7 +449,7 @@ và tự có skeleton – empty – error – thử lại.
   `hui-gauge`; nhận `data` mảng số / `{label, value}`, tooltip khi hover, màu từ palette token
 - [x] (G3) `hui-table` — bổ sung yêu cầu: `columns` có `type` (text/number/currency/date/tag/avatar/progress/actions)
   để **khai báo là hiển thị đẹp ngay**, sửa trực tiếp trong ô (`editable`), xuất CSV
-- [ ] (G1) `hui-list` — bổ sung `data` + `<template>`
+- [x] (G1) `hui-list` — bổ sung `data` + `<template>`
 - [x] 🆕 **`hui-timeline-feed`** — luồng hoạt động từ data (avatar, hành động, thời gian `hui-time`), nhóm theo ngày
 - [x] 🆕 **`hui-kanban`** — cột trạng thái + kéo thả card giữa cột (`hui-change` {item, from, to}), dữ liệu `columns` + `items`
 - [x] 🆕 **`hui-filter-bar`** — thanh lọc tổng hợp (search + filter-chips + select + date range) phát `params` cho DataController
@@ -470,10 +470,11 @@ và tự có skeleton – empty – error – thử lại.
 - [x] `story.html` — **scroll-steps full-height** giới thiệu sản phẩm 5 bước + scrolly
 - [x] `dashboard.html` — layout + sider menu + kpi-row + mini charts + card-grid + table + filter-bar
 - [x] `catalog.html` — filter-bar + card-grid (product-card) + infinite-scroll
-- [ ] `auth.html` — form đăng nhập/đăng ký (G1)
-- [ ] `kanban.html` — kanban + editable + command palette
-- [ ] `ecommerce.html` — product detail (gallery + image-zoom + variant-picker + price + add-to-cart + rating-summary + review-list) + cart-drawer
-- [ ] `blog.html` — post-list (data-view) + bài viết (prose + toc + code-block + share + back-top + scroll-progress)
+- [x] `auth.html` — form đăng nhập/đăng ký (G1)
+- [x] `kanban.html` — kanban + editable + command palette
+- [x] `ecommerce.html` — product detail (gallery + image-zoom + variant-picker + price + add-to-cart + rating-summary + review-list) + cart-drawer
+- [x] `blog.html` — post-list (data-view) + bài viết (prose + toc + code-block + share + back-top + scroll-progress)
+- [x] `table.html` — hui-table (server, chọn dòng, lọc) + range/date picker + tree + transfer trong modal; `index.html` — mục lục trang mẫu
 
 ---
 
@@ -549,7 +550,7 @@ Mục đã có trong G1/G2 được **kéo vào đây và bổ sung yêu cầu**
   - Phân trang | "Xem thêm" | cuộn vô hạn; chọn nhiều + thanh **thao tác hàng loạt** (xóa, xuất…)
   - Đồng bộ trạng thái (trang, lọc, sắp xếp, chế độ xem) lên **URL query** → F5 / chia sẻ link giữ nguyên
   - Hiệu ứng: item xuất hiện so le (stagger) khi tải, **chuyển list ↔ grid mượt** (FLIP animation), skeleton đúng hình dạng từng chế độ
-- [ ] **`hui-list`** (🔄 G1) — bổ sung `data` + template, item hover nổi nhẹ, swipe-actions trên mobile (vuốt để hiện nút xóa/sửa)
+- [x] **`hui-list`** (🔄 G1) — bổ sung `data` + template, item hover nổi nhẹ, swipe-actions trên mobile (vuốt để hiện nút xóa/sửa)
 - [x] 🆕 **`hui-description-card`** — thẻ chi tiết 1 bản ghi từ `data` + `fields` (label, type format) — trang xem chi tiết nhanh
 
 ### A6.5 Card (bổ sung hiệu ứng cho A2.1)
@@ -599,7 +600,7 @@ bật `prefers-reduced-motion`; thời lượng/easing lấy từ token `--hui-m
   hạt nổ (burst) cho like/wishlist, rung nhẹ (`shake`) khi nhập sai
 - [x] **A7.6 Chuyển cảnh** — helper `viewTransition(updateFn)` (View Transitions API, fallback không hiệu ứng) cho đổi theme,
   chuyển list↔grid, mở ảnh từ thumbnail ra lightbox (shared element)
-- [ ] **A7.7 Storybook `Foundations/Motion`** — trang trình diễn mọi preset + bảng token motion, kèm nút bật/tắt reduced-motion để thử
+- [x] **A7.7 Storybook `Foundations/Motion`** — trang trình diễn mọi preset + bảng token motion, kèm nút bật/tắt reduced-motion để thử
 - [ ] **A7.8 Hiệu ứng mặc định trong component sẵn có** (rà soát lại): modal zoom từ vị trí bấm, drawer trượt, dropdown/popover
   zoom từ phía trigger, tabs thanh gạch trượt, switch nhún, checkbox vẽ dấu ✓, badge nảy, toast trượt vào + thanh thời gian còn lại,
   skeleton shimmer, button loading → success
@@ -608,10 +609,10 @@ bật `prefers-reduced-motion`; thời lượng/easing lấy từ token `--hui-m
 ---
 
 ### Hạn chế đã biết của A3 (backlog)
-- [ ] `hui-scroller`: chưa virtual hóa (ổn tới ~200 item; nhiều hơn → dùng `VirtualWindow` ngang), chưa hỗ trợ RTL,
+- [x] `hui-scroller`: chưa virtual hóa (ổn tới ~200 item; nhiều hơn → dùng `VirtualWindow` ngang), chưa hỗ trợ RTL, *(RTL ✓; nhiều item → `hui-virtual-list horizontal`)*
   breakpoint `items-per-view-*` theo cửa sổ (chưa theo container), cần thẻ cha có chiều rộng (do `container-type`)
-- [ ] `hui-scroller`: thuộc tính kéo chuột đổi tên `drag-scroll` (tránh trùng `draggable` native)
-- [ ] `hui-scroll-steps`: `direction="horizontal"` luôn cuộn bên trong component; `container="window"` + `mandatory` khó với tới
+- [x] `hui-scroller`: thuộc tính kéo chuột đổi tên `drag-scroll` (tránh trùng `draggable` native)
+- [x] `hui-scroll-steps`: `direction="horizontal"` luôn cuộn bên trong component; `container="window"` + `mandatory` khó với tới
   header/footer ngoài component (khuyên dùng `snap="proximity"`); chỉ hỗ trợ 1 instance window mode mỗi trang
 - [ ] `hui-scroll-steps`: theo dõi lại 1 lần thấy điều hướng hash bị nhảy về bước cũ khi pane trình duyệt ẩn (không tái hiện được khi test lại)
 

@@ -137,7 +137,7 @@ export const CustomizeFromOutside = {
   render: () => html`
     <style>
       .result-brand {
-        --hui-primary: #0ea5e9;
+        --hui-primary: #0369a1;
         --hui-result-image-width: 180px;
         --hui-result-title-color: var(--hui-primary);
         --hui-result-padding: 24px;

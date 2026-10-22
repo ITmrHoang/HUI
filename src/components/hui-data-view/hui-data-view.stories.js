@@ -179,6 +179,8 @@ async function settle(el) {
 const countText = (n) => `${n} kết quả`;
 const innerInput = (dv) => partOf(dv, 'search').querySelector('hui-input').shadowRoot.querySelector('input');
 const checkboxInput = (cb) => cb.shadowRoot.querySelector('input');
+/** Thẻ con data-view tải động khi dùng tới (search / sort-options / filters / selectable / phân trang) */
+const defined = (...tags) => Promise.all(tags.map((t) => customElements.whenDefined(t)));
 
 // =====================================================
 // META + DOCS
@@ -379,6 +381,7 @@ export const Products = {
   play: async ({ canvasElement }) => {
     const dv = dvOf(canvasElement);
     await settle(dv);
+    await defined('hui-input', 'hui-select', 'hui-tag', 'hui-pagination');
 
     // --- Mặc định: list, 12 item / trang, đếm 36 kết quả ---
     await expect(viewBtn(dv, 'list').getAttribute('aria-pressed')).toBe('true');
@@ -528,6 +531,7 @@ export const ServerMode = {
     const log = dv._log;
     await waitFor(() => expect(dv.dataState).toBe('ready'), { timeout: 3000 });
     await settle(dv);
+    await defined('hui-pagination');
     await expect(log[0]).toMatchObject({ page: 1, pageSize: 8 });
     await expect(partOf(dv, 'count').textContent).toBe(countText(36));
     await expect(dv.shadowRoot.querySelectorAll('tbody tr').length).toBe(8);
@@ -607,6 +611,7 @@ export const Selectable = {
   play: async ({ canvasElement }) => {
     const dv = dvOf(canvasElement);
     await settle(dv);
+    await defined('hui-checkbox');
     const events = [];
     dv.addEventListener('hui-selection-change', (e) => events.push(e.detail));
     const headCb = dv.shadowRoot.querySelector('thead hui-checkbox');
@@ -665,6 +670,7 @@ export const UrlSync = {
     const original = `${location.pathname}${location.search}${location.hash}`;
     const dv = dvOf(canvasElement);
     await settle(dv);
+    await defined('hui-input');
     try {
       viewBtn(dv, 'grid').click();
       await settle(dv);
@@ -754,7 +760,8 @@ export const States = {
     const error = get('dv-error');
     await waitFor(() => expect(error.dataState).toBe('error'));
     await settle(error);
-    await expect(partOf(error, 'state').querySelector('hui-result')).toBeTruthy();
+    // hui-result tải động → vẽ lại trạng thái lỗi khi định nghĩa xong
+    await waitFor(() => expect(partOf(error, 'state').querySelector('hui-result')).toBeTruthy());
 
     for (const [id, cls] of [['dv-loading-list', 'sk--list'], ['dv-loading-grid', 'sk--grid'], ['dv-loading-table', 'sk--table']]) {
       const el = get(id);

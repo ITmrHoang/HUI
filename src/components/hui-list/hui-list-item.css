@@ -11,6 +11,29 @@
   display: none !important;
 }
 
+/* ================== KHUNG BAO (vuốt + hover nổi) ================== */
+.hui-list-item__swipe {
+  position: relative;
+  height: 100%;
+  border-radius: var(--_list-item-radius, 0);
+  transition:
+    transform var(--hui-motion-duration-fast, 150ms) var(--hui-motion-ease-out, ease-out),
+    box-shadow var(--hui-motion-duration-fast, 150ms) var(--hui-motion-ease-out, ease-out);
+}
+
+/* Có thao tác vuốt → cắt phần trượt, nút nằm phía sau nội dung */
+.hui-list-item__swipe.is-swipeable {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* hui-list hoverable: nổi nhẹ khi rê chuột (biến --_list-hover-* do list đặt) */
+:host(:hover) .hui-list-item__swipe {
+  z-index: var(--_list-hover-z, auto);
+  transform: var(--_list-hover-transform, none);
+  box-shadow: var(--_list-hover-shadow, none);
+}
+
 .hui-list-item {
   display: grid;
   grid-template-columns: var(--_list-item-cols, minmax(0, 1fr) auto auto);
@@ -25,6 +48,11 @@
   /* Viền thẻ ở chế độ lưới: dùng inset shadow để không xung đột với đường kẻ dưới */
   box-shadow: inset 0 0 0 var(--_list-item-card-w, 0px) var(--hui-list-card-border-color, var(--hui-border));
   color: var(--hui-list-item-color, var(--hui-text));
+  transition: background var(--hui-motion-duration-fast, 150ms);
+}
+
+:host(:hover) .hui-list-item {
+  background: var(--_list-hover-bg, var(--_list-item-bg, transparent));
 }
 
 /* Item cuối không có đường kẻ */
@@ -51,4 +79,127 @@
 .hui-list-item__extra {
   grid-area: extra;
   margin-inline-start: var(--_list-extra-ms, var(--hui-space-2xl));
+}
+
+/* ================== VUỐT ================== */
+.is-swipeable .hui-list-item {
+  position: relative;
+  z-index: 1;
+  /* Nền đặc để che nút phía sau */
+  background: var(--hui-list-item-swipe-bg, var(--hui-bg-container));
+  /* Cuộn dọc vẫn do trình duyệt xử lý; kéo ngang đi vào pointer events */
+  touch-action: pan-y;
+  transition:
+    transform var(--hui-motion-duration, 200ms) var(--hui-motion-ease-out, ease-out),
+    background var(--hui-motion-duration-fast, 150ms);
+}
+
+:host(:hover) .is-swipeable .hui-list-item {
+  background: var(--_list-hover-bg-solid, var(--hui-list-item-swipe-bg, var(--hui-bg-container)));
+}
+
+.is-dragging .hui-list-item,
+.hui-list-item.no-anim {
+  transition: none;
+}
+
+.is-dragging {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hui-list-item__swipe-actions {
+  position: absolute;
+  inset-block: 0;
+  display: flex;
+  align-items: stretch;
+  z-index: 0;
+}
+
+/* Đóng hẳn → ẩn bằng opacity (vẫn focus được bằng Tab — focus vào sẽ mở phía đó) */
+.hui-list-item__swipe-actions:not(.is-revealed):not(:focus-within) {
+  opacity: 0;
+}
+
+.hui-list-item__swipe-actions--start {
+  inset-inline-start: 0;
+}
+
+.hui-list-item__swipe-actions--end {
+  inset-inline-end: 0;
+}
+
+.hui-list-item__swipe-actions ::slotted(*) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--hui-list-item-swipe-action-width, 72px);
+  box-sizing: border-box;
+}
+
+/* Nút chính giãn ra khi vuốt quá bề rộng (kiểu iOS) */
+.hui-list-item__swipe-actions ::slotted([data-primary]),
+.hui-list-item__swipe-actions--end ::slotted(:first-child),
+.hui-list-item__swipe-actions--start ::slotted(:first-child) {
+  flex-grow: 1;
+}
+
+.hui-list-item__swipe-btn {
+  --_swipe-c: var(--hui-secondary);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: var(--hui-list-item-swipe-action-width, 72px);
+  padding: 0 var(--hui-space-md);
+  border: 0;
+  margin: 0;
+  background: var(--_swipe-c);
+  color: var(--hui-list-item-swipe-action-color, var(--hui-text-inverse));
+  font: inherit;
+  font-size: var(--hui-font-xs);
+  font-weight: var(--hui-font-weight-medium);
+  cursor: pointer;
+}
+
+.hui-list-item__swipe-btn:first-child {
+  flex-grow: 1;
+}
+
+.hui-list-item__swipe-btn hui-icon {
+  --hui-icon-size: 18px;
+}
+
+.hui-list-item__swipe-btn:hover {
+  background: color-mix(in oklab, var(--_swipe-c) 88%, var(--hui-shade-mix, #000));
+}
+
+.hui-list-item__swipe-btn:focus-visible {
+  outline: 2px solid var(--hui-text-inverse);
+  outline-offset: -4px;
+}
+
+.hui-list-item__swipe-btn--primary { --_swipe-c: var(--hui-primary); }
+.hui-list-item__swipe-btn--success { --_swipe-c: var(--hui-success); }
+.hui-list-item__swipe-btn--warning { --_swipe-c: var(--hui-warning); }
+.hui-list-item__swipe-btn--danger { --_swipe-c: var(--hui-danger); }
+.hui-list-item__swipe-btn--info { --_swipe-c: var(--hui-info); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hui-list-item__swipe,
+  .hui-list-item,
+  .is-swipeable .hui-list-item {
+    transition: none;
+  }
+
+  :host(:hover) .hui-list-item__swipe {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .hui-list-item__swipe-btn {
+    border: 1px solid ButtonText;
+  }
 }

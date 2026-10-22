@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Quản lý nhân sự (bảng dữ liệu mẫu)</title>
+  <script>
+    try { const m = localStorage.getItem('hui-theme'); if (m === 'light' || m === 'dark') document.documentElement.dataset.theme = m; } catch {}
+  </script>
+  <style>
+    html, body { margin: 0; }
+    body { font-family: var(--hui-font-family); background: var(--hui-bg-secondary); color: var(--hui-text); }
+    :not(:defined) { visibility: hidden; }
+    hui-layout { min-height: 100vh; }
+    /* z-index trên topbar dính: nút thu/mở nổi của sider (collapsed-width="0" trên mobile) không bị che */
+    hui-sider { --hui-sider-bg: var(--hui-bg-container); border-right: 1px solid var(--hui-border-secondary);
+      position: sticky; top: 0; align-self: flex-start; z-index: 11; }
+    .brand { display: flex; align-items: center; gap: 8px; padding: 16px 20px; font-weight: 700; color: var(--hui-text); text-decoration: none; }
+    .brand-mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 14px;
+      background: linear-gradient(135deg, var(--hui-primary), var(--hui-info)); }
+    .side-title { padding: 4px 20px 8px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--hui-text-tertiary); }
+    .side-search { padding: 0 16px 8px; }
+    hui-tree { padding: 0 8px 16px; }
+
+    .topbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 0 24px; min-height: 56px; background: var(--hui-bg-container); border-bottom: 1px solid var(--hui-border-secondary); }
+    .page { padding: 20px 24px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .page-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+    .page-head h1 { margin: 0; font-size: 1.4rem; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .filters > * { width: 100%; min-width: 0; --hui-picker-width: 100%; }
+    .filters { display: grid; grid-template-columns: minmax(200px, 1.2fr) minmax(240px, 1.4fr) minmax(160px, 1fr) auto; gap: 12px; align-items: end; }
+    .bulk { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border-radius: var(--hui-radius-md);
+      background: var(--hui-primary-1); border: 1px solid var(--hui-primary-3); }
+    .bulk[hidden] { display: none; }
+    .bulk strong { color: var(--hui-primary); }
+    .bulk .spacer { flex: 1; }
+    .table-card { background: var(--hui-bg-container); border: 1px solid var(--hui-border-secondary); border-radius: var(--hui-radius-lg); padding: 4px 4px 12px; }
+    .muted { color: var(--hui-text-tertiary); font-size: 13px; }
+    /* Hai danh sách chia đều bề rộng modal (mặc định rộng cố định 260px) */
+    #assign hui-transfer::part(list) { flex: 1 1 0; }
+
+    @media (max-width: 1100px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .topbar { padding: 0 12px 0 56px; }
+      .topbar hui-breadcrumb { display: none; }
+      .page { padding: 16px 12px 32px; }
+      .filters { grid-template-columns: minmax(0, 1fr); }
+    }
+  </style>
+  <script type="module">
+    import { message, notification, rangePresets } from '../src/index.js';
+
+    // ===== Dữ liệu giả lập (sinh cố định theo seed — không đổi giữa các lần tải) =====
+    const TREE = [
+      { key: 'all', title: 'Toàn công ty', icon: 'home', children: [
+        { key: 'tech', title: 'Khối Công nghệ', children: [
+          { key: 'fe', title: 'Frontend', isLeaf: true }, { key: 'be', title: 'Backend', isLeaf: true }, { key: 'qa', title: 'Kiểm thử (QA)', isLeaf: true },
+        ] },
+        { key: 'biz', title: 'Khối Kinh doanh', children: [
+          { key: 'sales', title: 'Bán hàng', isLeaf: true }, { key: 'mkt', title: 'Marketing', isLeaf: true },
+        ] },
+        { key: 'ops', title: 'Khối Vận hành', children: [
+          { key: 'hr', title: 'Nhân sự', isLeaf: true }, { key: 'fin', title: 'Tài chính', isLeaf: true },
+        ] },
+      ] },
+    ];
+    const LEAF = {};
+    const leavesOf = (node) => (node.children ? node.children.flatMap(leavesOf) : [node.key]);
+    (function index(nodes) { for (const n of nodes) { if (!n.children) LEAF[n.key] = n.title; else index(n.children); } })(TREE);
+    const findNode = (key, nodes = TREE) => { for (const n of nodes) { if (n.key === key) return n; const f = n.children && findNode(key, n.children); if (f) return f; } return null; };
+
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    const pick = (arr) => arr[Math.floor(rnd() * arr.length)];
+    const LAST = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Vũ', 'Đặng', 'Bùi', 'Đỗ', 'Hồ', 'Ngô', 'Dương'];
+    const MID = ['Văn', 'Thị', 'Minh', 'Quốc', 'Thu', 'Ngọc', 'Đức', 'Hải', 'Thanh', 'Gia'];
+    const FIRST = ['An', 'Bình', 'Chi', 'Dũng', 'Giang', 'Hà', 'Khoa', 'Lan', 'Minh', 'Nga', 'Phúc', 'Quân', 'Sơn', 'Trang', 'Uyên', 'Vy', 'Yến', 'Long'];
+    const ROLES = { fe: ['Frontend Dev', 'UI Engineer'], be: ['Backend Dev', 'DevOps'], qa: ['QA Engineer', 'Automation QA'], sales: ['Sales Executive', 'Account Manager'],
+      mkt: ['Content Marketer', 'Performance Marketer'], hr: ['HR Generalist', 'Recruiter'], fin: ['Kế toán', 'Financial Analyst'] };
+    const STATUS = { active: 'Đang làm', probation: 'Thử việc', leave: 'Nghỉ phép' };
+    const fold = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase();
+    const pad = (n) => String(n).padStart(2, '0');
+    const EMPLOYEES = Array.from({ length: 136 }, (_, i) => {
+      const dept = pick(Object.keys(LEAF));
+      const first = pick(FIRST);
+      const name = `${pick(LAST)} ${pick(MID)} ${first}`;
+      const y = 2019 + Math.floor(rnd() * 8);
+      const joined = `${y}-${pad(1 + Math.floor(rnd() * 12))}-${pad(1 + Math.floor(rnd() * 28))}`;
+      const status = y === 2026 && rnd() < 0.7 ? 'probation' : rnd() < 0.1 ? 'leave' : 'active';
+      return {
+        id: 1001 + i, name, email: `${fold(first)}.${1001 + i}@vidu.com`, dept, deptName: LEAF[dept], role: pick(ROLES[dept]), status,
+        joined, salary: Math.round((12 + rnd() * 38) * 1e6 / 1e5) * 1e5, kpi: Math.round(45 + rnd() * 55),
+      };
+    });
+
+    // ===== "Server" giả: lọc / sắp xếp / cắt trang + trả kèm thống kê (chậm 250ms, hủy được bằng signal) =====
+    function query(params) {
+      let list = EMPLOYEES.slice();
+      if (params.depts?.length) list = list.filter((r) => params.depts.includes(r.dept));
+      if (params.q) { const q = fold(params.q); list = list.filter((r) => fold(`${r.name} ${r.email} ${r.role} ${r.id}`).includes(q)); }
+      if (params.from) list = list.filter((r) => r.joined >= params.from);
+      if (params.to) list = list.filter((r) => r.joined <= params.to);
+      if (params.status?.length) list = list.filter((r) => params.status.includes(r.status));
+      if (params.deptName?.length) list = list.filter((r) => params.deptName.includes(r.deptName));
+      return list;
+    }
+    async function fakeServer(params, { signal }) {
+      await new Promise((resolve, reject) => {
+        const t = setTimeout(resolve, 250);
+        signal?.addEventListener('abort', () => { clearTimeout(t); reject(new DOMException('Aborted', 'AbortError')); });
+      });
+      const list = query(params);
+      if (params.sort) {
+        const dir = params.order === 'desc' ? -1 : 1;
+        list.sort((a, b) => (a[params.sort] > b[params.sort] ? dir : a[params.sort] < b[params.sort] ? -dir : 0));
+      }
+      // Kỳ lương: lương hiển thị theo tháng đã chọn (giả lập thưởng tháng 12)
+      const bonus = params.period?.endsWith('-12') ? 1.5 : 1;
+      renderStats(list, bonus);
+      const page = params.page || 1;
+      const size = params.pageSize || 10;
+      return { data: list.slice((page - 1) * size, page * size).map((r) => ({ ...r, salary: r.salary * bonus })), total: list.length };
+    }
+
+    // ===== Thống kê đầu trang =====
+    function renderStats(list, bonus) {
+      const set = (id, v) => { document.querySelector(id).value = v; };
+      set('#st-total', list.length);
+      set('#st-active', list.filter((r) => r.status === 'active').length);
+      set('#st-probation', list.filter((r) => r.status === 'probation').length);
+      set('#st-payroll', Math.round(list.reduce((s, r) => s + r.salary * bonus, 0) / 1e6));
+    }
+
+    // ===== Bảng =====
+    const table = document.querySelector('hui-table');
+    // Màn hẹp: chỉ cố định cột tên (hẹp hơn) để còn chỗ cuộn ngang xem các cột khác
+    const narrow = matchMedia('(max-width: 640px)');
+    const columns = (n) => [
+      { key: 'name', title: 'Nhân viên', type: 'avatar', descKey: 'email', fixed: 'left', width: n ? 180 : 240, sorter: true },
+      { key: 'deptName', title: 'Phòng ban', width: 150, filters: Object.values(LEAF).map((t) => ({ text: t, value: t })), filterSearch: true },
+      { key: 'role', title: 'Vị trí', width: 170, ellipsis: true },
+      { key: 'status', title: 'Trạng thái', type: 'tag', width: 130, colors: { active: 'success', probation: 'warning', leave: 'default' }, labels: STATUS,
+        filters: Object.entries(STATUS).map(([value, text]) => ({ text, value })) },
+      { key: 'joined', title: 'Ngày vào làm', type: 'date', width: 140, sorter: true },
+      { key: 'salary', title: 'Lương', type: 'currency', width: 150, align: 'right', sorter: true },
+      { key: 'kpi', title: 'KPI', type: 'progress', width: 150, sorter: true },
+      { key: 'actions', title: '', type: 'actions', fixed: n ? undefined : 'right', width: 110, actions: [
+        { key: 'edit', label: 'Sửa', icon: 'edit' }, { key: 'delete', label: 'Xóa', icon: 'delete', danger: true },
+      ] },
+    ];
+    table.columns = columns(narrow.matches);
+    narrow.addEventListener('change', () => { table.columns = columns(narrow.matches); });
+    table.paginationProps = { showSizeChanger: true, showTotal: true, pageSizeOptions: '10,20,50' };
+    table.fetchFn = fakeServer;
+
+    // Bộ lọc ngoài bảng → params gốc (bảng tự thêm page / sort / lọc cột rồi tải lại)
+    const base = { depts: [], q: '', from: '', to: '', period: '' };
+    function applyBase(patch) {
+      Object.assign(base, patch);
+      const p = {};
+      for (const [k, v] of Object.entries(base)) if (Array.isArray(v) ? v.length : v) p[k] = v;
+      table.page = 1;
+      table.params = p;
+    }
+
+    const tree = document.querySelector('hui-tree');
+    tree.data = TREE;
+    tree.expandedKeys = ['all', 'tech'];
+    tree.selectedKeys = ['all'];
+    tree.addEventListener('hui-select', (e) => {
+      const node = e.detail.node && findNode(e.detail.node.key);
+      const key = e.detail.selected && node ? node.key : 'all';
+      document.querySelector('#crumb-dept').textContent = findNode(key).title;
+      applyBase({ depts: key === 'all' ? [] : leavesOf(findNode(key)) });
+    });
+    document.querySelector('#tree-search').addEventListener('input', (e) => { tree.filterValue = e.detail?.value ?? e.target.value ?? ''; });
+
+    document.querySelector('#q').addEventListener('hui-search', (e) => applyBase({ q: e.detail.query }));
+    const range = document.querySelector('hui-range-picker');
+    range.presets = rangePresets();
+    range.addEventListener('change', (e) => { const [from = '', to = ''] = e.detail.value || []; applyBase({ from, to }); });
+    document.querySelector('hui-date-picker').addEventListener('change', (e) => applyBase({ period: e.detail.value || '' }));
+    document.querySelector('#reset').addEventListener('hui-click', () => {
+      document.querySelector('#q').value = '';
+      range.value = '';
+      document.querySelector('hui-date-picker').value = '';
+      tree.selectedKeys = ['all'];
+      document.querySelector('#crumb-dept').textContent = 'Toàn công ty';
+      applyBase({ depts: [], q: '', from: '', to: '', period: '' });
+    });
+
+    // ===== Chọn dòng + thao tác hàng loạt =====
+    const bulk = document.querySelector('.bulk');
+    let selected = [];
+    table.addEventListener('hui-selection-change', (e) => {
+      selected = e.detail.keys;
+      bulk.hidden = selected.length === 0;
+      document.querySelector('#sel-count').textContent = String(selected.length);
+    });
+    document.querySelector('#clear-sel').addEventListener('hui-click', () => { table.selectedKeys = []; selected = []; bulk.hidden = true; });
+    document.querySelector('#export').addEventListener('hui-click', () => message.success(`Đã xuất ${selected.length || table.dataTotal || 0} dòng ra CSV (mô phỏng)`));
+
+    table.addEventListener('hui-action', (e) => {
+      const { action, row } = e.detail;
+      if (action === 'edit') notification.info({ title: `Sửa: ${row.name}`, description: 'Mở form chỉnh sửa (mô phỏng).' });
+      if (action === 'delete') message.warning(`Đã chuyển ${row.name} vào thùng rác (mô phỏng)`);
+    });
+
+    // ===== Modal gán dự án: hui-transfer =====
+    const PROJECT_MEMBERS = new Set([1003, 1010, 1021]);
+    const modal = document.querySelector('#assign');
+    const transfer = document.querySelector('hui-transfer');
+    transfer.titles = ['Nhân viên', 'Dự án Apollo'];
+    function openAssign() {
+      // Nguồn: mọi nhân viên khớp bộ lọc hiện tại (không chỉ trang đang xem)
+      const pool = query(table.params || {});
+      const keys = new Set([...PROJECT_MEMBERS, ...selected]);
+      const inPool = new Set(pool.map((r) => r.id));
+      const extra = EMPLOYEES.filter((r) => keys.has(r.id) && !inPool.has(r.id));
+      transfer.dataSource = [...pool, ...extra].map((r) => ({ key: String(r.id), title: r.name, description: `${r.role} · ${r.deptName}` }));
+      transfer.value = [...keys].map(String);
+      modal.open();
+    }
+    document.querySelector('#assign-btn').addEventListener('hui-click', openAssign);
+    document.querySelector('#assign-bulk').addEventListener('hui-click', openAssign);
+    modal.addEventListener('hui-ok', () => {
+      PROJECT_MEMBERS.clear();
+      transfer.value.forEach((k) => PROJECT_MEMBERS.add(Number(k)));
+      message.success(`Dự án Apollo có ${PROJECT_MEMBERS.size} thành viên`);
+    });
+  </script>
+</head>
+<body>
+  <hui-layout>
+    <hui-sider width="264" collapsible breakpoint="lg" collapsed-width="0">
+      <a class="brand" href="./index.html"><span class="brand-mark" aria-hidden="true">H</span>HUI People</a>
+      <div class="side-title" id="tree-label">Phòng ban</div>
+      <div class="side-search"><hui-input id="tree-search" size="sm" placeholder="Lọc phòng ban…" icon-left="search" allow-clear aria-label="Lọc phòng ban"></hui-input></div>
+      <hui-tree show-icon block-node label="Phòng ban" filter-mode="hide"></hui-tree>
+    </hui-sider>
+
+    <hui-layout>
+      <div class="topbar">
+        <hui-breadcrumb>
+          <hui-breadcrumb-item href="./index.html" icon="home">Trang mẫu</hui-breadcrumb-item>
+          <hui-breadcrumb-item>Nhân sự</hui-breadcrumb-item>
+          <hui-breadcrumb-item><span id="crumb-dept">Toàn công ty</span></hui-breadcrumb-item>
+        </hui-breadcrumb>
+        <hui-space>
+          <hui-theme-toggle></hui-theme-toggle>
+          <hui-avatar name="Quản trị" size="sm" alt="Quản trị viên"></hui-avatar>
+        </hui-space>
+      </div>
+
+      <hui-content>
+        <div class="page">
+          <div class="page-head">
+            <h1>Danh sách nhân sự</h1>
+            <hui-space wrap>
+              <hui-button id="assign-btn" variant="outline" icon="user">Gán dự án</hui-button>
+              <hui-button id="export" variant="outline" icon="download">Xuất CSV</hui-button>
+              <hui-button icon="plus">Thêm nhân viên</hui-button>
+            </hui-space>
+          </div>
+
+          <div class="stats">
+            <hui-card size="sm"><hui-statistic id="st-total" title="Nhân sự (theo bộ lọc)" value="0"></hui-statistic></hui-card>
+            <hui-card size="sm"><hui-statistic id="st-active" title="Đang làm" value="0" type="success"></hui-statistic></hui-card>
+            <hui-card size="sm"><hui-statistic id="st-probation" title="Thử việc" value="0" type="warning"></hui-statistic></hui-card>
+            <hui-card size="sm"><hui-statistic id="st-payroll" title="Quỹ lương kỳ này" value="0" suffix=" triệu ₫"></hui-statistic></hui-card>
+          </div>
+
+          <div class="filters">
+            <hui-search id="q" placeholder="Tên, email, vị trí, mã NV…" debounce="300" label="Tìm nhân viên"></hui-search>
+            <hui-range-picker label="Ngày vào làm" placeholder-start="Vào làm từ" placeholder-end="đến" allow-clear></hui-range-picker>
+            <hui-date-picker picker="month" label="Kỳ lương" placeholder="Kỳ lương (tháng)" allow-clear></hui-date-picker>
+            <hui-button id="reset" variant="text" icon="close">Đặt lại</hui-button>
+          </div>
+
+          <div class="bulk" hidden role="status">
+            <span>Đã chọn <strong id="sel-count">0</strong> nhân viên</span>
+            <span class="spacer"></span>
+            <hui-button id="assign-bulk" size="sm" icon="user">Gán vào dự án</hui-button>
+            <hui-button id="clear-sel" size="sm" variant="text">Bỏ chọn</hui-button>
+          </div>
+
+          <div class="table-card">
+            <hui-table server row-key="id" selection="checkbox" page-size="10" hover scroll-x="1100" sort-multiple
+              caption="Nhân sự — dữ liệu tải từ server giả lập (lọc / sắp xếp / phân trang phía server)"></hui-table>
+          </div>
+          <div class="muted">Mẹo: Shift + bấm tiêu đề cột để sắp xếp nhiều cột · bấm biểu tượng phễu ở cột Phòng ban / Trạng thái để lọc.</div>
+        </div>
+      </hui-content>
+    </hui-layout>
+  </hui-layout>
+
+  <hui-modal id="assign" title="Thành viên dự án Apollo" size="lg" ok-text="Lưu thành viên">
+    <p class="muted" style="margin-top:0">Danh sách nguồn = nhân viên khớp bộ lọc hiện tại; người đang chọn trong bảng được đưa sẵn sang dự án.</p>
+    <hui-transfer show-search page-size="8" style="--hui-transfer-list-height: 380px"></hui-transfer>
+  </hui-modal>
+</body>
+</html>

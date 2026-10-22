@@ -27,8 +27,9 @@ class HuiDescriptionsItem extends HuiElement {
 
   connectedCallback() {
     super.connectedCallback();
-    if (this._internals && 'role' in this._internals) this._internals.role = 'row';
-    else if (!this.hasAttribute('role')) this.setAttribute('role', 'row');
+    // role="row" phải là attribute thật: role gán qua ElementInternals không được axe / một số
+    // trình đọc màn hình tính khi kiểm tra quan hệ table → row → rowheader/cell
+    if (!this.hasAttribute('role')) this.setAttribute('role', 'row');
   }
 
   render() {

@@ -1,0 +1,165 @@
+/*
+ * HUI Virtual List — biến override: xem JSDoc của HuiVirtualList.
+ * Dòng nằm ở light DOM (slot mặc định) → style dòng bằng CSS trang; ở đây chỉ style dòng mặc định + trạng thái chọn.
+ */
+
+:host {
+  display: block;
+  font-family: var(--hui-font-family);
+  color: var(--hui-text);
+  outline: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.vl {
+  position: relative;
+  box-sizing: border-box;
+}
+
+.vl--bordered {
+  border: 1px solid var(--hui-virtual-list-border-color, var(--hui-border));
+  border-radius: var(--hui-virtual-list-radius, var(--hui-radius-lg));
+  overflow: hidden;
+}
+
+.vl__viewport {
+  position: relative;
+  box-sizing: border-box;
+  height: var(--_vl-height, var(--hui-virtual-list-height, 400px));
+  overflow: auto;
+  /* Tự bù vị trí bằng JS khi dòng đổi cao → tắt scroll anchoring của trình duyệt để không bù 2 lần */
+  overflow-anchor: none;
+  overscroll-behavior: contain;
+  background: var(--hui-virtual-list-bg, transparent);
+  -webkit-overflow-scrolling: touch;
+}
+
+.vl__viewport:focus-visible {
+  outline: 2px solid var(--hui-virtual-list-focus-color, var(--hui-primary));
+  outline-offset: -2px;
+}
+
+.vl__spacer {
+  position: relative;
+  min-width: 100%;
+}
+
+.vl__window {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  will-change: transform;
+}
+
+/* Dòng có kích thước cố định */
+.vl--fixed .vl__window ::slotted(*) {
+  box-sizing: border-box;
+  height: var(--_vl-size);
+  overflow: hidden;
+}
+
+/* ================== NGANG ================== */
+.vl--horizontal .vl__viewport {
+  height: var(--_vl-height, var(--hui-virtual-list-height, auto));
+  overflow-y: hidden;
+  /* VirtualWindow tính vị trí theo scrollLeft trái → phải (RTL chưa hỗ trợ ở chế độ ngang) */
+  direction: ltr;
+}
+
+.vl--horizontal .vl__spacer {
+  min-width: 0;
+  min-height: 100%;
+}
+
+/* Ngang: khối dòng nằm trong luồng (không absolute) → chiều cao vùng cuộn = chiều cao dòng khi height="auto" */
+.vl--horizontal .vl__window {
+  position: relative;
+  inset: auto;
+  width: max-content;
+  min-height: 100%;
+  display: flex;
+}
+
+.vl--horizontal .vl__window ::slotted(*) {
+  flex: none;
+}
+
+.vl--horizontal.vl--fixed .vl__window ::slotted(*) {
+  width: var(--_vl-size);
+  height: auto;
+}
+
+/* ================== DÒNG MẶC ĐỊNH ================== */
+::slotted([data-hui-default-row]) {
+  box-sizing: border-box;
+  padding: var(--hui-virtual-list-row-padding, var(--hui-space-sm) var(--hui-space-lg));
+  border-block-end: 1px solid var(--hui-virtual-list-split-color, var(--hui-border));
+  font-size: var(--hui-font-sm);
+  line-height: var(--hui-line-height);
+}
+
+.vl--horizontal ::slotted([data-hui-default-row]) {
+  border-block-end: 0;
+  border-inline-end: 1px solid var(--hui-virtual-list-split-color, var(--hui-border));
+}
+
+/* ================== CHỌN (listbox) ================== */
+:host([selectable]) ::slotted([role="option"]) {
+  cursor: pointer;
+}
+
+:host([selectable]) ::slotted([role="option"]:hover) {
+  background: var(--hui-virtual-list-hover-bg, var(--hui-fill-secondary));
+}
+
+:host([selectable]) ::slotted([aria-selected="true"]) {
+  background: var(--hui-virtual-list-selected-bg, color-mix(in srgb, var(--hui-primary) 12%, transparent));
+  color: var(--hui-virtual-list-selected-color, inherit);
+}
+
+/* Focus nằm trên host (aria-activedescendant) → vẽ viền cho dòng active khi focus bằng bàn phím */
+:host([selectable]:focus-visible) ::slotted([data-hui-active]) {
+  outline: 2px solid var(--hui-virtual-list-focus-color, var(--hui-primary));
+  outline-offset: -2px;
+}
+
+:host([selectable]:focus-visible) {
+  outline: none;
+}
+
+:host([selectable]:focus-visible) .vl--bordered {
+  border-color: var(--hui-virtual-list-focus-color, var(--hui-primary));
+}
+
+/* ================== FOOTER / STATE ================== */
+.vl__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hui-space-sm);
+  padding: var(--hui-space-md);
+  color: var(--hui-text-secondary);
+  font-size: var(--hui-font-sm);
+}
+
+.vl--horizontal .vl__footer {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  background: var(--hui-bg-elevated);
+}
+
+.vl__state {
+  padding: var(--hui-space-lg);
+}
+
+@media (forced-colors: active) {
+  :host([selectable]) ::slotted([aria-selected="true"]) {
+    background: Highlight;
+    color: HighlightText;
+  }
+}

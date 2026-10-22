@@ -4,7 +4,7 @@
  *   --hui-avatar-size        Kích thước mặc định (attribute size của avatar / group ưu tiên hơn)
  *   --hui-avatar-radius      Bo góc mặc định (attribute shape của avatar / group ưu tiên hơn)
  *   --hui-avatar-bg          Nền (ghi đè color và màu tự sinh theo tên)
- *   --hui-avatar-color       Màu chữ / icon
+ *   --hui-avatar-color       Màu chữ / icon (mặc định: tự tương phản theo nền)
  *   --hui-avatar-font-size   Cỡ chữ (mặc định 40% kích thước)
  *   --hui-avatar-ring        Độ dày vòng viền (bordered / trong group: 2px)
  *   --hui-avatar-ring-color  Màu vòng viền
@@ -54,6 +54,20 @@
   /* Vòng viền tách các avatar xếp chồng (box-shadow không làm đổi kích thước) */
   box-shadow: 0 0 0 var(--_avatar-ring) var(--hui-avatar-ring-color, var(--hui-bg));
   transition: box-shadow var(--hui-transition);
+}
+
+/*
+ * Chữ tự tương phản với nền (WCAG AA): tính độ chói Y của nền trong srgb-linear,
+ * Y > ~0,2 (nền sáng: warning, success, màu nhạt) → chữ tối #0f172a, ngược lại → chữ trắng.
+ * Nền là gradient/ảnh qua --hui-avatar-bg thì phải tự đặt --hui-avatar-color.
+ */
+@supports (color: color(from red srgb-linear r g b)) {
+  .hui-avatar {
+    color: var(--hui-avatar-color, color(from var(--hui-avatar-bg, var(--_avatar-bg)) srgb-linear
+      clamp(0.0048, (0.198 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1)
+      clamp(0.008, (0.198 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1)
+      clamp(0.0232, (0.198 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) / 1));
+  }
 }
 
 .hui-avatar--bordered {

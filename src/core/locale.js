@@ -10,6 +10,8 @@
 const vi = {
   common: { ok: 'Đồng ý', cancel: 'Hủy', close: 'Đóng', clear: 'Xóa', loading: 'Đang tải...', search: 'Tìm kiếm', copy: 'Sao chép', copied: 'Đã sao chép', expand: 'Mở rộng', collapse: 'Thu gọn', more: 'Xem thêm' },
   empty: { description: 'Không có dữ liệu' },
+  virtualList: { label: 'Danh sách', loadingMore: 'Đang tải thêm...' },
+  listItem: { actions: 'Thao tác', delete: 'Xóa', edit: 'Sửa', archive: 'Lưu trữ', pin: 'Ghim', share: 'Chia sẻ', more: 'Thêm', read: 'Đã đọc' },
   tree: { label: 'Cây thư mục', empty: 'Không có dữ liệu', notFound: 'Không tìm thấy kết quả phù hợp', loading: 'Đang tải {title}...', moved: 'Đã chuyển {title}' },
   cascader: { placeholder: 'Vui lòng chọn', notFound: 'Không tìm thấy', level: 'Cấp {level}', back: 'Quay lại' },
   transfer: { source: 'Nguồn', target: 'Đích', total: '{total} mục', count: '{checked}/{total} mục', selectAll: 'Chọn tất cả', searchPlaceholder: 'Tìm trong danh sách', notFound: 'Không tìm thấy', empty: 'Không có dữ liệu', moveTo: 'Chuyển sang {title}', remove: 'Bỏ {title}', moved: 'Đã chuyển {count} mục sang {title}', page: 'Trang {page}/{total}' },
@@ -137,6 +139,8 @@ const vi = {
 const en = {
   common: { ok: 'OK', cancel: 'Cancel', close: 'Close', clear: 'Clear', loading: 'Loading...', search: 'Search', copy: 'Copy', copied: 'Copied', expand: 'Expand', collapse: 'Collapse', more: 'More' },
   empty: { description: 'No data' },
+  virtualList: { label: 'List', loadingMore: 'Loading more...' },
+  listItem: { actions: 'Actions', delete: 'Delete', edit: 'Edit', archive: 'Archive', pin: 'Pin', share: 'Share', more: 'More', read: 'Mark as read' },
   tree: { label: 'Tree', empty: 'No data', notFound: 'No matching results', loading: 'Loading {title}...', moved: 'Moved {title}' },
   cascader: { placeholder: 'Please select', notFound: 'Not found', level: 'Level {level}', back: 'Back' },
   transfer: { source: 'Source', target: 'Target', total: '{total} items', count: '{checked}/{total} items', selectAll: 'Select all', searchPlaceholder: 'Search here', notFound: 'Not found', empty: 'No data', moveTo: 'Move to {title}', remove: 'Remove {title}', moved: 'Moved {count} items to {title}', page: 'Page {page} of {total}' },

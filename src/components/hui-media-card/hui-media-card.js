@@ -10,11 +10,10 @@ import { createElement } from '../../utils/dom.js';
 import {
   TitleAttrMixin, createForwardSlot, forwardToCard, hasContent, headingLevel, CARD_EXPORTPARTS,
 } from '../hui-feature-card/landing-shared.js';
+import { ensureElement } from '../hui-data-view/lazy-elements.js';
 import '../hui-card/hui-card.js';
 import '../hui-image/hui-image.js';
-import '../hui-video/hui-video.js';
-import '../hui-avatar/hui-avatar.js';
-import '../hui-time/hui-time.js';
+// Tải động khi dùng tới: hui-video (có video), hui-avatar (có tác giả), hui-time (có datetime)
 
 const RATIO = /^\d+(\.\d+)?(\s*\/\s*\d+(\.\d+)?)?$/;
 const assigned = (slot) => slot.assignedNodes().some((n) => n.nodeType === Node.ELEMENT_NODE || n.textContent.trim());
@@ -180,6 +179,7 @@ class HuiMediaCard extends TitleAttrMixin(HuiElement) {
       if (this.author) this._avatar.setAttribute('name', this.author);
       else this._avatar.removeAttribute('name');
       this._avatar.hidden = !this.author && !this.authorAvatar;
+      if (!this._avatar.hidden) ensureElement('hui-avatar');
       if (this.datetime) {
         this._time.setAttribute('datetime', this.datetime);
         this._time.setAttribute('format', this.timeFormat || 'relative');
@@ -187,6 +187,7 @@ class HuiMediaCard extends TitleAttrMixin(HuiElement) {
         this._time.removeAttribute('datetime');
       }
       this._time.hidden = !this.datetime;
+      if (this.datetime) ensureElement('hui-time');
       this._meta.hidden = !this.author && !this.authorAvatar && !this.datetime;
     }
   }
@@ -209,6 +210,7 @@ class HuiMediaCard extends TitleAttrMixin(HuiElement) {
 
     vid.hidden = !this.video;
     if (this.video) {
+      ensureElement('hui-video', () => import('../hui-video/index.js'));
       vid.setAttribute('src', this.video);
       vid.setAttribute('ratio', ratio);
       if (this.image) vid.setAttribute('poster', this.image);

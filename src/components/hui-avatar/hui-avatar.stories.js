@@ -8,6 +8,25 @@ import { expect } from 'storybook/test';
 import './index.js';
 import '../hui-badge/index.js';
 
+// Màu CSS bất kỳ (rgb, color(srgb-linear …)) → [r, g, b] 0..255 qua canvas
+const toRgb = (css) => {
+  const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+  ctx.fillStyle = css;
+  ctx.fillRect(0, 0, 1, 1);
+  return [...ctx.getImageData(0, 0, 1, 1).data].slice(0, 3);
+};
+const relLuminance = (css) => {
+  const [r, g, b] = toRgb(css).map((v) => {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrastRatio = (a, b) => {
+  const [hi, lo] = [relLuminance(a), relLuminance(b)].sort((m, n) => n - m);
+  return (hi + 0.05) / (lo + 0.05);
+};
+
 // Ảnh mẫu (pravatar.cc trả về ảnh chân dung ngẫu nhiên theo id)
 const photo = (id) => `https://i.pravatar.cc/150?img=${id}`;
 
@@ -87,7 +106,7 @@ Thứ tự ưu tiên kích thước / bo góc: attribute của avatar → attrib
 | \`--hui-avatar-size\` | \`--hui-size-md\` | Kích thước mặc định |
 | \`--hui-avatar-radius\` | \`50%\` | Bo góc mặc định |
 | \`--hui-avatar-bg\` | theo \`color\` / \`name\` | Nền (ghi đè mọi màu) |
-| \`--hui-avatar-color\` | \`--hui-text-inverse\` | Màu chữ / icon |
+| \`--hui-avatar-color\` | tự chọn chữ tối / trắng theo độ chói nền (AA) | Màu chữ / icon — nên đặt khi \`--hui-avatar-bg\` là gradient / ảnh |
 | \`--hui-avatar-font-size\` | 40% kích thước | Cỡ chữ |
 | \`--hui-avatar-ring\` | \`0\` (bordered / trong group: 2px) | Độ dày vòng viền |
 | \`--hui-avatar-ring-color\` | \`--hui-bg\` | Màu vòng viền |
@@ -288,6 +307,17 @@ export const AllVariants = {
       <hui-avatar size="lg" color="#0f172a">#</hui-avatar>
     </div>
   `,
+  play: async ({ canvasElement }) => {
+    // Chữ tự tương phản: mọi màu nền đều đạt ≥ 4.5:1 (warning/success → chữ tối, primary/#0f172a → chữ trắng)
+    const avatars = [...canvasElement.querySelectorAll('hui-avatar')];
+    const baseOf = (el) => el.shadowRoot.querySelector('[part="base"]');
+    for (const el of avatars) {
+      const cs = getComputedStyle(baseOf(el));
+      await expect(contrastRatio(cs.color, cs.backgroundColor)).toBeGreaterThanOrEqual(4.5);
+    }
+    await expect(relLuminance(getComputedStyle(baseOf(avatars[3])).color)).toBeLessThan(0.05); // warning → chữ tối
+    await expect(relLuminance(getComputedStyle(baseOf(avatars[6])).color)).toBeGreaterThan(0.9); // nền #0f172a → chữ trắng
+  },
 };
 
 /**

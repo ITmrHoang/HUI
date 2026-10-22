@@ -715,7 +715,7 @@ class HuiUpload extends HuiFormElement {
         f._ownUrl = f.thumbUrl;
       }
     }
-    await import('../hui-lightbox/hui-lightbox.js');
+    await import('../hui-lightbox/index.js');
     if (!this._lightbox) {
       this._lightbox = createElement('hui-lightbox', { 'no-download': '' });
       this.shadowRoot.append(this._lightbox);

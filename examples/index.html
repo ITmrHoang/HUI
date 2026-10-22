@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUI — Các trang mẫu</title>
+  <script>
+    try { const m = localStorage.getItem('hui-theme'); if (m === 'light' || m === 'dark') document.documentElement.dataset.theme = m; } catch {}
+  </script>
+  <style>
+    html, body { margin: 0; }
+    body { font-family: var(--hui-font-family); background: var(--hui-bg); color: var(--hui-text); }
+    :not(:defined) { visibility: hidden; }
+    .logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.1rem; color: var(--hui-text); text-decoration: none; }
+    .logo-mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 14px;
+      background: linear-gradient(135deg, var(--hui-primary), var(--hui-secondary)); }
+    .intro { max-width: 1120px; margin: 0 auto; padding: 40px 24px 8px; }
+    .intro h1 { margin: 0 0 8px; font-size: clamp(1.6rem, 3.5vw, 2.4rem); }
+    .intro p { margin: 0; color: var(--hui-text-secondary); max-width: 70ch; line-height: 1.6; }
+    .intro a { color: var(--hui-primary); }
+    main { max-width: 1120px; margin: 0 auto; padding: 24px 24px 64px; }
+    .group { margin: 0 0 12px; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--hui-text-tertiary); }
+    hui-card-grid + .group { margin-top: 36px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+    footer { padding: 32px 16px; text-align: center; color: var(--hui-text-tertiary); border-top: 1px solid var(--hui-border-secondary); font-size: 14px; }
+    @media (max-width: 640px) { .intro, main { padding-left: 16px; padding-right: 16px; } }
+  </style>
+  <script type="module">
+    import '../src/index.js';
+
+    // Ảnh bìa SVG cho từng trang (data-URI, không dùng mạng)
+    const cover = (hue, label) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">`
+      + `<stop offset="0" stop-color="hsl(${hue} 72% 60%)"/><stop offset="1" stop-color="hsl(${(hue + 50) % 360} 62% 34%)"/></linearGradient></defs>`
+      + `<rect width="640" height="360" fill="url(#g)"/><rect x="48" y="48" width="544" height="264" rx="16" fill="rgba(255,255,255,.14)"/>`
+      + `<rect x="72" y="76" width="180" height="16" rx="8" fill="rgba(255,255,255,.7)"/><rect x="72" y="108" width="300" height="10" rx="5" fill="rgba(255,255,255,.45)"/>`
+      + `<rect x="72" y="140" width="150" height="120" rx="10" fill="rgba(255,255,255,.3)"/><rect x="238" y="140" width="150" height="120" rx="10" fill="rgba(255,255,255,.3)"/><rect x="404" y="140" width="150" height="120" rx="10" fill="rgba(255,255,255,.3)"/>`
+      + `<text x="592" y="300" text-anchor="end" font-family="system-ui,sans-serif" font-weight="700" font-size="34" fill="#fff">${label}</text></svg>`)}`;
+
+    const PAGES = {
+      apps: [
+        { href: './kanban.html', title: 'Bảng Kanban', hue: 250, badge: 'Mới', description: 'Kéo thả thẻ (chuột + bàn phím), sửa tại chỗ, bảng lệnh Ctrl+K, phím tắt, thanh lọc.',
+          tags: ['hui-kanban', 'hui-editable', 'hui-command-palette', 'hui-hotkey', 'hui-filter-bar'] },
+        { href: './table.html', title: 'Bảng dữ liệu nhân sự', hue: 210, badge: 'Mới', description: 'Bảng server mode (fetch giả lập), chọn dòng, lọc cột, lọc ngày, cây phòng ban, transfer trong modal.',
+          tags: ['hui-table', 'hui-range-picker', 'hui-date-picker', 'hui-tree', 'hui-transfer'] },
+        { href: './admin.html', title: 'Trang quản trị', hue: 230, description: 'Layout có sider, menu, thống kê, danh sách, drawer, notification, modal xác nhận.',
+          tags: ['hui-layout', 'hui-menu', 'hui-list', 'hui-drawer'] },
+        { href: './dashboard.html', title: 'Dashboard', hue: 190, description: 'KPI, biểu đồ mini, bảng dữ liệu, tiến độ.',
+          tags: ['hui-kpi-row', 'hui-chart', 'hui-data-view'] },
+      ],
+      sites: [
+        { href: './ecommerce.html', title: 'Trang sản phẩm', hue: 25, badge: 'Mới', description: 'Ảnh phóng to, chọn màu / size, giá, số lượng, thêm vào giỏ (ảnh bay), đánh giá, giỏ hàng + mã giảm giá.',
+          tags: ['hui-image-zoom', 'hui-variant-picker', 'hui-add-to-cart', 'hui-cart-drawer', 'hui-review-list'] },
+        { href: './blog.html', title: 'Blog', hue: 160, badge: 'Mới', description: 'Bài viết với mục lục, code block, thanh tiến độ đọc, cảm xúc, chia sẻ, bình luận dạng timeline, danh sách bài.',
+          tags: ['hui-prose', 'hui-toc', 'hui-code-block', 'hui-timeline-feed', 'hui-data-view'] },
+        { href: './catalog.html', title: 'Danh mục sản phẩm', hue: 340, description: 'Lưới sản phẩm, lọc, sắp xếp, phân trang.',
+          tags: ['hui-card-grid', 'hui-product-card'] },
+        { href: './landing.html', title: 'Landing page', hue: 280, description: 'Hero, tính năng, bảng giá, FAQ, hiệu ứng khi cuộn.',
+          tags: ['hui-section', 'hui-faq', 'hui-navbar'] },
+        { href: './story.html', title: 'Cuộn từng bước', hue: 120, description: 'Kể chuyện bằng scroll, reveal, parallax.',
+          tags: ['hui-scroll-steps', 'hui-reveal'] },
+        { href: './auth.html', title: 'Đăng nhập / Đăng ký', hue: 300, description: 'Form native, validate, OTP, độ mạnh mật khẩu.',
+          tags: ['hui-form', 'hui-input', 'hui-otp-input'] },
+      ],
+    };
+
+    function card(p) {
+      const el = document.createElement('hui-media-card');
+      Object.assign(el, { image: cover(p.hue, p.title), title: p.title, description: p.description, href: p.href, headingLevel: 2 });
+      if (p.badge) el.badge = p.badge;
+      const tags = document.createElement('div');
+      tags.className = 'tags';
+      for (const t of p.tags) {
+        const tag = document.createElement('hui-tag');
+        tag.setAttribute('size', 'sm');
+        tag.textContent = t;
+        tags.append(tag);
+      }
+      el.append(tags);
+      return el;
+    }
+    document.querySelector('#apps').replaceChildren(...PAGES.apps.map(card));
+    document.querySelector('#sites').replaceChildren(...PAGES.sites.map(card));
+  </script>
+</head>
+<body>
+  <hui-navbar sticky>
+    <a slot="logo" class="logo" href="./index.html"><span class="logo-mark" aria-hidden="true">H</span>H-UI Examples</a>
+    <hui-space slot="actions">
+      <hui-theme-toggle></hui-theme-toggle>
+    </hui-space>
+  </hui-navbar>
+
+  <header class="intro">
+    <h1>Trang mẫu dựng bằng H-UI</h1>
+    <p>Mỗi trang là HTML thuần + các thẻ <code>hui-*</code>, chạy được trên điện thoại, có giao diện sáng / tối.
+      Mở mã nguồn trang (Ctrl+U) để xem cách ghép component. Tài liệu đầy đủ ở
+      <a href="https://itmrhoang.github.io/h-ui/">Storybook</a>.</p>
+  </header>
+
+  <main>
+    <h2 class="group">Ứng dụng</h2>
+    <hui-card-grid id="apps" min-card-width="260" gap="lg" label="Trang mẫu ứng dụng"></hui-card-grid>
+    <h2 class="group">Website</h2>
+    <hui-card-grid id="sites" min-card-width="260" gap="lg" label="Trang mẫu website"></hui-card-grid>
+  </main>
+
+  <footer>H-UI — thư viện Web Components zero-dependency · MIT</footer>
+</body>
+</html>

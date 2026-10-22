@@ -18,15 +18,12 @@ import { inView } from '../../utils/scroll.js';
 import { runAnimation, animationsDisabled } from '../../utils/animate.js';
 import { processRows, parseList } from './data-view-query.js';
 import { createCell, createHeaderCell } from './data-view-table.js';
+import { ensureElement, renderLazyStateView } from './lazy-elements.js';
 import '../hui-icon/hui-icon.js';
-import '../hui-input/index.js';
-import '../hui-select/index.js';
-import '../hui-tag/index.js';
-import '../hui-pagination/index.js';
-import '../hui-checkbox/index.js';
 import '../hui-button/index.js';
 import '../hui-empty/index.js';
-import '../hui-result/index.js';
+// Tải động khi dùng tới: hui-input (search), hui-select (sort-options), hui-tag (filters / cột tag),
+// hui-checkbox (selectable), hui-pagination (nhiều hơn 1 trang), hui-result (lỗi), hui-avatar / hui-progress (cột bảng)
 
 // Icon chế độ xem (menu / grid / table) nằm trong bộ icon chung (hui-icon/icons.js)
 
@@ -472,6 +469,12 @@ class HuiDataView extends DataController(HuiElement) {
     }
     this._base.classList.toggle('dv--striped', this.striped);
     this._base.classList.toggle('dv--no-animation', this.noAnimation);
+
+    // Control chỉ cần khi bật tùy chọn tương ứng → tải động (thẻ đã tạo sẵn tự upgrade khi định nghĩa xong)
+    if (this.search) ensureElement('hui-input');
+    if (Array.isArray(this.sortOptions) && this.sortOptions.length) ensureElement('hui-select');
+    if (Array.isArray(this.filters) && this.filters.length) ensureElement('hui-tag');
+    if (this.selectable) ensureElement('hui-checkbox');
 
     this._renderAll();
   }
@@ -986,8 +989,8 @@ class HuiDataView extends DataController(HuiElement) {
       if (this.emptyText) empty.setAttribute('description', this.emptyText);
       el.replaceChildren(empty);
     } else {
-      this.renderStateView(el); // error: hui-result + nút Thử lại (DataController)
       el.hidden = false;
+      renderLazyStateView(this, el); // error: hui-result (tải động) + nút Thử lại (DataController)
     }
   }
 
@@ -1334,6 +1337,8 @@ class HuiDataView extends DataController(HuiElement) {
 
     this._pager.hidden = !(paging === 'pagination' && active);
     if (!this._pager.hidden) {
+      // hide-on-single-page: chỉ 1 trang thì pagination tự ẩn → chưa cần tải
+      if (vis.pagerTotal > size) ensureElement('hui-pagination');
       this._pager.total = vis.pagerTotal;
       this._pager.pageSize = size;
       this._pager.current = this._state.page;
