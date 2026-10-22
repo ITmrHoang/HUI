@@ -149,7 +149,8 @@ export const ValueChange = {
     // Bản đọc cho trình đọc màn hình đổi ngay, phần hiển thị đếm dần
     await waitFor(() => expect(srText(el)).toBe('1.000'));
     await waitFor(() => expect(shown(el)).toBe('1.000'), { timeout: 3000 });
-    await expect(ended).toBe(1);
+    // Chữ làm tròn chạm '1.000' vài khung trước khung cuối (khung phát hui-count-end) → chờ sự kiện
+    await waitFor(() => expect(ended).toBe(1), { timeout: 3000 });
   },
 };
 

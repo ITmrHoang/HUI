@@ -78,7 +78,9 @@ export const Default = {
       await expect(c.inert).toBe(true);
     }
     await expect(partOf(mq, 'base').getAttribute('role')).toBe('region');
-    await waitFor(() => expect(mq.running).toBe(true));
+    // Con trỏ còn đè lên story (pause-on-hover) sẽ giữ trạng thái dừng → rời con trỏ trước khi chờ chạy
+    mq.dispatchEvent(new PointerEvent('pointerleave'));
+    await waitFor(() => expect(mq.running, `visibility=${document.visibilityState}`).toBe(true), { timeout: 3000 });
     const track = partOf(mq, 'track');
     await expect(getComputedStyle(track).animationName).toBe('hui-marquee-x');
     // Quãng dịch = đúng 1 bộ item + gap → vòng lặp liền mạch

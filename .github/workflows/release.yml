@@ -56,11 +56,11 @@ jobs:
       - name: Version PR hoặc phát hành
         uses: changesets/action@v2
         with:
-          version: npm run version-packages
-          publish: ${{ steps.npm-auth.outputs.publish }}
-          title: 'chore: version packages'
-          commit: 'chore: version packages'
-          createGithubReleases: true
+          version-script: npm run version-packages
+          publish-script: ${{ steps.npm-auth.outputs.publish }}
+          pr-title: 'chore: version packages'
+          commit-message: 'chore: version packages'
+          create-github-releases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Chỉ cần khi CHƯA cấu hình Trusted Publishing trên npmjs.com (vd lần đăng đầu tiên)
