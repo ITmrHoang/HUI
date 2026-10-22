@@ -54,7 +54,7 @@ jobs:
           fi
 
       - name: Version PR hoặc phát hành
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           version: npm run version-packages
           publish: ${{ steps.npm-auth.outputs.publish }}
